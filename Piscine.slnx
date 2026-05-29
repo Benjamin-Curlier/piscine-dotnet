@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/Piscine.Cli/Piscine.Cli.csproj" />
     <Project Path="src/Piscine.Core/Piscine.Core.csproj" />
   </Folder>
   <Folder Name="/tests/">
