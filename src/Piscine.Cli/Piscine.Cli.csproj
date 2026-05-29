@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
+    <ProjectReference Include="..\Piscine.Grading\Piscine.Grading.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
