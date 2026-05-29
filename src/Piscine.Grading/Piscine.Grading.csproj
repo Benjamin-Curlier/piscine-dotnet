@@ -15,6 +15,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- xunit.core est utilisé pour COMPILER/exécuter les tests cachés des recrues,
+         pas pour tester ce projet : empêcher `dotnet test` de le traiter comme un projet de tests. -->
+    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
 </Project>
