@@ -1,2 +1,8 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Piscine.Core/Piscine.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Piscine.Core.Tests/Piscine.Core.Tests.csproj" />
+  </Folder>
 </Solution>
