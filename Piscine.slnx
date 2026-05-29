@@ -2,6 +2,8 @@
   <Folder Name="/src/">
     <Project Path="src/Piscine.Cli/Piscine.Cli.csproj" />
     <Project Path="src/Piscine.Core/Piscine.Core.csproj" />
+    <Project Path="src/Piscine.Git/Piscine.Git.csproj" />
+    <Project Path="src/Piscine.Grading/Piscine.Grading.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Piscine.Core.Tests/Piscine.Core.Tests.csproj" />
