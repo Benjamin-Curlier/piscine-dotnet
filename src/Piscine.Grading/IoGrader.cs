@@ -20,9 +20,9 @@ public sealed class IoGrader : IGrader
 
     public string Type => "io";
 
-    public GraderResult Grade(IReadOnlyDictionary<string, string> sources, GradingStep step)
+    public GraderResult Grade(GradingContext context, GradingStep step)
     {
-        var compilation = CompilationService.Compile(sources, OutputKind.ConsoleApplication);
+        var compilation = CompilationService.Compile(context.Sources, OutputKind.ConsoleApplication);
         if (!compilation.Success)
         {
             var messages = new List<string> { "Le programme ne compile pas :" };

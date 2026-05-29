@@ -16,7 +16,7 @@ public sealed class ExerciseGrader
         }
     }
 
-    public ExerciseGradingResult Grade(ExerciseManifest manifest, IReadOnlyDictionary<string, string> sources)
+    public ExerciseGradingResult Grade(ExerciseManifest manifest, GradingContext context)
     {
         var results = new List<GraderResult>();
 
@@ -24,7 +24,7 @@ public sealed class ExerciseGrader
         {
             if (_graders.TryGetValue(step.Type, out var grader))
             {
-                results.Add(grader.Grade(sources, step));
+                results.Add(grader.Grade(context, step));
             }
         }
 

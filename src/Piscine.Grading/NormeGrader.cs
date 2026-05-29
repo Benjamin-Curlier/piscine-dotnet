@@ -13,11 +13,11 @@ public sealed class NormeGrader : IGrader
 {
     public string Type => "norme";
 
-    public GraderResult Grade(IReadOnlyDictionary<string, string> sources, GradingStep step)
+    public GraderResult Grade(GradingContext context, GradingStep step)
     {
         var messages = new List<string>();
 
-        foreach (var (fileName, source) in sources)
+        foreach (var (fileName, source) in context.Sources)
         {
             if (!IsCanonical(source))
             {

@@ -34,7 +34,7 @@ public class ExerciseGraderTests
             ["Hello.cs"] = "System.Console.Write(\"Hello, Piscine!\");"
         };
 
-        var result = Grader().Grade(Manifest(), sources);
+        var result = Grader().Grade(Manifest(), new GradingContext(sources));
 
         Assert.Equal("ex00-hello", result.ExerciseId);
         Assert.Equal(GraderStatus.Reussi, result.Status);
@@ -49,7 +49,7 @@ public class ExerciseGraderTests
             ["Hello.cs"] = "System.Console.Write(\"Nope\");"
         };
 
-        var result = Grader().Grade(Manifest(), sources);
+        var result = Grader().Grade(Manifest(), new GradingContext(sources));
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
     }
@@ -63,7 +63,7 @@ public class ExerciseGraderTests
             Grading = { new GradingStep { Type = "unit", TestFiles = { "grader/Tests.cs" } } }
         };
 
-        var result = Grader().Grade(manifest, new Dictionary<string, string>());
+        var result = Grader().Grade(manifest, new GradingContext(new Dictionary<string, string>()));
 
         // 'unit' n'est pas encore enregistré (It.3) : aucune étape corrigée → Reussi par défaut.
         Assert.Empty(result.Results);

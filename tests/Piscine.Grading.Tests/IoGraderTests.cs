@@ -26,7 +26,7 @@ public class IoGraderTests
                 """
         };
 
-        var result = new IoGrader().Grade(sources, IoStep("Hello, Piscine!"));
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("Hello, Piscine!"));
 
         Assert.Equal(GraderStatus.Reussi, result.Status);
     }
@@ -41,7 +41,7 @@ public class IoGraderTests
                 """
         };
 
-        var result = new IoGrader().Grade(sources, IoStep("Hello, Piscine!"));
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("Hello, Piscine!"));
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.NotEmpty(result.Messages);
@@ -55,7 +55,7 @@ public class IoGraderTests
             ["Bad.cs"] = "ceci ne compile pas"
         };
 
-        var result = new IoGrader().Grade(sources, IoStep("peu importe"));
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("peu importe"));
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Contains(result.Messages, m => m.Contains("compil", System.StringComparison.OrdinalIgnoreCase));
