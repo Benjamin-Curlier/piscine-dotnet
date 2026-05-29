@@ -3,8 +3,8 @@ using System.Collections.Generic;
 namespace Piscine.Core.Model;
 
 /// <summary>
-/// Sous-ensemble structurel d'un exercice, désérialisé depuis <c>manifest.yaml</c>.
-/// Les sections grading/feedback/constraints sont ajoutées à l'It.2.
+/// Un exercice désérialisé depuis <c>manifest.yaml</c>.
+/// La section <c>constraints</c> sera ajoutée quand elle sera appliquée.
 /// </summary>
 public sealed class ExerciseManifest
 {
@@ -17,4 +17,8 @@ public sealed class ExerciseManifest
     public List<string> Deliverables { get; set; } = new();
 
     public List<string> Starter { get; set; } = new();
+
+    public List<GradingStep> Grading { get; set; } = new();
+
+    public FeedbackConfig Feedback { get; set; } = new();
 }
