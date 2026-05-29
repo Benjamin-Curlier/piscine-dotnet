@@ -278,25 +278,29 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
 
 ## 8. Plan d'itérations (séquentiel)
 
-Les tâches détaillées de chaque itération sont définies au début de l'itération.
+Les tâches détaillées de chaque itération sont définies au début de l'itération, dans un plan d'implémentation dédié sous `docs/superpowers/plans/`.
 
-### Phase plateforme
+> **Note de numérotation :** l'It. 2 (Moulinette) a été scindée en cours de route en deux itérations (compile+io+norme, puis unit+orchestration), ce qui a décalé la suite. La liste ci-dessous reflète l'état réel.
 
-- **It. 0 — Bootstrap** : solution, squelette des 4 projets, `.editorconfig`, `ci.yml` (build+test), README + guide contributeur. *Vérif : CI verte.*
-- **It. 1 — Core** : parsing `module.yaml`/`manifest.yaml`, découverte de contenu, store de progression. *Vérif : tests.*
-- **It. 2 — Moulinette** : moteur Roslyn + graders `io`/`unit`/`norme` en exécution isolée. *Vérif : tests sur exos fixtures.*
-- **It. 3 — Git** : `init` workspace + bare remote + hook `post-receive` + `grade-received`, MinGit bundlé. *Vérif : push→grade de bout en bout.*
-- **It. 4 — CLI UX** : menu d'accueil, `start`/`check`, affichage progression + feedback éducatif. *Vérif : boucle complète utilisable.*
-- **It. 5 — Packaging** : `release.yml`, zips self-contained par OS, `validate-content` en gate. *Vérif : 1er zip téléchargeable.*
-- **It. 6 — Module 00** (Setup & Git) complet : 1er vrai module, dogfood du système entier avec le parcours recrue réel.
+### Avancement (au 2026-05-29)
 
-### Phase contenu
+- **It. 0 — Bootstrap** ✅ — solution, 4 projets, `.editorconfig`, `ci.yml`, README + guide contributeur.
+- **It. 1 — Core** ✅ — parsing `module.yaml`/`manifest.yaml`, `ContentDiscovery`, `ProgressStore`.
+- **It. 2 — Moulinette (partie 1)** ✅ — compilation Roslyn + graders `io` et `norme` (exécution in-process isolée).
+- **It. 3 — Grader unit + orchestration** ✅ — grader `unit` (xUnit réflexif), `GroupGrader` (séquentiel, stop au 1er KO), `ProgressRecorder`.
+- **It. 4 — CLI UX** ✅ — commandes `list`/`start`/`check`/`status`, assemblage disque, feedback éducatif, persistance progression.
 
-- **It. 7+** : 1 (ou 2) module(s) par itération dans l'ordre du curriculum (M01→M14 puis M15→M23), + les Rushes à leurs checkpoints. Chaque itération = `cours.md` + exercices + graders + corrigés, validés par la CI.
+### Itérations restantes (séquentielles)
+
+- **It. 5 — Git** : `Piscine.Git` (LibGit2Sharp) — `init` (workspace + bare remote `origin` + hook `post-receive`) + `grade-received <sha>` (checkout → `GroupGrader` → feedback + progression), MinGit bundlé (Windows). *Vérif : `git push`→moulinette de bout en bout.*
+- **It. 6 — Packaging & mise en œuvre** : `release.yml`, zips self-contained par OS, `validate-content` en gate, **doc de mise en œuvre** (voir §10). Gérer le cas single-file pour `TRUSTED_PLATFORM_ASSEMBLIES`. *Vérif : 1er zip téléchargeable + installable d'après la doc.*
+- **It. 7 — Wiki GitHub** : documentation projet dans le wiki du dépôt (voir §10).
+- **It. 8 — Module 00 (Setup & Git) complet** : 1er vrai module, dogfood du système entier avec le parcours recrue réel.
+- **It. 9+ — Contenu** : 1 (ou 2) module(s) par itération dans l'ordre du curriculum (M01→M14 puis M15→M23), + les Rushes à leurs checkpoints. Chaque itération = `cours.md` + exercices + graders + corrigés, validés par la CI.
 
 ### Point d'attention GitHub
 
-À l'It. 0, création du repo sur le GitHub du propriétaire + push via `gh`. **L'accès (`gh auth login` / token) sera demandé au propriétaire** plutôt que contourné.
+Repo créé sur le GitHub du propriétaire (`Benjamin-Curlier/piscine-dotnet`, privé) ; `gh` est authentifié (scopes `repo`+`workflow`). L'accès reste à demander au propriétaire plutôt qu'à contourner si besoin.
 
 ---
 
@@ -307,3 +311,31 @@ Les tâches détaillées de chaque itération sont définies au début de l'ité
 - Frameworks web (ASP.NET, Blazor) — hors objectif « C# pur ».
 - Graders `type: custom` compilés (prévu mais post-v1).
 - Multi-langue (français uniquement en v1).
+
+---
+
+## 10. Documentation (livrables dédiés)
+
+Deux documentations distinctes, en plus du `README.md` et du guide contributeur (`docs/contributing/`).
+
+### 10.1 Doc de mise en œuvre — préparation du PC de la personne onboardée (It. 6)
+
+Guide pas-à-pas, versionné dans le dépôt (`docs/mise-en-oeuvre.md`), destiné à **préparer la machine de la recrue** et à démarrer la piscine. À écrire à l'It. 6 (le flux d'installation dépend du zip produit). Contenu attendu :
+
+- **Prérequis réels** : aucun SDK .NET à installer (binaire self-contained) ; git portable (MinGit) fourni dans le zip Windows ; sous Linux/macOS, git généralement déjà présent (sinon une ligne d'installation).
+- **Installation** : télécharger le zip de la dernière release correspondant à l'OS, dézipper dans un dossier, (Windows : éventuelle exception SmartScreen / déblocage du binaire), lancer `piscine` / `piscine.exe`.
+- **Premier lancement** : `piscine init` (workspace + dépôt bare local + hook), vérification que `git` bundlé répond, puis `piscine start <premier-exo>`.
+- **Boucle de travail** : `piscine check` (itération rapide) puis rendu officiel par `git add/commit/push`.
+- **Dépannage** : antivirus/permissions, chemins, variables d'environnement (`PISCINE_HOME`, `PISCINE_CONTENT`), réinitialisation.
+- **Côté encadrant** : check-list de préparation poste + remise du zip à la recrue.
+
+### 10.2 Wiki GitHub (It. 7)
+
+Documentation projet hébergée dans le **wiki GitHub** du dépôt (dépôt git séparé `Benjamin-Curlier/piscine-dotnet.wiki.git`, édité en local puis poussé). Public visé : encadrants et contributeurs. Pages attendues :
+
+- **Accueil / vue d'ensemble** : objectif de la piscine, philosophie (retour éducatif, pas de note), liens.
+- **Fonctionnement de la moulinette** : compilation Roslyn, graders `io`/`unit`/`norme`, correction séquentielle par groupe (stop au 1er KO), progression.
+- **Workflow de rendu** : dépôt bare local, hook `post-receive`, `check` vs `git push`.
+- **Ajouter un exercice / un module** : reprise et approfondissement de `docs/contributing/`, format `manifest.yaml`/`module.yaml`, `validate-content`.
+- **Curriculum** : carte des modules et Rushes, références externes.
+- **Mise en œuvre** : lien vers la doc §10.1.
