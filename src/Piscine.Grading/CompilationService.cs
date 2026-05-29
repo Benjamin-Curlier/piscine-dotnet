@@ -39,14 +39,24 @@ public static class CompilationService
     public static CompilationResult Compile(
         IReadOnlyDictionary<string, string> sources,
         OutputKind outputKind,
-        string assemblyName = "Submission")
+        string assemblyName = "Submission",
+        IEnumerable<string>? additionalReferences = null)
     {
         var syntaxTrees = sources
             .Select(kv => CSharpSyntaxTree.ParseText(kv.Value, path: kv.Key))
             .ToList();
 
+        var references = new List<MetadataReference>(References.Value);
+        if (additionalReferences is not null)
+        {
+            foreach (var path in additionalReferences)
+            {
+                references.Add(MetadataReference.CreateFromFile(path));
+            }
+        }
+
         var options = new CSharpCompilationOptions(outputKind);
-        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, References.Value, options);
+        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references, options);
 
         using var ms = new MemoryStream();
         var emit = compilation.Emit(ms);
