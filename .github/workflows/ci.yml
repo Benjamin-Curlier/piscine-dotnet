@@ -25,3 +25,8 @@ jobs:
 
       - name: Test
         run: dotnet test Piscine.slnx --configuration Release --no-build --verbosity normal
+
+      - name: Validate content
+        run: dotnet run --project src/Piscine.Cli --configuration Release --no-restore -- validate-content
+        env:
+          PISCINE_CONTENT: ${{ github.workspace }}/content

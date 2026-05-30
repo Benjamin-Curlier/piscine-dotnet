@@ -1,6 +1,7 @@
 using System.Reflection;
 using Piscine.Core;
 using Piscine.Core.Content;
+using Piscine.Git;
 using Piscine.Grading;
 
 var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
@@ -24,9 +25,18 @@ switch (command)
         Status(version, layout);
         return 0;
 
+    case "init":
+        return Init(layout);
+
+    case "grade-received":
+        return GradeReceived(layout, args);
+
+    case "validate-content":
+        return ValidateContent(layout);
+
     default:
         Console.WriteLine($"Commande inconnue : {command}");
-        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status");
+        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status | init | grade-received <sha> | validate-content");
         return 64;
 }
 
@@ -93,6 +103,48 @@ static int Check(PiscineLayout layout, string[] args)
     }
 
     var result = new CheckCommand(layout, Graders.Default()).Run(args[1]);
+    Console.WriteLine(result.Output);
+    return result.ExitCode;
+}
+
+static int ValidateContent(PiscineLayout layout)
+{
+    var report = new ContentValidator(Graders.Default()).Validate(layout);
+    if (report.IsValid)
+    {
+        Console.WriteLine("Contenu valide.");
+        return 0;
+    }
+
+    foreach (var issue in report.Issues)
+    {
+        Console.WriteLine($"[{issue.ExerciseId}] {issue.Message}");
+    }
+
+    Console.WriteLine($"{report.Issues.Count} problème(s) de contenu.");
+    return 1;
+}
+
+static int Init(PiscineLayout layout)
+{
+    var exe = Environment.ProcessPath ?? "piscine";
+    GitWorkspace.Initialize(layout, exe);
+    Console.WriteLine("Piscine initialisée.");
+    Console.WriteLine($"  workspace : {layout.WorkspaceRoot}");
+    Console.WriteLine($"  origin    : {layout.RemoteRepoPath}");
+    Console.WriteLine("Travaille dans le workspace, puis : git add/commit/push origin main");
+    return 0;
+}
+
+static int GradeReceived(PiscineLayout layout, string[] args)
+{
+    if (args.Length < 2)
+    {
+        Console.WriteLine("Usage : piscine grade-received <sha>");
+        return 64;
+    }
+
+    var result = new GradeReceivedCommand(layout, Graders.Default()).Run(args[1]);
     Console.WriteLine(result.Output);
     return result.ExitCode;
 }
