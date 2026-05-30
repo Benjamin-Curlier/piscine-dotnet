@@ -21,6 +21,11 @@ dotnet test Piscine.slnx
 dotnet run --project src/Piscine.Cli
 ```
 
+## Documentation (encadrants & contributeurs)
+
+Le wiki du projet est versionné dans le dépôt : **[docs/wiki/Home.md](docs/wiki/Home.md)**
+(fonctionnement de la moulinette, workflow de rendu, ajouter un exercice, curriculum, mise en œuvre).
+
 ## Structure
 
 - `src/` : application (`Piscine.Cli`) et bibliothèques (`Core`, `Grading`, `Git`).
