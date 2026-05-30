@@ -1,0 +1,23 @@
+id: ex00-animal
+title: "Le cri des animaux"
+objective: "Définir une hiérarchie Animal → Chien/Chat avec une méthode redéfinie (virtual/override)."
+deliverables: [Animal.cs]
+starter: [Animal.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nchien\nchat\nchien\n"
+        expect_stdout: "Wouf\nMiaou\nWouf\n"
+        expect_exit: 0
+      - stdin: "1\nchat\n"
+        expect_stdout: "Miaou\n"
+        expect_exit: 0
+      - stdin: "2\nchien\nchien\n"
+        expect_stdout: "Wouf\nWouf\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Base Animal { virtual string Cri(); } ; Chien/Chat font override Cri() => \"Wouf\"/\"Miaou\"."
+  course_ref: "cours.md#animal"
+solution: [Animal.cs]

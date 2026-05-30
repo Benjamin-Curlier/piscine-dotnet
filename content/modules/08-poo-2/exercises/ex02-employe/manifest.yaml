@@ -1,0 +1,23 @@
+id: ex02-employe
+title: "Masse salariale"
+objective: "Définir une classe abstraite Employe avec une méthode abstraite SalaireMensuel()."
+deliverables: [Employe.cs]
+starter: [Employe.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2000\n1500\n500\n"
+        expect_stdout: "4000\n"
+        expect_exit: 0
+      - stdin: "1800\n1000\n200\n"
+        expect_stdout: "3000\n"
+        expect_exit: 0
+      - stdin: "2500\n2500\n0\n"
+        expect_stdout: "5000\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "abstract class Employe { public abstract int SalaireMensuel(); } ; commercial => base + commission."
+  course_ref: "cours.md#employe"
+solution: [Employe.cs]

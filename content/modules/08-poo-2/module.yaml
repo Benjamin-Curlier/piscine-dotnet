@@ -1,0 +1,8 @@
+id: 08-poo-2
+title: "POO 2 — Héritage & polymorphisme"
+order: 8
+course: cours.md
+groups:
+  - id: heritage-polymorphisme
+    title: "Héritage & polymorphisme"
+    exercises: [ex00-animal, ex01-forme, ex02-employe]
