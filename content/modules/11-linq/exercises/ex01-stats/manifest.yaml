@@ -1,0 +1,23 @@
+id: ex01-stats
+title: "Statistiques"
+objective: "Calculer somme, min, max et moyenne avec les agrégats LINQ."
+deliverables: [Stats.cs]
+starter: [Stats.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1 2 3 4\n"
+        expect_stdout: "Somme: 10\nMin: 1\nMax: 4\nMoyenne: 2\n"
+        expect_exit: 0
+      - stdin: "5 5 5\n"
+        expect_stdout: "Somme: 15\nMin: 5\nMax: 5\nMoyenne: 5\n"
+        expect_exit: 0
+      - stdin: "10 20\n"
+        expect_stdout: "Somme: 30\nMin: 10\nMax: 20\nMoyenne: 15\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Parse en int[] (.ToArray()), puis .Sum(), .Min(), .Max() et (int)nombres.Average() pour tronquer la moyenne."
+  course_ref: "cours.md#aggregation"
+solution: [Stats.cs]

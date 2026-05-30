@@ -1,0 +1,23 @@
+id: ex00-pairs-doubles
+title: "Pairs doublés"
+objective: "Filtrer (Where) et projeter (Select) avec LINQ."
+deliverables: [PairsDoubles.cs]
+starter: [PairsDoubles.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1 2 3 4 5 6\n"
+        expect_stdout: "4 8 12\n"
+        expect_exit: 0
+      - stdin: "10 15 20\n"
+        expect_stdout: "20 40\n"
+        expect_exit: 0
+      - stdin: "7 8\n"
+        expect_stdout: "16\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Garde les pairs avec Where(x => x % 2 == 0), double avec Select(x => x * 2), puis string.Join(\" \", ...)."
+  course_ref: "cours.md#where-select"
+solution: [PairsDoubles.cs]

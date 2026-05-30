@@ -1,0 +1,8 @@
+id: 11-linq
+title: "LINQ — Requêtes sur les collections"
+order: 11
+course: cours.md
+groups:
+  - id: requetes-linq
+    title: "Requêtes LINQ"
+    exercises: [ex00-pairs-doubles, ex01-stats, ex02-frequence-tri]

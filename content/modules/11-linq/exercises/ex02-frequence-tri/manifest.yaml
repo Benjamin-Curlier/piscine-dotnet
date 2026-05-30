@@ -1,0 +1,23 @@
+id: ex02-frequence-tri
+title: "Fréquence triée"
+objective: "Regrouper (GroupBy) et trier par fréquence décroissante puis ordre alphabétique."
+deliverables: [Frequence.cs]
+starter: [Frequence.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "pomme poire pomme banane poire pomme\n"
+        expect_stdout: "pomme: 3\npoire: 2\nbanane: 1\n"
+        expect_exit: 0
+      - stdin: "a b a\n"
+        expect_stdout: "a: 2\nb: 1\n"
+        expect_exit: 0
+      - stdin: "x\n"
+        expect_stdout: "x: 1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "GroupBy(m => m), puis Select(g => new { Mot = g.Key, Compte = g.Count() }), puis OrderByDescending(x => x.Compte).ThenBy(x => x.Mot)."
+  course_ref: "cours.md#groupby"
+solution: [Frequence.cs]
