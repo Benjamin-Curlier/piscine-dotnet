@@ -7,6 +7,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Piscine.Core.Tests/Piscine.Core.Tests.csproj" />
+    <Project Path="tests/Piscine.Git.Tests/Piscine.Git.Tests.csproj" />
     <Project Path="tests/Piscine.Grading.Tests/Piscine.Grading.Tests.csproj" />
   </Folder>
 </Solution>

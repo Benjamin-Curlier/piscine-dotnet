@@ -26,4 +26,12 @@ public class PiscineLayoutTests
             Path.Combine("/ws", "00-setup", "ex00"),
             layout.WorkspaceExerciseDir("00-setup", "ex00"));
     }
+
+    [Fact]
+    public void RemoteRepoPath_IsUnderStateDir()
+    {
+        var layout = new PiscineLayout("/c", "/ws", "/home/.state");
+
+        Assert.Equal(Path.Combine("/home/.state", "remote.git"), layout.RemoteRepoPath);
+    }
 }

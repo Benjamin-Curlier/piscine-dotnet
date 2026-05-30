@@ -23,6 +23,9 @@ public sealed class PiscineLayout
 
     public string ProgressPath => Path.Combine(StateDir, "progress.json");
 
+    /// <summary>Dépôt bare local servant d'« origin » (le « GitLab » de la piscine).</summary>
+    public string RemoteRepoPath => Path.Combine(StateDir, "remote.git");
+
     public string WorkspaceExerciseDir(string moduleId, string exerciseId) =>
         Path.Combine(WorkspaceRoot, moduleId, exerciseId);
 
