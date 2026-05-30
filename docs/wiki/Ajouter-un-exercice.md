@@ -64,7 +64,10 @@ Voir [Moulinette](Moulinette) pour le détail des graders `io` / `unit` / `norme
 
 ## Étapes
 
-1. Créer le dossier de l'exercice (copier un exercice existant comme gabarit).
+1. **Générer le squelette** : `piscine new exercise <module> <id>` (ex. `piscine new exercise 02-boucles ex03-puissance`).
+   La commande crée le dossier de l'exercice avec un `manifest.yaml` `io` pré-rempli (TODO à compléter),
+   un `subject.md`, et `starter/` + `solution/` contenant le livrable déduit de l'id
+   (`ex03-puissance` → `Puissance.cs`). Le module ciblé doit déjà exister.
 2. Renseigner `manifest.yaml` et `subject.md` (l'énoncé).
 3. Placer les fichiers fournis dans `starter/`, les tests cachés dans `grader/`, le **corrigé** dans
    `solution/` (convention : `solution/<livrable>` pour chaque `deliverable`).

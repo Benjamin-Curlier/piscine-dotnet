@@ -37,9 +37,12 @@ switch (command)
     case "package-content":
         return PackageContent(args);
 
+    case "new":
+        return New(layout, args);
+
     default:
         Console.WriteLine($"Commande inconnue : {command}");
-        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest>");
+        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest> | new exercise <module> <id>");
         return 64;
 }
 
@@ -121,6 +124,36 @@ static int PackageContent(string[] args)
     ContentPackager.CopyWithoutSolutions(args[1], args[2]);
     Console.WriteLine($"Contenu empaqueté (sans solution/) → {args[2]}");
     return 0;
+}
+
+static int New(PiscineLayout layout, string[] args)
+{
+    if (args.Length < 4 || args[1] != "exercise")
+    {
+        Console.WriteLine("Usage : piscine new exercise <module> <id>");
+        Console.WriteLine("Exemple : piscine new exercise 02-boucles ex03-puissance");
+        return 64;
+    }
+
+    var modulesRoot = layout.Content.ModulesDirectory;
+    var moduleId = args[2];
+    var exerciseId = args[3];
+
+    try
+    {
+        var dir = ExerciseScaffolder.Create(modulesRoot, moduleId, exerciseId);
+        Console.WriteLine($"Exercice créé : {dir}");
+        Console.WriteLine("Étapes suivantes :");
+        Console.WriteLine("  1. Remplis manifest.yaml (cases stdin/expect_stdout), subject.md, starter/ et solution/.");
+        Console.WriteLine($"  2. Ajoute '{exerciseId}' à un groupe dans {System.IO.Path.Combine(modulesRoot, moduleId, "module.yaml")}.");
+        Console.WriteLine("  3. Vérifie avec : piscine validate-content");
+        return 0;
+    }
+    catch (Exception ex) when (ex is System.IO.DirectoryNotFoundException or System.IO.IOException)
+    {
+        Console.WriteLine(ex.Message);
+        return 2;
+    }
 }
 
 static int ValidateContent(PiscineLayout layout)
