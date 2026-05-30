@@ -1,0 +1,8 @@
+id: 07-poo-1
+title: "POO 1 — Classes & objets"
+order: 7
+course: cours.md
+groups:
+  - id: classes-objets
+    title: "Classes & objets"
+    exercises: [ex00-rectangle, ex01-personne, ex02-compte]

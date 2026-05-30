@@ -1,0 +1,23 @@
+id: ex02-compte
+title: "Compte bancaire"
+objective: "Encapsuler un solde derrière des opérations sûres (dépôt, retrait contrôlé)."
+deliverables: [Compte.cs]
+starter: [Compte.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "100\n50\n30\n"
+        expect_stdout: "120\n"
+        expect_exit: 0
+      - stdin: "100\n0\n200\n"
+        expect_stdout: "100\n"
+        expect_exit: 0
+      - stdin: "0\n100\n100\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Champ private _solde, constructeur, Deposer (+=), Retirer (-= seulement si montant <= solde)."
+  course_ref: "cours.md#compte"
+solution: [Compte.cs]

@@ -1,0 +1,20 @@
+id: ex01-personne
+title: "Personne"
+objective: "Définir une classe Personne avec des propriétés et une méthode de présentation."
+deliverables: [Personne.cs]
+starter: [Personne.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice\n30\n"
+        expect_stdout: "Je m'appelle Alice, j'ai 30 ans.\n"
+        expect_exit: 0
+      - stdin: "Bob\n25\n"
+        expect_stdout: "Je m'appelle Bob, j'ai 25 ans.\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Classe Personne { Nom; Age; string SePresenter() => $\"Je m'appelle {Nom}, j'ai {Age} ans.\"; }."
+  course_ref: "cours.md#personne"
+solution: [Personne.cs]

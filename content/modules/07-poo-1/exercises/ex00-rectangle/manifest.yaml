@@ -1,0 +1,23 @@
+id: ex00-rectangle
+title: "Rectangle"
+objective: "Définir une classe Rectangle avec des propriétés et une méthode Aire()."
+deliverables: [Rectangle.cs]
+starter: [Rectangle.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n4\n"
+        expect_stdout: "12\n"
+        expect_exit: 0
+      - stdin: "5\n5\n"
+        expect_stdout: "25\n"
+        expect_exit: 0
+      - stdin: "10\n1\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Une classe Rectangle { Largeur; Hauteur; int Aire() => Largeur * Hauteur; }."
+  course_ref: "cours.md#rectangle"
+solution: [Rectangle.cs]
