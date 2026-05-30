@@ -1,0 +1,23 @@
+id: ex01-deserialiser
+title: "Désérialiser une personne"
+objective: "Reconstruire un objet Personne à partir d'une ligne JSON avec JsonSerializer.Deserialize<T>."
+deliverables: [Deserialiser.cs]
+starter: [Deserialiser.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "{\"Nom\":\"Alice\",\"Age\":30}\n"
+        expect_stdout: "Nom: Alice, Age: 30\n"
+        expect_exit: 0
+      - stdin: "{\"Nom\":\"Bob\",\"Age\":25}\n"
+        expect_stdout: "Nom: Bob, Age: 25\n"
+        expect_exit: 0
+      - stdin: "{\"Nom\":\"Eve\",\"Age\":0}\n"
+        expect_stdout: "Nom: Eve, Age: 0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis la ligne JSON, puis var p = JsonSerializer.Deserialize<Personne>(ligne); et affiche $\"Nom: {p!.Nom}, Age: {p.Age}\". Les noms JSON (Nom/Age) doivent correspondre aux propriétés."
+  course_ref: "cours.md#deserialiser"
+solution: [Deserialiser.cs]

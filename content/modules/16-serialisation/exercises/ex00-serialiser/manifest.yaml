@@ -1,0 +1,23 @@
+id: ex00-serialiser
+title: "Sérialiser une personne"
+objective: "Construire un objet Personne et le convertir en JSON avec JsonSerializer.Serialize."
+deliverables: [Serialiser.cs]
+starter: [Serialiser.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice\n30\n"
+        expect_stdout: "{\"Nom\":\"Alice\",\"Age\":30}\n"
+        expect_exit: 0
+      - stdin: "Bob\n25\n"
+        expect_stdout: "{\"Nom\":\"Bob\",\"Age\":25}\n"
+        expect_exit: 0
+      - stdin: "Eve\n0\n"
+        expect_stdout: "{\"Nom\":\"Eve\",\"Age\":0}\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Crée new Personne { Nom = ..., Age = ... } puis JsonSerializer.Serialize(p). System.Text.Json garde l'ordre de déclaration (Nom avant Age) et le PascalCase."
+  course_ref: "cours.md#serialiser"
+solution: [Serialiser.cs]

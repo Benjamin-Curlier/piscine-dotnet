@@ -1,0 +1,23 @@
+id: ex02-liste-json
+title: "Une liste en tableau JSON"
+objective: "Construire une List<string> et la sérialiser en tableau JSON avec JsonSerializer.Serialize."
+deliverables: [ListeJson.cs]
+starter: [ListeJson.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\na\nb\nc\n"
+        expect_stdout: "[\"a\",\"b\",\"c\"]\n"
+        expect_exit: 0
+      - stdin: "1\nx\n"
+        expect_stdout: "[\"x\"]\n"
+        expect_exit: 0
+      - stdin: "2\nhi\nbye\n"
+        expect_stdout: "[\"hi\",\"bye\"]\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis N, remplis une List<string> dans une boucle for, puis JsonSerializer.Serialize(liste). Une liste devient un tableau JSON [\"a\",\"b\"]."
+  course_ref: "cours.md#listes"
+solution: [ListeJson.cs]

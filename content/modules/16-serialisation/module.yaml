@@ -1,0 +1,8 @@
+id: 16-serialisation
+title: "Sérialisation — System.Text.Json"
+order: 16
+course: cours.md
+groups:
+  - id: json
+    title: "JSON avec System.Text.Json"
+    exercises: [ex00-serialiser, ex01-deserialiser, ex02-liste-json]
