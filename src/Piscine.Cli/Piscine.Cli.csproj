@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
     <ProjectReference Include="..\Piscine.Grading\Piscine.Grading.csproj" />
+    <ProjectReference Include="..\Piscine.Git\Piscine.Git.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
