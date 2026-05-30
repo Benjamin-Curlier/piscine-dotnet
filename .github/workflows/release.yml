@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  MINGIT_VERSION: 2.47.1
+  MINGIT_TAG: v2.47.1.windows.1
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Assembler le contenu (sans solution/)
+        run: dotnet run --project src/Piscine.Cli --configuration Release -- package-content content artifacts/content
+
+      - name: Publier, empaqueter, zipper par OS
+        run: |
+          set -euo pipefail
+          mkdir -p dist artifacts/pkg
+          curl -sL "https://github.com/git-for-windows/git/releases/download/${MINGIT_TAG}/MinGit-${MINGIT_VERSION}-64-bit.zip" -o mingit.zip
+          for rid in linux-x64 win-x64 osx-arm64; do
+            out="artifacts/pkg/piscine-$rid"
+            dotnet publish src/Piscine.Cli --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
+            cp -r artifacts/content "$out/content"
+            if [ "$rid" = "win-x64" ]; then
+              mkdir -p "$out/mingit"
+              unzip -q mingit.zip -d "$out/mingit"
+              cp build/launchers/start-piscine.cmd "$out/start-piscine.cmd"
+            fi
+            ( cd artifacts/pkg && zip -qr "$GITHUB_WORKSPACE/dist/piscine-${{ github.ref_name }}-$rid.zip" "piscine-$rid" )
+          done
+          ls -lh dist
+
+      - name: Créer la GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" dist/*.zip \
+            --title "Piscine .NET ${{ github.ref_name }}" \
+            --notes "Binaires self-contained par OS (win-x64, linux-x64, osx-arm64). Dézippe, lis docs/mise-en-oeuvre.md."
