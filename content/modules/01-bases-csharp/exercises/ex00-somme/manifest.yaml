@@ -1,0 +1,20 @@
+id: ex00-somme
+title: "Somme"
+objective: "Lire deux entiers sur l'entrée standard et afficher leur somme."
+deliverables: [Somme.cs]
+starter: [Somme.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n4\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      - stdin: "10\n-2\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Convertis chaque ligne avec int.Parse, puis affiche a + b."
+  course_ref: "cours.md#somme"
+solution: [Somme.cs]

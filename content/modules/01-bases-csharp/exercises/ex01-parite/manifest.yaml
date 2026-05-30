@@ -1,0 +1,23 @@
+id: ex01-parite
+title: "Parité"
+objective: "Déterminer si un entier lu sur l'entrée standard est pair ou impair."
+deliverables: [Parite.cs]
+starter: [Parite.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "4\n"
+        expect_stdout: "pair\n"
+        expect_exit: 0
+      - stdin: "7\n"
+        expect_stdout: "impair\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "pair\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Un entier est pair si n % 2 == 0. Affiche 'pair' ou 'impair'."
+  course_ref: "cours.md#parite"
+solution: [Parite.cs]

@@ -1,0 +1,8 @@
+id: 01-bases-csharp
+title: "Bases C#"
+order: 1
+course: cours.md
+groups:
+  - id: variables-conditions
+    title: "Variables & conditions"
+    exercises: [ex00-somme, ex01-parite, ex02-maximum]
