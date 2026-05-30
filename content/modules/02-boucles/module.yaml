@@ -1,0 +1,8 @@
+id: 02-boucles
+title: "Boucles"
+order: 2
+course: cours.md
+groups:
+  - id: iteration
+    title: "Itération"
+    exercises: [ex00-compte-rebours, ex01-table, ex02-somme-n]

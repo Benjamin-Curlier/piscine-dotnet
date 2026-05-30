@@ -1,0 +1,23 @@
+id: ex02-somme-n
+title: "Somme de 1 à N"
+objective: "Calculer et afficher la somme de tous les entiers de 1 à N."
+deliverables: [SommeN.cs]
+starter: [SommeN.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "15\n"
+        expect_exit: 0
+      - stdin: "10\n"
+        expect_stdout: "55\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Un accumulateur initialisé à 0 avant la boucle, puis somme += i de 1 à N."
+  course_ref: "cours.md#somme-n"
+solution: [SommeN.cs]

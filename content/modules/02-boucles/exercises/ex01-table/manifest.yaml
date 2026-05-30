@@ -1,0 +1,20 @@
+id: ex01-table
+title: "Table de multiplication"
+objective: "Afficher la table de multiplication d'un entier, de 1 à 10."
+deliverables: [Table.cs]
+starter: [Table.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\n"
+        expect_stdout: "1 x 2 = 2\n2 x 2 = 4\n3 x 2 = 6\n4 x 2 = 8\n5 x 2 = 10\n6 x 2 = 12\n7 x 2 = 14\n8 x 2 = 16\n9 x 2 = 18\n10 x 2 = 20\n"
+        expect_exit: 0
+      - stdin: "5\n"
+        expect_stdout: "1 x 5 = 5\n2 x 5 = 10\n3 x 5 = 15\n4 x 5 = 20\n5 x 5 = 25\n6 x 5 = 30\n7 x 5 = 35\n8 x 5 = 40\n9 x 5 = 45\n10 x 5 = 50\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Une boucle for de 1 à 10. Affiche chaque ligne au format exact : i x N = (i * N)."
+  course_ref: "cours.md#table"
+solution: [Table.cs]

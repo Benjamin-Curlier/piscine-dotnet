@@ -1,0 +1,23 @@
+id: ex00-compte-rebours
+title: "Compte à rebours"
+objective: "Afficher un compte à rebours de N à 1, un nombre par ligne."
+deliverables: [CompteRebours.cs]
+starter: [CompteRebours.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n"
+        expect_stdout: "3\n2\n1\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "5\n"
+        expect_stdout: "5\n4\n3\n2\n1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Une boucle for décroissante : pars de N et descends jusqu'à 1 (i--)."
+  course_ref: "cours.md#compte-rebours"
+solution: [CompteRebours.cs]
