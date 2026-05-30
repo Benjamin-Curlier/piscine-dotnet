@@ -1,0 +1,20 @@
+id: ex01-salutation
+title: "Salutation"
+objective: "Lire un prénom sur l'entrée standard et saluer la personne."
+deliverables: [Salutation.cs]
+starter: [Salutation.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice\n"
+        expect_stdout: "Bonjour, Alice!\n"
+        expect_exit: 0
+      - stdin: "Bob\n"
+        expect_stdout: "Bonjour, Bob!\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis le prénom avec Console.ReadLine(), puis affiche 'Bonjour, <prénom>!'."
+  course_ref: "cours.md#lire-l-entree"
+solution: [Salutation.cs]

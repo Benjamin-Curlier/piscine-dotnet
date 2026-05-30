@@ -1,0 +1,8 @@
+id: 00-setup-git
+title: "Mise en place & premiers pas Git"
+order: 0
+course: cours.md
+groups:
+  - id: premiers-pas
+    title: "Premiers pas"
+    exercises: [ex00-hello, ex01-salutation]

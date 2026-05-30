@@ -1,0 +1,16 @@
+id: ex00-hello
+title: "Hello, Piscine"
+objective: "Afficher un message précis sur la sortie standard."
+deliverables: [Hello.cs]
+starter: [Hello.cs]
+grading:
+  - type: io
+    cases:
+      - expect_stdout: "Hello, Piscine!\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Vérifie la casse, la virgule, le '!' et le retour à la ligne final."
+  course_ref: "cours.md#hello-world"
+solution: [Hello.cs]
