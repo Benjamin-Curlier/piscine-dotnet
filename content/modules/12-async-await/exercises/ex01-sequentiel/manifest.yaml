@@ -1,0 +1,23 @@
+id: ex01-sequentiel
+title: "Carrés en séquence"
+objective: "Attendre plusieurs tâches asynchrones une par une dans une boucle (séquentiel)."
+deliverables: [Sequentiel.cs]
+starter: [Sequentiel.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n2\n3\n4\n"
+        expect_stdout: "4\n9\n16\n"
+        expect_exit: 0
+      - stdin: "1\n5\n"
+        expect_stdout: "25\n"
+        expect_exit: 0
+      - stdin: "2\n1\n10\n"
+        expect_stdout: "1\n100\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Boucle for de 0 à N : à chaque tour, var c = await CarreAsync(n); puis affiche c, dans l'ordre."
+  course_ref: "cours.md#sequentiel"
+solution: [Sequentiel.cs]

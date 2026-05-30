@@ -1,0 +1,23 @@
+id: ex00-attente
+title: "Doubler en asynchrone"
+objective: "Écrire et attendre une méthode async Task<int> avec await Task.Delay."
+deliverables: [Attente.cs]
+starter: [Attente.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "7\n"
+        expect_stdout: "14\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Définis static async Task<int> DoublerAsync(int x) { await Task.Delay(1); return x * 2; } puis affiche await DoublerAsync(n)."
+  course_ref: "cours.md#await"
+solution: [Attente.cs]

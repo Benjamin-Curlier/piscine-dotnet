@@ -1,0 +1,23 @@
+id: ex02-whenall
+title: "Carrés en parallèle (WhenAll)"
+objective: "Lancer plusieurs tâches sans les attendre, puis toutes les attendre avec Task.WhenAll."
+deliverables: [WhenAll.cs]
+starter: [WhenAll.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n2\n3\n4\n"
+        expect_stdout: "4\n9\n16\n"
+        expect_exit: 0
+      - stdin: "2\n5\n6\n"
+        expect_stdout: "25\n36\n"
+        expect_exit: 0
+      - stdin: "1\n7\n"
+        expect_stdout: "49\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Remplis var tasks = new Task<int>[n]; sans await, puis var resultats = await Task.WhenAll(tasks); et affiche chaque élément dans l'ordre."
+  course_ref: "cours.md#whenall"
+solution: [WhenAll.cs]

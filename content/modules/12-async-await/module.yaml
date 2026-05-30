@@ -1,0 +1,8 @@
+id: 12-async-await
+title: "Async/await — Programmation asynchrone"
+order: 12
+course: cours.md
+groups:
+  - id: async-await
+    title: "Async/await"
+    exercises: [ex00-attente, ex01-sequentiel, ex02-whenall]
