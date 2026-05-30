@@ -1,0 +1,26 @@
+id: r0-fizzbuzz
+title: "FizzBuzz"
+objective: "Projet de synthèse : afficher la suite FizzBuzz de 1 à N (boucles, conditions, modulo, I/O)."
+deliverables: [FizzBuzz.cs]
+starter: [FizzBuzz.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "1\n2\nFizz\n4\nBuzz\n"
+        expect_exit: 0
+      - stdin: "3\n"
+        expect_stdout: "1\n2\nFizz\n"
+        expect_exit: 0
+      - stdin: "15\n"
+        expect_stdout: "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Teste le multiple de 15 (Fizz ET Buzz) AVANT 3 et 5, sinon FizzBuzz n'apparaît jamais."
+  course_ref: "subject.md"
+solution: [FizzBuzz.cs]

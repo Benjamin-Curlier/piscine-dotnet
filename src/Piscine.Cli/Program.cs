@@ -67,6 +67,16 @@ static void ListModules(PiscineLayout layout)
             }
         }
     }
+
+    var rushes = ContentDiscovery.DiscoverRushes(layout.Content);
+    if (rushes.Count > 0)
+    {
+        Console.WriteLine("# Rushes (projets de synthèse)");
+        foreach (var rush in rushes)
+        {
+            Console.WriteLine($"    - {rush.Id} — {rush.Title}");
+        }
+    }
 }
 
 static int Start(PiscineLayout layout, string[] args)

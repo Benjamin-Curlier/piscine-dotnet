@@ -70,6 +70,30 @@ public sealed class GradeReceivedCommand
                 }
             }
 
+            // Rushes : projets autonomes, notés indépendamment (pas de stop-au-1er-KO de groupe).
+            foreach (var rush in ContentDiscovery.DiscoverRushes(_layout.Content))
+            {
+                var location = ContentLocator.FindExercise(_layout.Content, rush.Id);
+                if (location is null)
+                {
+                    continue;
+                }
+
+                var submittedDir = Path.Combine(snapshot, ContentLocator.RushesModuleId, rush.Id);
+                if (!Directory.Exists(submittedDir))
+                {
+                    continue;
+                }
+
+                var submission = SubmissionLoader.Load(location.ContentDir, submittedDir);
+                if (submission.IsEmpty)
+                {
+                    continue;
+                }
+
+                allResults.AddRange(groupGrader.GradeGroup(new List<ExerciseSubmission> { submission }));
+            }
+
             return Persist(allResults);
         }
         finally

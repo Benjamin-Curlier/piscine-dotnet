@@ -84,4 +84,42 @@ public class GradeReceivedCommandTests
         Assert.Contains("À revoir", result.Output);
         Assert.Contains("cours.md#hello", result.Output);
     }
+
+    [Fact]
+    public void Run_GradesRush_PushedUnderRushesDir()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("content", "rushes", "r0-demo", "manifest.yaml"), """
+            id: r0-demo
+            deliverables: [Demo.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            feedback:
+              course_ref: "subject.md"
+            """);
+        var layout = new PiscineLayout(dir.Combine("content"), dir.Combine("ws"), dir.Combine("state"));
+
+        Repository.Init(layout.RemoteRepoPath, isBare: true);
+        var workPath = dir.Combine("clone");
+        Repository.Clone(layout.RemoteRepoPath, workPath);
+        var file = Path.Combine(workPath, "rushes", "r0-demo", "Demo.cs");
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, "System.Console.Write(\"ok\");");
+        using var repo = new Repository(workPath);
+        Commands.Stage(repo, "*");
+        var sig = new Signature("recrue", "r@piscine", DateTimeOffset.Now);
+        var commit = repo.Commit("rush", sig, sig);
+        var branch = repo.Head.FriendlyName;
+        repo.Network.Push(repo.Network.Remotes["origin"], $"refs/heads/{branch}:refs/heads/{branch}", new PushOptions());
+
+        var result = new GradeReceivedCommand(layout, Graders.Default()).Run(commit.Sha);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Réussi", result.Output);
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.Equal(ExerciseStatus.Reussi, progress.Exercises["r0-demo"].Status);
+    }
 }

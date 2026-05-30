@@ -23,4 +23,24 @@ public static class ContentDiscovery
             .ThenBy(m => m.Id, System.StringComparer.Ordinal)
             .ToList();
     }
+
+    /// <summary>Découvre les Rushes sous <c>content/rushes</c>, triés par id (r0, r1, …).</summary>
+    public static IReadOnlyList<Rush> DiscoverRushes(PiscinePaths paths)
+    {
+        var rushesDir = paths.RushesDirectory;
+        if (!Directory.Exists(rushesDir))
+        {
+            return new List<Rush>();
+        }
+
+        return Directory.EnumerateDirectories(rushesDir)
+            .Where(d => File.Exists(Path.Combine(d, ExerciseManifestLoader.FileName)))
+            .Select(d =>
+            {
+                var manifest = ExerciseManifestLoader.Load(d);
+                return new Rush(manifest.Id, manifest.Title, d);
+            })
+            .OrderBy(r => r.Id, System.StringComparer.Ordinal)
+            .ToList();
+    }
 }

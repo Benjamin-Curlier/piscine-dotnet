@@ -45,6 +45,12 @@ public sealed class ContentValidator
             }
         }
 
+        // Les Rushes sont des livrables autonomes : on valide aussi leur corrigé.
+        foreach (var rush in ContentDiscovery.DiscoverRushes(layout.Content))
+        {
+            ValidateExercise(layout, rush.Id, issues);
+        }
+
         return new ContentValidationReport(issues);
     }
 

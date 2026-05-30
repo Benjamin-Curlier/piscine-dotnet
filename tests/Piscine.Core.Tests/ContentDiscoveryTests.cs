@@ -43,4 +43,37 @@ public class ContentDiscoveryTests
 
         Assert.Empty(modules);
     }
+
+    [Fact]
+    public void DiscoverRushes_ReturnsRushesSortedById()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("rushes", "r1-inventaire", "manifest.yaml"), """
+            id: r1-inventaire
+            title: "Inventaire"
+            """);
+        dir.WriteFile(Path.Combine("rushes", "r0-fizzbuzz", "manifest.yaml"), """
+            id: r0-fizzbuzz
+            title: "FizzBuzz"
+            """);
+        // Dossier parasite sans manifest : ignoré.
+        Directory.CreateDirectory(dir.Combine(Path.Combine("rushes", "_brouillon")));
+
+        var rushes = ContentDiscovery.DiscoverRushes(new PiscinePaths(dir.Path)).ToList();
+
+        Assert.Equal(2, rushes.Count);
+        Assert.Equal("r0-fizzbuzz", rushes[0].Id);
+        Assert.Equal("FizzBuzz", rushes[0].Title);
+        Assert.Equal("r1-inventaire", rushes[1].Id);
+    }
+
+    [Fact]
+    public void DiscoverRushes_ReturnsEmptyWhenRushesDirectoryMissing()
+    {
+        using var dir = new TempDir();
+
+        var rushes = ContentDiscovery.DiscoverRushes(new PiscinePaths(dir.Path));
+
+        Assert.Empty(rushes);
+    }
 }

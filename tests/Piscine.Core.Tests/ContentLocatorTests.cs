@@ -32,4 +32,18 @@ public class ContentLocatorTests
 
         Assert.Null(location);
     }
+
+    [Fact]
+    public void FindExercise_FindsRush_UnderRushesModuleId()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("rushes", "r0-fizzbuzz", "manifest.yaml"), "id: r0-fizzbuzz\n");
+
+        var location = ContentLocator.FindExercise(new PiscinePaths(dir.Path), "r0-fizzbuzz");
+
+        Assert.NotNull(location);
+        Assert.Equal(ContentLocator.RushesModuleId, location!.ModuleId);
+        Assert.Equal("r0-fizzbuzz", location.ExerciseId);
+        Assert.True(File.Exists(Path.Combine(location.ContentDir, "manifest.yaml")));
+    }
 }
