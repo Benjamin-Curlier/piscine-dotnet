@@ -1,0 +1,23 @@
+id: ex00-somme-tableau
+title: "Somme d'un tableau"
+objective: "Additionner une liste de nombres séparés par des espaces sur une seule ligne."
+deliverables: [SommeTableau.cs]
+starter: [SommeTableau.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1 2 3 4\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      - stdin: "10 -2 5\n"
+        expect_stdout: "13\n"
+        expect_exit: 0
+      - stdin: "42\n"
+        expect_stdout: "42\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Split(' ') donne un tableau ; parcours-le, int.Parse chaque morceau, accumule."
+  course_ref: "cours.md#somme-tableau"
+solution: [SommeTableau.cs]

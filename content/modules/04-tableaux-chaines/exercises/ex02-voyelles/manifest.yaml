@@ -1,0 +1,26 @@
+id: ex02-voyelles
+title: "Compter les voyelles"
+objective: "Compter le nombre de voyelles (a e i o u) d'un mot, majuscules comprises."
+deliverables: [Voyelles.cs]
+starter: [Voyelles.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "bonjour\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "Piscine\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "xyz\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "AEIOU\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Parcours chaque caractère ; teste si char.ToLower(c) est dans \"aeiou\"."
+  course_ref: "cours.md#voyelles"
+solution: [Voyelles.cs]

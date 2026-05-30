@@ -1,0 +1,23 @@
+id: ex01-inverser
+title: "Inverser une chaîne"
+objective: "Afficher une chaîne de caractères à l'envers."
+deliverables: [Inverser.cs]
+starter: [Inverser.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "hello\n"
+        expect_stdout: "olleh\n"
+        expect_exit: 0
+      - stdin: "Piscine\n"
+        expect_stdout: "enicsiP\n"
+        expect_exit: 0
+      - stdin: "a\n"
+        expect_stdout: "a\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "ToCharArray() puis System.Array.Reverse(...) puis new string(...)."
+  course_ref: "cours.md#inverser"
+solution: [Inverser.cs]
