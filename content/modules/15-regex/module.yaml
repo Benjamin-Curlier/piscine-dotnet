@@ -1,0 +1,8 @@
+id: 15-regex
+title: "Regex — Expressions régulières"
+order: 15
+course: cours.md
+groups:
+  - id: regex
+    title: "Expressions régulières"
+    exercises: [ex00-correspond, ex01-extraire, ex02-email]

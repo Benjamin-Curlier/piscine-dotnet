@@ -1,0 +1,23 @@
+id: ex02-email
+title: "Email valide ?"
+objective: "Reconnaître un email simple avec Regex.IsMatch et le motif ^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$."
+deliverables: [Email.cs]
+starter: [Email.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nuser@mail.com\nbad\na@b.c\n"
+        expect_stdout: "valide\ninvalide\nvalide\n"
+        expect_exit: 0
+      - stdin: "1\nx@y.z\n"
+        expect_stdout: "valide\n"
+        expect_exit: 0
+      - stdin: "2\n@no.com\nok@ok.fr\n"
+        expect_stdout: "invalide\nvalide\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Regex.IsMatch(ligne, @\"^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$\") ? \"valide\" : \"invalide\". [^@\\s]+ = au moins un caractère qui n'est ni @ ni espace."
+  course_ref: "cours.md#email"
+solution: [Email.cs]

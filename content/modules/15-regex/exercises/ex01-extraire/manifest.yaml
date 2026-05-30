@@ -1,0 +1,23 @@
+id: ex01-extraire
+title: "Extraire les nombres"
+objective: "Extraire tous les groupes de chiffres d'une ligne avec Regex.Matches et Match.Value."
+deliverables: [Extraire.cs]
+starter: [Extraire.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "abc123def45\n"
+        expect_stdout: "123\n45\n"
+        expect_exit: 0
+      - stdin: "x9y\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+      - stdin: "a1b2c3\n"
+        expect_stdout: "1\n2\n3\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "foreach (Match m in Regex.Matches(ligne, @\"\\d+\")) System.Console.WriteLine(m.Value); — un nombre par ligne."
+  course_ref: "cours.md#extraire"
+solution: [Extraire.cs]

@@ -1,0 +1,23 @@
+id: ex00-correspond
+title: "Que des chiffres ?"
+objective: "Valider chaque ligne avec Regex.IsMatch et le motif ^\\d+$ (oui/non)."
+deliverables: [Correspond.cs]
+starter: [Correspond.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n123\nabc\n45a\n"
+        expect_stdout: "oui\nnon\nnon\n"
+        expect_exit: 0
+      - stdin: "1\n999\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
+      - stdin: "2\nhello\n42\n"
+        expect_stdout: "non\noui\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Utilise Regex.IsMatch(ligne, @\"^\\d+$\") ? \"oui\" : \"non\". Le ^ et le $ exigent QUE des chiffres."
+  course_ref: "cours.md#correspond"
+solution: [Correspond.cs]
