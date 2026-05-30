@@ -34,9 +34,12 @@ switch (command)
     case "validate-content":
         return ValidateContent(layout);
 
+    case "package-content":
+        return PackageContent(args);
+
     default:
         Console.WriteLine($"Commande inconnue : {command}");
-        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status | init | grade-received <sha> | validate-content");
+        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest>");
         return 64;
 }
 
@@ -105,6 +108,19 @@ static int Check(PiscineLayout layout, string[] args)
     var result = new CheckCommand(layout, Graders.Default()).Run(args[1]);
     Console.WriteLine(result.Output);
     return result.ExitCode;
+}
+
+static int PackageContent(string[] args)
+{
+    if (args.Length < 3)
+    {
+        Console.WriteLine("Usage : piscine package-content <dossier-source> <dossier-destination>");
+        return 64;
+    }
+
+    ContentPackager.CopyWithoutSolutions(args[1], args[2]);
+    Console.WriteLine($"Contenu empaqueté (sans solution/) → {args[2]}");
+    return 0;
 }
 
 static int ValidateContent(PiscineLayout layout)
