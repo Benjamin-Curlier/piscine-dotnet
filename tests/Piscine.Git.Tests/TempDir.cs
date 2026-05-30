@@ -30,11 +30,22 @@ public sealed class TempDir : IDisposable
         {
             if (Directory.Exists(Path))
             {
+                // git marque ses fichiers d'objets en lecture seule (surtout sous Windows) :
+                // on lève l'attribut avant suppression, sinon Delete échoue.
+                ClearReadOnly(Path);
                 Directory.Delete(Path, recursive: true);
             }
         }
-        catch (IOException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
+        }
+    }
+
+    private static void ClearReadOnly(string root)
+    {
+        foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+        {
+            File.SetAttributes(file, FileAttributes.Normal);
         }
     }
 }
