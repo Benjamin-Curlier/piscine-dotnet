@@ -1,0 +1,26 @@
+id: ex01-max3
+title: "Maximum de trois"
+objective: "Écrire une méthode Max(int, int) et la réutiliser pour trouver le plus grand de trois entiers."
+deliverables: [Max3.cs]
+starter: [Max3.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n9\n5\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+      - stdin: "10\n2\n7\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      - stdin: "1\n1\n1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "-4\n-9\n-1\n"
+        expect_stdout: "-1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Écris Max(int x, int y) puis combine : Max(a, Max(b, c))."
+  course_ref: "cours.md#max3"
+solution: [Max3.cs]

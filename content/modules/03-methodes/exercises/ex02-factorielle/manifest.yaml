@@ -1,0 +1,26 @@
+id: ex02-factorielle
+title: "Factorielle"
+objective: "Calculer la factorielle d'un entier par récursion."
+deliverables: [Factorielle.cs]
+starter: [Factorielle.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "120\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "6\n"
+        expect_stdout: "720\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Récursion : cas de base n <= 1 renvoie 1, sinon n * Factorielle(n - 1)."
+  course_ref: "cours.md#factorielle"
+solution: [Factorielle.cs]

@@ -1,0 +1,23 @@
+id: ex00-carre
+title: "Carré"
+objective: "Écrire une méthode qui renvoie le carré d'un entier lu sur l'entrée standard."
+deliverables: [Carre.cs]
+starter: [Carre.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "25\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "12\n"
+        expect_stdout: "144\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Écris une méthode int Carre(int n) => n * n, puis affiche Carre(n)."
+  course_ref: "cours.md#carre"
+solution: [Carre.cs]
