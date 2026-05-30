@@ -8,6 +8,9 @@ avec moulinette auto-correctrice locale, apprentissage du vrai **git**, et distr
 Télécharge le zip de la [dernière release](../../releases/latest), dézippe, puis lance `piscine`
 (`piscine.exe` sous Windows). Aucun SDK à installer.
 
+Guide pas-à-pas (installation, premier lancement, boucle de travail, dépannage) :
+**[docs/mise-en-oeuvre.md](docs/mise-en-oeuvre.md)**.
+
 ## Pour développer le bootcamp
 
 Pré-requis : SDK .NET 10.
