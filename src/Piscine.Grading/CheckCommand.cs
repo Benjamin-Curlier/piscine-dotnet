@@ -30,6 +30,12 @@ public sealed class CheckCommand
 
         var workspaceDir = _layout.WorkspaceExerciseDir(location.ModuleId, exerciseId);
         var submission = SubmissionLoader.Load(location.ContentDir, workspaceDir);
+
+        if (submission.IsEmpty)
+        {
+            return new CommandResult(1, ResultFormatter.EmptySubmission(exerciseId));
+        }
+
         var result = _grader.Grade(submission.Manifest, submission.Context);
 
         var store = new ProgressStore(_layout.ProgressPath);

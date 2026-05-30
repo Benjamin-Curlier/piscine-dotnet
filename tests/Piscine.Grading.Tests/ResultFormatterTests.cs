@@ -34,6 +34,16 @@ public class ResultFormatterTests
     }
 
     [Fact]
+    public void EmptySubmission_ShowsEducationalGuidance()
+    {
+        var text = ResultFormatter.EmptySubmission("ex00");
+
+        Assert.Contains("Aucun fichier rendu", text);
+        Assert.Contains("piscine start ex00", text);
+        Assert.DoesNotContain("Main", text);
+    }
+
+    [Fact]
     public void Format_NonCorrige_ShowsNotGraded()
     {
         var result = ExerciseGradingResult.NotGraded("ex02");

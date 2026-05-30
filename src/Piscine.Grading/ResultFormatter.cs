@@ -27,6 +27,19 @@ public static class ResultFormatter
         return sb.ToString().TrimEnd();
     }
 
+    /// <summary>
+    /// Message éducatif pour une soumission vide : oriente la recrue vers le démarrage de l'exercice
+    /// au lieu d'afficher une erreur de compilation cryptique.
+    /// </summary>
+    public static string EmptySubmission(string exerciseId)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"=== {exerciseId} : Aucun fichier rendu ===");
+        sb.AppendLine($"Aucun fichier rendu pour {exerciseId}.");
+        sb.AppendLine($"Commence par : piscine start {exerciseId}, puis code dans le workspace.");
+        return sb.ToString().TrimEnd();
+    }
+
     private static string Label(GraderStatus status) => status switch
     {
         GraderStatus.Reussi => "Réussi",

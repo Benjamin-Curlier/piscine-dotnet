@@ -14,4 +14,10 @@ public sealed class ExerciseSubmission
     public ExerciseManifest Manifest { get; }
 
     public GradingContext Context { get; }
+
+    /// <summary>
+    /// Soumission vide : l'exercice attend des livrables mais aucun n'a été trouvé sur le disque.
+    /// Inutile (et trompeur) de tenter la compilation dans ce cas.
+    /// </summary>
+    public bool IsEmpty => Manifest.Deliverables.Count > 0 && Context.Sources.Count == 0;
 }

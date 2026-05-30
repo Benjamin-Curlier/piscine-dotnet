@@ -54,7 +54,13 @@ public sealed class GradeReceivedCommand
                             continue; // exercice non rendu dans ce push
                         }
 
-                        submissions.Add(SubmissionLoader.Load(location.ContentDir, submittedDir));
+                        var submission = SubmissionLoader.Load(location.ContentDir, submittedDir);
+                        if (submission.IsEmpty)
+                        {
+                            continue; // dossier présent mais aucun livrable : exercice non rendu
+                        }
+
+                        submissions.Add(submission);
                     }
 
                     if (submissions.Count > 0)

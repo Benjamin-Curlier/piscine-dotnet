@@ -54,6 +54,25 @@ public class CheckCommandTests
     }
 
     [Fact]
+    public void Run_EmptyWorkspace_ReturnsEducationalMessage_WithoutCompiling()
+    {
+        using var dir = new TempDir();
+        var layout = Setup(dir, "System.Console.Write(\"ok\");");
+        // Aucun livrable rendu : on supprime le fichier déposé par Setup.
+        File.Delete(dir.Combine(Path.Combine("ws", "00-setup", "ex00", "Hello.cs")));
+
+        var result = new CheckCommand(layout, Graders.Default()).Run("ex00");
+
+        Assert.Equal(1, result.ExitCode);
+        Assert.Contains("Aucun fichier rendu", result.Output);
+        Assert.Contains("piscine start ex00", result.Output);
+        Assert.DoesNotContain("Main", result.Output);
+        // Soumission vide : la progression ne doit pas être enregistrée.
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.False(progress.Exercises.ContainsKey("ex00"));
+    }
+
+    [Fact]
     public void Run_UnknownExercise_ReturnsTwo()
     {
         using var dir = new TempDir();
