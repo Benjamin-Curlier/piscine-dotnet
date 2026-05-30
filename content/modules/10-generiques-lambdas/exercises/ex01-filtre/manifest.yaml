@@ -1,0 +1,23 @@
+id: ex01-filtre
+title: "Filtrer avec un prédicat"
+objective: "Utiliser un Func<int,bool> (lambda prédicat) pour ne garder que certaines valeurs."
+deliverables: [Filtre.cs]
+starter: [Filtre.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n1\n2\n3\n4\n5\n"
+        expect_stdout: "2\n4\n"
+        expect_exit: 0
+      - stdin: "4\n1\n2\n3\n4\n"
+        expect_stdout: "2\n4\n"
+        expect_exit: 0
+      - stdin: "3\n7\n8\n9\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Déclare Func<int, bool> estPair = x => x % 2 == 0; et n'affiche n que si estPair(n)."
+  course_ref: "cours.md#lambdas"
+solution: [Filtre.cs]

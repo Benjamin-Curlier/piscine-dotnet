@@ -1,0 +1,23 @@
+id: ex02-boite
+title: "Une boîte générique"
+objective: "Écrire une classe générique Boite<T> et l'utiliser avec plusieurs types."
+deliverables: [Boite.cs]
+starter: [Boite.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "bonjour\n42\n"
+        expect_stdout: "Boite contient: bonjour\nBoite contient: 42\n"
+        expect_exit: 0
+      - stdin: "test\n7\n"
+        expect_stdout: "Boite contient: test\nBoite contient: 7\n"
+        expect_exit: 0
+      - stdin: "abc\n0\n"
+        expect_stdout: "Boite contient: abc\nBoite contient: 0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Crée new Boite<string>(mot) et new Boite<int>(nombre), puis affiche Decrire() de chacune."
+  course_ref: "cours.md#boite"
+solution: [Boite.cs]
