@@ -1,0 +1,56 @@
+# Curriculum
+
+Le parcours va des fondamentaux C# débutant jusqu'à un palier avancé proche de la stack de
+production. **Git est tissé dans tout le parcours** (pratiqué à chaque rendu) + deux modules git
+dédiés. Le contenu est généré **progressivement** au fil des itérations.
+
+## Tronc commun
+
+| # | Module | Notions clés | Git |
+|---|---|---|---|
+| 00 | Setup & Git | installer, lancer `piscine`, hello world | clone/add/commit/push, 1er rendu |
+| 01 | Bases C# | types, variables, I/O console, opérateurs, conditions | commits atomiques |
+| 02 | Boucles | `for`/`while`/`foreach`, itération | messages de commit clairs |
+| 03 | Méthodes | paramètres, portée, retour, récursion | — |
+| 04 | Tableaux & chaînes | `array`, manipulation de `string` | `.gitignore` |
+| 05 | ★ Git intermédiaire | (dédié) | branches, merge, conflits, historique |
+| 06 | Collections | `List`, `Dictionary`, intro LINQ | — |
+| 07 | POO 1 | classes, objets, encapsulation, propriétés | — |
+| 08 | POO 2 | héritage, interfaces, polymorphisme, abstrait | — |
+| 09 | Exceptions | `try/catch`, gestion d'erreurs, `Result` | — |
+| 10 | Génériques & lambdas | `T`, délégués, `Func`/`Action` | — |
+| 11 | LINQ | requêtes, projection, agrégation | — |
+| 12 | Async/await | `Task`, asynchrone, annulation | — |
+| 13 | Tests unitaires | xUnit, écrire ses propres tests | — |
+| 14 | ★ Git avancé / collab | (dédié) | rebase, workflow MR GitLab, revue de code |
+
+## Palier avancé
+
+| # | Module | Notions clés |
+|---|---|---|
+| 15 | Regex | motifs, groupes, validation, `Regex` performant |
+| 16 | Sérialisation | `System.Text.Json`, (dé)sérialisation, converters |
+| 17 | Réflexion & attributs | `Type`, introspection, attributs custom |
+| 18 | Injection de dépendances | `Microsoft.Extensions.DependencyInjection`, durées de vie |
+| 19 | Logging | `Microsoft.Extensions.Logging`, niveaux, scopes, providers |
+| 20 | Generic Host & Worker | `HostBuilder`, `BackgroundService`, config & options |
+| 21 | Threading avancé | `Channel<T>`, producteur/consommateur, `Parallel`, synchro |
+| 22 | Réseau | sockets TCP/UDP, `HttpClient` |
+| 23 | Design patterns | GoF essentiels en C# (Strategy, Factory, Observer, Decorator…) |
+
+## Rushes (solo, projets de synthèse)
+
+- **Rush 0** (après ~M04) : programme console ludique (ASCII-art / mini-calculatrice / FizzBuzz avancé).
+- **Rush 1** (après POO, ~M08) : appli métier console (gestionnaire d'inventaire / bibliothèque).
+- **Rush 2** (après LINQ/async, ~M12) : CLI de traitement de données (parser, agréger, rapport).
+- **Rush 3** (après palier avancé) : Worker Service complet — `Channel<T>`, I/O réseau, `ILogger`, DI sous `HostBuilder`.
+
+## Cours & références externes
+
+Chaque `cours.md` : explications progressives en français + exemples + **références externes**
+(Microsoft Learn, freeCodeCamp, chaînes YouTube type Nick Chapsas / Tim Corey, docs officielles
+.NET). Ton pédagogique, jargon expliqué.
+
+> État d'avancement du contenu : voir les itérations dans
+> [docs/superpowers/plans/](https://github.com/Benjamin-Curlier/piscine-dotnet/tree/main/docs/superpowers/plans).
+> Le moteur (It.0→It.6) est livré ; le contenu des modules arrive à partir de l'It.8 (Module 00).
