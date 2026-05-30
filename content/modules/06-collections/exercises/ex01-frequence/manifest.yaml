@@ -1,0 +1,23 @@
+id: ex01-frequence
+title: "Fréquence d'un mot"
+objective: "Compter, avec un dictionnaire, combien de fois un mot cible apparaît dans une liste."
+deliverables: [Frequence.cs]
+starter: [Frequence.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "a b a c a\na\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "chat chien chat\nchien\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "x y z\nw\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Compte chaque mot dans un Dictionary<string,int> (GetValueOrDefault + 1), puis lis la cible."
+  course_ref: "cours.md#frequence"
+solution: [Frequence.cs]

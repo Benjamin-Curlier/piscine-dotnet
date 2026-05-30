@@ -1,0 +1,26 @@
+id: ex02-somme-pairs
+title: "Somme des pairs (LINQ)"
+objective: "Avec LINQ, filtrer les nombres pairs et calculer leur somme."
+deliverables: [SommePairs.cs]
+starter: [SommePairs.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1 2 3 4\n"
+        expect_stdout: "6\n"
+        expect_exit: 0
+      - stdin: "1 3 5\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "2 4 6\n"
+        expect_stdout: "12\n"
+        expect_exit: 0
+      - stdin: "10 -4 7\n"
+        expect_stdout: "6\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "using System.Linq; puis .Where(x => x % 2 == 0).Sum() sur les nombres convertis."
+  course_ref: "cours.md#somme-pairs"
+solution: [SommePairs.cs]

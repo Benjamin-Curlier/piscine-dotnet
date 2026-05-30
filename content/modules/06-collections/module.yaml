@@ -1,0 +1,8 @@
+id: 06-collections
+title: "Collections"
+order: 6
+course: cours.md
+groups:
+  - id: listes-dictionnaires
+    title: "Listes & dictionnaires"
+    exercises: [ex00-tri-liste, ex01-frequence, ex02-somme-pairs]

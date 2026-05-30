@@ -1,0 +1,23 @@
+id: ex00-tri-liste
+title: "Trier une liste"
+objective: "Lire des nombres et les afficher triés par ordre croissant, via une List."
+deliverables: [TriListe.cs]
+starter: [TriListe.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3 1 2\n"
+        expect_stdout: "1 2 3\n"
+        expect_exit: 0
+      - stdin: "5\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+      - stdin: "10 -3 7 -3\n"
+        expect_stdout: "-3 -3 7 10\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Remplis une List<int>, appelle .Sort(), puis string.Join(' ', liste)."
+  course_ref: "cours.md#tri-liste"
+solution: [TriListe.cs]
