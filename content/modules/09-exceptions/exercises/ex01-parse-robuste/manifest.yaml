@@ -1,0 +1,23 @@
+id: ex01-parse-robuste
+title: "Parse robuste"
+objective: "Attraper une FormatException ligne par ligne avec try/catch."
+deliverables: [Parse.cs]
+starter: [Parse.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n42\nabc\n7\n"
+        expect_stdout: "42\ninvalide\n7\n"
+        expect_exit: 0
+      - stdin: "1\nhello\n"
+        expect_stdout: "invalide\n"
+        expect_exit: 0
+      - stdin: "2\n-5\n10\n"
+        expect_stdout: "-5\n10\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Dans la boucle, tente int.Parse(ligne) dans un try ; en catch (FormatException) affiche \"invalide\"."
+  course_ref: "cours.md#parse"
+solution: [Parse.cs]

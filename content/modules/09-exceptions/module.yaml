@@ -1,0 +1,8 @@
+id: 09-exceptions
+title: "Exceptions — Gestion des erreurs"
+order: 9
+course: cours.md
+groups:
+  - id: gestion-erreurs
+    title: "Gestion des erreurs"
+    exercises: [ex00-division-securisee, ex01-parse-robuste, ex02-age-valide]

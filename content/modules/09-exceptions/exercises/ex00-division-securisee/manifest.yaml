@@ -1,0 +1,23 @@
+id: ex00-division-securisee
+title: "Division sécurisée"
+objective: "Gérer une DivideByZeroException avec try/catch."
+deliverables: [Division.cs]
+starter: [Division.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "10\n2\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+      - stdin: "7\n0\n"
+        expect_stdout: "Erreur: division par zero\n"
+        expect_exit: 0
+      - stdin: "9\n3\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Mets le calcul a / b dans un try, et attrape catch (DivideByZeroException) pour afficher le message d'erreur."
+  course_ref: "cours.md#division"
+solution: [Division.cs]

@@ -1,0 +1,23 @@
+id: ex02-age-valide
+title: "Age valide"
+objective: "Lever une ArgumentOutOfRangeException avec throw et l'attraper."
+deliverables: [Age.cs]
+starter: [Age.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "25\n"
+        expect_stdout: "Age: 25\n"
+        expect_exit: 0
+      - stdin: "-3\n"
+        expect_stdout: "Age invalide\n"
+        expect_exit: 0
+      - stdin: "200\n"
+        expect_stdout: "Age invalide\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Valider lève new ArgumentOutOfRangeException si age < 0 ou age > 150 ; l'appel est dans un try/catch."
+  course_ref: "cours.md#age"
+solution: [Age.cs]
