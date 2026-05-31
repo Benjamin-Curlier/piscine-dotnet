@@ -1,0 +1,24 @@
+id: ex02-record-with
+title: "Record immuable et expression with"
+objective: "Créer un record Point immuable, le copier avec l'expression with en incrémentant X, et afficher le résultat."
+difficulty: moyen
+deliverables: [RecordWith.cs]
+starter: [RecordWith.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1\n2\n"
+        expect_stdout: "(2, 2)\n"
+        expect_exit: 0
+      - stdin: "0\n0\n"
+        expect_stdout: "(1, 0)\n"
+        expect_exit: 0
+      - stdin: "5\n5\n"
+        expect_stdout: "(6, 5)\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Crée `p` puis `var p2 = p with { X = p.X + 1 };` et affiche `$\"({p2.X}, {p2.Y})\"`."
+  course_ref: "cours.md#record"
+solution: [RecordWith.cs]

@@ -1,0 +1,24 @@
+id: ex00-const
+title: "Multiplication par une constante"
+objective: "Déclarer une constante de compilation avec const et l'utiliser pour multiplier une entrée."
+difficulty: facile
+deliverables: [Const.cs]
+starter: [Const.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "50\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "7\n"
+        expect_stdout: "70\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Déclare `const int Facteur = 10;` en haut du fichier, puis affiche `n * Facteur`."
+  course_ref: "cours.md#const"
+solution: [Const.cs]

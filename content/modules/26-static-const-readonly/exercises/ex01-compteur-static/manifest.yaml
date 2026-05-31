@@ -1,0 +1,24 @@
+id: ex01-compteur-static
+title: "Compteur d'instances"
+objective: "Utiliser un champ statique pour compter le nombre d'instances créées d'une classe."
+difficulty: moyen
+deliverables: [CompteurStatic.cs]
+starter: [CompteurStatic.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "5\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "La classe Objet doit avoir `public static int Count;` et incrémenter `Count++` dans son constructeur. Accède à la valeur via `Objet.Count`."
+  course_ref: "cours.md#static"
+solution: [CompteurStatic.cs]

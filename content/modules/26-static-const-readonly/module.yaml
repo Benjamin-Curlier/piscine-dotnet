@@ -1,0 +1,8 @@
+id: 26-static-const-readonly
+title: "Static, const, readonly & immutabilité"
+order: 26
+course: cours.md
+groups:
+  - id: immutabilite
+    title: "Statique & immutabilité"
+    exercises: [ex00-const, ex01-compteur-static, ex02-record-with, ex03-readonly-struct]

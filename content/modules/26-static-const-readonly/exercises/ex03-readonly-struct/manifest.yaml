@@ -1,0 +1,25 @@
+id: ex03-readonly-struct
+title: "Norme 1 d'un readonly struct"
+objective: "Définir un readonly struct Vecteur avec une propriété Norme1 (|X| + |Y|) et afficher la norme d'un vecteur lu en entrée."
+difficulty: difficile
+bonus: true
+deliverables: [ReadonlyStruct.cs]
+starter: [ReadonlyStruct.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n4\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      - stdin: "-2\n5\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      - stdin: "0\n0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Utilise `using System;` pour `Math.Abs`. Le struct : `readonly struct Vecteur(int x, int y) { public int Norme1 => Math.Abs(x) + Math.Abs(y); }`."
+  course_ref: "cours.md#readonly-struct"
+solution: [ReadonlyStruct.cs]
