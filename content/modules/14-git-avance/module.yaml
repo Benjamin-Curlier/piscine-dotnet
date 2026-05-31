@@ -1,0 +1,8 @@
+id: 14-git-avance
+title: "Git avancé & collaboration"
+order: 14
+course: cours.md
+groups:
+  - id: lecture
+    title: "À lire et pratiquer"
+    exercises: []

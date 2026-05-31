@@ -1,0 +1,8 @@
+id: 05-git-intermediaire
+title: "Git intermédiaire"
+order: 5
+course: cours.md
+groups:
+  - id: lecture
+    title: "À lire et pratiquer"
+    exercises: []

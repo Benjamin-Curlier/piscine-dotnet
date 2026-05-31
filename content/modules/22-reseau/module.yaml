@@ -1,0 +1,8 @@
+id: 22-reseau
+title: "Réseau"
+order: 22
+course: cours.md
+groups:
+  - id: lecture
+    title: "À lire et pratiquer"
+    exercises: []
