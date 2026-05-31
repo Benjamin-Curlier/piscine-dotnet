@@ -1,0 +1,8 @@
+id: 31-refactoring
+title: "Smelly code & refactoring"
+order: 31
+course: cours.md
+groups:
+  - id: refactoring
+    title: "Sentir et corriger le code"
+    exercises: [ex00-constantes, ex01-extraire-methode, ex02-guard-clauses, ex03-switch, ex04-decomposer]

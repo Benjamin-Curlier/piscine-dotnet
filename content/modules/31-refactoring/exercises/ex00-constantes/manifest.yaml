@@ -1,0 +1,24 @@
+id: ex00-constantes
+title: "Nombres magiques → constantes nommées"
+objective: "Remplacer les nombres magiques par des constantes nommées, sans changer le comportement."
+difficulty: facile
+deliverables: [Prix.cs]
+starter: [Prix.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "200\n"
+        expect_stdout: "216\n"
+        expect_exit: 0
+      - stdin: "50\n"
+        expect_stdout: "60\n"
+        expect_exit: 0
+      - stdin: "100\n"
+        expect_stdout: "120\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Donne un nom aux 100 (seuil de remise), 10 (% remise) et 20 (% TVA). La logique reste identique : remise si prix > 100, puis TVA sur le net. Les tests doivent rester verts."
+  course_ref: "cours.md#constantes"
+solution: [Prix.cs]

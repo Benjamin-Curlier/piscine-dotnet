@@ -1,0 +1,24 @@
+id: ex03-switch
+title: "Chaîne de if → switch expression"
+objective: "Remplacer une cascade de if/else if par un switch expression concis."
+difficulty: moyen
+deliverables: [Operation.cs]
+starter: [Operation.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "add 3 4\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      - stdin: "sub 10 6\n"
+        expect_stdout: "4\n"
+        expect_exit: 0
+      - stdin: "mul 5 5\n"
+        expect_stdout: "25\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis 'op a b'. Remplace les if/else if par un switch expression : op switch { \"add\" => a + b, \"sub\" => a - b, \"mul\" => a * b, _ => 0 }."
+  course_ref: "cours.md#switch"
+solution: [Operation.cs]

@@ -1,0 +1,24 @@
+id: ex02-guard-clauses
+title: "Conditions imbriquées → clauses-gardes"
+objective: "Aplatir des if imbriqués en retours anticipés (guard clauses) plus lisibles."
+difficulty: moyen
+deliverables: [Eligibilite.cs]
+starter: [Eligibilite.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "20\n500\n"
+        expect_stdout: "OUI\n"
+        expect_exit: 0
+      - stdin: "16\n500\n"
+        expect_stdout: "NON\n"
+        expect_exit: 0
+      - stdin: "30\n-5\n"
+        expect_stdout: "NON\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Éligible si age >= 18 ET 0 <= solde <= 100000. Plutôt que d'imbriquer les if, sors tôt : if (age < 18) return false; etc. Même comportement, lecture linéaire."
+  course_ref: "cours.md#guard"
+solution: [Eligibilite.cs]

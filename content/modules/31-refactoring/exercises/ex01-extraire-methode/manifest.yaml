@@ -1,0 +1,24 @@
+id: ex01-extraire-methode
+title: "Duplication → extraire une méthode"
+objective: "Supprimer du code dupliqué en l'extrayant dans une méthode réutilisable."
+difficulty: facile
+deliverables: [Distances.cs]
+starter: [Distances.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2 5 10 3\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      - stdin: "0 0 0 0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "1 9 4 4\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Les deux calculs |x-y| sont identiques : extrais une méthode Distance(x, y) => Math.Abs(x - y) et appelle-la deux fois. Le résultat est la somme des deux distances."
+  course_ref: "cours.md#extraire"
+solution: [Distances.cs]

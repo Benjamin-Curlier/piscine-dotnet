@@ -76,7 +76,7 @@ Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis
 | 28 | Complexité (Big O) & tris | ✅ io |
 | 29 | Recherche de chemin (BFS, Dijkstra, A*) | ✅ io (+bonus) |
 | 30 | Design patterns (suite) : Singleton, Adapter, Decorator, Builder, Command | ✅ io (+bonus) |
-| 31 | Smelly code & refactoring | ⏳ à faire |
+| 31 | Smelly code & refactoring | ✅ io (+bonus) |
 | 32 | Garbage collection | ⏳ à faire (io + lecture) |
 | 33 | Discriminated unions | ⏳ à faire |
 | 34 | Interopérabilité (P/Invoke) | ⏳ à faire |

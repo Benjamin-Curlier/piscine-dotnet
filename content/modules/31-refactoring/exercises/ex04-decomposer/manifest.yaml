@@ -1,0 +1,25 @@
+id: ex04-decomposer
+title: "God function → décomposition"
+objective: "Découper une fonction qui fait tout en étapes claires (parser, calculer, formater)."
+difficulty: difficile
+bonus: true
+deliverables: [Bulletin.cs]
+starter: [Bulletin.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice,12,15,9\n"
+        expect_stdout: "Alice: 12\n"
+        expect_exit: 0
+      - stdin: "Bob,20,10\n"
+        expect_stdout: "Bob: 15\n"
+        expect_exit: 0
+      - stdin: "Zoe,5\n"
+        expect_stdout: "Zoe: 5\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Entrée 'nom,note,note,...'. Sépare en 3 méthodes : Parser (nom + tableau d'entiers), Moyenne (somme entière / nombre), Formater ('nom: moyenne'). La moyenne est une division entière."
+  course_ref: "cours.md#decomposer"
+solution: [Bulletin.cs]
