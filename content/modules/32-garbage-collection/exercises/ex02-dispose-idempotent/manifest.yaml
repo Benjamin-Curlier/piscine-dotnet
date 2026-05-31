@@ -1,0 +1,21 @@
+id: ex02-dispose-idempotent
+title: "Dispose idempotent"
+objective: "Implémenter Dispose() pour qu'un second appel n'ait aucun effet."
+difficulty: moyen
+deliverables: [Connexion.cs]
+starter: [Connexion.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "db\n"
+        expect_stdout: "ouvre db\nferme db\n"
+        expect_exit: 0
+      - stdin: "session\n"
+        expect_stdout: "ouvre session\nferme session\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Garde un booléen _ferme. Dans Dispose(), si déjà fermé, return tout de suite ; sinon marque fermé et affiche 'ferme'. Appeler Dispose() deux fois ne doit afficher 'ferme' qu'une fois."
+  course_ref: "cours.md#idempotent"
+solution: [Connexion.cs]

@@ -1,0 +1,21 @@
+id: ex01-ordre-lifo
+title: "Ordre de libération (LIFO)"
+objective: "Comprendre que plusieurs using declarations sont libérées en ordre inverse (pile)."
+difficulty: moyen
+deliverables: [Ressources.cs]
+starter: [Ressources.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "A B C\n"
+        expect_stdout: "ouvre A\nouvre B\nouvre C\ntravail\nferme C\nferme B\nferme A\n"
+        expect_exit: 0
+      - stdin: "1 2 3\n"
+        expect_stdout: "ouvre 1\nouvre 2\nouvre 3\ntravail\nferme 3\nferme 2\nferme 1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Ouvre trois ressources avec des using declarations (using var a = ...). Elles sont libérées à la fin du programme en ordre INVERSE de leur déclaration. Affiche 'travail' avant la fin de portée."
+  course_ref: "cours.md#lifo"
+solution: [Ressources.cs]

@@ -1,0 +1,8 @@
+id: 32-garbage-collection
+title: "Garbage collection & gestion des ressources"
+order: 32
+course: cours.md
+groups:
+  - id: ressources
+    title: "Libérer les ressources (IDisposable, using)"
+    exercises: [ex00-using, ex01-ordre-lifo, ex02-dispose-idempotent, ex03-using-exception, ex04-composite]

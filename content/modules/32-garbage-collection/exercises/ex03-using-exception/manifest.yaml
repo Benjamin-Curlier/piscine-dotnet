@@ -1,0 +1,21 @@
+id: ex03-using-exception
+title: "using & exception — libération garantie"
+objective: "Vérifier que using libère la ressource même quand une exception est levée."
+difficulty: moyen
+deliverables: [Transaction.cs]
+starter: [Transaction.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "t1\n"
+        expect_stdout: "ouvre t1\ndebut\nferme t1\nerreur attrapee\n"
+        expect_exit: 0
+      - stdin: "tx\n"
+        expect_stdout: "ouvre tx\ndebut\nferme tx\nerreur attrapee\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Dans un try, ouvre la ressource en using, affiche 'debut', puis lève une exception. Le catch affiche 'erreur attrapee'. La ressource est libérée ('ferme') pendant le déroulement de la pile, donc AVANT le catch."
+  course_ref: "cours.md#exception"
+solution: [Transaction.cs]

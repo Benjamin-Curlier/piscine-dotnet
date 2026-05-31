@@ -1,0 +1,25 @@
+id: ex04-composite
+title: "Propriétaire de ressources (composite)"
+objective: "Écrire un objet IDisposable qui détient et libère d'autres ressources."
+difficulty: difficile
+bonus: true
+deliverables: [Groupe.cs]
+starter: [Groupe.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "A B\n"
+        expect_stdout: "ouvre A\nouvre B\ntravail\nferme B\nferme A\n"
+        expect_exit: 0
+      - stdin: "x y z\n"
+        expect_stdout: "ouvre x\nouvre y\nouvre z\ntravail\nferme z\nferme y\nferme x\n"
+        expect_exit: 0
+      - stdin: "solo\n"
+        expect_stdout: "ouvre solo\ntravail\nferme solo\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Groupe détient une List<Ressource> et implémente IDisposable. Son Dispose() libère les ressources en ordre inverse. Place le Groupe dans un using ; ajoute chaque ressource, affiche 'travail', et la fin du using déclenche la libération."
+  course_ref: "cours.md#composite"
+solution: [Groupe.cs]

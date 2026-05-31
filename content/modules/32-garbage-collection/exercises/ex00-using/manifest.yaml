@@ -1,0 +1,21 @@
+id: ex00-using
+title: "using & Dispose — libérer une ressource"
+objective: "Utiliser un bloc using pour garantir l'appel à Dispose() à la sortie de portée."
+difficulty: facile
+deliverables: [Fichier.cs]
+starter: [Fichier.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "data\n"
+        expect_stdout: "ouvre data\nutilise data\nferme data\n"
+        expect_exit: 0
+      - stdin: "log\n"
+        expect_stdout: "ouvre log\nutilise log\nferme log\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "La classe implémente System.IDisposable : 'ouvre' dans le constructeur, 'ferme' dans Dispose(). Le bloc using appelle Dispose() automatiquement à la fin."
+  course_ref: "cours.md#using"
+solution: [Fichier.cs]

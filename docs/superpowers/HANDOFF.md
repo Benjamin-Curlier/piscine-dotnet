@@ -72,7 +72,6 @@ feedback{hints, course_ref}, solution`.
 
 ## PROCHAINES ÉTAPES (par ordre)
 **v2 — approfondissement C#/.NET (en cours, numérotation M24+).** Reste à créer (io) :
-- **M32** Garbage collection (io quand possible : Dispose/`using`, sinon lecture).
 - **M33** Discriminated unions (hiérarchie scellée `abstract record` + `sealed`).
 - **M34** Interopérabilité (P/Invoke `LibraryImport` simple ; reste en lecture si non portable).
 - **M35** Entity Framework Core (DbContext + SQLite in-memory + requêtes `ORDER BY` déterministes).
