@@ -1,0 +1,8 @@
+id: 34-interop
+title: "Interopérabilité (P/Invoke & code natif)"
+order: 34
+course: cours.md
+groups:
+  - id: interop-lecture
+    title: "À lire et pratiquer"
+    exercises: []
