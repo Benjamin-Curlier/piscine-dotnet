@@ -1,0 +1,24 @@
+id: ex03-etat
+title: "Machine à états comme union"
+objective: "Chaque état porte ses propres données — fini les champs nuls inutilisés."
+difficulty: moyen
+deliverables: [Etat.cs]
+starter: [Etat.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "attente\n"
+        expect_stdout: "en attente\n"
+        expect_exit: 0
+      - stdin: "cours 50\n"
+        expect_stdout: "en cours a 50%\n"
+        expect_exit: 0
+      - stdin: "termine ok\n"
+        expect_stdout: "termine: ok\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "EnAttente (sans donnée), EnCours(int Pourcent), Termine(string Resultat). Affiche selon l'état : 'en attente', 'en cours a N%', 'termine: X'. EnAttente n'a pas de donnée donc pas de variable dans le pattern."
+  course_ref: "cours.md#etat"
+solution: [Etat.cs]

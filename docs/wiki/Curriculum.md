@@ -78,7 +78,7 @@ Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis
 | 30 | Design patterns (suite) : Singleton, Adapter, Decorator, Builder, Command | ✅ io (+bonus) |
 | 31 | Smelly code & refactoring | ✅ io (+bonus) |
 | 32 | Garbage collection & gestion des ressources | ✅ io (+bonus) |
-| 33 | Discriminated unions | ⏳ à faire |
+| 33 | Discriminated unions (hiérarchies scellées) | ✅ io (+bonus) |
 | 34 | Interopérabilité (P/Invoke) | ⏳ à faire |
 | 35 | Entity Framework Core (SQLite in-memory) | ⏳ à faire (packaging EF déjà en place) |
 

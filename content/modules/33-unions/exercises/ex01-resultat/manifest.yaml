@@ -1,0 +1,24 @@
+id: ex01-resultat
+title: "Resultat — succès ou erreur"
+objective: "Représenter un calcul qui peut échouer par une union Succes | Erreur, sans exception."
+difficulty: moyen
+deliverables: [Resultat.cs]
+starter: [Resultat.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "10/2\n"
+        expect_stdout: "OK 5\n"
+        expect_exit: 0
+      - stdin: "9/0\n"
+        expect_stdout: "ERR division par zero\n"
+        expect_exit: 0
+      - stdin: "20/5\n"
+        expect_stdout: "OK 4\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis 'a/b'. Si b != 0, renvoie Succes(a/b) ; sinon Erreur(\"division par zero\"). Affiche 'OK <valeur>' pour Succes, 'ERR <message>' pour Erreur, via un switch."
+  course_ref: "cours.md#resultat"
+solution: [Resultat.cs]

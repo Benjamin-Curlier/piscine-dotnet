@@ -1,0 +1,24 @@
+id: ex00-forme
+title: "Union de formes & aire"
+objective: "Modéliser un ensemble fermé de variantes (Cercle/Rectangle/Carre) et le filtrer par type."
+difficulty: facile
+deliverables: [Forme.cs]
+starter: [Forme.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "cercle 5\n"
+        expect_stdout: "75\n"
+        expect_exit: 0
+      - stdin: "rectangle 4 6\n"
+        expect_stdout: "24\n"
+        expect_exit: 0
+      - stdin: "carre 3\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "abstract record Forme; puis sealed record Cercle(int Rayon) : Forme; etc. Calcule l'aire par un switch sur le type. Pour le cercle, utilise 3 comme valeur de pi (aire = 3*r*r)."
+  course_ref: "cours.md#union"
+solution: [Forme.cs]

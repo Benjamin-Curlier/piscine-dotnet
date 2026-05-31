@@ -1,0 +1,8 @@
+id: 33-unions
+title: "Discriminated unions (hiérarchies scellées)"
+order: 33
+course: cours.md
+groups:
+  - id: unions
+    title: "Types somme & pattern matching exhaustif"
+    exercises: [ex00-forme, ex01-resultat, ex02-json, ex03-etat, ex04-expr]

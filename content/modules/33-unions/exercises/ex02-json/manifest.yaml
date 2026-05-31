@@ -1,0 +1,24 @@
+id: ex02-json
+title: "Valeur JSON — union de cas"
+objective: "Modéliser une valeur (nombre, texte, booléen) et la rendre selon sa variante."
+difficulty: moyen
+deliverables: [Json.cs]
+starter: [Json.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "nombre 42\n"
+        expect_stdout: "42\n"
+        expect_exit: 0
+      - stdin: "texte bonjour\n"
+        expect_stdout: "\"bonjour\"\n"
+        expect_exit: 0
+      - stdin: "booleen vrai\n"
+        expect_stdout: "true\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Trois variantes : Nombre(int), Texte(string), Booleen(bool). Le rendu : le nombre tel quel, le texte entre guillemets, le booléen en 'true'/'false'. Utilise la déconstruction dans le switch : Nombre(var n) => ..."
+  course_ref: "cours.md#json"
+solution: [Json.cs]

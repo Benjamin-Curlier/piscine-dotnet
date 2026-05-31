@@ -1,0 +1,25 @@
+id: ex04-expr
+title: "Arbre d'expression (union récursive)"
+objective: "Évaluer un arbre arithmétique modélisé par une union récursive via pattern matching."
+difficulty: difficile
+bonus: true
+deliverables: [Expression.cs]
+starter: [Expression.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "+ 3 * 4 2\n"
+        expect_stdout: "11\n"
+        expect_exit: 0
+      - stdin: "* + 1 2 3\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+      - stdin: "5\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Union : Nombre(int) ou Operation(symbole, gauche, droite). Lis la notation préfixe récursivement : si le token est + ou *, lis deux sous-expressions ; sinon c'est un nombre. Évalue par un switch récursif. '+ 3 * 4 2' = 3 + (4*2) = 11."
+  course_ref: "cours.md#recursive"
+solution: [Expression.cs]
