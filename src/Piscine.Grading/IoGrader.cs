@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Piscine.Core.Model;
 
@@ -32,7 +28,7 @@ public sealed class IoGrader : IGrader
 
         foreach (var ioCase in step.Cases)
         {
-            var run = Execute(compilation.AssemblyBytes, ioCase.Args.ToArray(), ioCase.Stdin);
+            var run = ProgramRunner.Run(compilation.AssemblyBytes, ioCase.Args.ToArray(), ioCase.Stdin, Timeout);
 
             if (run.TimedOut)
             {
@@ -67,80 +63,4 @@ public sealed class IoGrader : IGrader
     private static string Normalize(string s) => s.Replace("\r\n", "\n");
 
     private static string Quote(string s) => "\"" + s.Replace("\n", "\\n") + "\"";
-
-    private sealed record RunOutcome(string Stdout, int ExitCode, bool TimedOut, Exception? Error);
-
-    private static RunOutcome Execute(byte[] assemblyBytes, string[] args, string stdin)
-    {
-        var alc = new AssemblyLoadContext("submission", isCollectible: true);
-        var originalOut = Console.Out;
-        var originalIn = Console.In;
-        var output = new StringWriter();
-        try
-        {
-            using var ms = new MemoryStream(assemblyBytes);
-            var assembly = alc.LoadFromStream(ms);
-            var entry = assembly.EntryPoint;
-            if (entry is null)
-            {
-                return new RunOutcome(string.Empty, 0, false, new InvalidOperationException("Aucun point d'entrée (Main)."));
-            }
-
-            Console.SetOut(output);
-            Console.SetIn(new StringReader(stdin));
-
-            int exitCode = 0;
-            Exception? error = null;
-            var task = Task.Run(() =>
-            {
-                try
-                {
-                    exitCode = InvokeEntry(entry, args);
-                }
-                catch (TargetInvocationException ex)
-                {
-                    error = ex.InnerException ?? ex;
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
-            });
-
-            if (!task.Wait(Timeout))
-            {
-                return new RunOutcome(output.ToString(), 0, true, null);
-            }
-
-            return new RunOutcome(output.ToString(), exitCode, false, error);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            alc.Unload();
-        }
-    }
-
-    private static int InvokeEntry(MethodInfo entry, string[] args)
-    {
-        var invokeArgs = entry.GetParameters().Length == 1
-            ? new object[] { args }
-            : Array.Empty<object>();
-
-        var result = entry.Invoke(null, invokeArgs);
-        return result switch
-        {
-            int code => code,
-            Task<int> taskInt => taskInt.GetAwaiter().GetResult(),
-            Task task => Await(task),
-            _ => 0
-        };
-    }
-
-    private static int Await(Task task)
-    {
-        task.GetAwaiter().GetResult();
-        return 0;
-    }
 }

@@ -21,6 +21,9 @@ switch (command)
     case "check":
         return Check(layout, args);
 
+    case "try":
+        return Try(layout, args);
+
     case "status":
         Status(version, layout);
         return 0;
@@ -42,7 +45,7 @@ switch (command)
 
     default:
         Console.WriteLine($"Commande inconnue : {command}");
-        Console.WriteLine("Commandes : list | start <exo> | check <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest> | new exercise <module> <id>");
+        Console.WriteLine("Commandes : list | start <exo> | check <exo> | try <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest> | new exercise <module> <id>");
         return 64;
 }
 
@@ -119,6 +122,19 @@ static int Check(PiscineLayout layout, string[] args)
     }
 
     var result = new CheckCommand(layout, Graders.Default()).Run(args[1]);
+    Console.WriteLine(result.Output);
+    return result.ExitCode;
+}
+
+static int Try(PiscineLayout layout, string[] args)
+{
+    if (args.Length < 2)
+    {
+        Console.WriteLine("Usage : piscine try <exo>  (outillage auteur : exécute le corrigé et imprime le stdout réel)");
+        return 64;
+    }
+
+    var result = new TryCommand(layout).Run(args[1]);
     Console.WriteLine(result.Output);
     return result.ExitCode;
 }
