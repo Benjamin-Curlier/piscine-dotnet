@@ -35,3 +35,6 @@ Le wiki du projet est versionné dans le dépôt : **[docs/wiki/Home.md](docs/wi
   guide contributeur (`docs/contributing/`).
 
 Design complet : `docs/superpowers/specs/2026-05-29-piscine-dotnet-design.md`.
+
+**Reprendre le développement à froid** : `docs/superpowers/HANDOFF.md` (état du projet, méthode,
+prochaines étapes, pièges).

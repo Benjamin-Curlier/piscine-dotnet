@@ -62,5 +62,28 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
   M19 (Logging), M20 (Generic Host & Worker), Rush 3, et les graders dédiés git/réseau/élève-écrit-tests.
   Détail : [docs/superpowers/BLOCKERS-v1.0.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/v1.0-blockers/docs/superpowers/BLOCKERS-v1.0.md).
 
+## Palier v2 — approfondissement C#/.NET (en cours)
+
+Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis v1.0). Introduisent le
+**niveau de difficulté** (`difficulty: facile|moyen|difficile`) et des exercices **bonus** non bloquants.
+
+| # | Module | État |
+|---|---|---|
+| 24 | Switch & pattern matching (C# 14) | ✅ io |
+| 25 | Enums | ✅ io |
+| 26 | Static, const, readonly & immutabilité | ✅ io |
+| 27 | Opérations binaires | ✅ io |
+| 28 | Complexité (Big O) & tris | ✅ io |
+| 29 | A* / recherche de chemin | ⏳ à faire |
+| 30 | Design patterns (suite) | ⏳ à faire |
+| 31 | Smelly code & refactoring | ⏳ à faire |
+| 32 | Garbage collection | ⏳ à faire (io + lecture) |
+| 33 | Discriminated unions | ⏳ à faire |
+| 34 | Interopérabilité (P/Invoke) | ⏳ à faire |
+| 35 | Entity Framework Core (SQLite in-memory) | ⏳ à faire (packaging EF déjà en place) |
+
+Roadmap v2/v3 complète (dont v3 : Blazor, Docker, Silk.NET, clean architecture, graders projet) :
+[docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md).
+
 > Historique d'avancement : voir les itérations dans
 > [docs/superpowers/plans/](https://github.com/Benjamin-Curlier/piscine-dotnet/tree/main/docs/superpowers/plans).
