@@ -1,0 +1,23 @@
+id: r2-rapport
+title: "Rush 2 — Rapport de données"
+objective: "Synthèse parsing + LINQ : agréger des données par catégorie et produire un rapport."
+deliverables: [Rapport.cs]
+starter: [Rapport.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "4\nalim 10\nalim 5\ntransport 20\nalim 2\n"
+        expect_stdout: "alim: 17\ntransport: 20\nTotal: 37\n"
+        expect_exit: 0
+      - stdin: "3\nb 1\na 2\na 3\n"
+        expect_stdout: "a: 5\nb: 1\nTotal: 6\n"
+        expect_exit: 0
+      - stdin: "1\nsolo 42\n"
+        expect_stdout: "solo: 42\nTotal: 42\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Groupe par catégorie (GroupBy), somme les montants (Sum), puis trie les groupes par clé (OrderBy). N'oublie pas la ligne Total à la fin."
+  course_ref: "subject.md"
+solution: [Rapport.cs]
