@@ -1,0 +1,26 @@
+id: r1-inventaire
+title: "Rush 1 — Gestionnaire d'inventaire"
+objective: "Synthèse POO/collections : interpréteur de commandes d'inventaire (Dictionary, parsing, agrégation)."
+deliverables: [Inventaire.cs]
+starter: [Inventaire.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\najouter pomme 10\najouter poire 5\nretirer pomme 3\nafficher pomme\ntotal\n"
+        expect_stdout: "pomme: 7\nTotal: 12\n"
+        expect_exit: 0
+      - stdin: "3\najouter stylo 4\nretirer stylo 10\nafficher stylo\n"
+        expect_stdout: "stylo: 0\n"
+        expect_exit: 0
+      - stdin: "4\najouter a 2\najouter b 3\najouter a 5\ntotal\n"
+        expect_stdout: "Total: 10\n"
+        expect_exit: 0
+      - stdin: "2\nafficher fantome\ntotal\n"
+        expect_stdout: "fantome: 0\nTotal: 0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "N'imprime QUE pour 'afficher' et 'total'. Pour 'retirer', borne la quantité à 0 (pas de négatif), et 'afficher' d'un article inconnu donne 0."
+  course_ref: "subject.md"
+solution: [Inventaire.cs]
