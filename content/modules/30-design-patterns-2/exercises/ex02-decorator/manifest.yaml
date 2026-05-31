@@ -1,0 +1,24 @@
+id: ex02-decorator
+title: "Decorator — empiler des comportements"
+objective: "Ajouter dynamiquement des responsabilités à un objet en l'enveloppant dans des décorateurs."
+difficulty: moyen
+deliverables: [Boisson.cs]
+starter: [Boisson.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "lait sucre\n"
+        expect_stdout: "Café, lait, sucre : 4\n"
+        expect_exit: 0
+      - stdin: "\n"
+        expect_stdout: "Café : 2\n"
+        expect_exit: 0
+      - stdin: "chocolat lait\n"
+        expect_stdout: "Café, chocolat, lait : 5\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Chaque décorateur enveloppe une IBoisson et ajoute à sa Description() / son Cout(). On applique les tokens dans l'ordre, en repartant de la boisson enveloppée précédente. Café = 2, lait = +1, sucre = +1, chocolat = +2."
+  course_ref: "cours.md#decorator"
+solution: [Boisson.cs]

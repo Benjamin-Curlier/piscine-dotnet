@@ -72,7 +72,6 @@ feedback{hints, course_ref}, solution`.
 
 ## PROCHAINES ÉTAPES (par ordre)
 **v2 — approfondissement C#/.NET (en cours, numérotation M24+).** Reste à créer (io) :
-- **M30** Design patterns suite (Decorator, Adapter, Command, Builder, Singleton).
 - **M31** Smelly code & refactoring (livrer une version refactorée au comportement identique).
 - **M32** Garbage collection (io quand possible : Dispose/`using`, sinon lecture).
 - **M33** Discriminated unions (hiérarchie scellée `abstract record` + `sealed`).

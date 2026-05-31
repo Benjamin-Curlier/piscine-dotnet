@@ -1,0 +1,24 @@
+id: ex00-singleton
+title: "Singleton — instance unique partagée"
+objective: "Garantir qu'une classe n'a qu'une seule instance, accessible globalement."
+difficulty: facile
+deliverables: [Compteur.cs]
+starter: [Compteur.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n5\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+      - stdin: "0\n0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "10\n1\n"
+        expect_stdout: "11\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Constructeur privé + propriété statique Instance qui crée l'objet au premier accès (??=). Les deux boucles incrémentent la MÊME instance, donc le total est a + b."
+  course_ref: "cours.md#singleton"
+solution: [Compteur.cs]

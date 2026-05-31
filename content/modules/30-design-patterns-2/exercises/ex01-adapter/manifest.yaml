@@ -1,0 +1,24 @@
+id: ex01-adapter
+title: "Adapter — rendre compatible une API existante"
+objective: "Faire fonctionner un client avec une classe à l'interface incompatible via un adaptateur."
+difficulty: moyen
+deliverables: [Adaptateur.cs]
+starter: [Adaptateur.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice:30,Bob:25\nBob\n"
+        expect_stdout: "25\n"
+        expect_exit: 0
+      - stdin: "Alice:30,Bob:25\nAlice\n"
+        expect_stdout: "30\n"
+        expect_exit: 0
+      - stdin: "Alice:30\nZoe\n"
+        expect_stdout: "-1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "L'adaptateur implémente IAnnuaire et délègue à AnnuaireLegacy : il découpe la chaîne 'nom:age,nom:age' pour répondre à Age(nom). Renvoie -1 si le nom est absent."
+  course_ref: "cours.md#adapter"
+solution: [Adaptateur.cs]

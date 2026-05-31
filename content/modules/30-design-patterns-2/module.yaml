@@ -1,0 +1,8 @@
+id: 30-design-patterns-2
+title: "Design patterns (suite) : Singleton, Adapter, Decorator, Builder, Command"
+order: 30
+course: cours.md
+groups:
+  - id: patterns-avances
+    title: "Patrons de conception (suite)"
+    exercises: [ex00-singleton, ex01-adapter, ex02-decorator, ex03-builder, ex04-command]

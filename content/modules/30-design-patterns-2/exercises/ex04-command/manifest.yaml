@@ -1,0 +1,25 @@
+id: ex04-command
+title: "Command — actions réifiées & undo"
+objective: "Encapsuler des actions en objets pour pouvoir les exécuter, les empiler et les annuler."
+difficulty: difficile
+bonus: true
+deliverables: [Commande.cs]
+starter: [Commande.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "add 5\nadd 3\nundo\nsub 2\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "add 10\nsub 4\n"
+        expect_stdout: "6\n"
+        expect_exit: 0
+      - stdin: "add 5\nundo\nundo\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Chaque commande implémente Executer et Annuler. À l'exécution, empile la commande ; sur 'undo', dépile et appelle Annuler. 'undo' sur une pile vide ne fait rien. Affiche la valeur finale."
+  course_ref: "cours.md#command"
+solution: [Commande.cs]

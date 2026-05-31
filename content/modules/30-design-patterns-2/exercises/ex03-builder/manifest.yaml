@@ -1,0 +1,24 @@
+id: ex03-builder
+title: "Builder — construction fluide pas à pas"
+objective: "Construire un objet complexe étape par étape avec une interface fluide (chaînable)."
+difficulty: moyen
+deliverables: [Burger.cs]
+starter: [Burger.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "fromage bacon\n"
+        expect_stdout: "Burger : pain, steak, fromage, bacon (4 ingrédients)\n"
+        expect_exit: 0
+      - stdin: "\n"
+        expect_stdout: "Burger : pain, steak (2 ingrédients)\n"
+        expect_exit: 0
+      - stdin: "salade tomate oignon\n"
+        expect_stdout: "Burger : pain, steak, salade, tomate, oignon (5 ingrédients)\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Le builder part de [pain, steak]. Chaque Avec(ingredient) ajoute à la liste et renvoie this (pour chaîner). Construire() rend 'Burger : ... (N ingrédients)'."
+  course_ref: "cours.md#builder"
+solution: [Burger.cs]
