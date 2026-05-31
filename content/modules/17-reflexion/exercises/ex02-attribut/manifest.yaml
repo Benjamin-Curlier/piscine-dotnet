@@ -1,0 +1,17 @@
+id: ex02-attribut
+title: "Un attribut personnalisé"
+objective: "Définir un attribut personnalisé, l'appliquer à une classe et lire sa valeur par réflexion."
+deliverables: [Attribut.cs]
+starter: [Attribut.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: ""
+        expect_stdout: "Coucou\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "EtiquetteAttribute : Attribute avec un string Texte ; lis-le via typeof(MaClasse).GetCustomAttribute<EtiquetteAttribute>()!.Texte."
+  course_ref: "cours.md#attribut"
+solution: [Attribut.cs]

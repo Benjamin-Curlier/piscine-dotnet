@@ -1,0 +1,23 @@
+id: ex00-type-propriete
+title: "Le type d'une propriété"
+objective: "Utiliser la réflexion pour lire le type d'une propriété d'une classe à partir de son nom."
+deliverables: [TypePropriete.cs]
+starter: [TypePropriete.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Nom\n"
+        expect_stdout: "String\n"
+        expect_exit: 0
+      - stdin: "Prix\n"
+        expect_stdout: "Double\n"
+        expect_exit: 0
+      - stdin: "Quantite\n"
+        expect_stdout: "Int32\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Récupère la propriété avec typeof(Produit).GetProperty(nom)!, puis affiche .PropertyType.Name."
+  course_ref: "cours.md#type-propriete"
+solution: [TypePropriete.cs]

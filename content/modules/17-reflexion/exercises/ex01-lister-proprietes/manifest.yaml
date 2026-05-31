@@ -1,0 +1,17 @@
+id: ex01-lister-proprietes
+title: "Lister les propriétés"
+objective: "Parcourir toutes les propriétés d'une classe par réflexion et les afficher triées."
+deliverables: [ListerProprietes.cs]
+starter: [ListerProprietes.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: ""
+        expect_stdout: "Nom\nPrix\nQuantite\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "typeof(Produit).GetProperties().Select(p => p.Name).OrderBy(n => n) puis WriteLine de chaque nom."
+  course_ref: "cours.md#lister"
+solution: [ListerProprietes.cs]
