@@ -21,4 +21,13 @@ public sealed class ExerciseManifest
     public List<GradingStep> Grading { get; set; } = new();
 
     public FeedbackConfig Feedback { get; set; } = new();
+
+    /// <summary>Niveau de difficulté indicatif : <c>facile</c>, <c>moyen</c> (défaut) ou <c>difficile</c>.</summary>
+    public string Difficulty { get; set; } = "moyen";
+
+    /// <summary>
+    /// Exercice bonus : son échec ne bloque pas la correction séquentielle du groupe
+    /// (les exercices suivants restent corrigés).
+    /// </summary>
+    public bool Bonus { get; set; }
 }

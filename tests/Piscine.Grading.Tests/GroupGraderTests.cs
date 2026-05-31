@@ -47,6 +47,25 @@ public class GroupGraderTests
     }
 
     [Fact]
+    public void GradeGroup_BonusFailure_DoesNotBlockFollowingExercises()
+    {
+        var bonus = Submission("ex01", "System.Console.Write(\"non\");", "attendu"); // ARevoir
+        bonus.Manifest.Bonus = true;
+        var submissions = new[]
+        {
+            Submission("ex00", "System.Console.Write(\"ok\");", "ok"), // Reussi
+            bonus,                                                      // bonus ARevoir, non bloquant
+            Submission("ex02", "System.Console.Write(\"ok\");", "ok")  // toujours corrigé
+        };
+
+        var results = Grader().GradeGroup(submissions).ToList();
+
+        Assert.Equal(GraderStatus.Reussi, results[0].Status);
+        Assert.Equal(GraderStatus.ARevoir, results[1].Status);
+        Assert.Equal(GraderStatus.Reussi, results[2].Status); // pas NonCorrige
+    }
+
+    [Fact]
     public void GradeGroup_AllReussi_WhenEveryExercisePasses()
     {
         var submissions = new[]

@@ -31,7 +31,8 @@ public sealed class GroupGrader
             var result = _grader.Grade(submission.Manifest, submission.Context);
             results.Add(result);
 
-            if (result.Status == GraderStatus.ARevoir)
+            // Un exercice bonus à revoir ne bloque pas la suite du groupe.
+            if (result.Status == GraderStatus.ARevoir && !submission.Manifest.Bonus)
             {
                 stopped = true;
             }
