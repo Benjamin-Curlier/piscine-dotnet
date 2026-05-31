@@ -1,0 +1,24 @@
+id: ex00-tri-bulle
+title: "Tri à bulles"
+objective: "Implémenter le tri à bulles croissant à la main, sans Array.Sort."
+difficulty: facile
+deliverables: [TriBulle.cs]
+starter: [TriBulle.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n5 3 1 4 2\n"
+        expect_stdout: "1 2 3 4 5\n"
+        expect_exit: 0
+      - stdin: "3\n3 2 1\n"
+        expect_stdout: "1 2 3\n"
+        expect_exit: 0
+      - stdin: "1\n7\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Deux boucles imbriquées : pour i de 0 à n-2, pour j de 0 à n-2-i ; si t[j] > t[j+1], échange les deux. N'utilise pas Array.Sort."
+  course_ref: "cours.md#tri-bulle"
+solution: [TriBulle.cs]

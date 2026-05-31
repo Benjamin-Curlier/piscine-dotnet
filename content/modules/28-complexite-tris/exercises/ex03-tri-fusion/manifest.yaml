@@ -1,0 +1,25 @@
+id: ex03-tri-fusion
+title: "Tri fusion (merge sort)"
+objective: "Implémenter le tri fusion récursif à la main (diviser-pour-régner), sans Array.Sort."
+difficulty: difficile
+bonus: true
+deliverables: [TriFusion.cs]
+starter: [TriFusion.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n5 3 1 4 2\n"
+        expect_stdout: "1 2 3 4 5\n"
+        expect_exit: 0
+      - stdin: "6\n6 5 4 3 2 1\n"
+        expect_stdout: "1 2 3 4 5 6\n"
+        expect_exit: 0
+      - stdin: "1\n9\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Méthode TriFusion(int[] t) : si t.Length <= 1 retourne t. Sinon coupe en deux moitiés, appelle TriFusion récursivement sur chacune, puis fusionne avec une méthode Fusionner(g, d) qui parcourt les deux tableaux triés et remplit un tableau résultat."
+  course_ref: "cours.md#tri-fusion"
+solution: [TriFusion.cs]

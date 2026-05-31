@@ -1,0 +1,24 @@
+id: ex01-tri-insertion
+title: "Tri par insertion"
+objective: "Implémenter le tri par insertion croissant à la main, sans Array.Sort."
+difficulty: moyen
+deliverables: [TriInsertion.cs]
+starter: [TriInsertion.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n5 3 1 4 2\n"
+        expect_stdout: "1 2 3 4 5\n"
+        expect_exit: 0
+      - stdin: "4\n4 1 3 2\n"
+        expect_stdout: "1 2 3 4\n"
+        expect_exit: 0
+      - stdin: "2\n2 1\n"
+        expect_stdout: "1 2\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Pour i de 1 à n-1 : retiens t[i] comme 'cle', décale vers la droite les éléments t[j] > cle (j = i-1 vers 0), puis place cle en t[j+1]. N'utilise pas Array.Sort."
+  course_ref: "cours.md#tri-insertion"
+solution: [TriInsertion.cs]
