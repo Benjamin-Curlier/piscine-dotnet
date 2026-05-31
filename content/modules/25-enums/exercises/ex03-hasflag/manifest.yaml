@@ -1,0 +1,25 @@
+id: ex03-hasflag
+title: "Tester un drapeau"
+objective: "Tester la présence d'un drapeau dans une valeur combinée d'enum [Flags] avec HasFlag."
+bonus: true
+difficulty: difficile
+deliverables: [HasFlag.cs]
+starter: [HasFlag.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nLecture\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
+      - stdin: "4\nEcriture\n"
+        expect_stdout: "non\n"
+        expect_exit: 0
+      - stdin: "7\nExecution\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "var combinee = (Permissions)int.Parse(ligne) ; var p = Enum.Parse<Permissions>(nom) ; combinee.HasFlag(p) ? \"oui\" : \"non\"."
+  course_ref: "cours.md#hasflag"
+solution: [HasFlag.cs]

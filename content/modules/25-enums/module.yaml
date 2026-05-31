@@ -1,0 +1,8 @@
+id: 25-enums
+title: "Enums"
+order: 25
+course: cours.md
+groups:
+  - id: enums
+    title: "Énumérations"
+    exercises: [ex00-valeur, ex01-couleur-hex, ex02-flags, ex03-hasflag]

@@ -1,0 +1,24 @@
+id: ex01-couleur-hex
+title: "Couleur en hexadécimal"
+objective: "Convertir un membre d'enum Couleur en son code hexadécimal via une switch expression."
+difficulty: moyen
+deliverables: [CouleurHex.cs]
+starter: [CouleurHex.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Rouge\n"
+        expect_stdout: "#FF0000\n"
+        expect_exit: 0
+      - stdin: "Vert\n"
+        expect_stdout: "#00FF00\n"
+        expect_exit: 0
+      - stdin: "Bleu\n"
+        expect_stdout: "#0000FF\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Enum.Parse<Couleur>(nom) puis switch expression : Couleur.Rouge => \"#FF0000\", Vert => \"#00FF00\", Bleu => \"#0000FF\"."
+  course_ref: "cours.md#hex"
+solution: [CouleurHex.cs]

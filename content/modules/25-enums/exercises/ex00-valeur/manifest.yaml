@@ -1,0 +1,24 @@
+id: ex00-valeur
+title: "La valeur d'une couleur"
+objective: "Lire un nom de Couleur et afficher sa valeur entière sous-jacente via un cast (int)."
+difficulty: facile
+deliverables: [Valeur.cs]
+starter: [Valeur.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Rouge\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "Vert\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "Bleu\n"
+        expect_stdout: "2\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "enum Couleur { Rouge, Vert, Bleu } commence à 0 ; var c = Enum.Parse<Couleur>(nom); puis (int)c."
+  course_ref: "cours.md#valeur"
+solution: [Valeur.cs]
