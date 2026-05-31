@@ -1,0 +1,8 @@
+id: 23-design-patterns
+title: "Design patterns — Patrons GoF essentiels"
+order: 23
+course: cours.md
+groups:
+  - id: design-patterns
+    title: "Patrons de conception"
+    exercises: [ex00-strategy, ex01-factory, ex02-observer]

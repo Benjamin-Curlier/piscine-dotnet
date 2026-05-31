@@ -1,0 +1,23 @@
+id: ex01-factory
+title: "Factory — fabrique d'animaux"
+objective: "Déléguer la création d'objets IAnimal à une fabrique centrale en fonction d'un type lu en entrée."
+deliverables: [Factory.cs]
+starter: [Factory.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\nchien\nchat\n"
+        expect_stdout: "Wouf\nMiaou\n"
+        expect_exit: 0
+      - stdin: "1\nchat\n"
+        expect_stdout: "Miaou\n"
+        expect_exit: 0
+      - stdin: "3\nchien\nchien\nchat\n"
+        expect_stdout: "Wouf\nWouf\nMiaou\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Interface IAnimal { string Cri(); }. Chien renvoie \"Wouf\", Chat renvoie \"Miaou\". Une classe statique AnimalFactory avec static IAnimal Creer(string type) renvoie le bon objet ; affiche le cri de chacun."
+  course_ref: "cours.md#factory"
+solution: [Factory.cs]

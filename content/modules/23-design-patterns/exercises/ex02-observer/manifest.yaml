@@ -1,0 +1,23 @@
+id: ex02-observer
+title: "Observer — diffusion de messages"
+objective: "Un sujet diffuse chaque message à plusieurs observateurs abonnés, dans l'ordre d'abonnement."
+deliverables: [Observer.cs]
+starter: [Observer.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\nhello\nbye\n"
+        expect_stdout: "[A] hello\n[B] hello\n[A] bye\n[B] bye\n"
+        expect_exit: 0
+      - stdin: "1\nsalut\n"
+        expect_stdout: "[A] salut\n[B] salut\n"
+        expect_exit: 0
+      - stdin: "1\nx\n"
+        expect_stdout: "[A] x\n[B] x\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Interface IObservateur { void Notifier(string message); }. Le Sujet garde une List<IObservateur> et Diffuser(string) appelle Notifier sur chacun dans l'ordre d'ajout. Abonne d'abord A (préfixe \"[A] \") puis B (préfixe \"[B] \")."
+  course_ref: "cours.md#observer"
+solution: [Observer.cs]

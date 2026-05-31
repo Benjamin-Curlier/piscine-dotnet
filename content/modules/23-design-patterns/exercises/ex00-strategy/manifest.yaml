@@ -1,0 +1,23 @@
+id: ex00-strategy
+title: "Strategy — opérations interchangeables"
+objective: "Encapsuler des algorithmes (addition, multiplication) derrière une interface commune et choisir la stratégie à l'exécution."
+deliverables: [Strategy.cs]
+starter: [Strategy.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "add\n3\n4\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      - stdin: "mul\n3\n4\n"
+        expect_stdout: "12\n"
+        expect_exit: 0
+      - stdin: "add\n10\n5\n"
+        expect_stdout: "15\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Interface IOperation { int Appliquer(int a, int b); }. Addition renvoie a + b, Multiplication renvoie a * b. Choisis la stratégie selon l'entrée (\"add\" ou \"mul\") puis appelle Appliquer(a, b)."
+  course_ref: "cours.md#strategy"
+solution: [Strategy.cs]
