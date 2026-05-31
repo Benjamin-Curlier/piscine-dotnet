@@ -1,0 +1,8 @@
+id: 13-tests-unitaires
+title: "Tests unitaires"
+order: 13
+course: cours.md
+groups:
+  - id: tests-unitaires
+    title: "Tester son code"
+    exercises: [ex00-assertion, ex01-aaa, ex02-cas-limites]

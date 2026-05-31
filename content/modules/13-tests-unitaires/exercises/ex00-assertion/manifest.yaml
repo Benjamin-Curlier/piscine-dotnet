@@ -1,0 +1,23 @@
+id: ex00-assertion
+title: "L'assertion"
+objective: "Comparer un resultat attendu a un resultat obtenu, comme le ferait un Assert.Equal."
+deliverables: [Assertion.cs]
+starter: [Assertion.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n5\n"
+        expect_stdout: "OK\n"
+        expect_exit: 0
+      - stdin: "5\n6\n"
+        expect_stdout: "KO\n"
+        expect_exit: 0
+      - stdin: "0\n0\n"
+        expect_stdout: "OK\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis attendu puis obtenu. Si attendu == obtenu affiche OK, sinon KO. C'est l'idee d'un Assert.Equal."
+  course_ref: "cours.md#assertion"
+solution: [Assertion.cs]

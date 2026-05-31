@@ -1,0 +1,23 @@
+id: ex02-cas-limites
+title: "Les cas limites"
+objective: "Classer des nombres en pensant au cas limite zero, ni positif ni negatif."
+deliverables: [CasLimites.cs]
+starter: [CasLimites.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n5\n-2\n0\n"
+        expect_stdout: "positif\nnegatif\nzero\n"
+        expect_exit: 0
+      - stdin: "1\n0\n"
+        expect_stdout: "zero\n"
+        expect_exit: 0
+      - stdin: "2\n-1\n7\n"
+        expect_stdout: "negatif\npositif\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis N puis N entiers. Pour chacun : > 0 -> positif, < 0 -> negatif, sinon zero. N'oublie pas le cas limite 0."
+  course_ref: "cours.md#cas-limites"
+solution: [CasLimites.cs]

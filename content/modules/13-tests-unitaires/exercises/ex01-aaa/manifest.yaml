@@ -1,0 +1,23 @@
+id: ex01-aaa
+title: "Arrange-Act-Assert"
+objective: "Derouler le patron Arrange-Act-Assert : preparer, calculer, puis verifier le resultat."
+deliverables: [Aaa.cs]
+starter: [Aaa.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\n3\n5\n"
+        expect_stdout: "PASS\n"
+        expect_exit: 0
+      - stdin: "2\n2\n5\n"
+        expect_stdout: "FAIL\n"
+        expect_exit: 0
+      - stdin: "10\n5\n15\n"
+        expect_stdout: "PASS\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Arrange : lis a, b, attendu. Act : somme = a + b. Assert : si somme == attendu affiche PASS, sinon FAIL."
+  course_ref: "cours.md#aaa"
+solution: [Aaa.cs]
