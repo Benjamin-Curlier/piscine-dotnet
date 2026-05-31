@@ -1,0 +1,24 @@
+id: ex02-compte-bits
+title: "Compter les bits à 1"
+objective: "Compter à la main le nombre de bits à 1 d'un entier avec un masque n & 1 et un décalage n >>= 1."
+difficulty: moyen
+deliverables: [CompteBits.cs]
+starter: [CompteBits.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "7\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "8\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "255\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Boucle tant que n > 0 : ajoute n & 1 au compteur, puis fais n >>= 1. N'utilise pas BitOperations."
+  course_ref: "cours.md#compte-bits"
+solution: [CompteBits.cs]

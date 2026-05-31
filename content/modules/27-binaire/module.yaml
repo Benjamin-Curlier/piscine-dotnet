@@ -1,0 +1,8 @@
+id: 27-binaire
+title: "Opérations binaires"
+order: 27
+course: cours.md
+groups:
+  - id: binaire
+    title: "Opérations bit à bit"
+    exercises: [ex00-et-ou-xor, ex01-decalage, ex02-compte-bits, ex03-base2]

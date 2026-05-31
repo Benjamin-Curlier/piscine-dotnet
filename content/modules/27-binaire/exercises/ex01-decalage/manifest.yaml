@@ -1,0 +1,24 @@
+id: ex01-decalage
+title: "Décalages"
+objective: "Utiliser les opérateurs de décalage << et >> et observer leur effet (multiplier/diviser par 2)."
+difficulty: moyen
+deliverables: [Decalage.cs]
+starter: [Decalage.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1\n4\n"
+        expect_stdout: "16\n0\n"
+        expect_exit: 0
+      - stdin: "8\n1\n"
+        expect_stdout: "16\n4\n"
+        expect_exit: 0
+      - stdin: "5\n2\n"
+        expect_stdout: "20\n1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Affiche n << k sur la première ligne, puis n >> k sur la seconde."
+  course_ref: "cours.md#decalage"
+solution: [Decalage.cs]

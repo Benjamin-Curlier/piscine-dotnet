@@ -1,0 +1,25 @@
+id: ex03-base2
+title: "Représentation binaire"
+objective: "Convertir un entier en sa représentation binaire avec Convert.ToString(n, 2)."
+difficulty: difficile
+bonus: true
+deliverables: [Base2.cs]
+starter: [Base2.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "101\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "10\n"
+        expect_stdout: "1010\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Ajoute using System; puis affiche Convert.ToString(n, 2) : la base 2 retire déjà les zéros de tête."
+  course_ref: "cours.md#base2"
+solution: [Base2.cs]

@@ -1,0 +1,24 @@
+id: ex00-et-ou-xor
+title: "ET, OU, XOR"
+objective: "Appliquer les opérateurs bit à bit & | ^ sur deux entiers et afficher chaque résultat."
+difficulty: facile
+deliverables: [EtOuXor.cs]
+starter: [EtOuXor.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "6\n3\n"
+        expect_stdout: "2\n7\n5\n"
+        expect_exit: 0
+      - stdin: "12\n10\n"
+        expect_stdout: "8\n14\n6\n"
+        expect_exit: 0
+      - stdin: "1\n1\n"
+        expect_stdout: "1\n1\n0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Affiche sur 3 lignes : a & b, puis a | b, puis a ^ b (dans cet ordre)."
+  course_ref: "cours.md#et-ou-xor"
+solution: [EtOuXor.cs]
