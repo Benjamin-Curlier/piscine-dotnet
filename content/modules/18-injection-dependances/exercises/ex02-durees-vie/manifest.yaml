@@ -1,0 +1,17 @@
+id: ex02-durees-vie
+title: "Singleton vs Transient"
+objective: "Observer la différence de durée de vie entre un service singleton et un service transient."
+deliverables: [DureesVie.cs]
+starter: [DureesVie.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: ""
+        expect_stdout: "Singleton: 1\nSingleton: 2\nTransient: 1\nTransient: 1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "AddSingleton<CompteurSingleton>() (même instance => 1 puis 2) et AddTransient<CompteurTransient>() (instance neuve => 1 puis 1) ; Incrementer() => ++_n ; affiche 4 lignes."
+  course_ref: "cours.md#durees-vie"
+solution: [DureesVie.cs]

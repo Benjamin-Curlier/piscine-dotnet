@@ -1,0 +1,8 @@
+id: 18-injection-dependances
+title: "Injection de dépendances"
+order: 18
+course: cours.md
+groups:
+  - id: injection-dependances
+    title: "Injection de dépendances"
+    exercises: [ex00-resolution, ex01-dependance, ex02-durees-vie]

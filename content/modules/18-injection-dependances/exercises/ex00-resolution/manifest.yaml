@@ -1,0 +1,23 @@
+id: ex00-resolution
+title: "Résolution d'un service"
+objective: "Enregistrer IGreeter→Greeter en singleton, construire le provider, résoudre et appeler le service."
+deliverables: [Resolution.cs]
+starter: [Resolution.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice\n"
+        expect_stdout: "Bonjour, Alice!\n"
+        expect_exit: 0
+      - stdin: "Bob\n"
+        expect_stdout: "Bonjour, Bob!\n"
+        expect_exit: 0
+      - stdin: "Eve\n"
+        expect_stdout: "Bonjour, Eve!\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "var services = new ServiceCollection(); services.AddSingleton<IGreeter, Greeter>(); puis GetRequiredService<IGreeter>().Saluer(nom) qui renvoie \"Bonjour, {nom}!\"."
+  course_ref: "cours.md#resolution"
+solution: [Resolution.cs]

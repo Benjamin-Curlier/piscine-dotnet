@@ -1,0 +1,23 @@
+id: ex01-dependance
+title: "Injection par constructeur"
+objective: "Injecter un service Multiplieur dans un service Traitement via son constructeur."
+deliverables: [Dependance.cs]
+starter: [Dependance.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      - stdin: "3\n"
+        expect_stdout: "6\n"
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "AddSingleton<Multiplieur>() et AddSingleton<Traitement>() ; public Traitement(Multiplieur m) reçoit la dépendance ; Traiter(n) => m.Doubler(n) avec Doubler(x) => x*2."
+  course_ref: "cours.md#dependance"
+solution: [Dependance.cs]
