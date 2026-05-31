@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Write(content/**)",
+      "Edit(content/**)",
+      "Write(docs/**)",
+      "Edit(docs/**)",
+      "Bash(PISCINE_CONTENT=\"$PWD/content\" dotnet run *)",
+      "Bash(dotnet run --project src/Piscine.Cli*)",
+      "Bash(dotnet build*)",
+      "Bash(dotnet test*)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git add*)"
+    ]
+  }
+}
