@@ -1,0 +1,8 @@
+id: 21-threading-avance
+title: "Threading avancé"
+order: 21
+course: cours.md
+groups:
+  - id: threading
+    title: "Concurrence & synchronisation"
+    exercises: [ex00-parallele-somme, ex01-lock, ex02-channel]

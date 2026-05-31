@@ -1,0 +1,23 @@
+id: ex02-channel
+title: "Producteur / consommateur avec Channel"
+objective: "Transférer N entiers d'un producteur à un consommateur via un Channel<int> (FIFO), et afficher leur double."
+deliverables: [Channel.cs]
+starter: [Channel.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n2\n3\n4\n"
+        expect_stdout: "4\n6\n8\n"
+        expect_exit: 0
+      - stdin: "1\n5\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      - stdin: "2\n1\n10\n"
+        expect_stdout: "2\n20\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Channel.CreateUnbounded<int>(); écris les N entiers avec WriteAsync, puis Writer.Complete(); puis await foreach (var x in channel.Reader.ReadAllAsync()) WriteLine(x * 2);. using System.Threading.Channels; et using System.Threading.Tasks;."
+  course_ref: "cours.md#channel"
+solution: [Channel.cs]

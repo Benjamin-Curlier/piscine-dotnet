@@ -1,0 +1,23 @@
+id: ex00-parallele-somme
+title: "Somme parallèle"
+objective: "Calculer 1+2+...+N en parallèle avec Parallel.For et un accumulateur atomique (Interlocked.Add)."
+deliverables: [ParalleleSomme.cs]
+starter: [ParalleleSomme.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "100\n"
+        expect_stdout: "5050\n"
+        expect_exit: 0
+      - stdin: "10\n"
+        expect_stdout: "55\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "long total = 0; Parallel.For(1, n + 1, i => Interlocked.Add(ref total, i)); puis affiche total. N'oublie pas using System.Threading; et using System.Threading.Tasks;."
+  course_ref: "cours.md#parallele"
+solution: [ParalleleSomme.cs]
