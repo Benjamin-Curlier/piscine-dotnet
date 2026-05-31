@@ -51,6 +51,16 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
 (Microsoft Learn, freeCodeCamp, chaînes YouTube type Nick Chapsas / Tim Corey, docs officielles
 .NET). Ton pédagogique, jargon expliqué.
 
-> État d'avancement du contenu : voir les itérations dans
+## État au tag v1.0
+
+- **Modules auto-notés (`io`)** : M00, M01, M02, M03, M04, M06, M07, M08, M09, M10, M11, M12, M13,
+  M15, M16, M17, M18, M21, M23.
+- **Modules de lecture/pratique guidée** (cours + checklist, sans auto-notation pour l'instant) :
+  M05 (git intermédiaire), M14 (git avancé), M22 (réseau).
+- **Rushes auto-notés** : Rush 0, Rush 1, Rush 2.
+- **Hors périmètre v1.0** (drafts + design sur la branche `v1.0-blockers`, à traiter ensuite) :
+  M19 (Logging), M20 (Generic Host & Worker), Rush 3, et les graders dédiés git/réseau/élève-écrit-tests.
+  Détail : [docs/superpowers/BLOCKERS-v1.0.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/v1.0-blockers/docs/superpowers/BLOCKERS-v1.0.md).
+
+> Historique d'avancement : voir les itérations dans
 > [docs/superpowers/plans/](https://github.com/Benjamin-Curlier/piscine-dotnet/tree/main/docs/superpowers/plans).
-> Le moteur (It.0→It.6) est livré ; le contenu des modules arrive à partir de l'It.8 (Module 00).
