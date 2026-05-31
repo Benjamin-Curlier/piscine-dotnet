@@ -1,0 +1,8 @@
+id: 29-recherche-chemin
+title: "Recherche de chemin (BFS, Dijkstra, A*)"
+order: 29
+course: cours.md
+groups:
+  - id: pathfinding
+    title: "Grilles & recherche de chemin"
+    exercises: [ex00-manhattan, ex01-voisins, ex02-bfs, ex03-astar, ex04-chemin]

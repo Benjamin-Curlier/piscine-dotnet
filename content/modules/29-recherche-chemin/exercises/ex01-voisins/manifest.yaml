@@ -1,0 +1,24 @@
+id: ex01-voisins
+title: "Voisins libres sur une grille"
+objective: "Énumérer les cases voisines accessibles (4 directions) d'une case sur une grille ASCII."
+difficulty: moyen
+deliverables: [Voisins.cs]
+starter: [Voisins.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3 4\n....\n.#..\n....\n1 2\n"
+        expect_stdout: "0 2\n2 2\n1 3\n"
+        expect_exit: 0
+      - stdin: "3 3\n###\n#.#\n###\n1 1\n"
+        expect_stdout: "AUCUN\n"
+        expect_exit: 0
+      - stdin: "2 2\n..\n..\n0 0\n"
+        expect_stdout: "1 0\n0 1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Teste les 4 voisins dans l'ordre Haut (r-1,c), Bas (r+1,c), Gauche (r,c-1), Droite (r,c+1). Garde ceux dans les bornes et valant '.'. Si aucun, affiche AUCUN."
+  course_ref: "cours.md#voisinage"
+solution: [Voisins.cs]

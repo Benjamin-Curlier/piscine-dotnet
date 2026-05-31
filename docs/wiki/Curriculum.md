@@ -74,7 +74,7 @@ Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis
 | 26 | Static, const, readonly & immutabilité | ✅ io |
 | 27 | Opérations binaires | ✅ io |
 | 28 | Complexité (Big O) & tris | ✅ io |
-| 29 | A* / recherche de chemin | ⏳ à faire |
+| 29 | Recherche de chemin (BFS, Dijkstra, A*) | ✅ io (+bonus) |
 | 30 | Design patterns (suite) | ⏳ à faire |
 | 31 | Smelly code & refactoring | ⏳ à faire |
 | 32 | Garbage collection | ⏳ à faire (io + lecture) |

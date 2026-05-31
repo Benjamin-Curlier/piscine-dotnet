@@ -1,0 +1,25 @@
+id: ex04-chemin
+title: "Reconstruction du chemin"
+objective: "Reconstruire et afficher le chemin BFS sous forme de directions U/D/L/R (déterministe)."
+difficulty: difficile
+bonus: true
+deliverables: [Chemin.cs]
+starter: [Chemin.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3 3\nS..\n.#.\n..E\n"
+        expect_stdout: "DDRR\n"
+        expect_exit: 0
+      - stdin: "1 4\nS..E\n"
+        expect_stdout: "RRR\n"
+        expect_exit: 0
+      - stdin: "1 3\nS#E\n"
+        expect_stdout: "IMPOSSIBLE\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Pendant le BFS, mémorise pour chaque case son prédécesseur et la lettre du déplacement (U/D/L/R), en explorant les voisins dans l'ordre Haut, Bas, Gauche, Droite. Remonte de E à S puis inverse la séquence."
+  course_ref: "cours.md#reconstruction"
+solution: [Chemin.cs]

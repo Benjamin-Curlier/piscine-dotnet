@@ -1,0 +1,24 @@
+id: ex00-manhattan
+title: "Distance de Manhattan"
+objective: "Calculer la distance de Manhattan entre deux points — l'heuristique de base du pathfinding."
+difficulty: facile
+deliverables: [Manhattan.cs]
+starter: [Manhattan.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2 3\n5 7\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      - stdin: "0 0\n0 0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "10 1\n3 9\n"
+        expect_stdout: "15\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "La distance de Manhattan vaut |x1-x2| + |y1-y2|. Utilise System.Math.Abs sur chaque différence."
+  course_ref: "cours.md#heuristique"
+solution: [Manhattan.cs]

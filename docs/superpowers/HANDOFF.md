@@ -71,8 +71,7 @@ feedback{hints, course_ref}, solution`.
   (stdin/stdout au caractère près). Valider une fois à la fin, puis 1 commit par module/rush.
 
 ## PROCHAINES ÉTAPES (par ordre)
-**v2 — approfondissement C#/.NET (en cours, numérotation M24+).** Reste à créer (en sonnet, io) :
-- **M29** A* / recherche de chemin (grille ASCII en entrée → chemin/longueur).
+**v2 — approfondissement C#/.NET (en cours, numérotation M24+).** Reste à créer (io) :
 - **M30** Design patterns suite (Decorator, Adapter, Command, Builder, Singleton).
 - **M31** Smelly code & refactoring (livrer une version refactorée au comportement identique).
 - **M32** Garbage collection (io quand possible : Dispose/`using`, sinon lecture).
