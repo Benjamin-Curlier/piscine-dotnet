@@ -1,0 +1,24 @@
+id: ex01-mention
+title: "La mention"
+objective: "Classer une note avec des patterns relationnels (>=) dans une switch expression."
+difficulty: moyen
+deliverables: [Mention.cs]
+starter: [Mention.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "95\n"
+        expect_stdout: "excellent\n"
+        expect_exit: 0
+      - stdin: "60\n"
+        expect_stdout: "passable\n"
+        expect_exit: 0
+      - stdin: "30\n"
+        expect_stdout: "insuffisant\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Pattern relationnel : n switch { >= 90 => \"excellent\", >= 50 => \"passable\", _ => \"insuffisant\" }. L'ordre compte : du plus haut au plus bas."
+  course_ref: "cours.md#mention"
+solution: [Mention.cs]

@@ -1,0 +1,24 @@
+id: ex00-jour
+title: "Le nom du jour"
+objective: "Transformer un entier (1-7) en nom de jour avec une switch expression et le motif _ par défaut."
+difficulty: facile
+deliverables: [Jour.cs]
+starter: [Jour.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1\n"
+        expect_stdout: "lundi\n"
+        expect_exit: 0
+      - stdin: "6\n"
+        expect_stdout: "samedi\n"
+        expect_exit: 0
+      - stdin: "9\n"
+        expect_stdout: "inconnu\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Utilise une switch expression : var nom = n switch { 1 => \"lundi\", ..., 7 => \"dimanche\", _ => \"inconnu\" };"
+  course_ref: "cours.md#jour"
+solution: [Jour.cs]

@@ -1,0 +1,25 @@
+id: ex03-liste
+title: "Premier et dernier"
+objective: "Analyser un tableau d'entiers avec un list pattern et la tranche .. pour isoler premier et dernier."
+difficulty: difficile
+bonus: true
+deliverables: [Liste.cs]
+starter: [Liste.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "un seul\n"
+        expect_exit: 0
+      - stdin: "1 2 3\n"
+        expect_stdout: "premier=1 dernier=3\n"
+        expect_exit: 0
+      - stdin: "10 20\n"
+        expect_stdout: "premier=10 dernier=20\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "List pattern : t switch { [var x] => \"un seul\", [var f, .., var l] => $\"premier={f} dernier={l}\", _ => \"?\" }. La tranche .. avale les éléments du milieu (et zéro à 2 éléments)."
+  course_ref: "cours.md#liste"
+solution: [Liste.cs]
