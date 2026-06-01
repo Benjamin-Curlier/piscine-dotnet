@@ -1,0 +1,22 @@
+id: ex04-relation
+title: "Relation 1-N & Include"
+objective: "Modéliser une relation un-à-plusieurs et charger les entités liées (Include)."
+difficulty: difficile
+bonus: true
+deliverables: [Bibliotheque.cs]
+starter: [Bibliotheque.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nHugo Miserables\nHugo Notre-Dame\nZola Germinal\n"
+        expect_stdout: "Hugo: Miserables, Notre-Dame\nZola: Germinal\n"
+        expect_exit: 0
+      - stdin: "2\nVerne Voyage\nVerne Ile\n"
+        expect_stdout: "Verne: Ile, Voyage\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Auteur a une List<Livre> ; Livre a AuteurId + Auteur. Réutilise l'auteur déjà créé (dictionnaire). Charge avec db.Auteurs.Include(a => a.Livres).OrderBy(a => a.Nom) et trie aussi les titres. Affiche 'auteur: titre1, titre2'."
+  course_ref: "cours.md#relations"
+solution: [Bibliotheque.cs]

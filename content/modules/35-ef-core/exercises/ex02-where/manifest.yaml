@@ -1,0 +1,21 @@
+id: ex02-where
+title: "Filtre (Where) + tri"
+objective: "Filtrer des entités selon une condition, puis trier le résultat."
+difficulty: moyen
+deliverables: [Catalogue.cs]
+starter: [Catalogue.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\n3\nPoire 2\nPomme 1\nBanane 3\n"
+        expect_stdout: "Banane 3\nPoire 2\n"
+        expect_exit: 0
+      - stdin: "5\n3\nKiwi 4\nMangue 6\nFraise 2\n"
+        expect_stdout: "Mangue 6\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis le seuil, puis N, puis N 'nom prix'. Garde les produits dont Prix >= seuil : db.Produits.Where(x => x.Prix >= seuil).OrderBy(x => x.Nom)."
+  course_ref: "cours.md#requetes"
+solution: [Catalogue.cs]

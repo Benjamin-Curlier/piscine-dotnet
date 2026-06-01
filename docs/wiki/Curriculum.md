@@ -80,7 +80,7 @@ Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis
 | 32 | Garbage collection & gestion des ressources | ✅ io (+bonus) |
 | 33 | Discriminated unions (hiérarchies scellées) | ✅ io (+bonus) |
 | 34 | Interopérabilité (P/Invoke & code natif) | ✅ lecture |
-| 35 | Entity Framework Core (SQLite in-memory) | ⏳ à faire (packaging EF déjà en place) |
+| 35 | Entity Framework Core (SQLite in-memory) | ✅ io (+bonus) |
 
 Roadmap v2/v3 complète (dont v3 : Blazor, Docker, Silk.NET, clean architecture, graders projet) :
 [docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md).

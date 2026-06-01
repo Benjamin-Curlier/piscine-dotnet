@@ -1,0 +1,21 @@
+id: ex01-orderby
+title: "Requête triée (OrderBy)"
+objective: "Lire des entités triées par un champ — clé du déterminisme en io."
+difficulty: moyen
+deliverables: [Catalogue.cs]
+starter: [Catalogue.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nPoire 2\nPomme 1\nBanane 3\n"
+        expect_stdout: "Banane 3\nPoire 2\nPomme 1\n"
+        expect_exit: 0
+      - stdin: "2\nZebre 9\nAbeille 4\n"
+        expect_stdout: "Abeille 4\nZebre 9\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Insère chaque 'nom prix', puis itère db.Produits.OrderBy(x => x.Nom) et affiche 'nom prix'. Sans OrderBy, l'ordre n'est pas garanti."
+  course_ref: "cours.md#requetes"
+solution: [Catalogue.cs]

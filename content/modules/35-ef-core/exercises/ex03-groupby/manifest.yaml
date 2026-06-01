@@ -1,0 +1,21 @@
+id: ex03-groupby
+title: "Agrégation (GroupBy)"
+objective: "Regrouper des entités par un champ et compter chaque groupe."
+difficulty: moyen
+deliverables: [Catalogue.cs]
+starter: [Catalogue.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "4\nfruit Pomme\nlegume Carotte\nfruit Poire\nlegume Chou\n"
+        expect_stdout: "fruit: 2\nlegume: 2\n"
+        expect_exit: 0
+      - stdin: "3\nfruit Kiwi\nfruit Mangue\nlegume Chou\n"
+        expect_stdout: "fruit: 2\nlegume: 1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Insère 'categorie nom'. Regroupe : db.Articles.GroupBy(a => a.Categorie).Select(g => new { g.Key, N = g.Count() }).OrderBy(x => x.Key). Affiche 'categorie: nombre'."
+  course_ref: "cours.md#agregation"
+solution: [Catalogue.cs]

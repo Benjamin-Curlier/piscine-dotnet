@@ -1,0 +1,8 @@
+id: 35-ef-core
+title: "Entity Framework Core (SQLite in-memory)"
+order: 35
+course: cours.md
+groups:
+  - id: ef-core
+    title: "Accès aux données avec EF Core"
+    exercises: [ex00-insert, ex01-orderby, ex02-where, ex03-groupby, ex04-relation]

@@ -1,0 +1,21 @@
+id: ex00-insert
+title: "DbContext, insertion & comptage"
+objective: "Créer un DbContext sur SQLite in-memory, insérer des entités et les compter."
+difficulty: moyen
+deliverables: [Catalogue.cs]
+starter: [Catalogue.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nPomme\nPoire\nBanane\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "1\nKiwi\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Ouvre une SqliteConnection 'DataSource=:memory:' et garde-la ouverte. DbContextOptionsBuilder<T>().UseSqlite(connexion). EnsureCreated(), Add chaque Produit, SaveChanges(), puis affiche Produits.Count()."
+  course_ref: "cours.md#dbcontext"
+solution: [Catalogue.cs]
