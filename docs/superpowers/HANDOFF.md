@@ -71,11 +71,15 @@ feedback{hints, course_ref}, solution`.
   (stdin/stdout au caractère près). Valider une fois à la fin, puis 1 commit par module/rush.
 
 ## PROCHAINES ÉTAPES (par ordre)
-**v2 — approfondissement C#/.NET (en cours, numérotation M24+).** Reste à créer (io) :
-- **M33** Discriminated unions (hiérarchie scellée `abstract record` + `sealed`).
-- **M34** Interopérabilité (P/Invoke `LibraryImport` simple ; reste en lecture si non portable).
-- **M35** Entity Framework Core (DbContext + SQLite in-memory + requêtes `ORDER BY` déterministes).
-- Puis **débloquer M19/M20** (cf. ci-dessous) et **enrichir les modules existants** avec des exos bonus.
+**v2 — approfondissement C#/.NET : CONTENU TERMINÉ (M24–M35), CI verte.** Tous `io` (5 exos dont
+1 bonus difficile) sauf **M34 = lecture**. Créés en séquentiel (pas de sous-agent), via l'outil
+auteur **`piscine try <exo>`** (génère `expect_stdout`, ne plus deviner) : M24 switch, M25 enums,
+M26 static/const, M27 binaire, M28 complexité/tris, M29 recherche de chemin (BFS/Dijkstra/A*),
+M30 design patterns suite (Singleton/Adapter/Decorator/Builder/Command), M31 refactoring
+(starter smelly, io = filet de régression), M32 GC/ressources (IDisposable/`using`),
+M33 discriminated unions (`abstract record` + `sealed`), M34 interop (lecture), M35 EF Core
+(SQLite in-memory, `ORDER BY` déterministe).
+- Reste v2 : **débloquer M19/M20** (cf. ci-dessous) et **enrichir les modules existants** avec des exos bonus.
 - Penser à **MAJ `docs/wiki/Curriculum.md`** au fil des nouveaux modules.
 
 **Branche `v1.0-blockers`** (non mergée) — `docs/superpowers/BLOCKERS-v1.0.md` détaille les chantiers
