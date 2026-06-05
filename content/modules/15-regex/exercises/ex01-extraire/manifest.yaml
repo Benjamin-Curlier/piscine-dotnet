@@ -15,6 +15,18 @@ grading:
       - stdin: "a1b2c3\n"
         expect_stdout: "1\n2\n3\n"
         expect_exit: 0
+      # Aucun chiffre → sortie vide
+      - stdin: "abc\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # Chiffres en début et fin, grand nombre multi-chiffres
+      - stdin: "12abc456def789\n"
+        expect_stdout: "12\n456\n789\n"
+        expect_exit: 0
+      # Un seul grand nombre isolé
+      - stdin: "score=9999pts\n"
+        expect_stdout: "9999\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

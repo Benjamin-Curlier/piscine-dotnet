@@ -15,6 +15,18 @@ grading:
       - stdin: "2\n@no.com\nok@ok.fr\n"
         expect_stdout: "invalide\nvalide\n"
         expect_exit: 0
+      # Double arobase invalide ; email avec sous-domaine valide
+      - stdin: "2\nuser@@mail.com\nme@sub.domain.org\n"
+        expect_stdout: "invalide\nvalide\n"
+        expect_exit: 0
+      # Email avec chiffres valide ; pas de point dans le domaine = invalide
+      - stdin: "2\nuser123@mail.co\nnodot@nodot\n"
+        expect_stdout: "valide\ninvalide\n"
+        expect_exit: 0
+      # Espace dans l'adresse : invalide ; email long valide
+      - stdin: "2\nuser @mail.com\nfirst.last+tag@example.co.uk\n"
+        expect_stdout: "invalide\nvalide\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
