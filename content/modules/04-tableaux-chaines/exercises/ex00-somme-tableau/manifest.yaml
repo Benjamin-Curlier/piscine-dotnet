@@ -15,6 +15,14 @@ grading:
       - stdin: "42\n"
         expect_stdout: "42\n"
         expect_exit: 0
+      # plusieurs valeurs identiques
+      - stdin: "5 5 5 5 5\n"
+        expect_stdout: "25\n"
+        expect_exit: 0
+      # que des négatifs
+      - stdin: "-1 -2 -3\n"
+        expect_stdout: "-6\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

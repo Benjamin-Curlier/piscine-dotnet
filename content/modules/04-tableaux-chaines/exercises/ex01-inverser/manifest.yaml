@@ -15,6 +15,14 @@ grading:
       - stdin: "a\n"
         expect_stdout: "a\n"
         expect_exit: 0
+      # palindrome (inchangé une fois inversé)
+      - stdin: "kayak\n"
+        expect_stdout: "kayak\n"
+        expect_exit: 0
+      # espaces et chiffres préservés dans l'inversion
+      - stdin: "abc 123\n"
+        expect_stdout: "321 cba\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

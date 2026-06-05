@@ -18,6 +18,14 @@ grading:
       - stdin: "AEIOU\n"
         expect_stdout: "5\n"
         expect_exit: 0
+      # casse mixte, mot plus long
+      - stdin: "Programmation\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+      # minuscules et majuscules mêlées
+      - stdin: "aeiouAEIOU\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
