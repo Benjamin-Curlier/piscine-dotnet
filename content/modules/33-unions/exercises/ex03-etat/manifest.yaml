@@ -16,6 +16,18 @@ grading:
       - stdin: "termine ok\n"
         expect_stdout: "termine: ok\n"
         expect_exit: 0
+      # anti-hardcode : cours 0% (cas limite bas)
+      - stdin: "cours 0\n"
+        expect_stdout: "en cours a 0%\n"
+        expect_exit: 0
+      # cours 100% (cas limite haut)
+      - stdin: "cours 100\n"
+        expect_stdout: "en cours a 100%\n"
+        expect_exit: 0
+      # termine avec un résultat différent
+      - stdin: "termine echec\n"
+        expect_stdout: "termine: echec\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

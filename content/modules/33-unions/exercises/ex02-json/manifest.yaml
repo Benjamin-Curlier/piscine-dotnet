@@ -16,6 +16,18 @@ grading:
       - stdin: "booleen vrai\n"
         expect_stdout: "true\n"
         expect_exit: 0
+      # anti-hardcode : booleen faux => "false" (l'autre branche du booléen)
+      - stdin: "booleen faux\n"
+        expect_stdout: "false\n"
+        expect_exit: 0
+      # nombre 0 => "0" (nombre nul)
+      - stdin: "nombre 0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # texte monde => "\"monde\"" (autre texte)
+      - stdin: "texte monde\n"
+        expect_stdout: "\"monde\"\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

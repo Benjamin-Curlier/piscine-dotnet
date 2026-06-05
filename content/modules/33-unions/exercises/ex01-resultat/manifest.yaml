@@ -16,6 +16,18 @@ grading:
       - stdin: "20/5\n"
         expect_stdout: "OK 4\n"
         expect_exit: 0
+      # anti-hardcode : 1/1 => OK 1 (résultat = 1)
+      - stdin: "1/1\n"
+        expect_stdout: "OK 1\n"
+        expect_exit: 0
+      # 0/5 => OK 0 (numérateur nul)
+      - stdin: "0/5\n"
+        expect_stdout: "OK 0\n"
+        expect_exit: 0
+      # 100/0 => ERR (autre diviseur nul)
+      - stdin: "100/0\n"
+        expect_stdout: "ERR division par zero\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

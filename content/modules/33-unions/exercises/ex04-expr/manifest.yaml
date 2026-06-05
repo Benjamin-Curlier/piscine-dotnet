@@ -17,6 +17,18 @@ grading:
       - stdin: "5\n"
         expect_stdout: "5\n"
         expect_exit: 0
+      # anti-hardcode : + 1 2 => 3 (addition simple de deux feuilles)
+      - stdin: "+ 1 2\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      # * 3 3 => 9 (multiplication de deux feuilles identiques)
+      - stdin: "* 3 3\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+      # + * 2 3 * 4 5 => 2*3 + 4*5 = 6+20 = 26 (expression profonde)
+      - stdin: "+ * 2 3 * 4 5\n"
+        expect_stdout: "26\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
