@@ -15,6 +15,18 @@ grading:
       - stdin: "9\n3\n"
         expect_stdout: "3\n"
         expect_exit: 0
+      # dividende négatif (résultat négatif)
+      - stdin: "-12\n4\n"
+        expect_stdout: "-3\n"
+        expect_exit: 0
+      # 0 divisé par un nombre (résultat = 0)
+      - stdin: "0\n5\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # diviseur -1
+      - stdin: "15\n-3\n"
+        expect_stdout: "-5\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

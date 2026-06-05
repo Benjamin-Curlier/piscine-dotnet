@@ -15,6 +15,18 @@ grading:
       - stdin: "x\n"
         expect_stdout: "x: 1\n"
         expect_exit: 0
+      # ex-aequo de fréquence : tri alphabétique pour départager
+      - stdin: "chat chien chat chien\n"
+        expect_stdout: "chat: 2\nchien: 2\n"
+        expect_exit: 0
+      # tous identiques
+      - stdin: "zoo zoo zoo\n"
+        expect_stdout: "zoo: 3\n"
+        expect_exit: 0
+      # ex-aequo à 1 : tri alphabétique
+      - stdin: "beta alpha gamma\n"
+        expect_stdout: "alpha: 1\nbeta: 1\ngamma: 1\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

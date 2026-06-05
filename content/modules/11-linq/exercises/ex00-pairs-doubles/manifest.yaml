@@ -15,6 +15,18 @@ grading:
       - stdin: "7 8\n"
         expect_stdout: "16\n"
         expect_exit: 0
+      # tous impairs → sortie vide
+      - stdin: "1 3 5 7\n"
+        expect_stdout: "\n"
+        expect_exit: 0
+      # négatif pair → doit être retenu et doublé
+      - stdin: "-4 -3 2\n"
+        expect_stdout: "-8 4\n"
+        expect_exit: 0
+      # un seul nombre pair
+      - stdin: "100\n"
+        expect_stdout: "200\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

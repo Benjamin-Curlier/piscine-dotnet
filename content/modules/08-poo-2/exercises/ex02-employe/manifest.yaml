@@ -15,6 +15,18 @@ grading:
       - stdin: "2500\n2500\n0\n"
         expect_stdout: "5000\n"
         expect_exit: 0
+      # commission nulle et fixe élevé : total = juste le fixe + base
+      - stdin: "3000\n1000\n0\n"
+        expect_stdout: "4000\n"
+        expect_exit: 0
+      # grosse commission : piège pour ceux qui ignorent la commission
+      - stdin: "1000\n500\n2000\n"
+        expect_stdout: "3500\n"
+        expect_exit: 0
+      # valeurs minimales (salaires = 0)
+      - stdin: "0\n0\n0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

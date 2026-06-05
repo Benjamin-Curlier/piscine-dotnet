@@ -18,6 +18,18 @@ grading:
       - stdin: "10 -4 7\n"
         expect_stdout: "6\n"
         expect_exit: 0
+      # un seul nombre pair
+      - stdin: "8\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+      # négatifs pairs uniquement
+      - stdin: "-2 -6 -3\n"
+        expect_stdout: "-8\n"
+        expect_exit: 0
+      # grand nombre pair seul
+      - stdin: "1000000\n"
+        expect_stdout: "1000000\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

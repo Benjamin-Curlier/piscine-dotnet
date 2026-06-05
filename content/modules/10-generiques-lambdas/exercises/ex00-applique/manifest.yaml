@@ -15,6 +15,18 @@ grading:
       - stdin: "2\n0\n10\n"
         expect_stdout: "0\n100\n"
         expect_exit: 0
+      # négatif : carré toujours positif
+      - stdin: "1\n-7\n"
+        expect_stdout: "49\n"
+        expect_exit: 0
+      # grand nombre : détecte un hardcode ou débordement
+      - stdin: "1\n100\n"
+        expect_stdout: "10000\n"
+        expect_exit: 0
+      # valeur 1 (cas identité)
+      - stdin: "2\n1\n-1\n"
+        expect_stdout: "1\n1\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

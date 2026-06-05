@@ -16,6 +16,18 @@ grading:
       - stdin: "chocolat lait\n"
         expect_stdout: "Café, chocolat, lait : 5\n"
         expect_exit: 0
+      # un seul extra : chocolat seul (coût = 4)
+      - stdin: "chocolat\n"
+        expect_stdout: "Café, chocolat : 4\n"
+        expect_exit: 0
+      # ordre inversé par rapport au cas existant : sucre avant lait
+      - stdin: "sucre lait\n"
+        expect_stdout: "Café, sucre, lait : 4\n"
+        expect_exit: 0
+      # triple empilement : chocolat sucre lait
+      - stdin: "chocolat sucre lait\n"
+        expect_stdout: "Café, chocolat, sucre, lait : 6\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

@@ -16,6 +16,18 @@ grading:
       - stdin: "salade tomate oignon\n"
         expect_stdout: "Burger : pain, steak, salade, tomate, oignon (5 ingrédients)\n"
         expect_exit: 0
+      # un seul extra : fromage seulement (3 ingrédients)
+      - stdin: "fromage\n"
+        expect_stdout: "Burger : pain, steak, fromage (3 ingrédients)\n"
+        expect_exit: 0
+      # quatre extras : vérifie que le compteur suit
+      - stdin: "salade fromage bacon tomate\n"
+        expect_stdout: "Burger : pain, steak, salade, fromage, bacon, tomate (6 ingrédients)\n"
+        expect_exit: 0
+      # ordre différent : salade en premier vs bacon en premier
+      - stdin: "bacon salade\n"
+        expect_stdout: "Burger : pain, steak, bacon, salade (4 ingrédients)\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

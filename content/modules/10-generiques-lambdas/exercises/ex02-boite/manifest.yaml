@@ -15,6 +15,14 @@ grading:
       - stdin: "abc\n0\n"
         expect_stdout: "Boite contient: abc\nBoite contient: 0\n"
         expect_exit: 0
+      # nombre négatif (teste que int est bien stocké, pas juste abs)
+      - stdin: "hello\n-99\n"
+        expect_stdout: "Boite contient: hello\nBoite contient: -99\n"
+        expect_exit: 0
+      # mot long avec espaces (espace fait partie du contenu)
+      - stdin: "un mot\n1234\n"
+        expect_stdout: "Boite contient: un mot\nBoite contient: 1234\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

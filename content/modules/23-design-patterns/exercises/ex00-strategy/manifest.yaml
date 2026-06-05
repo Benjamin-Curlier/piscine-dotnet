@@ -15,6 +15,22 @@ grading:
       - stdin: "add\n10\n5\n"
         expect_stdout: "15\n"
         expect_exit: 0
+      # multiplication par 0 : piège pour qui confond les opérations
+      - stdin: "mul\n7\n0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # addition avec grands nombres
+      - stdin: "add\n100\n999\n"
+        expect_stdout: "1099\n"
+        expect_exit: 0
+      # multiplication non commutative dans l'ordre a,b
+      - stdin: "mul\n6\n7\n"
+        expect_stdout: "42\n"
+        expect_exit: 0
+      # addition de deux zéros
+      - stdin: "add\n0\n0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
