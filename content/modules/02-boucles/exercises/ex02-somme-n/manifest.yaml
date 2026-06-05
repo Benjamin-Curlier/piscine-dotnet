@@ -15,6 +15,14 @@ grading:
       - stdin: "1\n"
         expect_stdout: "1\n"
         expect_exit: 0
+      # petit cas
+      - stdin: "2\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      # grand N (anti-hardcode) : 1+...+100 = 5050
+      - stdin: "100\n"
+        expect_stdout: "5050\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

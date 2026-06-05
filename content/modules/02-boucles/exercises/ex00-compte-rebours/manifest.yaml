@@ -15,6 +15,13 @@ grading:
       - stdin: "5\n"
         expect_stdout: "5\n4\n3\n2\n1\n"
         expect_exit: 0
+      # N plus grand (anti-hardcode)
+      - stdin: "10\n"
+        expect_stdout: "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\n"
+        expect_exit: 0
+      - stdin: "7\n"
+        expect_stdout: "7\n6\n5\n4\n3\n2\n1\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
