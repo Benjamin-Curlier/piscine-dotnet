@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Piscine .NET — bootcamp C# / .NET 10, cours et exercices auto-corrigés." />
     <base href="/" />
+    <script>
+        // Appliqué avant le rendu pour éviter tout flash de thème clair.
+        window.__applyTheme = function () {
+            var t = localStorage.getItem('theme')
+                || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', t);
+        };
+        window.__applyTheme();
+    </script>
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["Piscine.Web.styles.css"]" />
@@ -27,10 +36,29 @@
                 window.hljs.highlightElement(el);
             });
         }
-        document.addEventListener('DOMContentLoaded', highlightAll);
-        window.addEventListener('load', highlightAll);
+        function updateThemeIcon() {
+            var b = document.getElementById('theme-toggle');
+            if (b) {
+                b.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀' : '☾';
+            }
+        }
+        function toggleTheme() {
+            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', next);
+            document.documentElement.setAttribute('data-theme', next);
+            updateThemeIcon();
+        }
+        window.toggleTheme = toggleTheme;
+        function onPageReady() {
+            // La navigation enhanced peut réécrire <html> : on réapplique le thème.
+            window.__applyTheme();
+            updateThemeIcon();
+            highlightAll();
+        }
+        document.addEventListener('DOMContentLoaded', onPageReady);
+        window.addEventListener('load', onPageReady);
         if (window.Blazor) {
-            Blazor.addEventListener('enhancedload', highlightAll);
+            Blazor.addEventListener('enhancedload', onPageReady);
         }
     </script>
 </body>
