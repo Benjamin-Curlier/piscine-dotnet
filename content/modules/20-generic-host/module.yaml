@@ -1,0 +1,8 @@
+id: 20-generic-host
+title: "Generic Host & services hébergés"
+order: 20
+course: cours.md
+groups:
+  - id: generic-host
+    title: "Generic Host"
+    exercises: [ex00-premier-hote, ex01-cycle-vie, ex02-travail, ex03-pipeline]

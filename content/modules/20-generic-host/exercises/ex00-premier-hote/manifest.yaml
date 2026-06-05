@@ -1,0 +1,17 @@
+id: ex00-premier-hote
+title: "Premier hôte"
+objective: "Construire un Generic Host, y enregistrer un service hébergé (BackgroundService) qui fait une unité de travail puis arrête proprement l'application."
+deliverables: [PremierHote.cs, LogCapture.cs]
+starter: [PremierHote.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: ""
+        expect_stdout: "Worker [Information] Hôte démarré, travail effectué\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Host.CreateApplicationBuilder(args) ; AddHostedService<Worker>() ; dans ExecuteAsync, logue puis IHostApplicationLifetime.StopApplication(). Pense à AddFilter(\"Microsoft\", LogLevel.None) pour taire les logs du host."
+  course_ref: "cours.md#premier-hote"
+solution: [PremierHote.cs, LogCapture.cs]

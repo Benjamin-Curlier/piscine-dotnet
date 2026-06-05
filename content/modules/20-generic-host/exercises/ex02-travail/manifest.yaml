@@ -1,0 +1,20 @@
+id: ex02-travail
+title: "Une unité de travail"
+objective: "Injecter un paramètre par DI dans un BackgroundService, calculer une valeur déterministe, la journaliser, puis arrêter l'hôte."
+deliverables: [Travail.cs, LogCapture.cs]
+starter: [Travail.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\n"
+        expect_stdout: "Travailleur [Information] Somme 1..5 = 15\n"
+        expect_exit: 0
+      - stdin: "10\n"
+        expect_stdout: "Travailleur [Information] Somme 1..10 = 55\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Lis n AVANT de construire l'hôte, enregistre-le (AddSingleton(new Parametres(n))), injecte-le dans le worker, calcule la somme 1..n et logue \"Somme 1..{N} = {Somme}\"."
+  course_ref: "cours.md#travail"
+solution: [Travail.cs, LogCapture.cs]

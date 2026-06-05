@@ -1,0 +1,17 @@
+id: ex01-cycle-vie
+title: "Cycle de vie"
+objective: "Implémenter IHostedService directement : StartAsync au démarrage, StopAsync à l'arrêt. Observer l'ordre du cycle de vie."
+deliverables: [CycleVie.cs, LogCapture.cs]
+starter: [CycleVie.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: ""
+        expect_stdout: "Cycle [Information] Démarrage\nCycle [Information] Arrêt\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Implémente IHostedService : logue \"Démarrage\" dans StartAsync (puis StopApplication()), et \"Arrêt\" dans StopAsync."
+  course_ref: "cours.md#cycle-vie"
+solution: [CycleVie.cs, LogCapture.cs]

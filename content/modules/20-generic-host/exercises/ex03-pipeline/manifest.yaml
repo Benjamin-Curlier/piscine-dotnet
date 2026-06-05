@@ -1,0 +1,22 @@
+id: ex03-pipeline
+title: "Pipeline producteur/consommateur"
+objective: "Dans un service hébergé, faire transiter des valeurs par un Channel (producteur puis consommateur, FIFO déterministe), journaliser chaque traitement et le total, puis arrêter."
+difficulty: difficile
+bonus: true
+deliverables: [Pipeline.cs, LogCapture.cs]
+starter: [Pipeline.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "1 2 3\n"
+        expect_stdout: "Pipeline [Information] Traité 1 -> 2\nPipeline [Information] Traité 2 -> 4\nPipeline [Information] Traité 3 -> 6\nPipeline [Information] Total = 12\n"
+        expect_exit: 0
+      - stdin: "10 20\n"
+        expect_stdout: "Pipeline [Information] Traité 10 -> 20\nPipeline [Information] Traité 20 -> 40\nPipeline [Information] Total = 60\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Channel.CreateUnbounded<int>() : écris toutes les valeurs, Writer.Complete(), puis consomme via ReadAllAsync. Logue \"Traité {Valeur} -> {Double}\" pour chacune, puis \"Total = {Total}\"."
+  course_ref: "cours.md#pipeline"
+solution: [Pipeline.cs, LogCapture.cs]
