@@ -15,6 +15,18 @@ grading:
       - stdin: "2\nchien\nchien\n"
         expect_stdout: "Wouf\nWouf\n"
         expect_exit: 0
+      # séquence alternée longue : vérifie le polymorphisme correctement
+      - stdin: "4\nchat\nchien\nchat\nchien\n"
+        expect_stdout: "Miaou\nWouf\nMiaou\nWouf\n"
+        expect_exit: 0
+      # un seul chien
+      - stdin: "1\nchien\n"
+        expect_stdout: "Wouf\n"
+        expect_exit: 0
+      # majorité de chats
+      - stdin: "5\nchat\nchat\nchien\nchat\nchat\n"
+        expect_stdout: "Miaou\nMiaou\nWouf\nMiaou\nMiaou\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
