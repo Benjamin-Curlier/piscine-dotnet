@@ -12,6 +12,14 @@ grading:
       - stdin: "Réseau\n"
         expect_stdout: "App [Information] Réseau prêt\nApp [Warning] Mémoire faible\nApp [Error] Échec du traitement\n"
         expect_exit: 0
+      # nom court (vérifie que le Debug reste filtré)
+      - stdin: "DB\n"
+        expect_stdout: "App [Information] DB prêt\nApp [Warning] Mémoire faible\nApp [Error] Échec du traitement\n"
+        expect_exit: 0
+      # nom composé
+      - stdin: "Auth-Service\n"
+        expect_stdout: "App [Information] Auth-Service prêt\nApp [Warning] Mémoire faible\nApp [Error] Échec du traitement\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

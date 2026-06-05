@@ -12,6 +12,14 @@ grading:
       - stdin: "Connexion acceptée\n"
         expect_stdout: "App [Information] Connexion acceptée\n"
         expect_exit: 0
+      # message avec chiffres et ponctuation
+      - stdin: "Erreur 500 sur /api/users\n"
+        expect_stdout: "App [Information] Erreur 500 sur /api/users\n"
+        expect_exit: 0
+      # message avec caractères spéciaux
+      - stdin: "Tâche #42 terminée (OK)\n"
+        expect_stdout: "App [Information] Tâche #42 terminée (OK)\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

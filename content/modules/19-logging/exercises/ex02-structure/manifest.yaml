@@ -12,6 +12,14 @@ grading:
       - stdin: "7\nBob\n"
         expect_stdout: "Commandes [Information] Commande 7 validée pour Bob\n"
         expect_exit: 0
+      # grand id, nom composé avec espace
+      - stdin: "1000\nÉquipe Réseau\n"
+        expect_stdout: "Commandes [Information] Commande 1000 validée pour Équipe Réseau\n"
+        expect_exit: 0
+      # id zéro
+      - stdin: "0\nZoé\n"
+        expect_stdout: "Commandes [Information] Commande 0 validée pour Zoé\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
