@@ -6,11 +6,12 @@ namespace Piscine.Grading;
 /// <summary>Résultat éducatif produit par un grader pour une étape de notation.</summary>
 public sealed class GraderResult
 {
-    private GraderResult(string graderType, GraderStatus status, IReadOnlyList<string> messages)
+    private GraderResult(string graderType, GraderStatus status, IReadOnlyList<string> messages, string? trigger)
     {
         GraderType = graderType;
         Status = status;
         Messages = messages;
+        Trigger = trigger;
     }
 
     public string GraderType { get; }
@@ -19,13 +20,23 @@ public sealed class GraderResult
 
     public IReadOnlyList<string> Messages { get; }
 
+    /// <summary>
+    /// Déclencheur de feedback en cas d'échec (cf. <see cref="Piscine.Core.Model.FeedbackTriggers"/>),
+    /// ou <c>null</c>. Permet au formateur d'afficher le hint dont le <c>when</c> correspond.
+    /// </summary>
+    public string? Trigger { get; }
+
     public static GraderResult Success(string graderType) =>
-        new(graderType, GraderStatus.Reussi, new List<string>());
+        new(graderType, GraderStatus.Reussi, new List<string>(), null);
 
     public static GraderResult Failure(string graderType, params string[] messages) =>
-        new(graderType, GraderStatus.ARevoir, messages.ToList());
+        new(graderType, GraderStatus.ARevoir, messages.ToList(), null);
 
     /// <summary>Réussite avec messages consultatifs (ex. norme non bloquante).</summary>
     public static GraderResult Advisory(string graderType, params string[] messages) =>
-        new(graderType, GraderStatus.Reussi, messages.ToList());
+        new(graderType, GraderStatus.Reussi, messages.ToList(), null);
+
+    /// <summary>Copie du résultat en y attachant un déclencheur de feedback.</summary>
+    public GraderResult WithTrigger(string trigger) =>
+        new(GraderType, Status, Messages, trigger);
 }

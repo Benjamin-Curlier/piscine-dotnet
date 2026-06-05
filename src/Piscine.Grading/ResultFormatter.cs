@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text;
 using Piscine.Core.Model;
 
@@ -19,9 +20,18 @@ public static class ResultFormatter
             }
         }
 
-        if (result.Status == GraderStatus.ARevoir && !string.IsNullOrWhiteSpace(feedback.CourseRef))
+        if (result.Status == GraderStatus.ARevoir)
         {
-            sb.AppendLine($"→ Revois le cours : {feedback.CourseRef}");
+            var hint = MatchHint(result, feedback);
+            if (hint is not null)
+            {
+                sb.AppendLine($"→ Indice : {hint}");
+            }
+
+            if (!string.IsNullOrWhiteSpace(feedback.CourseRef))
+            {
+                sb.AppendLine($"→ Revois le cours : {feedback.CourseRef}");
+            }
         }
 
         return sb.ToString().TrimEnd();
@@ -38,6 +48,25 @@ public static class ResultFormatter
         sb.AppendLine($"Aucun fichier rendu pour {exerciseId}.");
         sb.AppendLine($"Commence par : piscine start {exerciseId}, puis code dans le workspace.");
         return sb.ToString().TrimEnd();
+    }
+
+    /// <summary>Retourne le message du hint dont le <c>when</c> correspond au déclencheur de l'échec, ou <c>null</c>.</summary>
+    private static string? MatchHint(ExerciseGradingResult result, FeedbackConfig feedback)
+    {
+        if (feedback.Hints.Count == 0)
+        {
+            return null;
+        }
+
+        var trigger = result.Results
+            .FirstOrDefault(r => r.Status == GraderStatus.ARevoir && r.Trigger is not null)?
+            .Trigger;
+        if (trigger is null)
+        {
+            return null;
+        }
+
+        return feedback.Hints.FirstOrDefault(h => h.When == trigger)?.Message;
     }
 
     private static string Label(GraderStatus status) => status switch

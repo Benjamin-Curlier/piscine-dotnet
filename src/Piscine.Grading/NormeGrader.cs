@@ -31,7 +31,7 @@ public sealed class NormeGrader : IGrader
         }
 
         return step.Blocking
-            ? GraderResult.Failure(Type, messages.ToArray())
+            ? GraderResult.Failure(Type, messages.ToArray()).WithTrigger(FeedbackTriggers.NormeViolation)
             : GraderResult.Advisory(Type, messages.ToArray());
     }
 

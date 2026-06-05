@@ -59,5 +59,37 @@ public class IoGraderTests
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Contains(result.Messages, m => m.Contains("compil", System.StringComparison.OrdinalIgnoreCase));
+        Assert.Equal(FeedbackTriggers.CompileError, result.Trigger);
+    }
+
+    [Fact]
+    public void Grade_StdoutDiffers_SetsIoMismatchTrigger()
+    {
+        var sources = new Dictionary<string, string>
+        {
+            ["Hello.cs"] = """
+                System.Console.Write("Bonjour");
+                """
+        };
+
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("Hello, Piscine!"));
+
+        Assert.Equal(FeedbackTriggers.IoMismatch, result.Trigger);
+    }
+
+    [Fact]
+    public void Grade_WrongExitCode_SetsExitCodeTrigger()
+    {
+        var sources = new Dictionary<string, string>
+        {
+            ["Hello.cs"] = """
+                System.Console.Write("ok");
+                return 3;
+                """
+        };
+
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("ok", expectExit: 0));
+
+        Assert.Equal(FeedbackTriggers.ExitCode, result.Trigger);
     }
 }

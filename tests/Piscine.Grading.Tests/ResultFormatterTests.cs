@@ -24,6 +24,45 @@ public class ResultFormatterTests
     }
 
     [Fact]
+    public void Format_ARevoir_ShowsHintMatchingTrigger()
+    {
+        var result = new ExerciseGradingResult("ex00", new[]
+        {
+            GraderResult.Failure("io", "La sortie ne correspond pas.").WithTrigger(FeedbackTriggers.IoMismatch)
+        });
+        var feedback = new FeedbackConfig
+        {
+            Hints =
+            {
+                new FeedbackHint { When = FeedbackTriggers.CompileError, Message = "Vérifie la syntaxe." },
+                new FeedbackHint { When = FeedbackTriggers.IoMismatch, Message = "Compte les espaces et les retours ligne." },
+            },
+        };
+
+        var text = ResultFormatter.Format(result, feedback);
+
+        Assert.Contains("Indice : Compte les espaces", text);
+        Assert.DoesNotContain("Vérifie la syntaxe.", text);
+    }
+
+    [Fact]
+    public void Format_ARevoir_NoHintWhenTriggerHasNoMatch()
+    {
+        var result = new ExerciseGradingResult("ex00", new[]
+        {
+            GraderResult.Failure("io", "Code de sortie inattendu.").WithTrigger(FeedbackTriggers.ExitCode)
+        });
+        var feedback = new FeedbackConfig
+        {
+            Hints = { new FeedbackHint { When = FeedbackTriggers.IoMismatch, Message = "indice io" } },
+        };
+
+        var text = ResultFormatter.Format(result, feedback);
+
+        Assert.DoesNotContain("Indice :", text);
+    }
+
+    [Fact]
     public void Format_Reussi_ShowsSuccess()
     {
         var result = new ExerciseGradingResult("ex00", new[] { GraderResult.Success("io") });

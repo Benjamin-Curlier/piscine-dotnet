@@ -44,7 +44,7 @@ public sealed class UnitGrader : IGrader
         {
             var messages = new List<string> { "Le code ne compile pas :" };
             messages.AddRange(compilation.Errors);
-            return GraderResult.Failure(Type, messages.ToArray());
+            return GraderResult.Failure(Type, messages.ToArray()).WithTrigger(FeedbackTriggers.CompileError);
         }
 
         return RunTests(compilation.AssemblyBytes);
@@ -61,7 +61,7 @@ public sealed class UnitGrader : IGrader
 
             if (methods.Count == 0)
             {
-                return GraderResult.Failure(Type, "Aucun test n'a été trouvé.");
+                return GraderResult.Failure(Type, "Aucun test n'a été trouvé.").WithTrigger(FeedbackTriggers.UnitFailure);
             }
 
             var failures = new List<string>();
@@ -79,12 +79,13 @@ public sealed class UnitGrader : IGrader
 
             if (!task.Wait(Timeout))
             {
-                return GraderResult.Failure(Type, "Les tests ne se sont pas terminés à temps (boucle infinie ?).");
+                return GraderResult.Failure(Type, "Les tests ne se sont pas terminés à temps (boucle infinie ?).")
+                    .WithTrigger(FeedbackTriggers.Timeout);
             }
 
             return failures.Count == 0
                 ? GraderResult.Success(Type)
-                : GraderResult.Failure(Type, failures.ToArray());
+                : GraderResult.Failure(Type, failures.ToArray()).WithTrigger(FeedbackTriggers.UnitFailure);
         }
         finally
         {

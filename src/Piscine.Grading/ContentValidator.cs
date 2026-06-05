@@ -90,6 +90,7 @@ public sealed class ContentValidator
         ValidateDifficulty(exerciseId, manifest, issues);
         ValidateStarterFiles(exerciseId, location, manifest, issues);
         ValidateCourseRef(exerciseId, location, manifest, issues);
+        ValidateHints(exerciseId, manifest, issues);
 
         var solutionDir = Path.Combine(location.ContentDir, SolutionDirName);
         if (!Directory.Exists(solutionDir))
@@ -122,6 +123,19 @@ public sealed class ContentValidator
             issues.Add(new ContentIssue(
                 exerciseId,
                 $"difficulty invalide : « {manifest.Difficulty} » (attendu : {string.Join(" | ", ValidDifficulties)})."));
+        }
+    }
+
+    private static void ValidateHints(string exerciseId, ExerciseManifest manifest, List<ContentIssue> issues)
+    {
+        foreach (var hint in manifest.Feedback.Hints)
+        {
+            if (!FeedbackTriggers.All.Contains(hint.When))
+            {
+                issues.Add(new ContentIssue(
+                    exerciseId,
+                    $"hint when invalide : « {hint.When} » (attendu : {string.Join(" | ", FeedbackTriggers.All)})."));
+            }
         }
     }
 

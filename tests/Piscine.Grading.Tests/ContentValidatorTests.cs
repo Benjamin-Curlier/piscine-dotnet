@@ -228,6 +228,52 @@ public class ContentValidatorTests
     }
 
     [Fact]
+    public void Validate_InvalidHintTrigger_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            feedback:
+              hints:
+                - when: pas_un_declencheur
+                  message: "indice"
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("hint when invalide"));
+    }
+
+    [Fact]
+    public void Validate_ValidHintTrigger_NoHintIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            feedback:
+              hints:
+                - when: io_mismatch
+                  message: "indice"
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.DoesNotContain(report.Issues, i => i.Message.Contains("hint when"));
+    }
+
+    [Fact]
     public void Validate_CourseRefButNoCourseFile_ReportsIssue()
     {
         using var dir = new TempDir();
