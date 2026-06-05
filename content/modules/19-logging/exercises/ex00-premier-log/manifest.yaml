@@ -1,0 +1,20 @@
+id: ex00-premier-log
+title: "Premier log"
+objective: "Construire un LoggerFactory avec le provider fourni, obtenir un logger de catégorie \"App\" et journaliser un message Information lu sur l'entrée."
+deliverables: [PremierLog.cs, LogCapture.cs]
+starter: [PremierLog.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Service démarré\n"
+        expect_stdout: "App [Information] Service démarré\n"
+        expect_exit: 0
+      - stdin: "Connexion acceptée\n"
+        expect_stdout: "App [Information] Connexion acceptée\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "LoggerFactory.Create(b => b.AddProvider(new CaptureLoggerProvider()).SetMinimumLevel(LogLevel.Information)); puis factory.CreateLogger(\"App\").LogInformation(message)."
+  course_ref: "cours.md#premier-log"
+solution: [PremierLog.cs, LogCapture.cs]

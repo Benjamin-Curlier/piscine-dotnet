@@ -1,0 +1,20 @@
+id: ex01-niveaux
+title: "Niveaux de log"
+objective: "Journaliser à plusieurs niveaux (Debug, Information, Warning, Error) en fixant le niveau minimum à Information : le Debug est filtré."
+deliverables: [Niveaux.cs, LogCapture.cs]
+starter: [Niveaux.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Cache\n"
+        expect_stdout: "App [Information] Cache prêt\nApp [Warning] Mémoire faible\nApp [Error] Échec du traitement\n"
+        expect_exit: 0
+      - stdin: "Réseau\n"
+        expect_stdout: "App [Information] Réseau prêt\nApp [Warning] Mémoire faible\nApp [Error] Échec du traitement\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "SetMinimumLevel(LogLevel.Information) fait que LogDebug n'apparaît pas. Logue ensuite Information, Warning, Error."
+  course_ref: "cours.md#niveaux"
+solution: [Niveaux.cs, LogCapture.cs]

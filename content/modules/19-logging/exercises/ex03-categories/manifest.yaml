@@ -1,0 +1,19 @@
+id: ex03-categories
+title: "Filtrer par catégorie"
+objective: "Régler des niveaux différents par catégorie via AddFilter : la catégorie \"Db\" n'émet qu'à partir de Warning, \"App\" dès Information."
+difficulty: difficile
+bonus: true
+deliverables: [Categories.cs, LogCapture.cs]
+starter: [Categories.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: ""
+        expect_stdout: "App [Information] Démarrage\nDb [Warning] Requête lente (1.2s)\nApp [Information] Arrêt\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "builder.AddFilter(\"Db\", LogLevel.Warning) : le LogInformation de la catégorie Db est filtré, mais son LogWarning passe. App reste à Information."
+  course_ref: "cours.md#categories"
+solution: [Categories.cs, LogCapture.cs]

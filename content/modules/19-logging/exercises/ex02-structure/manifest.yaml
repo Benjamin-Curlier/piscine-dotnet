@@ -1,0 +1,20 @@
+id: ex02-structure
+title: "Log structuré"
+objective: "Journaliser avec un message à trous nommés (\"Commande {Id} pour {Client}\") et ses arguments : c'est le logging structuré."
+deliverables: [Structure.cs, LogCapture.cs]
+starter: [Structure.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "42\nAlice\n"
+        expect_stdout: "Commandes [Information] Commande 42 validée pour Alice\n"
+        expect_exit: 0
+      - stdin: "7\nBob\n"
+        expect_stdout: "Commandes [Information] Commande 7 validée pour Bob\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "logger.LogInformation(\"Commande {Id} validée pour {Client}\", id, client) : les trous {Id}/{Client} sont remplis dans l'ordre des arguments."
+  course_ref: "cours.md#structure"
+solution: [Structure.cs, LogCapture.cs]

@@ -1,0 +1,8 @@
+id: 19-logging
+title: "Logging"
+order: 19
+course: cours.md
+groups:
+  - id: logging
+    title: "Journalisation"
+    exercises: [ex00-premier-log, ex01-niveaux, ex02-structure, ex03-categories]
