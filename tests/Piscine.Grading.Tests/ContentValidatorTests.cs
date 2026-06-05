@@ -98,4 +98,153 @@ public class ContentValidatorTests
         Assert.False(report.IsValid);
         Assert.Contains(report.Issues, i => i.Message.Contains("grader/Tests.cs"));
     }
+
+    private static readonly string ExerciseDir = Path.Combine("content", "modules", "00-setup", "exercises", "ex00");
+    private static readonly string CoursePath = Path.Combine("content", "modules", "00-setup", "cours.md");
+
+    [Fact]
+    public void Validate_InvalidDifficulty_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            difficulty: extreme
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("difficulty invalide"));
+    }
+
+    [Fact]
+    public void Validate_ValidDifficulty_NoDifficultyIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            difficulty: facile
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.DoesNotContain(report.Issues, i => i.Message.Contains("difficulty"));
+    }
+
+    [Fact]
+    public void Validate_DeclaredStarterMissing_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            starter: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("starter déclaré mais manquant"));
+    }
+
+    [Fact]
+    public void Validate_DeclaredStarterPresent_NoStarterIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            starter: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");");
+        dir.WriteFile(Path.Combine(ExerciseDir, "starter", "Hello.cs"), "// départ");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.DoesNotContain(report.Issues, i => i.Message.Contains("starter"));
+    }
+
+    [Fact]
+    public void Validate_CourseRefAnchorResolves_NoIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            feedback:
+              course_ref: "cours.md#hello"
+            """, "System.Console.Write(\"ok\");");
+        dir.WriteFile(CoursePath, "# Cours\n## Hello {#hello}\n");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.DoesNotContain(report.Issues, i => i.Message.Contains("course_ref"));
+    }
+
+    [Fact]
+    public void Validate_CourseRefAnchorMissing_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            feedback:
+              course_ref: "cours.md#inexistant"
+            """, "System.Console.Write(\"ok\");");
+        dir.WriteFile(CoursePath, "# Cours\n## Hello {#hello}\n");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("ancre #inexistant"));
+    }
+
+    [Fact]
+    public void Validate_CourseRefButNoCourseFile_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            feedback:
+              course_ref: "cours.md#hello"
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("introuvable pour le module"));
+    }
 }
