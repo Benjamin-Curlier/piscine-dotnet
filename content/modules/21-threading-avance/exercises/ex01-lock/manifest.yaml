@@ -15,6 +15,16 @@ grading:
       - stdin: "1\n"
         expect_stdout: "1\n"
         expect_exit: 0
+      # cas discriminants anti-hardcode
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "100\n"
+        expect_stdout: "100\n"
+        expect_exit: 0
+      - stdin: "500\n"
+        expect_stdout: "500\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

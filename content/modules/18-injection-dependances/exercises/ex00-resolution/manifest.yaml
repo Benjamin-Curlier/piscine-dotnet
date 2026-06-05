@@ -15,6 +15,16 @@ grading:
       - stdin: "Eve\n"
         expect_stdout: "Bonjour, Eve!\n"
         expect_exit: 0
+      # cas discriminants anti-hardcode
+      - stdin: "Charlie\n"
+        expect_stdout: "Bonjour, Charlie!\n"
+        expect_exit: 0
+      - stdin: "123\n"
+        expect_stdout: "Bonjour, 123!\n"
+        expect_exit: 0
+      - stdin: "A B\n"
+        expect_stdout: "Bonjour, A B!\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
