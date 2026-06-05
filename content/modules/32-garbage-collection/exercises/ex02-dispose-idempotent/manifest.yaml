@@ -13,6 +13,14 @@ grading:
       - stdin: "session\n"
         expect_stdout: "ouvre session\nferme session\n"
         expect_exit: 0
+      # nom court : anti-hardcode
+      - stdin: "x\n"
+        expect_stdout: "ouvre x\nferme x\n"
+        expect_exit: 0
+      # nom long
+      - stdin: "connexion-principale\n"
+        expect_stdout: "ouvre connexion-principale\nferme connexion-principale\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

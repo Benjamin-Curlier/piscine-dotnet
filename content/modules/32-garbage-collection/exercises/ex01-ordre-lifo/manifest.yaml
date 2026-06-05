@@ -13,6 +13,14 @@ grading:
       - stdin: "1 2 3\n"
         expect_stdout: "ouvre 1\nouvre 2\nouvre 3\ntravail\nferme 3\nferme 2\nferme 1\n"
         expect_exit: 0
+      # vérifier l'ordre LIFO avec des noms différents
+      - stdin: "alpha beta gamma\n"
+        expect_stdout: "ouvre alpha\nouvre beta\nouvre gamma\ntravail\nferme gamma\nferme beta\nferme alpha\n"
+        expect_exit: 0
+      # noms plus courts : x y z
+      - stdin: "x y z\n"
+        expect_stdout: "ouvre x\nouvre y\nouvre z\ntravail\nferme z\nferme y\nferme x\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
