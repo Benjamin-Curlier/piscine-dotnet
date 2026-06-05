@@ -17,6 +17,18 @@ grading:
       - stdin: "add 5\nundo\nundo\n"
         expect_stdout: "0\n"
         expect_exit: 0
+      # undo d'un sub : annulation de soustraction
+      - stdin: "add 10\nsub 3\nundo\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      # enchaînement add/sub sans undo
+      - stdin: "add 100\nsub 50\nadd 25\n"
+        expect_stdout: "75\n"
+        expect_exit: 0
+      # undo sur pile vide ne plante pas, puis add normal
+      - stdin: "undo\nadd 7\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

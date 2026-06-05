@@ -16,6 +16,18 @@ grading:
       - stdin: "Alice:30\nZoe\n"
         expect_stdout: "-1\n"
         expect_exit: 0
+      # un seul élément, cherche cet élément
+      - stdin: "Luc:18\nLuc\n"
+        expect_stdout: "18\n"
+        expect_exit: 0
+      # trois éléments, cherche le dernier
+      - stdin: "Anna:22,Marc:35,Eva:28\nEva\n"
+        expect_stdout: "28\n"
+        expect_exit: 0
+      # nom présent mais âge = 0
+      - stdin: "Test:0\nTest\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

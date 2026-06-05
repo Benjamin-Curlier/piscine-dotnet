@@ -16,6 +16,18 @@ grading:
       - stdin: "10\n1\n"
         expect_stdout: "11\n"
         expect_exit: 0
+      # a grand, b=0 : total = a seulement
+      - stdin: "7\n0\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
+      # a=0, b grand : piège si deux instances distinctes
+      - stdin: "0\n9\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+      # a=b : total = 2*a
+      - stdin: "4\n4\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
