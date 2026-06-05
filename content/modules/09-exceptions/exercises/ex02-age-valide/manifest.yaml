@@ -15,6 +15,18 @@ grading:
       - stdin: "200\n"
         expect_stdout: "Age invalide\n"
         expect_exit: 0
+      # limite basse exacte (0 = valide)
+      - stdin: "0\n"
+        expect_stdout: "Age: 0\n"
+        expect_exit: 0
+      # limite haute exacte (150 = valide)
+      - stdin: "150\n"
+        expect_stdout: "Age: 150\n"
+        expect_exit: 0
+      # juste au-dessus de la limite (151 = invalide)
+      - stdin: "151\n"
+        expect_stdout: "Age invalide\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

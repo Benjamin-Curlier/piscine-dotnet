@@ -15,6 +15,18 @@ grading:
       - stdin: "2\n-5\n10\n"
         expect_stdout: "-5\n10\n"
         expect_exit: 0
+      # nombre flottant non entier → invalide
+      - stdin: "2\n3.14\n99\n"
+        expect_stdout: "invalide\n99\n"
+        expect_exit: 0
+      # valeurs toutes invalides
+      - stdin: "3\nabc\n!!\nfoo\n"
+        expect_stdout: "invalide\ninvalide\ninvalide\n"
+        expect_exit: 0
+      # zéro en entrée → résultat valide
+      - stdin: "1\n0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
