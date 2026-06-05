@@ -15,6 +15,18 @@ grading:
       - stdin: "Eve\n0\n"
         expect_stdout: "{\"Nom\":\"Eve\",\"Age\":0}\n"
         expect_exit: 0
+      # Age à trois chiffres
+      - stdin: "Centenaire\n100\n"
+        expect_stdout: "{\"Nom\":\"Centenaire\",\"Age\":100}\n"
+        expect_exit: 0
+      # Nom avec espace (JSON doit conserver l'espace)
+      - stdin: "Jean Pierre\n55\n"
+        expect_stdout: "{\"Nom\":\"Jean Pierre\",\"Age\":55}\n"
+        expect_exit: 0
+      # Nom contenant des chiffres
+      - stdin: "C3PO\n0\n"
+        expect_stdout: "{\"Nom\":\"C3PO\",\"Age\":0}\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

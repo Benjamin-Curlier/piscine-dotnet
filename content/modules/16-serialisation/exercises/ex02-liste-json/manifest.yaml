@@ -15,6 +15,18 @@ grading:
       - stdin: "2\nhi\nbye\n"
         expect_stdout: "[\"hi\",\"bye\"]\n"
         expect_exit: 0
+      # Liste avec 4 éléments
+      - stdin: "4\nalpha\nbeta\ngamma\ndelta\n"
+        expect_stdout: "[\"alpha\",\"beta\",\"gamma\",\"delta\"]\n"
+        expect_exit: 0
+      # Chaînes avec espaces
+      - stdin: "2\nhello world\nfoo bar\n"
+        expect_stdout: "[\"hello world\",\"foo bar\"]\n"
+        expect_exit: 0
+      # Chiffres comme chaînes (pas d'entiers JSON, vraiment des strings)
+      - stdin: "3\n1\n2\n3\n"
+        expect_stdout: "[\"1\",\"2\",\"3\"]\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
