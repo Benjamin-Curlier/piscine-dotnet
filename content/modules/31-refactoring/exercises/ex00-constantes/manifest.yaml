@@ -16,6 +16,18 @@ grading:
       - stdin: "100\n"
         expect_stdout: "120\n"
         expect_exit: 0
+      # prix=101 : juste au-dessus du seuil → remise appliquée
+      - stdin: "101\n"
+        expect_stdout: "109\n"
+        expect_exit: 0
+      # prix=0 : sans remise ni TVA réelle
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # prix=1000 : grande valeur avec remise
+      - stdin: "1000\n"
+        expect_stdout: "1080\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

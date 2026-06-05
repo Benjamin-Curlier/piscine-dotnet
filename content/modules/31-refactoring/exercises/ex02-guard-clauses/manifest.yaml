@@ -16,6 +16,18 @@ grading:
       - stdin: "30\n-5\n"
         expect_stdout: "NON\n"
         expect_exit: 0
+      # limite basse exacte : age=18, solde=0 → éligible
+      - stdin: "18\n0\n"
+        expect_stdout: "OUI\n"
+        expect_exit: 0
+      # solde juste au-dessus du plafond → NON
+      - stdin: "25\n100001\n"
+        expect_stdout: "NON\n"
+        expect_exit: 0
+      # solde exactement à la limite haute → OUI
+      - stdin: "40\n100000\n"
+        expect_stdout: "OUI\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

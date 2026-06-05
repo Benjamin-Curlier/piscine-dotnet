@@ -16,6 +16,18 @@ grading:
       - stdin: "1 9 4 4\n"
         expect_stdout: "8\n"
         expect_exit: 0
+      # valeurs négatives : Abs indispensable
+      - stdin: "5 2 8 3\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+      # une distance nulle, l'autre non-nulle
+      - stdin: "7 7 0 10\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
+      # ordre inversé : |b-a| == |a-b|
+      - stdin: "10 1 6 2\n"
+        expect_stdout: "13\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
