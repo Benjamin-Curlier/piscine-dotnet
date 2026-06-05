@@ -15,6 +15,14 @@ grading:
       - stdin: "12\n"
         expect_stdout: "144\n"
         expect_exit: 0
+      # négatif (le carré est positif)
+      - stdin: "-4\n"
+        expect_stdout: "16\n"
+        expect_exit: 0
+      # plus grand (anti-hardcode)
+      - stdin: "20\n"
+        expect_stdout: "400\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

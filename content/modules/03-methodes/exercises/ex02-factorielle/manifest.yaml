@@ -18,6 +18,14 @@ grading:
       - stdin: "6\n"
         expect_stdout: "720\n"
         expect_exit: 0
+      # petit cas
+      - stdin: "3\n"
+        expect_stdout: "6\n"
+        expect_exit: 0
+      # plus grand (anti-hardcode) : 10! = 3628800
+      - stdin: "10\n"
+        expect_stdout: "3628800\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

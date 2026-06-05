@@ -18,6 +18,14 @@ grading:
       - stdin: "-4\n-9\n-1\n"
         expect_stdout: "-1\n"
         expect_exit: 0
+      # max en première position
+      - stdin: "9\n3\n5\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
+      # max en dernière position
+      - stdin: "1\n5\n9\n"
+        expect_stdout: "9\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
