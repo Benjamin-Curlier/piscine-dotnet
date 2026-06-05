@@ -16,6 +16,18 @@ grading:
       - stdin: "5\n2\n"
         expect_stdout: "20\n1\n"
         expect_exit: 0
+      # anti-hardcode : n=1, k=0 => 1<<0=1, 1>>0=1 (décalage nul)
+      - stdin: "1\n0\n"
+        expect_stdout: "1\n1\n"
+        expect_exit: 0
+      # n=16, k=3 => 16<<3=128, 16>>3=2 (puissance de 2)
+      - stdin: "16\n3\n"
+        expect_stdout: "128\n2\n"
+        expect_exit: 0
+      # n=100, k=2 => 100<<2=400, 100>>2=25
+      - stdin: "100\n2\n"
+        expect_stdout: "400\n25\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

@@ -17,6 +17,22 @@ grading:
       - stdin: "10\n"
         expect_stdout: "1010\n"
         expect_exit: 0
+      # anti-hardcode : 1 => "1" (minimum non nul, pas de zéros en tête)
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      # 16 = 2^4 => "10000" (puissance de 2)
+      - stdin: "16\n"
+        expect_stdout: "10000\n"
+        expect_exit: 0
+      # 255 = 11111111 (8 bits à 1)
+      - stdin: "255\n"
+        expect_stdout: "11111111\n"
+        expect_exit: 0
+      # 42 = 101010 (pattern alternés)
+      - stdin: "42\n"
+        expect_stdout: "101010\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
