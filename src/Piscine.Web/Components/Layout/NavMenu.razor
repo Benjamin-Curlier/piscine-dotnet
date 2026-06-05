@@ -1,0 +1,59 @@
+@inject CourseCatalog Catalog
+@inject NavigationManager Nav
+
+<div class="sidebar-inner">
+    <a class="side-home @(Segments.Length == 0 ? "active" : "")" href="/">Accueil</a>
+
+    <div class="side-section-title">Modules</div>
+    <ul class="module-list">
+        @foreach (var m in Catalog.Modules)
+        {
+            var active = IsActiveModule(m.Id);
+            <li>
+                <details open="@active">
+                    <summary>
+                        <a class="module-link @(active ? "active" : "")" href="/module/@m.Id">
+                            <span class="mod-num">@m.Number</span>
+                            <span class="mod-title">@m.Title</span>
+                        </a>
+                    </summary>
+                    @if (m.HasExercises)
+                    {
+                        <ul class="exercise-list">
+                            @foreach (var ex in m.Groups.SelectMany(g => g.Exercises))
+                            {
+                                <li>
+                                    <a class="exercise-link @(IsActiveExercise(m.Id, ex.Id) ? "active" : "")"
+                                       href="/module/@m.Id/@ex.Id">
+                                        @ex.Title
+                                        @if (ex.Bonus)
+                                        {
+                                            <span class="badge badge-bonus">bonus</span>
+                                        }
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </details>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    private string[] Segments => Nav
+        .ToBaseRelativePath(Nav.Uri)
+        .Split('?', '#')[0]
+        .Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+    private bool IsActiveModule(string moduleId)
+        => Segments.Length >= 2
+           && Segments[0] == "module"
+           && string.Equals(Segments[1], moduleId, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsActiveExercise(string moduleId, string exerciseId)
+        => IsActiveModule(moduleId)
+           && Segments.Length >= 3
+           && string.Equals(Segments[2], exerciseId, StringComparison.OrdinalIgnoreCase);
+}

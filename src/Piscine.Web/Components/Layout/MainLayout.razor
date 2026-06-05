@@ -1,0 +1,31 @@
+@inherits LayoutComponentBase
+
+<div class="layout">
+    <header class="navbar">
+        <a class="brand" href="/">
+            <span class="brand-mark">{ }</span>
+            <span class="brand-text">Piscine <strong>.NET</strong></span>
+        </a>
+        <nav class="navbar-links">
+            <a href="/">Curriculum</a>
+            <a href="https://github.com/Benjamin-Curlier/piscine-dotnet" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+    </header>
+
+    <div class="body">
+        <aside class="sidebar">
+            <NavMenu />
+        </aside>
+        <main class="main">
+            <article class="content">
+                @Body
+            </article>
+        </main>
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    Une erreur est survenue.
+    <a href="." class="reload">Recharger</a>
+    <span class="dismiss">🗙</span>
+</div>

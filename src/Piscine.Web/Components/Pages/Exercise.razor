@@ -1,0 +1,109 @@
+@page "/module/{ModuleId}/{ExerciseId}"
+@inject CourseCatalog Catalog
+@inject MarkdownRenderer Md
+
+@if (_module is null || _exercise is null)
+{
+    <PageTitle>Exercice introuvable</PageTitle>
+    <div class="notice notice-warn">Exercice <code>@ExerciseId</code> introuvable.</div>
+}
+else
+{
+    <PageTitle>@_exercise.Title — @_module.Title</PageTitle>
+
+    <nav class="breadcrumb">
+        <a href="/">Curriculum</a> <span>/</span>
+        <a href="/module/@_module.Id">@_module.Number — @_module.Title</a> <span>/</span>
+        <span>@_exercise.Title</span>
+    </nav>
+
+    <header class="exercise-header">
+        <h1>@_exercise.Title</h1>
+        <div class="exercise-meta">
+            <span class="badge badge-@_exercise.Difficulty">@_exercise.Difficulty</span>
+            @if (_exercise.Bonus)
+            {
+                <span class="badge badge-bonus">bonus</span>
+            }
+        </div>
+        <p class="exercise-objective">@_exercise.Objective</p>
+    </header>
+
+    @if (_exercise.Deliverables.Count > 0)
+    {
+        <div class="deliverables">
+            <span class="deliverables-label">À rendre&nbsp;:</span>
+            @foreach (var file in _exercise.Deliverables)
+            {
+                <code>@file</code>
+            }
+        </div>
+    }
+
+    <div class="notice notice-info">
+        Pour démarrer&nbsp;: <code>piscine start @_exercise.Id</code> — puis
+        <code>piscine check @_exercise.Id</code> pour t'auto-corriger.
+    </div>
+
+    @if (!string.IsNullOrEmpty(_exercise.SubjectMarkdown))
+    {
+        <article class="markdown">
+            @Md.Render(_exercise.SubjectMarkdown)
+        </article>
+    }
+
+    <nav class="pager">
+        @if (_prev is not null)
+        {
+            <a class="pager-prev" href="/module/@_module.Id/@_prev.Id">
+                <span class="pager-dir">← Précédent</span>
+                <span class="pager-title">@_prev.Title</span>
+            </a>
+        }
+        else
+        {
+            <span></span>
+        }
+        @if (_next is not null)
+        {
+            <a class="pager-next" href="/module/@_module.Id/@_next.Id">
+                <span class="pager-dir">Suivant →</span>
+                <span class="pager-title">@_next.Title</span>
+            </a>
+        }
+        else
+        {
+            <a class="pager-next" href="/module/@_module.Id">
+                <span class="pager-dir">Retour au module →</span>
+                <span class="pager-title">@_module.Number — @_module.Title</span>
+            </a>
+        }
+    </nav>
+}
+
+@code {
+    [Parameter] public string ModuleId { get; set; } = string.Empty;
+    [Parameter] public string ExerciseId { get; set; } = string.Empty;
+
+    private CourseModule? _module;
+    private CourseExercise? _exercise;
+    private CourseExercise? _prev;
+    private CourseExercise? _next;
+
+    protected override void OnParametersSet()
+    {
+        _module = Catalog.GetModule(ModuleId);
+        _exercise = _module is null ? null : Catalog.GetExercise(ModuleId, ExerciseId);
+        _prev = _next = null;
+
+        if (_module is null || _exercise is null)
+        {
+            return;
+        }
+
+        var flat = _module.Groups.SelectMany(g => g.Exercises).ToList();
+        var index = flat.FindIndex(e => string.Equals(e.Id, _exercise.Id, StringComparison.OrdinalIgnoreCase));
+        _prev = index > 0 ? flat[index - 1] : null;
+        _next = index >= 0 && index < flat.Count - 1 ? flat[index + 1] : null;
+    }
+}

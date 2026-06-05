@@ -1,0 +1,36 @@
+@page "/"
+@inject CourseCatalog Catalog
+
+<PageTitle>Piscine .NET — Curriculum</PageTitle>
+
+<section class="hero">
+    <h1>Piscine <span class="accent">.NET</span></h1>
+    <p class="hero-sub">
+        Bootcamp intensif C# / .NET 10. @Catalog.Modules.Count modules,
+        @Catalog.Modules.Sum(m => m.ExerciseCount) exercices auto-corrigés.
+        Parcours le cours module par module ; chaque sujet se fait en ligne de commande
+        avec <code>piscine start &lt;exo&gt;</code>.
+    </p>
+</section>
+
+<section class="module-grid">
+    @foreach (var m in Catalog.Modules)
+    {
+        <a class="module-card" href="/module/@m.Id">
+            <div class="module-card-num">@m.Number</div>
+            <div class="module-card-body">
+                <h3>@m.Title</h3>
+                <p>
+                    @if (m.HasExercises)
+                    {
+                        @($"{m.ExerciseCount} exercice{(m.ExerciseCount > 1 ? "s" : "")}")
+                    }
+                    else
+                    {
+                        <span>Lecture guidée</span>
+                    }
+                </p>
+            </div>
+        </a>
+    }
+</section>

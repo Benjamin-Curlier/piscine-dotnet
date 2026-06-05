@@ -5,6 +5,9 @@
     <Project Path="src/Piscine.Git/Piscine.Git.csproj" />
     <Project Path="src/Piscine.Grading/Piscine.Grading.csproj" />
   </Folder>
+  <Folder Name="/site/">
+    <Project Path="src/Piscine.Web/Piscine.Web.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Piscine.Core.Tests/Piscine.Core.Tests.csproj" />
     <Project Path="tests/Piscine.Git.Tests/Piscine.Git.Tests.csproj" />

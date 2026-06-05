@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Piscine .NET — bootcamp C# / .NET 10, cours et exercices auto-corrigés." />
+    <base href="/" />
+    <ResourcePreloader />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["Piscine.Web.styles.css"]" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" />
+    <ImportMap />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <Routes />
+    <ReconnectModal />
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
+    <script>
+        function highlightAll() {
+            if (!window.hljs) return;
+            document.querySelectorAll('pre code:not([data-highlighted])').forEach(function (el) {
+                window.hljs.highlightElement(el);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', highlightAll);
+        window.addEventListener('load', highlightAll);
+        if (window.Blazor) {
+            Blazor.addEventListener('enhancedload', highlightAll);
+        }
+    </script>
+</body>
+
+</html>

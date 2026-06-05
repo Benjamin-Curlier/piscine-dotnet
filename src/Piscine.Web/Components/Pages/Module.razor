@@ -1,0 +1,97 @@
+@page "/module/{Id}"
+@inject CourseCatalog Catalog
+@inject MarkdownRenderer Md
+
+@if (_module is null)
+{
+    <PageTitle>Module introuvable</PageTitle>
+    <div class="notice notice-warn">Module <code>@Id</code> introuvable.</div>
+}
+else
+{
+    <PageTitle>@_module.Number — @_module.Title</PageTitle>
+
+    <nav class="breadcrumb">
+        <a href="/">Curriculum</a> <span>/</span> <span>Module @_module.Number</span>
+    </nav>
+
+    <article class="markdown">
+        @Md.Render(_module.CourseMarkdown)
+    </article>
+
+    @if (_module.HasExercises)
+    {
+        <section class="exercises">
+            <h2 class="exercises-title">Exercices</h2>
+            @foreach (var group in _module.Groups.Where(g => g.Exercises.Count > 0))
+            {
+                <div class="exercise-group">
+                    <h3>@group.Title</h3>
+                    <div class="exercise-cards">
+                        @foreach (var ex in group.Exercises)
+                        {
+                            <a class="exercise-card" href="/module/@_module.Id/@ex.Id">
+                                <div class="exercise-card-head">
+                                    <span class="exercise-card-title">@ex.Title</span>
+                                    <span class="badge badge-@ex.Difficulty">@ex.Difficulty</span>
+                                    @if (ex.Bonus)
+                                    {
+                                        <span class="badge badge-bonus">bonus</span>
+                                    }
+                                </div>
+                                <p class="exercise-card-obj">@ex.Objective</p>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </section>
+    }
+    else
+    {
+        <div class="notice notice-info">Module de lecture guidée : pas d'exercice à rendre.</div>
+    }
+
+    <nav class="pager">
+        @if (_prev is not null)
+        {
+            <a class="pager-prev" href="/module/@_prev.Id">
+                <span class="pager-dir">← Précédent</span>
+                <span class="pager-title">@_prev.Number — @_prev.Title</span>
+            </a>
+        }
+        else
+        {
+            <span></span>
+        }
+        @if (_next is not null)
+        {
+            <a class="pager-next" href="/module/@_next.Id">
+                <span class="pager-dir">Suivant →</span>
+                <span class="pager-title">@_next.Number — @_next.Title</span>
+            </a>
+        }
+    </nav>
+}
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    private CourseModule? _module;
+    private CourseModule? _prev;
+    private CourseModule? _next;
+
+    protected override void OnParametersSet()
+    {
+        _module = Catalog.GetModule(Id);
+        if (_module is null)
+        {
+            _prev = _next = null;
+            return;
+        }
+
+        var index = Catalog.Modules.ToList().FindIndex(m => m.Id == _module.Id);
+        _prev = index > 0 ? Catalog.Modules[index - 1] : null;
+        _next = index >= 0 && index < Catalog.Modules.Count - 1 ? Catalog.Modules[index + 1] : null;
+    }
+}

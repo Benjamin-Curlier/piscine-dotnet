@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "site",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Piscine.Web/Piscine.Web.csproj"],
+      "port": 5244
+    }
+  ]
+}
