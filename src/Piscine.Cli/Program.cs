@@ -66,7 +66,7 @@ static void ListModules(PiscineLayout layout)
             Console.WriteLine($"  {group.Title}");
             foreach (var exercise in group.Exercises)
             {
-                Console.WriteLine($"    - {exercise}");
+                Console.WriteLine($"    - {ExerciseDisplay(layout, exercise)}");
             }
         }
     }
@@ -77,8 +77,29 @@ static void ListModules(PiscineLayout layout)
         Console.WriteLine("# Rushes (projets de synthèse)");
         foreach (var rush in rushes)
         {
-            Console.WriteLine($"    - {rush.Id} — {rush.Title}");
+            Console.WriteLine($"    - {ExerciseDisplay(layout, rush.Id, rush.Title)}");
         }
+    }
+}
+
+// Enrichit l'identifiant d'un exercice avec sa difficulté et son marqueur bonus (lus dans le manifest).
+static string ExerciseDisplay(PiscineLayout layout, string exerciseId, string? title = null)
+{
+    var prefix = title is null ? exerciseId : $"{exerciseId} — {title}";
+    var location = ContentLocator.FindExercise(layout.Content, exerciseId);
+    if (location is null)
+    {
+        return prefix;
+    }
+
+    try
+    {
+        var manifest = ExerciseManifestLoader.Load(location.ContentDir);
+        return ExerciseLabel.Format(prefix, manifest.Difficulty, manifest.Bonus);
+    }
+    catch (Exception)
+    {
+        return prefix;
     }
 }
 
