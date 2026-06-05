@@ -15,6 +15,17 @@ grading:
       - stdin: "5\n5\n"
         expect_stdout: "5\n"
         expect_exit: 0
+      # deux négatifs (le max est le moins négatif)
+      - stdin: "-3\n-8\n"
+        expect_stdout: "-3\n"
+        expect_exit: 0
+      - stdin: "-10\n-2\n"
+        expect_stdout: "-2\n"
+        expect_exit: 0
+      # premier > second (anti-hardcode sur l'ordre)
+      - stdin: "7\n3\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

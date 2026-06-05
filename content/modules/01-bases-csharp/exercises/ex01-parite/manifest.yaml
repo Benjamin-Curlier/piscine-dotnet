@@ -15,6 +15,18 @@ grading:
       - stdin: "0\n"
         expect_stdout: "pair\n"
         expect_exit: 0
+      # négatif pair
+      - stdin: "-4\n"
+        expect_stdout: "pair\n"
+        expect_exit: 0
+      # négatif impair
+      - stdin: "-3\n"
+        expect_stdout: "impair\n"
+        expect_exit: 0
+      # grand nombre (anti-hardcode)
+      - stdin: "100\n"
+        expect_stdout: "pair\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
