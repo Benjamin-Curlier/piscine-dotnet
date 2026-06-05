@@ -16,6 +16,18 @@ grading:
       - stdin: "7\n"
         expect_stdout: "70\n"
         expect_exit: 0
+      # anti-hardcode : négatif — prouve que const*n est générique, pas une somme naïve
+      - stdin: "-3\n"
+        expect_stdout: "-30\n"
+        expect_exit: 0
+      # grand nombre — vérifie la multiplication correcte par la constante
+      - stdin: "100\n"
+        expect_stdout: "1000\n"
+        expect_exit: 0
+      # 1 — vérifie que Facteur=10 et pas 5 ou autre
+      - stdin: "1\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

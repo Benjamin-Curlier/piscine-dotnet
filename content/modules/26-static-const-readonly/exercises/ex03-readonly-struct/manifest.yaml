@@ -17,6 +17,18 @@ grading:
       - stdin: "0\n0\n"
         expect_stdout: "0\n"
         expect_exit: 0
+      # anti-hardcode : X=-5, Y=-3 => |−5|+|−3| = 8 (deux négatifs)
+      - stdin: "-5\n-3\n"
+        expect_stdout: "8\n"
+        expect_exit: 0
+      # X=10, Y=-1 => 10+1 = 11 (grand X, petit Y négatif)
+      - stdin: "10\n-1\n"
+        expect_stdout: "11\n"
+        expect_exit: 0
+      # X=0, Y=-7 => 0+7 = 7 (X nul)
+      - stdin: "0\n-7\n"
+        expect_stdout: "7\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

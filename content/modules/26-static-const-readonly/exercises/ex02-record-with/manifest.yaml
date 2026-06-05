@@ -16,6 +16,18 @@ grading:
       - stdin: "5\n5\n"
         expect_stdout: "(6, 5)\n"
         expect_exit: 0
+      # anti-hardcode : X négatif — incrémente -3 => -2, Y inchangé
+      - stdin: "-3\n7\n"
+        expect_stdout: "(-2, 7)\n"
+        expect_exit: 0
+      # X=10, Y=0 — Y reste 0, X devient 11
+      - stdin: "10\n0\n"
+        expect_stdout: "(11, 0)\n"
+        expect_exit: 0
+      # X=0, Y négatif — vérifie que X s'incrémente et que Y négatif est préservé
+      - stdin: "0\n-5\n"
+        expect_stdout: "(1, -5)\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

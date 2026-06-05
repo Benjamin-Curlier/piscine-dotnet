@@ -16,6 +16,14 @@ grading:
       - stdin: "5\n"
         expect_stdout: "5\n"
         expect_exit: 0
+      # anti-hardcode : 0 instance => Count=0 (cas limite zéro)
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # 10 instances — grand nombre prouve la boucle correcte
+      - stdin: "10\n"
+        expect_stdout: "10\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
