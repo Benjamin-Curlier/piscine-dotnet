@@ -16,6 +16,20 @@ grading:
       - stdin: "9\n"
         expect_stdout: "inconnu\n"
         expect_exit: 0
+      # Tester tous les jours intermédiaires non couverts
+      - stdin: "2\n"
+        expect_stdout: "mardi\n"
+        expect_exit: 0
+      - stdin: "4\n"
+        expect_stdout: "jeudi\n"
+        expect_exit: 0
+      - stdin: "7\n"
+        expect_stdout: "dimanche\n"
+        expect_exit: 0
+      # Valeur 0 → inconnu
+      - stdin: "0\n"
+        expect_stdout: "inconnu\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

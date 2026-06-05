@@ -15,6 +15,18 @@ grading:
       - stdin: "{\"Nom\":\"Eve\",\"Age\":0}\n"
         expect_stdout: "Nom: Eve, Age: 0\n"
         expect_exit: 0
+      # Nom avec espace
+      - stdin: "{\"Nom\":\"Jean Pierre\",\"Age\":55}\n"
+        expect_stdout: "Nom: Jean Pierre, Age: 55\n"
+        expect_exit: 0
+      # Grand âge
+      - stdin: "{\"Nom\":\"Centenaire\",\"Age\":100}\n"
+        expect_stdout: "Nom: Centenaire, Age: 100\n"
+        expect_exit: 0
+      # Propriétés dans l'ordre inverse (Age avant Nom) → doit quand même fonctionner
+      - stdin: "{\"Age\":42,\"Nom\":\"Zoe\"}\n"
+        expect_stdout: "Nom: Zoe, Age: 42\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

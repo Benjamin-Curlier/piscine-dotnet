@@ -15,6 +15,18 @@ grading:
       - stdin: "2\nhello\n42\n"
         expect_stdout: "non\noui\n"
         expect_exit: 0
+      # Cas limite : ligne vide (aucun chiffre → non) + grand entier
+      - stdin: "2\n\n1000000\n"
+        expect_stdout: "non\noui\n"
+        expect_exit: 0
+      # Chiffres avec espace → motif ^\\d+$ rejette les espaces
+      - stdin: "3\n12 34\n0\n007\n"
+        expect_stdout: "non\noui\noui\n"
+        expect_exit: 0
+      # Entier négatif : le - n'est pas \\d
+      - stdin: "2\n-5\n5\n"
+        expect_stdout: "non\noui\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
