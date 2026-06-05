@@ -13,6 +13,14 @@ grading:
       - stdin: "tx\n"
         expect_stdout: "ouvre tx\ndebut\nferme tx\nerreur attrapee\n"
         expect_exit: 0
+      # nom différent pour vérifier anti-hardcode
+      - stdin: "paiement\n"
+        expect_stdout: "ouvre paiement\ndebut\nferme paiement\nerreur attrapee\n"
+        expect_exit: 0
+      # nom court
+      - stdin: "z\n"
+        expect_stdout: "ouvre z\ndebut\nferme z\nerreur attrapee\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

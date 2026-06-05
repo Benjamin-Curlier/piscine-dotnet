@@ -17,6 +17,14 @@ grading:
       - stdin: "solo\n"
         expect_stdout: "ouvre solo\ntravail\nferme solo\n"
         expect_exit: 0
+      # 4 ressources : ordre LIFO vérifié
+      - stdin: "p q r s\n"
+        expect_stdout: "ouvre p\nouvre q\nouvre r\nouvre s\ntravail\nferme s\nferme r\nferme q\nferme p\n"
+        expect_exit: 0
+      # noms longs
+      - stdin: "alpha beta\n"
+        expect_stdout: "ouvre alpha\nouvre beta\ntravail\nferme beta\nferme alpha\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

@@ -13,6 +13,18 @@ grading:
       - stdin: "1\nKiwi\n"
         expect_stdout: "1\n"
         expect_exit: 0
+      # 0 produit inséré
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # 5 produits
+      - stdin: "5\nAnanas\nMelon\nFigue\nDatte\nAvocado\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+      # 2 produits
+      - stdin: "2\nCerise\nMyrtille\n"
+        expect_stdout: "2\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

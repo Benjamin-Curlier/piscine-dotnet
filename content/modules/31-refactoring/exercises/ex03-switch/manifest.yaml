@@ -16,6 +16,18 @@ grading:
       - stdin: "mul 5 5\n"
         expect_stdout: "25\n"
         expect_exit: 0
+      # cas par défaut : opération inconnue → 0
+      - stdin: "div 10 2\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # sub négatif : résultat négatif
+      - stdin: "sub 3 10\n"
+        expect_stdout: "-7\n"
+        expect_exit: 0
+      # mul par 0
+      - stdin: "mul 99 0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

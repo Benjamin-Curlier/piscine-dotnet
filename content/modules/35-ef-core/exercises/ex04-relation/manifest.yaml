@@ -14,6 +14,14 @@ grading:
       - stdin: "2\nVerne Voyage\nVerne Ile\n"
         expect_stdout: "Verne: Ile, Voyage\n"
         expect_exit: 0
+      # 3 auteurs différents, chacun 1 livre : tri auteurs
+      - stdin: "3\nZola Nana\nBalzac Eugenie\nFlaubert Bovary\n"
+        expect_stdout: "Balzac: Eugenie\nFlaubert: Bovary\nZola: Nana\n"
+        expect_exit: 0
+      # 1 auteur, 3 livres : titres triés
+      - stdin: "3\nDumas Monte-Cristo\nDumas Mousquetaires\nDumas Tulipe\n"
+        expect_stdout: "Dumas: Monte-Cristo, Mousquetaires, Tulipe\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

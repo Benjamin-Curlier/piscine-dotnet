@@ -13,6 +13,14 @@ grading:
       - stdin: "log\n"
         expect_stdout: "ouvre log\nutilise log\nferme log\n"
         expect_exit: 0
+      # nom plus long pour vérifier la propagation du nom
+      - stdin: "rapport-annuel\n"
+        expect_stdout: "ouvre rapport-annuel\nutilise rapport-annuel\nferme rapport-annuel\n"
+        expect_exit: 0
+      # nom numérique (chaîne)
+      - stdin: "42\n"
+        expect_stdout: "ouvre 42\nutilise 42\nferme 42\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

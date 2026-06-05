@@ -13,6 +13,14 @@ grading:
       - stdin: "2\nZebre 9\nAbeille 4\n"
         expect_stdout: "Abeille 4\nZebre 9\n"
         expect_exit: 0
+      # 4 éléments : tri lexicographique vérifié
+      - stdin: "4\nMangue 5\nKiwi 3\nAnanas 8\nFigue 1\n"
+        expect_stdout: "Ananas 8\nFigue 1\nKiwi 3\nMangue 5\n"
+        expect_exit: 0
+      # 1 seul élément
+      - stdin: "1\nTomate 7\n"
+        expect_stdout: "Tomate 7\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

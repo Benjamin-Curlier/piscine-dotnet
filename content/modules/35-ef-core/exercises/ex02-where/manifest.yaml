@@ -13,6 +13,18 @@ grading:
       - stdin: "5\n3\nKiwi 4\nMangue 6\nFraise 2\n"
         expect_stdout: "Mangue 6\n"
         expect_exit: 0
+      # seuil très élevé : aucun produit → sortie vide
+      - stdin: "100\n2\nPeche 3\nMelon 7\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # seuil = 0 : tous les produits passent (triés)
+      - stdin: "0\n3\nCitron 2\nAnanas 5\nDatette 1\n"
+        expect_stdout: "Ananas 5\nCitron 2\nDatette 1\n"
+        expect_exit: 0
+      # seuil exactement égal au prix d'un seul produit
+      - stdin: "4\n3\nRaisin 4\nFigue 2\nMelon 6\n"
+        expect_stdout: "Melon 6\nRaisin 4\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

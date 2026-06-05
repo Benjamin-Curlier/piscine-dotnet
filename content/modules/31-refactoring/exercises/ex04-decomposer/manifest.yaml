@@ -17,6 +17,18 @@ grading:
       - stdin: "Zoe,5\n"
         expect_stdout: "Zoe: 5\n"
         expect_exit: 0
+      # division entière (troncature vers zéro)
+      - stdin: "Clara,10,11\n"
+        expect_stdout: "Clara: 10\n"
+        expect_exit: 0
+      # 4 notes égales
+      - stdin: "Marc,8,8,8,8\n"
+        expect_stdout: "Marc: 8\n"
+        expect_exit: 0
+      # nom avec majuscules, notes extrêmes
+      - stdin: "Jean,0,20\n"
+        expect_stdout: "Jean: 10\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
