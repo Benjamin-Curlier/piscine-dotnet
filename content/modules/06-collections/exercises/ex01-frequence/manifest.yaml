@@ -15,6 +15,18 @@ grading:
       - stdin: "x y z\nw\n"
         expect_stdout: "0\n"
         expect_exit: 0
+      # cible = le seul mot de la liste
+      - stdin: "bonjour\nbonjour\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      # mot apparaît plusieurs fois consécutivement
+      - stdin: "aa aa aa bb\naa\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      # sensibilité à la casse (Chat ≠ chat)
+      - stdin: "chat Chat CHAT\nchat\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

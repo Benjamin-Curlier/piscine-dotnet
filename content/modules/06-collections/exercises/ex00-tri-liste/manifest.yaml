@@ -15,6 +15,22 @@ grading:
       - stdin: "10 -3 7 -3\n"
         expect_stdout: "-3 -3 7 10\n"
         expect_exit: 0
+      # déjà trié : ne doit pas mélanger
+      - stdin: "1 2 3 4 5\n"
+        expect_stdout: "1 2 3 4 5\n"
+        expect_exit: 0
+      # ordre inversé : doit renverser
+      - stdin: "9 7 5 3 1\n"
+        expect_stdout: "1 3 5 7 9\n"
+        expect_exit: 0
+      # toutes valeurs identiques
+      - stdin: "4 4 4\n"
+        expect_stdout: "4 4 4\n"
+        expect_exit: 0
+      # un seul élément négatif
+      - stdin: "-99\n"
+        expect_stdout: "-99\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
