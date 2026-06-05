@@ -14,6 +14,14 @@ grading:
       - stdin: "10 20\n"
         expect_stdout: "Pipeline [Information] Traité 10 -> 20\nPipeline [Information] Traité 20 -> 40\nPipeline [Information] Total = 60\n"
         expect_exit: 0
+      # une seule valeur
+      - stdin: "7\n"
+        expect_stdout: "Pipeline [Information] Traité 7 -> 14\nPipeline [Information] Total = 14\n"
+        expect_exit: 0
+      # plus de valeurs (FIFO déterministe)
+      - stdin: "1 2 3 4 5\n"
+        expect_stdout: "Pipeline [Information] Traité 1 -> 2\nPipeline [Information] Traité 2 -> 4\nPipeline [Information] Traité 3 -> 6\nPipeline [Information] Traité 4 -> 8\nPipeline [Information] Traité 5 -> 10\nPipeline [Information] Total = 30\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

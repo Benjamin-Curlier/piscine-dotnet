@@ -12,6 +12,14 @@ grading:
       - stdin: "10\n"
         expect_stdout: "Travailleur [Information] Somme 1..10 = 55\n"
         expect_exit: 0
+      # n = 1 (cas limite)
+      - stdin: "1\n"
+        expect_stdout: "Travailleur [Information] Somme 1..1 = 1\n"
+        expect_exit: 0
+      # grand n (anti-hardcode) : 1+..+100 = 5050
+      - stdin: "100\n"
+        expect_stdout: "Travailleur [Information] Somme 1..100 = 5050\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
