@@ -21,6 +21,18 @@ dotnet test Piscine.slnx
 dotnet run --project src/Piscine.Cli
 ```
 
+## Site du cours (navigateur)
+
+Le cours et les sujets d'exercices se consultent dans un navigateur via un site **Blazor**
+(stack .NET, façon Docusaurus) qui lit directement `content/` :
+
+```bash
+dotnet run --project src/Piscine.Web
+```
+
+Puis ouvrir http://localhost:5244. Le site présente le cours et les sujets (sans les corrigés) ;
+il localise `content/` automatiquement (ou via la variable `PISCINE_CONTENT`).
+
 ## Documentation (encadrants & contributeurs)
 
 Le wiki du projet est versionné dans le dépôt : **[docs/wiki/Home.md](docs/wiki/Home.md)**
@@ -28,7 +40,7 @@ Le wiki du projet est versionné dans le dépôt : **[docs/wiki/Home.md](docs/wi
 
 ## Structure
 
-- `src/` : application (`Piscine.Cli`) et bibliothèques (`Core`, `Grading`, `Git`).
+- `src/` : application (`Piscine.Cli`), bibliothèques (`Core`, `Grading`, `Git`) et site du cours (`Piscine.Web`).
 - `tests/` : tests xUnit.
 - `content/` : cours, exercices et rushes (voir `content/README.md`).
 - `docs/` : specs (`docs/superpowers/specs/`), plans (`docs/superpowers/plans/`),
