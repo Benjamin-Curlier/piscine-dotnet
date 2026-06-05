@@ -16,6 +16,18 @@ grading:
       - stdin: "2\n3\n"
         expect_stdout: "quelconque\n"
         expect_exit: 0
+      # Axe X (y=0, x≠0) — non couvert par les cas existants
+      - stdin: "3\n0\n"
+        expect_stdout: "axe X\n"
+        expect_exit: 0
+      # Coordonnées négatives → quelconque
+      - stdin: "-1\n-1\n"
+        expect_stdout: "quelconque\n"
+        expect_exit: 0
+      # Axe Y avec x=0, y négatif
+      - stdin: "0\n-7\n"
+        expect_stdout: "axe Y\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

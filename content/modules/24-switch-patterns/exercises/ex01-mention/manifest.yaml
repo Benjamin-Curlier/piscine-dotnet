@@ -16,6 +16,22 @@ grading:
       - stdin: "30\n"
         expect_stdout: "insuffisant\n"
         expect_exit: 0
+      # Frontière exacte >= 90
+      - stdin: "90\n"
+        expect_stdout: "excellent\n"
+        expect_exit: 0
+      # Juste en dessous de 90 → passable
+      - stdin: "89\n"
+        expect_stdout: "passable\n"
+        expect_exit: 0
+      # Frontière exacte >= 50
+      - stdin: "50\n"
+        expect_stdout: "passable\n"
+        expect_exit: 0
+      # Juste en dessous de 50 → insuffisant
+      - stdin: "49\n"
+        expect_stdout: "insuffisant\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

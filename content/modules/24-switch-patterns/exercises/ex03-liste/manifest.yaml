@@ -17,6 +17,18 @@ grading:
       - stdin: "10 20\n"
         expect_stdout: "premier=10 dernier=20\n"
         expect_exit: 0
+      # 4 éléments : premier et dernier bien isolés par ..
+      - stdin: "1 2 3 4\n"
+        expect_stdout: "premier=1 dernier=4\n"
+        expect_exit: 0
+      # Valeurs négatives
+      - stdin: "-5 0 7\n"
+        expect_stdout: "premier=-5 dernier=7\n"
+        expect_exit: 0
+      # Un seul élément négatif
+      - stdin: "-42\n"
+        expect_stdout: "un seul\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
