@@ -15,6 +15,18 @@ grading:
       - stdin: "3\nchien\nchien\nchat\n"
         expect_stdout: "Wouf\nWouf\nMiaou\n"
         expect_exit: 0
+      # un seul chien : vérifie la factory sur type chien seul
+      - stdin: "1\nchien\n"
+        expect_stdout: "Wouf\n"
+        expect_exit: 0
+      # longue séquence alternée
+      - stdin: "6\nchat\nchien\nchat\nchien\nchat\nchien\n"
+        expect_stdout: "Miaou\nWouf\nMiaou\nWouf\nMiaou\nWouf\n"
+        expect_exit: 0
+      # tous chats : piège si factory hardcode "chien" en premier
+      - stdin: "4\nchat\nchat\nchat\nchat\n"
+        expect_stdout: "Miaou\nMiaou\nMiaou\nMiaou\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

@@ -15,6 +15,18 @@ grading:
       - stdin: "1\nx\n"
         expect_stdout: "[A] x\n[B] x\n"
         expect_exit: 0
+      # plusieurs messages : vérifie l'ordre A avant B sur chaque message
+      - stdin: "3\nalpha\nbeta\ngamma\n"
+        expect_stdout: "[A] alpha\n[B] alpha\n[A] beta\n[B] beta\n[A] gamma\n[B] gamma\n"
+        expect_exit: 0
+      # message avec espaces : vérifie que le contenu est transmis tel quel
+      - stdin: "1\nhello world\n"
+        expect_stdout: "[A] hello world\n[B] hello world\n"
+        expect_exit: 0
+      # message vide (chaîne vide) : cas limite
+      - stdin: "1\n\n"
+        expect_stdout: "[A] \n[B] \n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
