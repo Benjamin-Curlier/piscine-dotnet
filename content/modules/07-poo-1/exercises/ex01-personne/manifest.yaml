@@ -12,6 +12,18 @@ grading:
       - stdin: "Bob\n25\n"
         expect_stdout: "Je m'appelle Bob, j'ai 25 ans.\n"
         expect_exit: 0
+      # nom composé avec espace
+      - stdin: "Jean-Pierre\n42\n"
+        expect_stdout: "Je m'appelle Jean-Pierre, j'ai 42 ans.\n"
+        expect_exit: 0
+      # âge = 0 (bébé)
+      - stdin: "Bébé\n0\n"
+        expect_stdout: "Je m'appelle Bébé, j'ai 0 ans.\n"
+        expect_exit: 0
+      # grand âge
+      - stdin: "Henri\n100\n"
+        expect_stdout: "Je m'appelle Henri, j'ai 100 ans.\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

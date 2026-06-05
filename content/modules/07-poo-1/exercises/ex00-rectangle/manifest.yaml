@@ -15,6 +15,22 @@ grading:
       - stdin: "10\n1\n"
         expect_stdout: "10\n"
         expect_exit: 0
+      # cas limite : largeur = 1, hauteur = 1
+      - stdin: "1\n1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      # grandes valeurs pour détecter un hard-code sur petits entiers
+      - stdin: "100\n200\n"
+        expect_stdout: "20000\n"
+        expect_exit: 0
+      # rectangle asymétrique (ordre inversé)
+      - stdin: "7\n3\n"
+        expect_stdout: "21\n"
+        expect_exit: 0
+      # cas non-carré avec résultat non trivial
+      - stdin: "12\n11\n"
+        expect_stdout: "132\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

@@ -15,6 +15,22 @@ grading:
       - stdin: "0\n100\n100\n"
         expect_stdout: "0\n"
         expect_exit: 0
+      # retrait exactement égal au solde (limite : doit passer)
+      - stdin: "500\n0\n500\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # dépôt puis retrait partiel
+      - stdin: "200\n300\n100\n"
+        expect_stdout: "400\n"
+        expect_exit: 0
+      # retrait > solde après dépôt (doit être bloqué)
+      - stdin: "50\n100\n200\n"
+        expect_stdout: "150\n"
+        expect_exit: 0
+      # solde initial grand, pas de dépôt ni retrait
+      - stdin: "1000\n0\n0\n"
+        expect_stdout: "1000\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
