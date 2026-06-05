@@ -13,6 +13,14 @@ grading:
       - stdin: "3\nfruit Kiwi\nfruit Mangue\nlegume Chou\n"
         expect_stdout: "fruit: 2\nlegume: 1\n"
         expect_exit: 0
+      # 3 catégories : tri alphabétique vérifié
+      - stdin: "5\nviande Boeuf\nfruit Cerise\nlegume Navet\nviande Porc\nfruit Abricot\n"
+        expect_stdout: "fruit: 2\nlegume: 1\nviande: 2\n"
+        expect_exit: 0
+      # 1 seule catégorie
+      - stdin: "3\nbio Carotte\nbio Courgette\nbio Tomate\n"
+        expect_stdout: "bio: 3\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
