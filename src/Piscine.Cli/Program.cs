@@ -149,13 +149,17 @@ static int Check(PiscineLayout layout, string[] args)
 
 static int Try(PiscineLayout layout, string[] args)
 {
-    if (args.Length < 2)
+    var positional = args.Where(a => a is not ("--write" or "-w")).ToArray();
+    var write = args.Any(a => a is "--write" or "-w");
+    if (positional.Length < 2)
     {
-        Console.WriteLine("Usage : piscine try <exo>  (outillage auteur : exécute le corrigé et imprime le stdout réel)");
+        Console.WriteLine("Usage : piscine try <exo> [--write]");
+        Console.WriteLine("  outillage auteur : exécute le corrigé et imprime le stdout réel ;");
+        Console.WriteLine("  avec --write, réécrit expect_stdout/expect_exit directement dans le manifest.");
         return 64;
     }
 
-    var result = new TryCommand(layout).Run(args[1]);
+    var result = new TryCommand(layout).Run(positional[1], write);
     Console.WriteLine(result.Output);
     return result.ExitCode;
 }

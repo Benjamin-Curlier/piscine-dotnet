@@ -86,6 +86,57 @@ public class TryCommandTests
         Assert.Contains("ne compile pas", result.Output);
     }
 
+    private static string ManifestPath(TempDir dir) =>
+        Path.Combine(dir.Combine("content"), "modules", "00-setup", "exercises", "ex00", "manifest.yaml");
+
+    [Fact]
+    public void Run_Write_RewritesExpectStdoutInManifest()
+    {
+        using var dir = new TempDir();
+        // expect_stdout faux dans le manifest ; un commentaire à préserver.
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - stdin: "entree\n"  # commentaire auteur
+                    expect_stdout: "faux"
+                    expect_exit: 0
+            """, "System.Console.Write(\"bonjour\");");
+
+        var result = new TryCommand(LayoutFor(dir)).Run("ex00", write: true);
+        var manifest = File.ReadAllText(ManifestPath(dir));
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Manifest mis à jour", result.Output);
+        Assert.Contains("expect_stdout: \"bonjour\"", manifest);
+        Assert.DoesNotContain("\"faux\"", manifest);
+        // stdin et commentaire de l'auteur préservés.
+        Assert.Contains("stdin: \"entree\\n\"  # commentaire auteur", manifest);
+    }
+
+    [Fact]
+    public void Run_Write_RewritesExitCode()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - stdin: ""
+                    expect_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");\nreturn 7;");
+
+        new TryCommand(LayoutFor(dir)).Run("ex00", write: true);
+        var manifest = File.ReadAllText(ManifestPath(dir));
+
+        Assert.Contains("expect_exit: 7", manifest);
+    }
+
     [Fact]
     public void Run_NewlineAndQuotesEscapedInYamlForm()
     {
