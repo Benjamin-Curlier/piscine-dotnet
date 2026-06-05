@@ -17,6 +17,18 @@ grading:
       - stdin: "1\n9\n"
         expect_stdout: "9\n"
         expect_exit: 0
+      # déjà trié : ne doit rien casser
+      - stdin: "4\n1 2 3 4\n"
+        expect_stdout: "1 2 3 4\n"
+        expect_exit: 0
+      # doublons + tableau plus grand (anti-hardcode)
+      - stdin: "8\n5 3 8 3 1 9 2 7\n"
+        expect_stdout: "1 2 3 3 5 7 8 9\n"
+        expect_exit: 0
+      # valeurs négatives et mixtes
+      - stdin: "4\n-3 0 -1 2\n"
+        expect_stdout: "-3 -1 0 2\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
