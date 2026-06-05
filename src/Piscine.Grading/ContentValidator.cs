@@ -59,6 +59,7 @@ public sealed class ContentValidator
         }
 
         ValidateNoOrphans(layout, referenced, issues);
+        ValidateNoDuplicateIds(layout, issues);
 
         return new ContentValidationReport(issues);
     }
@@ -89,6 +90,11 @@ public sealed class ContentValidator
             {
                 issues.Add(new ContentIssue(exerciseId, $"fichier de grader manquant : {testFile}"));
             }
+        }
+
+        if (!File.Exists(Path.Combine(location.ContentDir, "subject.md")))
+        {
+            issues.Add(new ContentIssue(exerciseId, "subject.md manquant (énoncé affiché à la recrue)."));
         }
 
         ValidateDifficulty(exerciseId, manifest, issues);
@@ -149,6 +155,53 @@ public sealed class ContentValidator
                 {
                     issues.Add(new ContentIssue(id, $"exercice présent sur disque ({Path.GetFileName(moduleDir)}) mais référencé dans aucun groupe (orphelin)."));
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Signale les identifiants d'exercice présents dans plusieurs modules : <see cref="ContentLocator.FindExercise"/>
+    /// renvoie le premier trouvé, donc un doublon masque silencieusement l'autre.
+    /// </summary>
+    private static void ValidateNoDuplicateIds(PiscineLayout layout, List<ContentIssue> issues)
+    {
+        var modulesDir = layout.Content.ModulesDirectory;
+        if (!Directory.Exists(modulesDir))
+        {
+            return;
+        }
+
+        var modulesById = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var moduleDir in Directory.EnumerateDirectories(modulesDir))
+        {
+            var exercisesDir = Path.Combine(moduleDir, ContentLocator.ExercisesDirName);
+            if (!Directory.Exists(exercisesDir))
+            {
+                continue;
+            }
+
+            foreach (var exerciseDir in Directory.EnumerateDirectories(exercisesDir))
+            {
+                if (!File.Exists(Path.Combine(exerciseDir, ExerciseManifestLoader.FileName)))
+                {
+                    continue;
+                }
+
+                var id = Path.GetFileName(exerciseDir);
+                if (!modulesById.TryGetValue(id, out var list))
+                {
+                    modulesById[id] = list = new List<string>();
+                }
+
+                list.Add(Path.GetFileName(moduleDir));
+            }
+        }
+
+        foreach (var (id, modules) in modulesById)
+        {
+            if (modules.Count > 1)
+            {
+                issues.Add(new ContentIssue(id, $"identifiant d'exercice présent dans plusieurs modules ({string.Join(", ", modules)}) : ambigu pour la résolution."));
             }
         }
     }

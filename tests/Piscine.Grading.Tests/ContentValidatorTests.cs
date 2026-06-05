@@ -21,6 +21,7 @@ public class ContentValidatorTests
                 exercises: [ex00]
             """);
         dir.WriteFile(Path.Combine("content", "modules", "00-setup", "exercises", "ex00", "manifest.yaml"), manifestYaml);
+        dir.WriteFile(Path.Combine("content", "modules", "00-setup", "exercises", "ex00", "subject.md"), "énoncé");
         if (solutionHello is not null)
         {
             dir.WriteFile(Path.Combine("content", "modules", "00-setup", "exercises", "ex00", "solution", "Hello.cs"), solutionHello);
@@ -225,6 +226,38 @@ public class ContentValidatorTests
         var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
 
         Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("ancre #inexistant"));
+    }
+
+    [Fact]
+    public void Validate_MissingSubject_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, IoManifest, "System.Console.Write(\"ok\");");
+        File.Delete(Path.Combine(dir.Combine("content"), "modules", "00-setup", "exercises", "ex00", "subject.md"));
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("subject.md manquant"));
+    }
+
+    [Fact]
+    public void Validate_DuplicateExerciseIdAcrossModules_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, IoManifest, "System.Console.Write(\"ok\");");
+        // Second module avec le MÊME identifiant d'exercice ex00.
+        dir.WriteFile(Path.Combine("content", "modules", "01-autre", "module.yaml"), """
+            id: 01-autre
+            order: 1
+            groups:
+              - id: g1
+                exercises: [ex00]
+            """);
+        dir.WriteFile(Path.Combine("content", "modules", "01-autre", "exercises", "ex00", "manifest.yaml"), "id: ex00");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("plusieurs modules"));
     }
 
     [Fact]
