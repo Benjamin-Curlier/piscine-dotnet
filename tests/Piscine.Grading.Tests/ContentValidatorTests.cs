@@ -228,6 +228,30 @@ public class ContentValidatorTests
     }
 
     [Fact]
+    public void Validate_OrphanExerciseOnDisk_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, IoManifest, "System.Console.Write(\"ok\");");
+        // ex99 existe sur disque mais n'est listé dans aucun groupe.
+        dir.WriteFile(Path.Combine("content", "modules", "00-setup", "exercises", "ex99", "manifest.yaml"), "id: ex99");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex99" && i.Message.Contains("orphelin"));
+    }
+
+    [Fact]
+    public void Validate_ReferencedExercise_NotFlaggedAsOrphan()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, IoManifest, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.DoesNotContain(report.Issues, i => i.Message.Contains("orphelin"));
+    }
+
+    [Fact]
     public void Validate_InvalidHintTrigger_ReportsIssue()
     {
         using var dir = new TempDir();

@@ -42,10 +42,12 @@ public sealed class ContentValidator
     public ContentValidationReport Validate(PiscineLayout layout)
     {
         var issues = new List<ContentIssue>();
+        var referenced = new HashSet<string>(StringComparer.Ordinal);
         foreach (var module in ContentDiscovery.DiscoverModules(layout.Content))
         {
             foreach (var exerciseId in module.Groups.SelectMany(g => g.Exercises))
             {
+                referenced.Add(exerciseId);
                 ValidateExercise(layout, exerciseId, issues);
             }
         }
@@ -55,6 +57,8 @@ public sealed class ContentValidator
         {
             ValidateExercise(layout, rush.Id, issues);
         }
+
+        ValidateNoOrphans(layout, referenced, issues);
 
         return new ContentValidationReport(issues);
     }
@@ -113,6 +117,39 @@ public sealed class ContentValidator
         {
             var detail = string.Join(" ; ", result.Results.SelectMany(r => r.Messages));
             issues.Add(new ContentIssue(exerciseId, $"le corrigé ne passe pas ses graders : {detail}"));
+        }
+    }
+
+    /// <summary>Signale les exercices présents sur disque mais référencés dans aucun groupe (orphelins).</summary>
+    private static void ValidateNoOrphans(PiscineLayout layout, HashSet<string> referenced, List<ContentIssue> issues)
+    {
+        var modulesDir = layout.Content.ModulesDirectory;
+        if (!Directory.Exists(modulesDir))
+        {
+            return;
+        }
+
+        foreach (var moduleDir in Directory.EnumerateDirectories(modulesDir))
+        {
+            var exercisesDir = Path.Combine(moduleDir, ContentLocator.ExercisesDirName);
+            if (!Directory.Exists(exercisesDir))
+            {
+                continue;
+            }
+
+            foreach (var exerciseDir in Directory.EnumerateDirectories(exercisesDir))
+            {
+                if (!File.Exists(Path.Combine(exerciseDir, ExerciseManifestLoader.FileName)))
+                {
+                    continue;
+                }
+
+                var id = Path.GetFileName(exerciseDir);
+                if (!referenced.Contains(id))
+                {
+                    issues.Add(new ContentIssue(id, $"exercice présent sur disque ({Path.GetFileName(moduleDir)}) mais référencé dans aucun groupe (orphelin)."));
+                }
+            }
         }
     }
 
