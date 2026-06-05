@@ -17,6 +17,18 @@ grading:
       - stdin: "7\nExecution\n"
         expect_stdout: "oui\n"
         expect_exit: 0
+      # anti-hardcode : 5 = Lecture|Execution, tester Ecriture (absent) => non
+      - stdin: "5\nEcriture\n"
+        expect_stdout: "non\n"
+        expect_exit: 0
+      # 6 = Ecriture|Execution, tester Lecture (absent) => non
+      - stdin: "6\nLecture\n"
+        expect_stdout: "non\n"
+        expect_exit: 0
+      # 5 = Lecture|Execution, tester Lecture (present) => oui
+      - stdin: "5\nLecture\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

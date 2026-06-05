@@ -16,6 +16,14 @@ grading:
       - stdin: "Bleu\n"
         expect_stdout: "2\n"
         expect_exit: 0
+      # anti-hardcode : ordre inversé — Bleu en premier garantit que le cast est réel
+      - stdin: "Bleu\n"
+        expect_stdout: "2\n"
+        expect_exit: 0
+      # Rouge demandé après Bleu : un retour 2 serait détecté
+      - stdin: "Rouge\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

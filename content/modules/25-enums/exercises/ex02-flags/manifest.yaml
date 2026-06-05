@@ -16,6 +16,18 @@ grading:
       - stdin: "3\nLecture\nEcriture\nExecution\n"
         expect_stdout: "7\n"
         expect_exit: 0
+      # anti-hardcode : Lecture+Execution sans Ecriture => 1|4 = 5
+      - stdin: "2\nLecture\nExecution\n"
+        expect_stdout: "5\n"
+        expect_exit: 0
+      # Ecriture seule => 2
+      - stdin: "1\nEcriture\n"
+        expect_stdout: "2\n"
+        expect_exit: 0
+      # Ecriture+Execution sans Lecture => 2|4 = 6
+      - stdin: "2\nEcriture\nExecution\n"
+        expect_stdout: "6\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch

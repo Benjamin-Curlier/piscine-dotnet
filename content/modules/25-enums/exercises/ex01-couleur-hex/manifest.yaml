@@ -16,6 +16,18 @@ grading:
       - stdin: "Bleu\n"
         expect_stdout: "#0000FF\n"
         expect_exit: 0
+      # anti-hardcode : ordre inversé — Bleu demandé en 4e position
+      - stdin: "Bleu\n"
+        expect_stdout: "#0000FF\n"
+        expect_exit: 0
+      # Vert en 5e : si l'étudiant renvoie "#0000FF" ici, c'est du hardcode
+      - stdin: "Vert\n"
+        expect_stdout: "#00FF00\n"
+        expect_exit: 0
+      # Rouge après Bleu/Vert : valide le switch exhaustif
+      - stdin: "Rouge\n"
+        expect_stdout: "#FF0000\n"
+        expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
