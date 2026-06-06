@@ -1,8 +1,13 @@
 @using System.Globalization
-@using System.Text
+@using System.Net
 @using System.Text.RegularExpressions
+@inject Piscine.Components.Services.MarkdownRenderer Md
 
-@* Sommaire généré depuis les titres ATX du markdown, ancres cohérentes avec Markdig UseAutoIdentifiers(GitHub). *@
+@* Sommaire dérivé du HTML RÉELLEMENT rendu par Markdig (MarkdownRenderer) : les ancres du sommaire
+   == les `id` que Markdig émet (diacritiques retirés via FormD, suffixes de doublons, `{#id}` explicite
+   — tout est géré par le moteur de rendu lui-même). On ne re-slugifie donc PAS à la main (ce qui
+   divergerait : CourseAnchors/FormC garde les accents, Markdig+AdvancedExtensions les retire) → jamais
+   de lien de sommaire cassé vers une ancre inexistante. *@
 
 @if (_entries.Count > 0)
 {
@@ -20,81 +25,50 @@
 
 @code {
     [Parameter] public string? Markdown { get; set; }
+
+    /// <summary>Niveau ATX minimal listé (2 = on liste `##`/`###`… ; le titre `#` n'est pas une entrée).</summary>
     [Parameter] public int MinLevel { get; set; } = 2;
 
-    private readonly List<(int Level, string Text, string Slug)> _entries = [];
+    private readonly List<(int Level, string Slug, string Text)> _entries = [];
 
-    private static readonly Regex ExplicitId = new(@"\{#(?<id>[^}\s]+)\}\s*$", RegexOptions.Compiled);
+    // Titre rendu par Markdig : <h2 id="slug">contenu inline</h2> (h2..h6 ; id = ancre réelle).
+    private static readonly Regex Heading = new(
+        "<h(?<level>[2-6])\\b[^>]*?\\bid=\"(?<id>[^\"]+)\"[^>]*>(?<inner>.*?)</h\\k<level>>",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+
+    // Retire le balisage inline d'un titre (ex. <code>…</code>) pour l'affichage du sommaire.
+    private static readonly Regex InlineTag = new("<[^>]+>", RegexOptions.Compiled);
 
     protected override void OnParametersSet()
     {
         _entries.Clear();
         if (string.IsNullOrEmpty(Markdown))
+        {
             return;
-
-        foreach (var rawLine in Markdown.Split('\n'))
-        {
-            var line = rawLine.TrimEnd('\r', ' ', '\t');
-            var hashes = 0;
-            while (hashes < line.Length && line[hashes] == '#')
-                hashes++;
-
-            // Titre ATX = 1 à 6 '#' suivis d'un espace.
-            if (hashes is < 1 or > 6 || hashes >= line.Length || line[hashes] != ' ')
-                continue;
-
-            if (hashes < MinLevel)
-                continue;
-
-            var heading = line[(hashes + 1)..].Trim();
-            if (string.IsNullOrWhiteSpace(heading))
-                continue;
-
-            var slug = ComputeSlug(heading);
-            _entries.Add((hashes, StripExplicitId(heading), slug));
         }
-    }
 
-    /// <summary>
-    /// Réplique minimalement le slugify de CourseAnchors (privé) :
-    /// - ancre explicite {#id} en fin de titre prime
-    /// - sinon slug GitHub : minuscules, lettres/chiffres conservés, séparateurs → un tiret
-    /// </summary>
-    private static string ComputeSlug(string heading)
-    {
-        var explicitMatch = ExplicitId.Match(heading);
-        if (explicitMatch.Success)
-            return explicitMatch.Groups["id"].Value;
-
-        return Slugify(heading);
-    }
-
-    private static string StripExplicitId(string heading)
-    {
-        var m = ExplicitId.Match(heading);
-        return m.Success ? heading[..m.Index].Trim() : heading;
-    }
-
-    /// <summary>Slug façon GitHub : minuscules, lettres/chiffres conservés, séparateurs → un seul tiret.</summary>
-    private static string Slugify(string text)
-    {
-        var sb = new StringBuilder(text.Length);
-        var pendingDash = false;
-        foreach (var ch in text.ToLowerInvariant().Normalize(NormalizationForm.FormC))
+        var html = Md.Render(Markdown).Value;
+        if (string.IsNullOrEmpty(html))
         {
-            if (char.IsLetterOrDigit(ch))
-            {
-                if (pendingDash && sb.Length > 0)
-                    sb.Append('-');
-                pendingDash = false;
-                sb.Append(ch);
-            }
-            else if (ch == '-' || char.IsWhiteSpace(ch) || char.GetUnicodeCategory(ch) == UnicodeCategory.SpaceSeparator)
-            {
-                pendingDash = true;
-            }
-            // tout autre caractère (ponctuation) est ignoré
+            return;
         }
-        return sb.ToString();
+
+        foreach (Match match in Heading.Matches(html))
+        {
+            var level = int.Parse(match.Groups["level"].Value, CultureInfo.InvariantCulture);
+            if (level < MinLevel)
+            {
+                continue;
+            }
+
+            var slug = match.Groups["id"].Value;
+            var text = WebUtility.HtmlDecode(InlineTag.Replace(match.Groups["inner"].Value, string.Empty)).Trim();
+            if (text.Length == 0)
+            {
+                continue;
+            }
+
+            _entries.Add((level, slug, text));
+        }
     }
 }
