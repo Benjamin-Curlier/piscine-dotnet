@@ -175,6 +175,92 @@ public class ProjectGraderTests
     }
 
     [Fact]
+    public void Grade_ARevoir_WhenForbiddenDependencyViolatedViaFullyQualifiedName()
+    {
+        // Référence pleinement qualifiée, sans `using` : doit quand même être détectée.
+        const string domainFq = """
+            namespace Domain;
+            public sealed class Compte
+            {
+                private readonly Infrastructure.SqlRepo _repo = new();
+                public string Source => _repo.Nom;
+            }
+            """;
+        var context = Sources(
+            ("Domain/Compte.cs", domainFq),
+            ("Infrastructure/SqlRepo.cs", Infrastructure));
+        var step = new GradingStep
+        {
+            Type = "projet",
+            Project = new ProjectAssertions
+            {
+                ForbiddenDependencies = { new LayerRule { From = "Domain", To = "Infrastructure" } },
+            },
+        };
+
+        var result = new ProjectGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Equal(FeedbackTriggers.ProjectStructure, result.Trigger);
+    }
+
+    [Fact]
+    public void Grade_Reussi_WhenNamespacePrefixDoesNotCollide()
+    {
+        // From=Domain ne doit PAS matcher DomainServices ; To=Infrastructure ne doit PAS matcher InfrastructureHelpers.
+        const string domainServices = """
+            using InfrastructureHelpers;
+            namespace DomainServices;
+            public sealed class Aide { private readonly Helper _h = new(); }
+            """;
+        const string helpers = """
+            namespace InfrastructureHelpers;
+            public sealed class Helper { }
+            """;
+        var context = Sources(
+            ("DomainServices/Aide.cs", domainServices),
+            ("InfrastructureHelpers/Helper.cs", helpers));
+        var step = new GradingStep
+        {
+            Type = "projet",
+            Project = new ProjectAssertions
+            {
+                ForbiddenDependencies = { new LayerRule { From = "Domain", To = "Infrastructure" } },
+            },
+        };
+
+        var result = new ProjectGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+    }
+
+    [Fact]
+    public void Grade_ContentError_WhenNoCasesAndNoAssertions()
+    {
+        var step = new GradingStep { Type = "projet" };
+
+        var result = new ProjectGrader().Grade(CleanProject(), step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Grade_ContentError_WhenLayerRuleIncomplete()
+    {
+        var step = new GradingStep
+        {
+            Type = "projet",
+            Project = new ProjectAssertions { ForbiddenDependencies = { new LayerRule { From = "Domain", To = "" } } },
+        };
+
+        var result = new ProjectGrader().Grade(CleanProject(), step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Grade_ARevoir_WhenProjectDoesNotCompile()
     {
         var context = Sources(("Cassé.cs", "namespace Domain; public class Compte { public void X( }"));

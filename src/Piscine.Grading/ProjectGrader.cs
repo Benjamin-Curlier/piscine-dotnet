@@ -22,6 +22,13 @@ public sealed class ProjectGrader : IGrader
     public GraderResult Grade(GradingContext context, GradingStep step)
     {
         var hasCases = step.Cases.Count > 0;
+
+        var authoring = ValidateAuthoring(step, hasCases);
+        if (authoring is not null)
+        {
+            return GraderResult.Failure(Type, authoring);
+        }
+
         var outputKind = hasCases ? OutputKind.ConsoleApplication : OutputKind.DynamicallyLinkedLibrary;
         var compilation = CompilationService.CreateCompilation(context.Sources, outputKind);
 
@@ -59,6 +66,30 @@ public sealed class ProjectGrader : IGrader
         var report = new List<string> { "L'architecture de ta solution ne respecte pas les règles :" };
         report.AddRange(failures.Select(f => $"- {f}"));
         return GraderResult.Failure(Type, report.ToArray()).WithTrigger(FeedbackTriggers.ProjectStructure);
+    }
+
+    /// <summary>Détecte les erreurs d'auteur (manifest) ; renvoie un message ou <c>null</c> si l'étape est valide.</summary>
+    private static string? ValidateAuthoring(GradingStep step, bool hasCases)
+    {
+        var hasAssertions = step.Project is not null
+            && (step.Project.RequiresTypes.Count > 0 || step.Project.ForbiddenDependencies.Count > 0);
+        if (!hasCases && !hasAssertions)
+        {
+            return "contenu : étape projet sans cas io ni assertion d'architecture (vérification vide).";
+        }
+
+        if (step.Project is not null)
+        {
+            foreach (var rule in step.Project.ForbiddenDependencies)
+            {
+                if (string.IsNullOrWhiteSpace(rule.From) || string.IsNullOrWhiteSpace(rule.To))
+                {
+                    return "contenu : règle de couche incomplète (from/to vide).";
+                }
+            }
+        }
+
+        return null;
     }
 
     /// <summary>Exécute les cas io ; renvoie un échec au 1er écart, ou <c>null</c> si tout passe.</summary>
@@ -138,7 +169,7 @@ public sealed class ProjectGrader : IGrader
                     continue;
                 }
 
-                var fromNs = EnclosingNamespace(name);
+                var fromNs = EnclosingNamespace(model, name);
 
                 foreach (var rule in project.ForbiddenDependencies)
                 {
@@ -155,9 +186,19 @@ public sealed class ProjectGrader : IGrader
         }
     }
 
-    /// <summary>Namespace de déclaration entourant un nœud (file-scoped ou en bloc), ou chaîne vide (global).</summary>
-    private static string EnclosingNamespace(SyntaxNode node)
+    /// <summary>
+    /// Namespace du type qui contient la référence — déterminé via le symbole du type englobant
+    /// (gère types imbriqués et namespaces multiples par fichier), avec repli syntaxique pour le code
+    /// hors type (top-level statements). Chaîne vide = namespace global.
+    /// </summary>
+    private static string EnclosingNamespace(SemanticModel model, SyntaxNode node)
     {
+        var typeDecl = node.Ancestors().OfType<BaseTypeDeclarationSyntax>().FirstOrDefault();
+        if (typeDecl is not null && model.GetDeclaredSymbol(typeDecl) is INamedTypeSymbol typeSymbol)
+        {
+            return NamespaceOf(typeSymbol.ContainingNamespace);
+        }
+
         var ns = node.Ancestors().OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault();
         return ns?.Name.ToString() ?? string.Empty;
     }

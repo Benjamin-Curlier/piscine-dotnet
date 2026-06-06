@@ -32,7 +32,11 @@ public sealed class GradingStep
 /// <summary>Assertions d'architecture d'une solution multi-fichiers (grader <c>projet</c>).</summary>
 public sealed class ProjectAssertions
 {
-    /// <summary>Types qui doivent exister (nom pleinement qualifié / metadata, ex. <c>Domain.Compte</c>).</summary>
+    /// <summary>
+    /// Types qui doivent exister, au **nom de metadata** : <c>Namespace.Type</c> (ex. <c>Domain.Compte</c>),
+    /// génériques suffixés par l'arité (<c>Domain.Repository`1</c>), types imbriqués avec <c>+</c>
+    /// (<c>Domain.Outer+Inner</c>).
+    /// </summary>
     public List<string> RequiresTypes { get; set; } = new();
 
     /// <summary>Dépendances de couches interdites (un namespace ne doit pas en référencer un autre).</summary>
