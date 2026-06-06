@@ -39,10 +39,13 @@ public static class FeedbackTriggers
     /// <summary>L'état du dépôt git diffère de l'attendu (grader <c>git</c>).</summary>
     public const string GitState = "git_state";
 
+    /// <summary>L'architecture de la solution diffère de l'attendu (grader <c>projet</c>).</summary>
+    public const string ProjectStructure = "project_structure";
+
     /// <summary>Ensemble des déclencheurs reconnus (pour validation du contenu).</summary>
     public static readonly IReadOnlySet<string> All = new HashSet<string>
     {
         CompileError, IoMismatch, ExitCode, Timeout, RuntimeError, UnitFailure, NormeViolation,
-        TestsFailOnReference, MutantSurvived, GitState,
+        TestsFailOnReference, MutantSurvived, GitState, ProjectStructure,
     };
 }

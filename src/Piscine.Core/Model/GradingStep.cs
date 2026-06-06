@@ -24,6 +24,33 @@ public sealed class GradingStep
 
     /// <summary>Pour le grader <c>git</c> : état attendu du dépôt rendu par la recrue.</summary>
     public GitAssertions? Git { get; set; }
+
+    /// <summary>Pour le grader <c>projet</c> : assertions d'architecture sur la solution multi-fichiers.</summary>
+    public ProjectAssertions? Project { get; set; }
+}
+
+/// <summary>Assertions d'architecture d'une solution multi-fichiers (grader <c>projet</c>).</summary>
+public sealed class ProjectAssertions
+{
+    /// <summary>
+    /// Types qui doivent exister, au **nom de metadata** : <c>Namespace.Type</c> (ex. <c>Domain.Compte</c>),
+    /// génériques suffixés par l'arité (<c>Domain.Repository`1</c>), types imbriqués avec <c>+</c>
+    /// (<c>Domain.Outer+Inner</c>).
+    /// </summary>
+    public List<string> RequiresTypes { get; set; } = new();
+
+    /// <summary>Dépendances de couches interdites (un namespace ne doit pas en référencer un autre).</summary>
+    public List<LayerRule> ForbiddenDependencies { get; set; } = new();
+}
+
+/// <summary>Règle de couche : aucun type de <see cref="From"/> ne doit référencer un type de <see cref="To"/> (grader <c>projet</c>).</summary>
+public sealed class LayerRule
+{
+    /// <summary>Namespace (ou préfixe) de la couche source.</summary>
+    public string From { get; set; } = string.Empty;
+
+    /// <summary>Namespace (ou préfixe) de la couche cible interdite.</summary>
+    public string To { get; set; } = string.Empty;
 }
 
 /// <summary>État attendu d'un dépôt git rendu (grader <c>git</c>).</summary>

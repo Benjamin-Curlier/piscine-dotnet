@@ -36,7 +36,8 @@ public sealed class CompilationResult
 /// <summary>Compile des sources C# en mémoire via Roslyn.</summary>
 public static class CompilationService
 {
-    public static CompilationResult Compile(
+    /// <summary>Construit la compilation Roslyn (sans émettre), utile pour l'analyse sémantique.</summary>
+    public static CSharpCompilation CreateCompilation(
         IReadOnlyDictionary<string, string> sources,
         OutputKind outputKind,
         string assemblyName = "Submission",
@@ -56,8 +57,12 @@ public static class CompilationService
         }
 
         var options = new CSharpCompilationOptions(outputKind);
-        var compilation = CSharpCompilation.Create(assemblyName, syntaxTrees, references, options);
+        return CSharpCompilation.Create(assemblyName, syntaxTrees, references, options);
+    }
 
+    /// <summary>Émet une compilation déjà construite en assembly mémoire.</summary>
+    public static CompilationResult Emit(CSharpCompilation compilation)
+    {
         using var ms = new MemoryStream();
         var emit = compilation.Emit(ms);
 
@@ -76,6 +81,13 @@ public static class CompilationService
             .ToList();
         return CompilationResult.Ok(ms.ToArray(), warnings);
     }
+
+    public static CompilationResult Compile(
+        IReadOnlyDictionary<string, string> sources,
+        OutputKind outputKind,
+        string assemblyName = "Submission",
+        IEnumerable<string>? additionalReferences = null) =>
+        Emit(CreateCompilation(sources, outputKind, assemblyName, additionalReferences));
 
     private static string Format(Diagnostic diagnostic)
     {

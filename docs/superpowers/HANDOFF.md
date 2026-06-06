@@ -132,9 +132,15 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
     `docs/superpowers/plans/2026-06-06-grader-git.md`). Tests **144** verts.
   - ✅ **#2 Rush 3 (worker déterministe)** — FAIT (PR #11, `content/rushes/r3-traitement`, plan
     `docs/superpowers/plans/2026-06-06-rush-03.md`). Channel + DI + LogCapture, 5 cas io.
+  - ✅ **#4 Grader « projet » (fondation moteur)** — FAIT (PR #12, plan
+    `docs/superpowers/plans/2026-06-06-grader-projet.md`). Type `projet` : compile multi-fichiers +
+    cas io optionnels + **assertions d'architecture Roslyn** (`requires_types`, `forbidden_dependencies`
+    namespace→namespace), trigger `project_structure`. **Constat clé** : la compilation multi-fichiers
+    et les deliverables en sous-chemins existaient déjà → la valeur du grader projet = les assertions
+    d'archi. Tests **155** verts. Adoption contenu = #5 (Clean Architecture).
   - ⏳ **#9** adoption contenu du grader git (M05/M14 + `grade-received`).
-  - ⏳ **#4** grader « projet » multi-fichiers (fondation Blazor/Clean Arch) ;
-    **#3** harnais réseau (M22) ; **#5** Clean Architecture ; **#6** Docker ; **#7** Blazor ; **#8** Silk.NET.
+  - ⏳ **#5** Clean Architecture (contenu `projet`) ; **#3** harnais réseau (M22) ;
+    **#6** Docker ; **#7** Blazor (harnais web sur grader projet) ; **#8** Silk.NET.
 
 ## DÉCISIONS actées (ne pas reposer)
 - v1.0 = curriculum complet, blocages branchés. **Packaging M.E.* + EF Core : OUI.**
