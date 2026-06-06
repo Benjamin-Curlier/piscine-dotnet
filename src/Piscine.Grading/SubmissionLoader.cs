@@ -32,6 +32,15 @@ public static class SubmissionLoader
                     graderFiles[testFile] = File.ReadAllText(path);
                 }
             }
+
+            if (!string.IsNullOrEmpty(step.Reference))
+            {
+                var referencePath = Path.Combine(exerciseContentDir, step.Reference);
+                if (File.Exists(referencePath))
+                {
+                    graderFiles[step.Reference] = File.ReadAllText(referencePath);
+                }
+            }
         }
 
         return new ExerciseSubmission(manifest, new GradingContext(sources, graderFiles));
