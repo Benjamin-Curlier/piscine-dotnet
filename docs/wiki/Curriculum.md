@@ -43,7 +43,10 @@ dédiés. Le contenu est généré **progressivement** au fil des itérations.
 - **Rush 0** (après ~M04) : programme console ludique (ASCII-art / mini-calculatrice / FizzBuzz avancé).
 - **Rush 1** (après POO, ~M08) : appli métier console (gestionnaire d'inventaire / bibliothèque).
 - **Rush 2** (après LINQ/async, ~M12) : CLI de traitement de données (parser, agréger, rapport).
-- **Rush 3** (après palier avancé) : Worker Service complet — `Channel<T>`, I/O réseau, `ILogger`, DI sous `HostBuilder`.
+- **Rush 3** (`r3-traitement`, après palier avancé) : **Worker Service déterministe auto-noté** —
+  un `BackgroundService` single-shot consomme une file `Channel<Commande>` (réseau *simulé* en
+  mémoire) injectée par DI, journalise via `LogCapture`, dresse un bilan, puis `StopApplication()`.
+  La partie réseau réelle reste une pratique locale non notée.
 
 ## Cours & références externes
 
@@ -57,7 +60,7 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
   M15, M16, M17, M18, **M19 (Logging), M20 (Generic Host)**, M21, M23.
 - **Modules de lecture/pratique guidée** (cours + checklist, sans auto-notation pour l'instant) :
   M05 (git intermédiaire), M14 (git avancé), M22 (réseau).
-- **Rushes auto-notés** : Rush 0, Rush 1, Rush 2.
+- **Rushes auto-notés** : Rush 0, Rush 1, Rush 2, **Rush 3** (post-v1.0, worker déterministe).
 - **M19/M20 débloqués** (post-v1.0, en `io`) : un `ILoggerProvider` synchrone fourni rend la sortie
   des logs déterministe (captée par le grader) — solution **contenu pur**, sans changement moteur.
 - **Hors périmètre v1.0** (drafts + design sur la branche `v1.0-blockers`, à traiter ensuite) :

@@ -121,16 +121,19 @@ cause/résolution/effort. État :
 - ✅ **Point 6** grader **« élève-écrit-tests »** (M13, mutants) — FAIT (type `mutation`, voir Moteur ci-dessus ;
   spec `docs/superpowers/specs/2026-06-05-grader-mutation-design.md`, plan `.../plans/2026-06-05-grader-mutation.md`).
 - ⏳ **Restants** : grader **git** → **fondation moteur FAITE** (Sprint 1 V3) ; **adoption contenu**
-  (issue #9) ; **Rush 3** (worker complet) → Point 3 ; **harnais réseau** (M22) → Point 5.
+  (issue #9) ; **Rush 3** (worker déterministe) → **FAIT** (Sprint 2 V3, `r3-traitement`) ;
+  **harnais réseau** (M22) → Point 5.
 
 **v3 — plateformes & architecture** (nouveau **grader « projet »** multi-fichiers/web) :
 Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md`.
 - **SCRUM / boucle V3 : backlog = GitHub Issues** (milestone « V3 — plateformes & architecture »,
   label `v3`). 1 sprint = 1 issue (plan → impl → revue agent → docs → retex → PR mergée).
-  - ✅ **#1 Grader git (fondation moteur)** — FAIT (`feat/grader-git`, plan
-    `docs/superpowers/plans/2026-06-06-grader-git.md`). Tests 142→**144** verts.
+  - ✅ **#1 Grader git (fondation moteur)** — FAIT (PR #10, plan
+    `docs/superpowers/plans/2026-06-06-grader-git.md`). Tests **144** verts.
+  - ✅ **#2 Rush 3 (worker déterministe)** — FAIT (PR #11, `content/rushes/r3-traitement`, plan
+    `docs/superpowers/plans/2026-06-06-rush-03.md`). Channel + DI + LogCapture, 5 cas io.
   - ⏳ **#9** adoption contenu du grader git (M05/M14 + `grade-received`).
-  - ⏳ **#4** grader « projet » multi-fichiers (fondation Blazor/Clean Arch) ; **#2** Rush 3 ;
+  - ⏳ **#4** grader « projet » multi-fichiers (fondation Blazor/Clean Arch) ;
     **#3** harnais réseau (M22) ; **#5** Clean Architecture ; **#6** Docker ; **#7** Blazor ; **#8** Silk.NET.
 
 ## DÉCISIONS actées (ne pas reposer)
