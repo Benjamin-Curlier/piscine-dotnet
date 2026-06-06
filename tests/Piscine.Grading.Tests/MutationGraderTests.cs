@@ -158,4 +158,24 @@ public class MutationGraderTests
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void Grade_ARevoir_WhenNoTestsProvided()
+    {
+        const string noTests = """
+            public class CompteTests
+            {
+                public void PasUnTest()
+                {
+                    _ = new Compte().Retirer(40);
+                }
+            }
+            """;
+
+        var result = new MutationGrader().Grade(Context(noTests), Step());
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Equal(FeedbackTriggers.MutantSurvived, result.Trigger);
+        Assert.Contains(result.Messages, m => m.Contains("Aucun test"));
+    }
 }
