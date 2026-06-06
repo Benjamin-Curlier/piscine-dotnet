@@ -1,0 +1,81 @@
+@namespace Piscine.Components.Components.Check
+@using Piscine.App.Checking
+@using Piscine.Core.Content
+
+@if (Outcome is null)
+{
+    <p class="check-placeholder">Sélectionne un exercice puis clique sur Vérifier.</p>
+}
+else
+{
+    <div class="check-feedback">
+        <p class="check-verdict check-verdict--@VerdictCssClass(Outcome.Verdict)" data-testid="check-verdict">
+            @VerdictLabel(Outcome.Verdict)
+        </p>
+
+        @foreach (var cas in Outcome.Cases.Where(static c => !c.Passed))
+        {
+            <div class="check-case" data-testid="check-case">
+                @foreach (var message in cas.Messages)
+                {
+                    @if (message.StartsWith("Attendu", StringComparison.Ordinal))
+                    {
+                        <pre class="diff-line diff-expected" data-testid="diff-expected">@message</pre>
+                    }
+                    else if (message.StartsWith("Obtenu", StringComparison.Ordinal))
+                    {
+                        <pre class="diff-line diff-actual" data-testid="diff-actual">@message</pre>
+                    }
+                    else
+                    {
+                        <p class="check-message">@message</p>
+                    }
+                }
+            </div>
+        }
+
+        @if (Outcome.Hint is not null)
+        {
+            <article class="hint-card hint-info" data-testid="check-hint">
+                <p>@Outcome.Hint</p>
+            </article>
+        }
+
+        @if (Outcome.CourseRef is not null)
+        {
+            <a class="check-course-link"
+               data-testid="check-course-ref"
+               href="@CourseHref(Outcome.ModuleId, Outcome.CourseRef)">
+                Revoir le cours →
+            </a>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public CheckOutcome? Outcome { get; set; }
+
+    private static string VerdictLabel(CheckVerdict verdict) => verdict switch
+    {
+        CheckVerdict.Reussi => "Réussi",
+        CheckVerdict.ARevoir => "À revoir",
+        CheckVerdict.AucunFichier => "Aucun fichier rendu",
+        CheckVerdict.Introuvable => "Exercice introuvable",
+        _ => "Inconnu",
+    };
+
+    private static string VerdictCssClass(CheckVerdict verdict) => verdict switch
+    {
+        CheckVerdict.Reussi => "success",
+        CheckVerdict.ARevoir => "error",
+        _ => "neutral",
+    };
+
+    /// <summary>Lien vers la page de cours du module, avec l'ancre du <c>course_ref</c> si présente
+    /// (parsing centralisé dans <see cref="CourseAnchors.ParseRef"/>, cohérent avec le rendu du site).</summary>
+    private static string CourseHref(string moduleId, string courseRef)
+    {
+        var (_, anchor) = CourseAnchors.ParseRef(courseRef);
+        return string.IsNullOrEmpty(anchor) ? $"/module/{moduleId}" : $"/module/{moduleId}#{anchor}";
+    }
+}

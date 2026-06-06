@@ -1,0 +1,85 @@
+@page "/check"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Check
+@using Piscine.App.Checking
+@using Piscine.Components.Services
+@inject CourseCatalog Catalog
+@inject CheckService Check
+
+<h1 class="check-page-title">Vérifier un exercice</h1>
+
+<div class="check-controls">
+    <label for="exo-select" class="check-label">Exercice</label>
+    <select id="exo-select" data-testid="exo-select" @bind="_selectedId" class="check-select">
+        @foreach (var exercise in AllExercises())
+        {
+            <option value="@exercise.Id">@exercise.Title</option>
+        }
+    </select>
+
+    <button data-testid="run-check" class="check-btn" @onclick="RunCheck">Vérifier</button>
+</div>
+
+<CheckFeedback Outcome="_outcome" />
+
+@if (_error is not null)
+{
+    <p data-testid="check-error" class="check-error">Erreur : @_error</p>
+}
+
+@if (_running)
+{
+    <p data-testid="check-running" class="check-running">Correction en cours…</p>
+}
+
+@code {
+    private string _selectedId = string.Empty;
+    private CheckOutcome? _outcome;
+    private bool _running;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        // Pré-sélectionner le premier exercice disponible pour qu'un clic ait toujours une cible.
+        var first = AllExercises().FirstOrDefault();
+        if (first is not null)
+        {
+            _selectedId = first.Id;
+        }
+    }
+
+    private async Task RunCheck()
+    {
+        if (string.IsNullOrWhiteSpace(_selectedId) || _running)
+        {
+            return;
+        }
+
+        _running = true;
+        _error = null;
+        _outcome = null;
+        StateHasChanged();
+
+        try
+        {
+            // La correction in-process (compilation + exécution via Piscine.Grading) est CPU-intensive :
+            // on la déporte sur le thread pool pour ne pas bloquer le thread SignalR.
+            var id = _selectedId;
+            _outcome = await Task.Run(() => Check.Check(id));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _running = false;
+            StateHasChanged();
+        }
+    }
+
+    private IEnumerable<CourseExercise> AllExercises()
+        => Catalog.Modules
+            .SelectMany(m => m.Groups)
+            .SelectMany(g => g.Exercises);
+}
