@@ -1,4 +1,6 @@
-namespace Piscine.Web.Services;
+using Microsoft.Extensions.Configuration;
+
+namespace Piscine.Components.Services;
 
 /// <summary>Localise le dossier <c>content/</c> du dépôt (modules + rushes).</summary>
 public static class ContentRootResolver

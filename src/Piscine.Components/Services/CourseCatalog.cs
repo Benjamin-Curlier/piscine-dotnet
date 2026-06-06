@@ -1,7 +1,8 @@
+using Microsoft.Extensions.Configuration;
 using Piscine.Core;
 using Piscine.Core.Content;
 
-namespace Piscine.Web.Services;
+namespace Piscine.Components.Services;
 
 /// <summary>
 /// Charge une fois pour toutes le contenu pédagogique (cours + sujets, sans corrigés)

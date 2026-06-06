@@ -1,7 +1,7 @@
 using Markdig;
 using Microsoft.AspNetCore.Components;
 
-namespace Piscine.Web.Services;
+namespace Piscine.Components.Services;
 
 /// <summary>Convertit le markdown du cours en HTML (avec extensions GitHub et ancres d'en-têtes).</summary>
 public sealed class MarkdownRenderer

@@ -1,6 +1,5 @@
 @page "/module/{Id}"
 @inject CourseCatalog Catalog
-@inject MarkdownRenderer Md
 
 @if (_module is null)
 {
@@ -15,9 +14,7 @@ else
         <a href="/">Curriculum</a> <span>/</span> <span>Module @_module.Number</span>
     </nav>
 
-    <article class="markdown">
-        @Md.Render(_module.CourseMarkdown)
-    </article>
+    <MarkdownView Markdown="@_module.CourseMarkdown" />
 
     @if (_module.HasExercises)
     {
