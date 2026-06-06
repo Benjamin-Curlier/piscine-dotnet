@@ -37,7 +37,11 @@ public sealed class ReseauGrader : IGrader
         {
             using var harness = NetworkHarness.StartEcho();
 
-            var args = new List<string> { harness.Host, harness.Port.ToString() };
+            var args = new List<string>
+            {
+                harness.Host,
+                harness.Port.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            };
             args.AddRange(ioCase.Args);
 
             var run = ProgramRunner.Run(compilation.AssemblyBytes, args.ToArray(), ioCase.Stdin, Timeout);
