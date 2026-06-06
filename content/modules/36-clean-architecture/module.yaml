@@ -1,0 +1,8 @@
+id: 36-clean-architecture
+title: "Clean Architecture (couches & dépendances)"
+order: 36
+course: cours.md
+groups:
+  - id: clean-architecture
+    title: "Architecture en couches"
+    exercises: [ex00-couches]

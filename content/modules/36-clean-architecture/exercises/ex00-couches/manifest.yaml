@@ -1,0 +1,41 @@
+id: ex00-couches
+title: "Gestionnaire de tâches en couches"
+objective: "Structurer une petite application en couches (Domain / Application / Infrastructure) en respectant la règle de dépendance, et la câbler depuis une composition root."
+difficulty: difficile
+deliverables: [Domain/Tache.cs, Domain/IDepotTaches.cs, Application/GestionTaches.cs, Infrastructure/DepotMemoire.cs, Program.cs]
+starter: [Domain/Tache.cs, Domain/IDepotTaches.cs, Application/GestionTaches.cs, Infrastructure/DepotMemoire.cs, Program.cs]
+grading:
+  - type: projet
+    cases:
+      # ajout, complétion, listing
+      - stdin: "4\nadd Acheter du pain\nadd Lire un livre\ndone 1\nlist\n"
+        expect_stdout: "Ajoutée : #1 Acheter du pain\nAjoutée : #2 Lire un livre\nFaite : #1\n#1 [x] Acheter du pain\n#2 [ ] Lire un livre\nRésumé : 2 tâche(s), 1 faite(s)\n"
+        expect_exit: 0
+      # id inconnu
+      - stdin: "2\nadd Tache unique\ndone 9\n"
+        expect_stdout: "Ajoutée : #1 Tache unique\nInconnue : #9\nRésumé : 1 tâche(s), 0 faite(s)\n"
+        expect_exit: 0
+      # liste vide
+      - stdin: "1\nlist\n"
+        expect_stdout: "Résumé : 0 tâche(s), 0 faite(s)\n"
+        expect_exit: 0
+    project:
+      requires_types:
+        - Domain.Tache
+        - Domain.IDepotTaches
+        - Application.GestionTaches
+        - Infrastructure.DepotMemoire
+      forbidden_dependencies:
+        - { from: Domain, to: Application }
+        - { from: Domain, to: Infrastructure }
+        - { from: Application, to: Infrastructure }
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Respecte le format exact : « Ajoutée : #1 <titre> », « Faite : #<id> » / « Inconnue : #<id> », « #<id> [x] <titre> » (faite) ou « [ ] » sinon, puis « Résumé : N tâche(s), M faite(s) »."
+    - when: project_structure
+      message: "Règle de dépendance : Domain ne référence ni Application ni Infrastructure ; Application ne dépend que du PORT IDepotTaches (Domain), pas de DepotMemoire. Seul Program (composition root) connaît les implémentations concrètes."
+    - when: compile_error
+      message: "Chaque couche est dans son namespace (Domain / Application / Infrastructure) et son sous-dossier. N'oublie pas les `using` explicites vers Domain."
+  course_ref: "cours.md#regle-de-dependance"
+solution: [Domain/Tache.cs, Domain/IDepotTaches.cs, Application/GestionTaches.cs, Infrastructure/DepotMemoire.cs, Program.cs]
