@@ -23,6 +23,10 @@ public record PushResult(
 public enum PushPhase
 {
     Idle,
+
+    /// <summary>Réservé : un push détecté en cours, avant l'arrivée du résultat (sera câblé sur
+    /// l'événement `push` du shim git S3 quand le terminal embarqué pilotera le rendu).</summary>
     EnAttente,
+
     Recu,
 }

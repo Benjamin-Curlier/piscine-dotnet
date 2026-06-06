@@ -25,6 +25,7 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     private CoreProgress _last = new();
     private PushResult? _latest;
     private bool _started;
+    private bool _disposed;
 
     public ProgressFileWatcher(PiscineLayout layout)
     {
@@ -122,17 +123,22 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
             return;
         }
 
-        List<PushResultEntry> delta;
+        PushResult published;
         lock (_lock)
         {
-            delta = ComputeDelta(_last, current);
+            // Un callback de timer déjà déclenché peut courir après DisposeAsync (Timer.Dispose
+            // n'attend pas un callback en vol) → ne pas publier si on est disposé.
+            if (_disposed) return;
+
+            var delta = ComputeDelta(_last, current);
             if (delta.Count == 0) return;
 
             _latest = new PushResult(delta, DateTimeOffset.Now);
             _last = current;
+            published = _latest;
         }
 
-        ResultReceived?.Invoke(_latest!);
+        ResultReceived?.Invoke(published);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -181,6 +187,7 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
 
         lock (_lock)
         {
+            _disposed = true;
             watcher = _watcher;
             timer = _debounceTimer;
             _watcher = null;
