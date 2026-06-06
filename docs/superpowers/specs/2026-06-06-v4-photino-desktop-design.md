@@ -28,7 +28,7 @@ surface recrue*, **pas** supprimer le cœur headless.
 **Non-objectifs**
 - Pas d'**éditeur de code embarqué** : la recrue code dans son IDE.
 - Le terminal **ne masque pas** git : la recrue tape de **vraies** commandes git.
-- Pas de site web *produit* : `Piscine.Web` est retiré en tant que produit (recyclé en harnais).
+- Pas de site web *produit* : `Piscine.Web` est retiré en tant que produit (recyclé en `Piscine.DevHost`).
 - Aucun changement du format de contenu ni des graders.
 
 ## 3. Décisions actées (brainstorming 2026-06-06)
@@ -38,9 +38,9 @@ surface recrue*, **pas** supprimer le cœur headless.
 | D1 | Photino.Blazor = unique UX recrue | Nouveau shell de bureau ; le moteur reste headless |
 | D2 | L'app **complète** git (statut, init, **terminal embarqué**, coaching) | Pédagogie « vrai git » préservée |
 | D3 | **Pas** d'éditeur embarqué | Périmètre borné ; IDE externe |
-| D4 | L'app **remplace** `Piscine.Web` *en tant que produit* | Composants migrés vers une RCL |
+| D4 | L'app **remplace** l'ancien `Piscine.Web` *en tant que produit* | Composants migrés vers une RCL |
 | D5 | « Zéro pré-requis » **négociable** : setup webview unique toléré | Doc encadrant + checklist par OS |
-| D6 | Garder un **harnais de test Blazor Server** (carcasse de `Piscine.Web`) | Débloque Playwright E2E + vérif locale |
+| D6 | Garder un **harnais de test Blazor Server** : `Piscine.DevHost` (ex-`Piscine.Web`) | Débloque Playwright E2E + vérif locale |
 
 ## 4. Architecture
 
@@ -58,7 +58,7 @@ Piscine.Core ──┬── Piscine.Grading ──┐
                    **Piscine.Components** (RCL Razor : rendu cours Markdig, vues exo, panneau statut,
                           │                cartes d'indices, composant terminal xterm.js) → bUnit-testable
                           ├── **Piscine.Desktop** (Photino.Blazor) — shell LIVRÉ ; impls spécifiques OS
-                          └── Piscine.Web         (Blazor Server) — **harnais test/dev, NON livré**
+                          └── **Piscine.DevHost**  (Blazor Server) — harnais test/dev, NON livré (ex-Piscine.Web)
 ```
 
 **Invariant clé** : toute la logique vit dans `Piscine.App` (sans dépendance Photino) et est consommée
@@ -67,7 +67,7 @@ serveur (PTY, git, FS) exécutable dans un navigateur pilotable par Playwright. 
 Server partagent le **même modèle d'exécution .NET côté hôte** → le harnais est un analogue fidèle.
 
 Projets de test : `Piscine.App.Tests` (xUnit), `Piscine.Components.Tests` (bUnit),
-`Piscine.Web.E2E` (Playwright).
+`Piscine.DevHost.E2E` (Playwright).
 
 ## 5. Le terminal embarqué + coaching (la pièce délicate)
 
@@ -117,7 +117,7 @@ shell** dès le départ — assurance anti-blocage.
 |---|---|---|---|
 | Services (`Piscine.App`) : coaching, statut git, check, événements shim | xUnit | CI + local | ✅ écris & exécute |
 | Composants RCL (vues, cartes, panneau) | **bUnit** (DOM simulé, sans navigateur) | CI + local | ✅ écris & exécute |
-| E2E navigateur : navigation, feedback `check`, **terminal (PTY serveur → xterm)**, coaching | **Playwright** (Chromium headless) sur le **harnais Blazor Server** | CI + local | ✅ écris & exécute + **je vérifie via les outils preview** |
+| E2E navigateur : navigation, feedback `check`, **terminal (PTY serveur → xterm)**, coaching | **Playwright** (Chromium headless) sur le **harnais `Piscine.DevHost`** | CI + local | ✅ écris & exécute + **je vérifie via les outils preview** |
 | Shell Photino natif : fenêtre, ConPTY/forkpty réel, lancement terminal OS | **Smoke manuel par OS** (checklist pré-release) | Local/manuel | ❌ je ne *vois* pas la fenêtre native (je peux confirmer qu'elle démarre via logs) |
 
 Principe : **pousser toute la logique dans les services** ; garder le shell Photino **mince**. La seule
@@ -129,7 +129,7 @@ sur le harnais.
 
 - `release.yml` ajoute `Piscine.Desktop` **self-contained par RID** (binaires natifs Photino) à côté du
   CLI `piscine` **toujours livré** (le hook l'appelle), du `content/` et de MinGit (Windows).
-- `Piscine.Web` **n'est pas empaqueté** (harnais test/dev uniquement).
+- `Piscine.DevHost` **n'est pas empaqueté** (harnais test/dev uniquement).
 - **Runtime webview = setup unique par poste**, documenté et ajouté à la checklist encadrant :
   WebView2 (Windows), `libwebkit2gtk` (Linux), intégré (macOS). Cohérent avec la gestion actuelle de
   git système sous Linux/macOS.
@@ -138,9 +138,9 @@ sur le harnais.
 
 ## 9. Backlog v4 (1 sprint = 1 issue, boucle SCRUM)
 
-1. **Spike — shell Photino + RCL + harnais** : extraire les composants de `Piscine.Web` vers
-   `Piscine.Components`, recycler `Piscine.Web` en hôte Blazor Server, squelette `Piscine.App`. Prouve
-   le modèle bi-hôte + installe la pyramide de tests.
+1. **Spike — shell Photino + RCL + harnais** : extraire les composants de l'ancien `Piscine.Web` vers
+   `Piscine.Components`, le recycler en hôte Blazor Server `Piscine.DevHost`, squelette `Piscine.App`.
+   Prouve le modèle bi-hôte + installe la pyramide de tests.
 2. **Spike — terminal PTY embarqué** : `Pty.Net` + composant xterm.js + `PtyService` serveur (resize,
    débit), rendu dans le harnais + smoke Playwright. **Risque max, tôt.**
 3. **Moteur statut git + coaching** : `GitStatusService` + `CoachingService` (règles déterministes) +
@@ -151,7 +151,7 @@ sur le harnais.
 7. **Init/setup in-app** : enrobe `piscine init` (workspace + dépôt bare + hook).
 8. **Surveillance du résultat de push** + rendu riche de `grade-received`.
 9. **Packaging/release** : Photino par-RID dans `release.yml`, docs setup webview, exclusion confirmée
-   de `Piscine.Web` + checklist smoke manuelle par OS.
+   de `Piscine.DevHost` + checklist smoke manuelle par OS.
 10. **Docs** : réécriture recrue + encadrant pour le flux desktop ; MAJ `Curriculum.md` / HANDOFF.
 
 ## 10. Risques & spikes
