@@ -12,4 +12,11 @@
     <ProjectReference Include="..\Piscine.Git\Piscine.Git.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- PTY cross-platform : ConPTY (Windows 10 1809+) + shim natif forkpty par RID (Linux/macOS).
+         Cible netstandard2.0 ; sous TreatWarningsAsErrors, neutraliser au besoin NU1701 (restaure
+         via netstandard sur net10) - benin ici, l'API runtime est compatible. -->
+    <PackageReference Include="Porta.Pty" Version="1.0.7" />
+  </ItemGroup>
+
 </Project>
