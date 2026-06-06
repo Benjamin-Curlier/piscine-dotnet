@@ -1,0 +1,12 @@
+@using Piscine.Components
+
+<MarkdownView Markdown="@_md" />
+
+@code {
+    // Spike S1 : on monte le composant MarkdownView de la RCL Piscine.Components avec un
+    // markdown en dur (ni Router, ni découverte de contenu — c'est volontairement minimal).
+    private const string _md =
+        "# Piscine .NET\n\n" +
+        "L'hôte **Photino** rend un composant de la RCL `Piscine.Components`.\n\n" +
+        "```csharp\nSystem.Console.WriteLine(\"Bonjour\");\n```";
+}

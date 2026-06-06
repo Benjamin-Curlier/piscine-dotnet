@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "site",
+      "name": "devhost",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "src/Piscine.Web/Piscine.Web.csproj"],
+      "runtimeArgs": ["run", "--project", "src/Piscine.DevHost/Piscine.DevHost.csproj", "--urls", "http://localhost:5244"],
       "port": 5244
     }
   ]

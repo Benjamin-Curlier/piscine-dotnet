@@ -1,0 +1,13 @@
+@inject Piscine.Components.Services.MarkdownRenderer Md
+
+@if (!string.IsNullOrEmpty(Markdown))
+{
+    <article class="markdown">
+        @Md.Render(Markdown)
+    </article>
+}
+
+@code {
+    /// <summary>Le markdown brut à rendre en HTML. Rien n'est rendu s'il est vide.</summary>
+    [Parameter] public string? Markdown { get; set; }
+}

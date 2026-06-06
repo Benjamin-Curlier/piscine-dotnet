@@ -1,5 +1,11 @@
 # v4 Sprint 1 — Fondation (RCL + bi-hôte + pyramide de tests) — Plan d'implémentation
 
+> **✅ FAIT** (2026-06-06, branche `v4/s1-foundation`) — Tasks 1–7 livrées. Écarts vs plan : Markdig
+> **0.41.3** (≠ 0.37.0), bUnit **2.7.2** (API `BunitContext`/`Render<T>`, ≠ 1.31.3), Playwright **1.60.0**,
+> Photino.Blazor **3.2.0** (+ pin `Microsoft.AspNetCore.Components.WebView 10.0.8`). Revue de sprint :
+> corrigé la clé `@Assets` RCL de `ReconnectModal.razor.js` + rendu le test sanity App significatif.
+> **167 tests verts**, build 0 warning. Détails + pièges réutilisables : `../HANDOFF.md` (section v4).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended)
 > or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax.
 > Spec : [2026-06-06-v4-photino-desktop-design.md](../specs/2026-06-06-v4-photino-desktop-design.md).

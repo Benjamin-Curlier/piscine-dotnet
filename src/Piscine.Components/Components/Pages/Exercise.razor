@@ -1,6 +1,5 @@
 @page "/module/{ModuleId}/{ExerciseId}"
 @inject CourseCatalog Catalog
-@inject MarkdownRenderer Md
 
 @if (_module is null || _exercise is null)
 {
@@ -45,12 +44,7 @@ else
         <code>piscine check @_exercise.Id</code> pour t'auto-corriger.
     </div>
 
-    @if (!string.IsNullOrEmpty(_exercise.SubjectMarkdown))
-    {
-        <article class="markdown">
-            @Md.Render(_exercise.SubjectMarkdown)
-        </article>
-    }
+    <MarkdownView Markdown="@_exercise.SubjectMarkdown" />
 
     <nav class="pager">
         @if (_prev is not null)

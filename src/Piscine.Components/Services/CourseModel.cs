@@ -1,4 +1,4 @@
-namespace Piscine.Web.Services;
+namespace Piscine.Components.Services;
 
 /// <summary>Un exercice prêt à l'affichage (sans corrigé).</summary>
 public sealed record CourseExercise(

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
+    <ProjectReference Include="..\Piscine.Grading\Piscine.Grading.csproj" />
+    <ProjectReference Include="..\Piscine.Git\Piscine.Git.csproj" />
+  </ItemGroup>
+
+</Project>
