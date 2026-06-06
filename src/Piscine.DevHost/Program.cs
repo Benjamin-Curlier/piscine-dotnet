@@ -4,6 +4,7 @@ using Piscine.Components.Services;
 using Piscine.Core;
 using Piscine.DevHost.Components;
 using Piscine.Grading;
+using Piscine.App.Init;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,14 @@ builder.Services.AddSingleton<Piscine.App.Terminal.PtyService>();
 builder.Services.AddSingleton<Piscine.App.Git.GitStatusService>();
 builder.Services.AddSingleton<Piscine.App.Coaching.CoachingService>();
 builder.Services.AddSingleton<Piscine.App.Coaching.ICoachingChannel, Piscine.App.Coaching.NamedPipeCoachingChannel>();
+
+// Service d'initialisation : enrobe GitWorkspace.Initialize, chemin exe piscine surclassable par PISCINE_EXE.
+builder.Services.AddSingleton(sp =>
+{
+    var layout = sp.GetRequiredService<PiscineLayout>();
+    var exe = Environment.GetEnvironmentVariable("PISCINE_EXE") ?? "piscine";
+    return new InitService(layout, exe);
+});
 
 // Vue de progression : lit progress.json + RepoState + workspace (lecture seule).
 builder.Services.AddSingleton(sp => new ProgressService(
