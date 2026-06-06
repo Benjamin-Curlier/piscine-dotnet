@@ -58,7 +58,8 @@ public sealed class TryCommand
         var ioCases = new List<IoCaseRef>();
         foreach (var step in submission.Manifest.Grading)
         {
-            if (step.Type == "io")
+            // `io` et `projet` exécutent tous deux des cas stdin→stdout : l'outil auteur génère leurs expects.
+            if (step.Type == "io" || step.Type == "projet")
             {
                 foreach (var ioCase in step.Cases)
                 {
