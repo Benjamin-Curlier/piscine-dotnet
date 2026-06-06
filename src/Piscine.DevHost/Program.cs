@@ -1,5 +1,6 @@
 using Piscine.App.Checking;
 using Piscine.App.Progress;
+using Piscine.App.Push;
 using Piscine.Components.Services;
 using Piscine.Core;
 using Piscine.DevHost.Components;
@@ -62,6 +63,10 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton(sp => new ProgressService(
     sp.GetRequiredService<PiscineLayout>(),
     sp.GetRequiredService<Piscine.App.Git.GitStatusService>()));
+
+// Surveillant push : observe progress.json et publie les delta vers /resultat.
+builder.Services.AddSingleton<IPushResultWatcher>(sp =>
+    new ProgressFileWatcher(sp.GetRequiredService<PiscineLayout>()));
 
 var app = builder.Build();
 
