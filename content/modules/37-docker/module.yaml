@@ -1,0 +1,8 @@
+id: 37-docker
+title: "Docker & conteneurisation (.NET 10)"
+order: 37
+course: cours.md
+groups:
+  - id: docker-lecture
+    title: "À lire et pratiquer"
+    exercises: []
