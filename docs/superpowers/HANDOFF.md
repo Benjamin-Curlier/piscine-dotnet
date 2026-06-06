@@ -148,9 +148,12 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
     multi-étapes, `dotnet publish -t:PublishContainer` sans Dockerfile, images chiseled).
   - ✅ **#8 Module Silk.NET** — FAIT (PR #15, `content/modules/38-silk-net`, lecture : fenêtrage,
     boucle Load/Update/Render, OpenGL clear, entrées ; non déterministe → guidé).
+  - ✅ **#3 Harnais réseau (fondation moteur)** — FAIT (PR #16, plan
+    `docs/superpowers/plans/2026-06-06-grader-reseau.md`). `NetworkHarness` (écho TCP loopback) +
+    grader `reseau` (injecte host/port en args, compare io). Modèle `NetworkConfig`. Tests **161** verts.
+    **Suivi** : serveur HTTP (`HttpListener`) + exo pilote M22 + bascule lecture→auto-noté.
   - ⏳ **#9** adoption contenu du grader git (M05/M14 + `grade-received`).
-  - ⏳ **#3** harnais réseau (M22) ; **#7** Blazor (harnais web sur grader projet).
-    (Rush dédié Clean Arch : optionnel, non bloquant.)
+  - ⏳ **#7** Blazor (harnais web sur grader projet). (Rush dédié Clean Arch : optionnel, non bloquant.)
 
 ## DÉCISIONS actées (ne pas reposer)
 - v1.0 = curriculum complet, blocages branchés. **Packaging M.E.* + EF Core : OUI.**

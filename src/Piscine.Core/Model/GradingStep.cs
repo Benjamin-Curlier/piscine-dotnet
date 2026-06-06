@@ -27,6 +27,16 @@ public sealed class GradingStep
 
     /// <summary>Pour le grader <c>projet</c> : assertions d'architecture sur la solution multi-fichiers.</summary>
     public ProjectAssertions? Project { get; set; }
+
+    /// <summary>Pour le grader <c>reseau</c> : configuration du serveur de test embarqué.</summary>
+    public NetworkConfig? Network { get; set; }
+}
+
+/// <summary>Configuration du serveur de test embarqué (grader <c>reseau</c>).</summary>
+public sealed class NetworkConfig
+{
+    /// <summary>Type de serveur de test : <c>echo</c> (écho TCP, défaut). Extensible (ex. <c>http</c>).</summary>
+    public string Mode { get; set; } = "echo";
 }
 
 /// <summary>Assertions d'architecture d'une solution multi-fichiers (grader <c>projet</c>).</summary>
