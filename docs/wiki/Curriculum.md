@@ -21,7 +21,7 @@ dédiés. Le contenu est généré **progressivement** au fil des itérations.
 | 10 | Génériques & lambdas | `T`, délégués, `Func`/`Action` | — |
 | 11 | LINQ | requêtes, projection, agrégation | — |
 | 12 | Async/await | `Task`, asynchrone, annulation | — |
-| 13 | Tests unitaires | xUnit, écrire ses propres tests | — |
+| 13 | Tests unitaires | xUnit, écrire ses propres tests ; `ex03-mutation` (`mutation`) : écrire des tests qui tuent des mutants | — |
 | 14 | ★ Git avancé / collab | (dédié) | rebase, workflow MR GitLab, revue de code |
 
 ## Palier avancé

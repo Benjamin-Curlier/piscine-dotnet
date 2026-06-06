@@ -176,6 +176,15 @@ Lis `a`, `b` et un attendu ; calcule la somme (Act), compare (Assert) : `PASS` o
 #### cas-limites {#cas-limites}
 Lis N nombres ; pour chacun, affiche `positif`, `negatif` ou `zero` (n'oublie pas le `0`).
 
+## La mutation : écrire des tests qui attrapent les bugs {#mutation}
+
+Un test qui ne casse jamais ne sert à rien. Pour vérifier qu'une suite de tests est utile,
+on « mute » le code correct : on y introduit un petit bug (par exemple `<=` devient `<`, ou
+un débit `-= montant` devient `-= 0`). Un bon test doit alors **échouer** sur la version boguée :
+on dit qu'il « tue » le mutant. Un mutant qui survit révèle un comportement que tes tests ne
+vérifient pas — pense aux **cas limites** (la borne `montant == Solde`) et aux **effets de bord**
+(le solde a-t-il bien diminué ?).
+
 ## Références externes
 
 - Microsoft Learn — *Tests unitaires C# avec xUnit* :

@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: tests-unitaires
     title: "Tester son code"
-    exercises: [ex00-assertion, ex01-aaa, ex02-cas-limites]
+    exercises: [ex00-assertion, ex01-aaa, ex02-cas-limites, ex03-mutation]
