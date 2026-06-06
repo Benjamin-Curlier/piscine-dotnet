@@ -8,6 +8,9 @@
        data-testid="nav-progress">Progression</a>
     <a class="side-home @(Segments.Length > 0 && Segments[0] == "check" ? "active" : "")"
        href="/check">Vérifier</a>
+    <a class="side-home @(Segments.Length > 0 && Segments[0] == "init" ? "active" : "")"
+       href="/init"
+       data-testid="nav-init">Initialiser</a>
 
     <div class="side-section-title">Modules</div>
     <ul class="module-list">
