@@ -6,6 +6,7 @@
     <Project Path="src/Piscine.Core/Piscine.Core.csproj" />
     <Project Path="src/Piscine.Desktop/Piscine.Desktop.csproj" />
     <Project Path="src/Piscine.Git/Piscine.Git.csproj" />
+    <Project Path="src/Piscine.GitShim/Piscine.GitShim.csproj" />
     <Project Path="src/Piscine.Grading/Piscine.Grading.csproj" />
   </Folder>
   <Folder Name="/site/">

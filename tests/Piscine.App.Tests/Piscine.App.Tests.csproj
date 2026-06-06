@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Piscine.App\Piscine.App.csproj" />
+    <!-- GitFixtureBuilder (livre en V3 #9) materialise des depots git de fixture pour les tests. -->
+    <ProjectReference Include="..\..\src\Piscine.Grading\Piscine.Grading.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,102 @@
+/* Layout 2 colonnes : terminal a gauche, panneau de coaching a droite. CSS scopé RCL — il est
+   auto-bundlé dans Piscine.Components.styles.css (PAS de clé @Assets manuelle, piège S1). */
+/* Empilé par défaut (étroit) : le terminal garde toute la largeur, le panneau passe dessous.
+   À partir de 900px de viewport, 2 colonnes — le terminal garde un minimum réel (jamais écrasé
+   par le panneau, contrairement à minmax(0,1fr) qui le laissait tomber à ~0). */
+.terminal-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+
+@media (min-width: 900px) {
+    .terminal-layout {
+        grid-template-columns: minmax(420px, 1fr) minmax(280px, 340px);
+    }
+}
+
+.terminal-pane {
+    min-width: 0;
+}
+
+.coaching-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
+    background: #f6f8fa;
+}
+
+.coaching-pane h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.coaching-status-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+}
+
+.coaching-status-grid dt {
+    font-weight: 600;
+    color: #57606a;
+}
+
+.coaching-status-grid dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.coaching-status-empty,
+.coaching-hints-empty {
+    margin: 0;
+    color: #57606a;
+    font-style: italic;
+}
+
+.coaching-hints {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Carte d'indice — couleur par sévérité (jamais une note : registre éducatif). */
+.hint-card {
+    padding: 0.5rem 0.75rem;
+    border-left: 4px solid #57606a;
+    border-radius: 4px;
+    background: #ffffff;
+}
+
+.hint-card h3 {
+    margin: 0 0 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.hint-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.hint-info {
+    border-left-color: #0969da;
+    background: #ddf4ff;
+}
+
+.hint-warn {
+    border-left-color: #bf8700;
+    background: #fff8c5;
+}
+
+.hint-block {
+    border-left-color: #cf222e;
+    background: #ffebe9;
+}
