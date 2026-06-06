@@ -1,0 +1,101 @@
+using Bunit;
+using Piscine.App.Checking;
+using Piscine.Components.Components.Check;
+using Xunit;
+
+namespace Piscine.Components.Tests;
+
+/// <summary>
+/// Tests bUnit du composant <see cref="CheckFeedback"/> : rendu du verdict, du diff
+/// attendu/obtenu, de l'indice et du lien course_ref. Les <see cref="CheckOutcome"/> sont
+/// construits à la main (le composant est pur, sans appel moteur).
+/// </summary>
+public sealed class CheckFeedbackTests : BunitContext
+{
+    // --- Cas PASS : verdict Réussi, pas d'indice, pas de diff ---------------------------------
+
+    [Fact]
+    public void Render_PassOutcome_ShowsVerdictOnly()
+    {
+        // Arrange
+        var outcome = new CheckOutcome(
+            ExerciseId: "ex00-hello",
+            ModuleId: "00-setup-git",
+            Verdict: CheckVerdict.Reussi,
+            Cases: [new CheckCaseResult("io", true, [])],
+            Hint: null,
+            CourseRef: null);
+
+        // Act
+        var cut = Render<CheckFeedback>(p => p.Add(c => c.Outcome, outcome));
+
+        // Assert — verdict présent
+        var verdict = cut.Find("[data-testid='check-verdict']");
+        Assert.Contains("Réussi", verdict.TextContent, System.StringComparison.Ordinal);
+
+        // Assert — aucun indice
+        Assert.Empty(cut.FindAll("[data-testid='check-hint']"));
+
+        // Assert — aucun diff
+        Assert.Empty(cut.FindAll("[data-testid='diff-expected']"));
+        Assert.Empty(cut.FindAll("[data-testid='diff-actual']"));
+    }
+
+    // --- Cas FAIL : diff + indice + lien course_ref -------------------------------------------
+
+    [Fact]
+    public void Render_FailOutcome_ShowsDiffHintAndCourseRef()
+    {
+        // Arrange — messages tels que produits par IoGrader
+        var messages = new[]
+        {
+            "La sortie ne correspond pas.",
+            "Attendu : \"Hello, Piscine!\\n\"",
+            "Obtenu  : \"Bonjour\\n\"",
+        };
+
+        var outcome = new CheckOutcome(
+            ExerciseId: "ex00-hello",
+            ModuleId: "00-setup-git",
+            Verdict: CheckVerdict.ARevoir,
+            Cases: [new CheckCaseResult("io", false, messages)],
+            Hint: "Vérifie la casse, la virgule, le '!' et le retour à la ligne final.",
+            CourseRef: "cours.md#hello-world");
+
+        // Act
+        var cut = Render<CheckFeedback>(p => p.Add(c => c.Outcome, outcome));
+
+        // Assert — verdict présent
+        var verdict = cut.Find("[data-testid='check-verdict']");
+        Assert.Contains("revoir", verdict.TextContent, System.StringComparison.OrdinalIgnoreCase);
+
+        // Assert — diff-expected et diff-actual présents
+        var expected = cut.Find("[data-testid='diff-expected']");
+        Assert.Contains("Attendu", expected.TextContent, System.StringComparison.Ordinal);
+
+        var actual = cut.Find("[data-testid='diff-actual']");
+        Assert.Contains("Obtenu", actual.TextContent, System.StringComparison.Ordinal);
+
+        // Assert — indice présent
+        cut.Find("[data-testid='check-hint']");
+
+        // Assert — lien course_ref : href contient /module/00-setup-git et l'ancre hello-world
+        var link = cut.Find("[data-testid='check-course-ref']");
+        var href = link.GetAttribute("href") ?? string.Empty;
+        Assert.Contains("/module/00-setup-git", href, System.StringComparison.Ordinal);
+        Assert.Contains("hello-world", href, System.StringComparison.Ordinal);
+    }
+
+    // --- Outcome null : placeholder affiché ---------------------------------------------------
+
+    [Fact]
+    public void Render_NullOutcome_ShowsPlaceholder()
+    {
+        // Arrange + Act
+        var cut = Render<CheckFeedback>(p => p.Add(c => c.Outcome, (CheckOutcome?)null));
+
+        // Assert — aucun verdict, juste un placeholder
+        Assert.Empty(cut.FindAll("[data-testid='check-verdict']"));
+        Assert.NotEmpty(cut.Markup); // quelque chose est rendu (le placeholder)
+    }
+}
