@@ -61,6 +61,8 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
 - **Modules de lecture/pratique guidée** (cours + checklist, sans auto-notation pour l'instant) :
   M05 (git intermédiaire), M14 (git avancé), M22 (réseau).
 - **Rushes auto-notés** : Rush 0, Rush 1, Rush 2, **Rush 3** (post-v1.0, worker déterministe).
+- **Modules V3 (grader `projet`)** : **M36 Clean Architecture** (`ex00-couches` : couches
+  Domain/Application/Infrastructure + composition root ; noté io + assertions d'architecture).
 - **M19/M20 débloqués** (post-v1.0, en `io`) : un `ILoggerProvider` synchrone fourni rend la sortie
   des logs déterministe (captée par le grader) — solution **contenu pur**, sans changement moteur.
 - **Hors périmètre v1.0** (drafts + design sur la branche `v1.0-blockers`, à traiter ensuite) :
