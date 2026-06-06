@@ -19,8 +19,9 @@ public static class GitPathResolver
         }
 
         var normalizedExclude = NormalizeDir(excludeDir);
+        // Pas de git.cmd : le shim lance le vrai git via UseShellExecute=false (un .cmd n'est pas lancable).
         var candidates = OperatingSystem.IsWindows()
-            ? new[] { "git.exe", "git.cmd", "git" }
+            ? new[] { "git.exe", "git" }
             : new[] { "git" };
 
         foreach (var dir in path.Split(System.IO.Path.PathSeparator))

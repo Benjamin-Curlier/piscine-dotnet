@@ -24,7 +24,17 @@ foreach (var arg in args)
 }
 
 using var proc = new Process { StartInfo = psi };
-proc.Start();
+try
+{
+    proc.Start();
+}
+catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException)
+{
+    // Le vrai git resolu n'est pas lancable (ex. un git.cmd/shim sous UseShellExecute=false).
+    // On ne crashe pas : on signale et on rend un code non nul (git n'a rien execute).
+    await Console.Error.WriteLineAsync($"piscine: impossible de lancer le vrai git ({realGit}) : {e.Message}");
+    return 127;
+}
 await proc.WaitForExitAsync();
 var exitCode = proc.ExitCode;
 
@@ -50,8 +60,9 @@ static string? ResolveRealGit()
         return null;
     }
 
+    // Pas de git.cmd : UseShellExecute=false ne lance pas un .cmd (et l'appel ci-dessus jetterait).
     var candidates = OperatingSystem.IsWindows()
-        ? new[] { "git.exe", "git.cmd", "git" }
+        ? new[] { "git.exe", "git" }
         : new[] { "git" };
 
     foreach (var dir in pathVar.Split(Path.PathSeparator))
