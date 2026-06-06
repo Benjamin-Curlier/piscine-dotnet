@@ -137,6 +137,12 @@ public sealed class ContentValidator
     /// <summary>Valide un exercice <c>git</c> : construit sa fixture de dépôt et la confronte aux assertions.</summary>
     private void ValidateGitExercise(string exerciseId, ExerciseManifest manifest, List<ContentIssue> issues)
     {
+        if (manifest.Grading.Any(s => s.Type != "git"))
+        {
+            issues.Add(new ContentIssue(exerciseId, "un exercice git ne peut pas combiner d'autres types de notation (pas de dossier solution/ à compiler)."));
+            return;
+        }
+
         foreach (var step in manifest.Grading.Where(s => s.Type == "git"))
         {
             if (step.Git is null || step.Git.Fixture.Count == 0)

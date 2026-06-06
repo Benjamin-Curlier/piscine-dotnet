@@ -54,13 +54,19 @@ public static class GitFixtureBuilder
         }
 
         Commands.Stage(repo, "*");
-        repo.Commit(step.Message, Author, Author);
+        // Autorise un commit sans changement (ex. marqueur pour atteindre un min_commits).
+        repo.Commit(step.Message, Author, Author, new CommitOptions { AllowEmptyCommit = true });
     }
 
     private static void Merge(Repository repo, GitFixtureStep step)
     {
-        Commands.Checkout(repo, repo.Branches[step.MergeInto]);
-        repo.Merge(repo.Branches[step.MergeFrom], Author);
+        var into = repo.Branches[step.MergeInto]
+            ?? throw new InvalidOperationException($"fixture git : branche cible de fusion « {step.MergeInto} » introuvable.");
+        var from = repo.Branches[step.MergeFrom]
+            ?? throw new InvalidOperationException($"fixture git : branche à fusionner « {step.MergeFrom} » introuvable.");
+
+        Commands.Checkout(repo, into);
+        repo.Merge(from, Author);
     }
 
     /// <summary>Place HEAD sur <paramref name="branch"/> : la crée si besoin (branche orpheline initiale ou depuis <paramref name="baseBranch"/>).</summary>
@@ -88,6 +94,7 @@ public static class GitFixtureBuilder
     {
         var b = repo.Branches[branch]
             ?? throw new InvalidOperationException($"fixture git : branche de base « {branch} » introuvable.");
-        return b.Tip;
+        return b.Tip
+            ?? throw new InvalidOperationException($"fixture git : la branche de base « {branch} » n'a aucun commit.");
     }
 }
