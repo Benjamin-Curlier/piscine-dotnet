@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Piscine.Core.Model;
 
-/// <summary>Une étape de notation déclarée dans le manifest (type io / unit / norme).</summary>
+/// <summary>Une étape de notation déclarée dans le manifest (type io / unit / norme / mutation).</summary>
 public sealed class GradingStep
 {
     public string Type { get; set; } = string.Empty;
