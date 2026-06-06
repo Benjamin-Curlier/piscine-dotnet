@@ -206,6 +206,34 @@ public class GitGraderTests
     }
 
     [Fact]
+    public void Grade_ARevoir_WhenRepoInitializedButEmpty()
+    {
+        using var dir = new TempDir();
+        Repository.Init(dir.Path); // dépôt valide mais HEAD non né (aucun commit)
+
+        var result = Grade(dir.Path, new GitAssertions { MinCommits = 1 });
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, m => m.Contains("aucun commit"));
+    }
+
+    [Fact]
+    public void Grade_ARevoir_WhenConflictMarkersNotAllThreePresent()
+    {
+        using var dir = new TempDir();
+        Repository.Init(dir.Path);
+        using (var repo = new Repository(dir.Path))
+        {
+            // Doc qui parle des conflits sans en être un : pas les trois marqueurs en début de ligne.
+            Commit(repo, "doc.md", "Les marqueurs <<<<<<< et >>>>>>> indiquent un conflit.\n", "doc");
+        }
+
+        var result = Grade(dir.Path, new GitAssertions { NoConflictMarkers = true });
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+    }
+
+    [Fact]
     public void Grade_ContentError_WhenGitBlockMissing()
     {
         using var dir = new TempDir();

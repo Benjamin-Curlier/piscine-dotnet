@@ -72,7 +72,8 @@ public sealed class GitGrader : IGrader
             return;
         }
 
-        var count = repo.Commits.Count();
+        // On ne walk l'historique que jusqu'au seuil : inutile de parcourir un long passé.
+        var count = repo.Commits.Take(git.MinCommits).Count();
         if (count < git.MinCommits)
         {
             failures.Add($"au moins {git.MinCommits} commit(s) attendu(s) sur HEAD, trouvé {count}.");
@@ -117,10 +118,21 @@ public sealed class GitGrader : IGrader
                 continue;
             }
 
-            var content = ReadBlobText(commit, file.Path);
-            if (content is null)
+            var entry = commit[file.Path];
+            if (entry?.Target is not Blob blob)
             {
                 failures.Add($"le fichier « {file.Path} » est absent dans « {file.Ref} ».");
+                continue;
+            }
+
+            string content;
+            try
+            {
+                content = blob.GetContentText();
+            }
+            catch (Exception)
+            {
+                failures.Add($"le fichier « {file.Path} » n'est pas un fichier texte lisible.");
                 continue;
             }
 
@@ -152,12 +164,26 @@ public sealed class GitGrader : IGrader
 
         foreach (var (path, text) in EnumerateBlobs(head))
         {
-            if (text.Contains("<<<<<<<", StringComparison.Ordinal)
-                && text.Contains(">>>>>>>", StringComparison.Ordinal))
+            // Un vrai conflit git laisse les trois marqueurs en début de ligne. Exiger les trois
+            // (en début de ligne) évite les faux positifs (art ASCII, doc parlant des conflits, diff).
+            if (HasMarkerAtLineStart(text, "<<<<<<<")
+                && HasMarkerAtLineStart(text, "=======")
+                && HasMarkerAtLineStart(text, ">>>>>>>"))
             {
                 failures.Add($"le fichier « {path} » contient des marqueurs de conflit non résolus.");
             }
         }
+    }
+
+    /// <summary>Vrai si <paramref name="marker"/> apparaît en début de ligne (début du texte ou après un <c>\n</c>).</summary>
+    private static bool HasMarkerAtLineStart(string text, string marker)
+    {
+        if (text.StartsWith(marker, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return text.Contains("\n" + marker, StringComparison.Ordinal);
     }
 
     /// <summary>Résout une ref (branche, <c>HEAD</c>, ou sha) vers son commit, ou <c>null</c>.</summary>
@@ -175,25 +201,6 @@ public sealed class GitGrader : IGrader
         }
 
         return repo.Lookup<Commit>(refName);
-    }
-
-    /// <summary>Lit le texte d'un blob à un chemin donné dans un commit, ou <c>null</c> s'il est absent.</summary>
-    private static string? ReadBlobText(Commit commit, string path)
-    {
-        var entry = commit[path];
-        if (entry?.Target is not Blob blob)
-        {
-            return null;
-        }
-
-        try
-        {
-            return blob.GetContentText();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
     }
 
     /// <summary>Parcourt tous les blobs texte de l'arbre d'un commit (chemin, contenu).</summary>

@@ -45,7 +45,11 @@ public sealed class GitAssertions
     public List<GitMerge> Merged { get; set; } = new();
 }
 
-/// <summary>Assertion de contenu d'un fichier dans une ref donnée (grader <c>git</c>).</summary>
+/// <summary>
+/// Assertion de contenu d'un fichier dans une ref donnée (grader <c>git</c>).
+/// Si ni <see cref="Contains"/> ni <see cref="Content"/> ne sont renseignés, l'assertion vérifie
+/// uniquement que le fichier existe.
+/// </summary>
 public sealed class GitFileAssertion
 {
     /// <summary>Chemin du fichier relatif à la racine du dépôt.</summary>
