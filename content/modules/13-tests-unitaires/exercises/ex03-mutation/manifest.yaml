@@ -1,0 +1,26 @@
+id: ex03-mutation
+title: "Des tests qui attrapent les bugs"
+objective: "Ecrire une suite de tests xUnit qui detecte les implementations boguees (mutants)."
+difficulty: moyen
+deliverables: [CompteTests.cs]
+starter: [Compte.cs, CompteTests.cs]
+grading:
+  - type: mutation
+    reference: reference/Compte.cs
+    mutants:
+      - id: borne-egal
+        label: "Le retrait d'un montant egal au solde n'est pas couvert."
+        find: "montant <= Solde"
+        replace: "montant < Solde"
+      - id: solde-non-debite
+        label: "Apres un retrait, le solde doit diminuer du montant retire."
+        find: "Solde -= montant"
+        replace: "Solde -= 0"
+feedback:
+  hints:
+    - when: mutant_survived
+      message: "Un test qui ne casse jamais ne sert a rien. Couvre les cas limites et verifie l'effet de bord sur le solde."
+    - when: tests_fail_on_reference
+      message: "Tes tests doivent d'abord passer sur une implementation correcte. Relis le contrat dans le sujet."
+  course_ref: "cours.md#mutation"
+solution: [CompteTests.cs]

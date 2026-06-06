@@ -350,4 +350,87 @@ public class ContentValidatorTests
 
         Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("introuvable pour le module"));
     }
+
+    private const string MutationReferenceImpl = """
+        public class Compte
+        {
+            public int Solde { get; private set; } = 100;
+            public bool Retirer(int montant)
+            {
+                if (montant <= Solde) { Solde -= montant; return true; }
+                return false;
+            }
+        }
+        """;
+
+    private const string MutationManifest = """
+        id: ex00
+        deliverables: [CompteTests.cs]
+        grading:
+          - type: mutation
+            reference: reference/Compte.cs
+            mutants:
+              - id: borne-egal
+                label: "Le retrait egal au solde n'est pas couvert."
+                find: "montant <= Solde"
+                replace: "montant < Solde"
+        """;
+
+    // Suite modèle qui TUE le mutant (teste la borne égale, Retirer(100)).
+    private const string MutationStrongSolution = """
+        using Xunit;
+        public class CompteTests
+        {
+            [Fact] public void Inferieur() { Assert.True(new Compte().Retirer(40)); }
+            [Fact] public void EgalAuSolde() { Assert.True(new Compte().Retirer(100)); }
+            [Fact] public void Superieur() { Assert.False(new Compte().Retirer(101)); }
+        }
+        """;
+
+    // Suite modèle FAIBLE : ne teste pas la borne -> le mutant survit -> exo rejeté par la gate.
+    private const string MutationWeakSolution = """
+        using Xunit;
+        public class CompteTests
+        {
+            [Fact] public void Inferieur() { Assert.True(new Compte().Retirer(40)); }
+        }
+        """;
+
+    private static void WriteMutationExercise(TempDir dir, string solutionTests)
+    {
+        dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"), """
+            id: 00-setup
+            order: 0
+            groups:
+              - id: g1
+                exercises: [ex00]
+            """);
+        dir.WriteFile(Path.Combine(ExerciseDir, "manifest.yaml"), MutationManifest);
+        dir.WriteFile(Path.Combine(ExerciseDir, "subject.md"), "énoncé");
+        dir.WriteFile(Path.Combine(ExerciseDir, "reference", "Compte.cs"), MutationReferenceImpl);
+        dir.WriteFile(Path.Combine(ExerciseDir, "solution", "CompteTests.cs"), solutionTests);
+    }
+
+    [Fact]
+    public void Validate_AcceptsWellFormedMutationExercise()
+    {
+        using var dir = new TempDir();
+        WriteMutationExercise(dir, MutationStrongSolution);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.True(report.IsValid, string.Join(" | ", report.Issues.Select(i => i.Message)));
+    }
+
+    [Fact]
+    public void Validate_RejectsMutationExercise_WhenSolutionDoesNotKillMutant()
+    {
+        using var dir = new TempDir();
+        WriteMutationExercise(dir, MutationWeakSolution);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.False(report.IsValid);
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("corrigé"));
+    }
 }

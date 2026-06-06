@@ -7,6 +7,37 @@ namespace Piscine.Core.Tests;
 public class ManifestGradingParsingTests
 {
     [Fact]
+    public void Parses_MutationStep_WithReferenceAndMutants()
+    {
+        const string yaml = """
+            id: ex03-mutation
+            title: "Mutation"
+            objective: "Ecrire des tests qui attrapent les bugs."
+            deliverables: [CompteTests.cs]
+            grading:
+              - type: mutation
+                reference: reference/Compte.cs
+                mutants:
+                  - id: borne-egal
+                    label: "Le retrait egal au solde n'est pas couvert."
+                    find: "amount > balance"
+                    replace: "amount >= balance"
+            solution: [CompteTests.cs]
+            """;
+
+        var manifest = Piscine.Core.Io.YamlLoader.Deserialize<Piscine.Core.Model.ExerciseManifest>(yaml);
+        var step = Assert.Single(manifest.Grading);
+
+        Assert.Equal("mutation", step.Type);
+        Assert.Equal("reference/Compte.cs", step.Reference);
+        var mutant = Assert.Single(step.Mutants);
+        Assert.Equal("borne-egal", mutant.Id);
+        Assert.Equal("Le retrait egal au solde n'est pas couvert.", mutant.Label);
+        Assert.Equal("amount > balance", mutant.Find);
+        Assert.Equal("amount >= balance", mutant.Replace);
+    }
+
+    [Fact]
     public void Load_ParsesGradingStepsAndFeedback()
     {
         using var dir = new TempDir();

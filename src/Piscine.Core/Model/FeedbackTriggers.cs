@@ -27,6 +27,12 @@ public static class FeedbackTriggers
     /// <summary>Un ou plusieurs tests <c>[Fact]</c> ont échoué (grader <c>unit</c>).</summary>
     public const string UnitFailure = "unit_failure";
 
+    /// <summary>Les tests de la recrue échouent sur l'implémentation correcte (grader <c>mutation</c>).</summary>
+    public const string TestsFailOnReference = "tests_fail_on_reference";
+
+    /// <summary>Un mutant a survécu : un comportement bogué n'est pas détecté (grader <c>mutation</c>).</summary>
+    public const string MutantSurvived = "mutant_survived";
+
     /// <summary>Le formatage diffère de la norme (grader <c>norme</c> bloquant).</summary>
     public const string NormeViolation = "norme_violation";
 
@@ -34,5 +40,6 @@ public static class FeedbackTriggers
     public static readonly IReadOnlySet<string> All = new HashSet<string>
     {
         CompileError, IoMismatch, ExitCode, Timeout, RuntimeError, UnitFailure, NormeViolation,
+        TestsFailOnReference, MutantSurvived,
     };
 }
