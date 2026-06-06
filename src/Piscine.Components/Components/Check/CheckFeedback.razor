@@ -1,5 +1,6 @@
 @namespace Piscine.Components.Components.Check
 @using Piscine.App.Checking
+@using Piscine.Core.Content
 
 @if (Outcome is null)
 {
@@ -44,7 +45,7 @@ else
         {
             <a class="check-course-link"
                data-testid="check-course-ref"
-               href="/module/@Outcome.ModuleId#@AnchorOf(Outcome.CourseRef)">
+               href="@CourseHref(Outcome.ModuleId, Outcome.CourseRef)">
                 Revoir le cours →
             </a>
         }
@@ -70,10 +71,11 @@ else
         _ => "neutral",
     };
 
-    /// <summary>Extrait le fragment après '#' dans un course_ref, ex. <c>cours.md#hello-world</c> → <c>hello-world</c>.</summary>
-    private static string AnchorOf(string courseRef)
+    /// <summary>Lien vers la page de cours du module, avec l'ancre du <c>course_ref</c> si présente
+    /// (parsing centralisé dans <see cref="CourseAnchors.ParseRef"/>, cohérent avec le rendu du site).</summary>
+    private static string CourseHref(string moduleId, string courseRef)
     {
-        var idx = courseRef.IndexOf('#', StringComparison.Ordinal);
-        return idx >= 0 ? courseRef[(idx + 1)..] : string.Empty;
+        var (_, anchor) = CourseAnchors.ParseRef(courseRef);
+        return string.IsNullOrEmpty(anchor) ? $"/module/{moduleId}" : $"/module/{moduleId}#{anchor}";
     }
 }

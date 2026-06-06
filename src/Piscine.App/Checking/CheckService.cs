@@ -12,6 +12,11 @@ namespace Piscine.App.Checking;
 /// </summary>
 public sealed class CheckService
 {
+    // Le moteur redirige Console.Out (process-global) pendant l'exécution in-process : deux
+    // corrections simultanées (plusieurs circuits / double-clic) corromperaient la capture stdout.
+    // La correction étant CPU-bound et de fait séquentielle, on sérialise les passages ici (process-wide).
+    private static readonly object GradeGate = new();
+
     private readonly PiscineLayout _layout;
     private readonly ExerciseGrader _grader;
 
@@ -41,8 +46,12 @@ public sealed class CheckService
             return new CheckOutcome(exerciseId, location.ModuleId, CheckVerdict.AucunFichier, [], null, null);
         }
 
-        // 4. Corriger in-process (compilation + exécution délégués au moteur)
-        var result = _grader.Grade(submission.Manifest, submission.Context);
+        // 4. Corriger in-process (compilation + exécution délégués au moteur). Sérialisé : cf. GradeGate.
+        ExerciseGradingResult result;
+        lock (GradeGate)
+        {
+            result = _grader.Grade(submission.Manifest, submission.Context);
+        }
 
         // 5. Mapper les résultats grader → CheckCaseResult
         var cases = result.Results
