@@ -1,0 +1,56 @@
+@namespace Piscine.Components.Components.Progress
+@using Piscine.App.Progress
+@using Piscine.Components.Services
+@inject CourseCatalog Catalog
+
+<div class="progress-list" data-testid="progress-list">
+    @foreach (var module in Catalog.Modules)
+    {
+        var moduleExos = module.Groups.SelectMany(g => g.Exercises).ToList();
+        @if (moduleExos.Count > 0)
+        {
+            <section class="progress-module">
+                <h2 class="progress-module-title">@module.Number — @module.Title</h2>
+                <ul class="progress-exo-list">
+                    @foreach (var ex in moduleExos)
+                    {
+                        var statusInfo = LookupStatus(module.Id, ex.Id);
+                        <li class="progress-exo-item">
+                            <span class="progress-exo-title">@ex.Title</span>
+                            <StatusBadge Status="@statusInfo.Status" Source="@statusInfo.Source" />
+                            <a data-testid="exo-course-link"
+                               href="/module/@module.Id/@ex.Id"
+                               class="progress-exo-link">Cours</a>
+                            <a data-testid="exo-check-link"
+                               href="/check"
+                               class="progress-exo-link">Vérifier</a>
+                        </li>
+                    }
+                </ul>
+            </section>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<ExerciseStatusInfo> Statuses { get; set; } = [];
+
+    private Dictionary<(string ModuleId, string ExoId), ExerciseStatusInfo>? _index;
+
+    protected override void OnParametersSet()
+    {
+        _index = Statuses.ToDictionary(
+            s => (s.ModuleId, s.ExerciseId),
+            s => s);
+    }
+
+    private ExerciseStatusInfo LookupStatus(string moduleId, string exoId)
+    {
+        if (_index is not null && _index.TryGetValue((moduleId, exoId), out var info))
+        {
+            return info;
+        }
+
+        return new ExerciseStatusInfo(moduleId, exoId, ExerciseProgressStatus.NonCommence, StatusSource.Progress);
+    }
+}

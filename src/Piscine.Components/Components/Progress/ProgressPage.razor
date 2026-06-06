@@ -1,0 +1,25 @@
+@page "/progress"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Progress
+@using Piscine.App.Progress
+@using Piscine.Components.Services
+@inject CourseCatalog Catalog
+@inject ProgressService Progress
+
+<h1>Progression</h1>
+
+<ProgressList Statuses="_statuses" />
+
+@code {
+    private IReadOnlyList<ExerciseStatusInfo> _statuses = [];
+
+    protected override void OnInitialized()
+    {
+        var exos = Catalog.Modules
+            .SelectMany(m => m.Groups)
+            .SelectMany(g => g.Exercises)
+            .Select(ex => (ex.ModuleId, ex.Id));
+
+        _statuses = Progress.SnapshotFor(exos);
+    }
+}

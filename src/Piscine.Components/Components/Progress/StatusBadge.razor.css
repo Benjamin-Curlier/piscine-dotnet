@@ -1,0 +1,26 @@
+/* StatusBadge scoped styles — auto-bundled by Blazor RCL. */
+
+.badge.status-non-commence {
+    background-color: var(--badge-neutral-bg, #e5e7eb);
+    color: var(--badge-neutral-fg, #374151);
+}
+
+.badge.status-en-cours {
+    background-color: var(--badge-info-bg, #dbeafe);
+    color: var(--badge-info-fg, #1e40af);
+}
+
+.badge.status-commite-non-pousse {
+    background-color: var(--badge-warn-bg, #fef3c7);
+    color: var(--badge-warn-fg, #92400e);
+}
+
+.badge.status-pousse-note {
+    background-color: var(--badge-success-bg, #d1fae5);
+    color: var(--badge-success-fg, #065f46);
+}
+
+.badge.status-a-revoir {
+    background-color: var(--badge-error-bg, #fee2e2);
+    color: var(--badge-error-fg, #991b1b);
+}

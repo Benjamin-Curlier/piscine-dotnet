@@ -3,6 +3,11 @@
 
 <div class="sidebar-inner">
     <a class="side-home @(Segments.Length == 0 ? "active" : "")" href="/">Accueil</a>
+    <a class="side-home @(Segments.Length > 0 && Segments[0] == "progress" ? "active" : "")"
+       href="/progress"
+       data-testid="nav-progress">Progression</a>
+    <a class="side-home @(Segments.Length > 0 && Segments[0] == "check" ? "active" : "")"
+       href="/check">Vérifier</a>
 
     <div class="side-section-title">Modules</div>
     <ul class="module-list">
