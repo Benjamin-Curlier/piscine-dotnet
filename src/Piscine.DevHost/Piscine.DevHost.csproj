@@ -4,15 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Piscine.DevHost</AssemblyName>
+    <RootNamespace>Piscine.DevHost</RootNamespace>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.41.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
+    <ProjectReference Include="..\Piscine.Components\Piscine.Components.csproj" />
   </ItemGroup>
 
 </Project>

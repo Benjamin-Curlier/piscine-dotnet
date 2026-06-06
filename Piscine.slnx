@@ -7,7 +7,7 @@
     <Project Path="src/Piscine.Grading/Piscine.Grading.csproj" />
   </Folder>
   <Folder Name="/site/">
-    <Project Path="src/Piscine.Web/Piscine.Web.csproj" />
+    <Project Path="src/Piscine.DevHost/Piscine.DevHost.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Piscine.Core.Tests/Piscine.Core.Tests.csproj" />

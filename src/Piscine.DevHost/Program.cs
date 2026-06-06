@@ -1,5 +1,5 @@
-using Piscine.Web.Components;
-using Piscine.Web.Services;
+using Piscine.Components.Services;
+using Piscine.DevHost.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +27,9 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+    .AddInteractiveServerRenderMode()
+    // Les composants routables (@page) vivent dans la RCL Piscine.Components :
+    // il faut déclarer son assembly pour que le routage serveur les découvre.
+    .AddAdditionalAssemblies(typeof(Piscine.Components.MarkdownView).Assembly);
 
 app.Run();
