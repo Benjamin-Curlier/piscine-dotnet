@@ -1,0 +1,8 @@
+id: 39-blazor
+title: "Blazor (interfaces web en C#)"
+order: 39
+course: cours.md
+groups:
+  - id: blazor-lecture
+    title: "À lire et pratiquer"
+    exercises: []
