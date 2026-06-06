@@ -4,6 +4,13 @@ Ce guide s'adresse à la **recrue** (pour installer et lancer la piscine) et à 
 (check-list de préparation). Il ne nécessite **aucune installation de SDK .NET** : le binaire est
 auto-contenu (runtime .NET + Roslyn embarqués).
 
+> **Ce que contient le zip** : un parcours complet **C# / .NET 10** — modules **M00 à M39**
+> (fondamentaux → palier avancé → approfondissement → plateformes & architecture) et **4 Rushes**
+> de synthèse. Correction locale par la moulinette (graders `io` / `unit` / `norme` / `mutation` /
+> `git` / `projet` / `reseau`), rendu par **vrai git**. Carte détaillée :
+> [Curriculum](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/wiki/Curriculum.md).
+> Mainteneur qui prépare une release : voir [docs/deploiement.md](deploiement.md).
+
 ---
 
 ## 1. Prérequis réels

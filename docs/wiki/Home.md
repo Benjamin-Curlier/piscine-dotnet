@@ -36,4 +36,6 @@ les exercices dans son workspace, itère avec `piscine check`, puis **rend offic
 
 - Dépôt : <https://github.com/Benjamin-Curlier/piscine-dotnet>
 - Design complet : [docs/superpowers/specs/2026-05-29-piscine-dotnet-design.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/superpowers/specs/2026-05-29-piscine-dotnet-design.md)
+- Publier une release (mainteneur) : [docs/deploiement.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/deploiement.md)
+- Journal des versions : [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md)
 - Releases (zips par OS) : <https://github.com/Benjamin-Curlier/piscine-dotnet/releases/latest>

@@ -4,6 +4,10 @@ Le parcours va des fondamentaux C# débutant jusqu'à un palier avancé proche d
 production. **Git est tissé dans tout le parcours** (pratiqué à chaque rendu) + deux modules git
 dédiés. Le contenu est généré **progressivement** au fil des itérations.
 
+> **Release `v2.0.0`** : la piscine couvre désormais **M00–M39 + Rushes 0/1/2/3**. Elle cumule le
+> tronc commun + palier avancé (v1.0), l'**approfondissement C#/.NET** (palier v2, M24–M35) et les
+> **plateformes & architecture** (palier v3, M36–M39). Voir [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
+
 ## Tronc commun
 
 | # | Module | Notions clés | Git |
@@ -54,7 +58,7 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
 (Microsoft Learn, freeCodeCamp, chaînes YouTube type Nick Chapsas / Tim Corey, docs officielles
 .NET). Ton pédagogique, jargon expliqué.
 
-## État au tag v1.0
+## État de la notation par module
 
 - **Modules auto-notés (`io`)** : M00, M01, M02, M03, M04, M06, M07, M08, M09, M10, M11, M12, M13,
   M15, M16, M17, M18, **M19 (Logging), M20 (Generic Host)**, M21, M23.
@@ -95,6 +99,24 @@ Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis
 | 33 | Discriminated unions (hiérarchies scellées) | ✅ io (+bonus) |
 | 34 | Interopérabilité (P/Invoke & code natif) | ✅ lecture |
 | 35 | Entity Framework Core (SQLite in-memory) | ✅ io (+bonus) |
+
+## Palier v3 — plateformes & architecture
+
+Modules « plateforme » et architecture multi-fichiers, adossés aux nouveaux graders **`git`**,
+**`projet`**, **`reseau`** et **`mutation`**. Les modules dont la sortie n'est pas déterministe en
+console (web/DOM, GPU, conteneurs) sont livrés en **lecture guidée**, cohérent avec M14/M22/M34.
+
+| # | Module | État |
+|---|---|---|
+| 05 | Git intermédiaire (branches, merge) | ✅ auto-noté `git` (fixture) |
+| 36 | Clean Architecture (couches + composition root) | ✅ auto-noté `projet` (io + assertions d'archi) |
+| 37 | Docker (conteneurisation .NET 10) | ✅ lecture |
+| 38 | Silk.NET (fenêtrage & rendu GPU) | ✅ lecture |
+| 39 | Blazor (interfaces web en C#) | ✅ lecture |
+
+Graders introduits au palier v3 : **`git`** (état attendu du dépôt rendu, via fixture LibGit2Sharp),
+**`projet`** (compilation multi-fichiers + assertions d'architecture Roslyn), **`reseau`** (harnais
+d'écho TCP loopback), **`mutation`** (l'élève écrit des tests qui doivent tuer des mutants — pilote M13).
 
 Roadmap v2/v3 complète (dont v3 : Blazor, Docker, Silk.NET, clean architecture, graders projet) :
 [docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md).
