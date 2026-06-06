@@ -169,6 +169,23 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
   M22/M34. **Enhancements de suivi** (hors backlog d'origine) : **#17** notation live git,
   **#19** harnais web Blazor (rendu DOM), serveur **HTTP**/exo **M22** (cf. #3), rush Clean Arch (optionnel).
 
+## v4 — application desktop Photino (PRÉPARÉ, implémentation au prochain sprint)
+Objectif : **remplacer l'UX recrue console par une app de bureau Photino.Blazor**, **sans toucher au
+moteur ni au CLI headless** (`grade-received` tourne dans le hook `post-receive` → reste CLI). v4 =
+*remplacer la surface recrue*, pas supprimer le cœur.
+- **Spec** : `docs/superpowers/specs/2026-06-06-v4-photino-desktop-design.md` (design validé en brainstorming).
+- **Plan S1** : `docs/superpowers/plans/2026-06-06-v4-s1-foundation.md` (bite-sized, prêt à exécuter).
+- **Backlog** : milestone **#2 « v4 — application desktop Photino »**, label `v4`, issues **#22–#31**
+  (1 sprint = 1 issue, comme V3 ; plan par sprint rédigé au démarrage du sprint).
+- **Architecture cible** : `Piscine.Components` (RCL partagée) consommée par `Piscine.Desktop`
+  (Photino, livré) **et** `Piscine.DevHost` (Blazor Server, **harnais test/dev non livré**, ex-`Piscine.Web`) ;
+  `Piscine.App` (services sans UI : statut git, coaching, check, PtyService) ; moteur + `Piscine.Cli` intacts.
+- **Décisions clés** : app **complète** le vrai git (statut, init, **terminal embarqué xterm.js + Pty.Net**,
+  **coaching par shim git + état dépôt** — pas de parsing stdout) ; **pas d'éditeur embarqué** (IDE externe) ;
+  setup webview **unique toléré** (WebView2/`libwebkit2gtk`, checklist encadrant) ; pyramide de tests
+  **xUnit + bUnit + Playwright** sur le DevHost (le shell Photino natif = smoke manuel par OS).
+- **Spikes en premier** : S1 (Photino rend la RCL) puis S2 (terminal PTY cross-platform) = risque dominant.
+
 ## DÉCISIONS actées (ne pas reposer)
 - v1.0 = curriculum complet, blocages branchés. **Packaging M.E.* + EF Core : OUI.**
 - Git/réseau (M05/M14/M22) = modules **lecture** ; graders dédiés branchés.
