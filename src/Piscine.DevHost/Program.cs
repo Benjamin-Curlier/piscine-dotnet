@@ -1,4 +1,5 @@
 using Piscine.App.Checking;
+using Piscine.App.Progress;
 using Piscine.Components.Services;
 using Piscine.Core;
 using Piscine.DevHost.Components;
@@ -47,6 +48,11 @@ builder.Services.AddSingleton<Piscine.App.Terminal.PtyService>();
 builder.Services.AddSingleton<Piscine.App.Git.GitStatusService>();
 builder.Services.AddSingleton<Piscine.App.Coaching.CoachingService>();
 builder.Services.AddSingleton<Piscine.App.Coaching.ICoachingChannel, Piscine.App.Coaching.NamedPipeCoachingChannel>();
+
+// Vue de progression : lit progress.json + RepoState + workspace (lecture seule).
+builder.Services.AddSingleton(sp => new ProgressService(
+    sp.GetRequiredService<PiscineLayout>(),
+    sp.GetRequiredService<Piscine.App.Git.GitStatusService>()));
 
 var app = builder.Build();
 
