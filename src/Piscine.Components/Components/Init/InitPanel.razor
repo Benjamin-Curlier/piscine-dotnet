@@ -1,0 +1,69 @@
+@page "/init"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Init
+@using Piscine.App.Init
+@inject InitService Init
+
+<h1 class="init-title">Initialisation de l'environnement</h1>
+
+<div class="init-status-block" data-testid="init-status" data-initialized="@(_status?.IsInitialized.ToString() ?? "False")">
+    @if (_status?.IsInitialized == true)
+    {
+        <span class="init-ok">Déjà initialisé</span>
+    }
+    else
+    {
+        <span class="init-pending">Non initialisé</span>
+    }
+</div>
+
+<button class="init-btn" data-testid="run-init" @onclick="RunInit" disabled="@_running">
+    Initialiser
+</button>
+
+@if (_outcome is not null)
+{
+    <div class="init-result" data-testid="init-result" data-success="@_outcome.Success.ToString()">
+        <p>@_outcome.Message</p>
+    </div>
+
+    @if (_outcome.Error is not null)
+    {
+        <div class="init-error" data-testid="init-error">
+            <p>Erreur : @_outcome.Error</p>
+        </div>
+    }
+}
+
+@code {
+    private InitStatus? _status;
+    private InitOutcome? _outcome;
+    private bool _running;
+
+    protected override void OnInitialized()
+    {
+        _status = Init.Status();
+    }
+
+    private async Task RunInit()
+    {
+        if (_running)
+        {
+            return;
+        }
+
+        _running = true;
+        StateHasChanged();
+
+        try
+        {
+            _outcome = await Task.Run(() => Init.Initialize());
+            _status = _outcome.After;
+        }
+        finally
+        {
+            _running = false;
+            StateHasChanged();
+        }
+    }
+}
