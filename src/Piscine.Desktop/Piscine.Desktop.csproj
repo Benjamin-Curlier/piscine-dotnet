@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Photino.Blazor 3.x (sur Photino.NET v3) : couche Blazor (PhotinoBlazorAppBuilder). -->
+    <PackageReference Include="Photino.Blazor" Version="3.2.0" />
+    <!-- Aligne Microsoft.AspNetCore.Components.WebView (tiré par Photino.Blazor en 8.0.x) sur le
+         framework partagé net10.0 installé, sinon NU1605 (downgrade) sous TreatWarningsAsErrors. -->
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Piscine.Components\Piscine.Components.csproj" />
+    <ProjectReference Include="..\Piscine.App\Piscine.App.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- wwwroot\** est déjà inclus comme Content par le SDK Razor ; on force seulement
+         la copie vers le dossier de sortie (Photino charge index.html depuis le disque). -->
+    <Content Update="wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
