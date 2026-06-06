@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using LibGit2Sharp;
+
+namespace Piscine.App.Git;
+
+/// <summary>
+/// Derive l'<see cref="RepoState"/> d'un dossier de travail via LibGit2Sharp, en
+/// <b>lecture seule</b> (aucune ecriture, aucun cache). Sans etat partage : enregistrable
+/// en singleton et appelable apres chaque commande git pour rafraichir le panneau de statut.
+/// </summary>
+public sealed class GitStatusService
+{
+    private const string OriginName = "origin";
+
+    /// <summary>Lit l'etat courant du depot situe dans <paramref name="workingDirectory"/>.</summary>
+    public RepoState Read(string workingDirectory)
+    {
+        if (string.IsNullOrEmpty(workingDirectory) || !Repository.IsValid(workingDirectory))
+        {
+            return new RepoState { IsRepository = false };
+        }
+
+        using var repo = new Repository(workingDirectory);
+
+        var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = true });
+        var stagedCount = status.Staged.Count() + status.Added.Count() + status.Removed.Count();
+        var unstagedCount = status.Modified.Count() + status.Missing.Count();
+        var untrackedCount = status.Untracked.Count();
+
+        var isDetached = repo.Info.IsHeadDetached;
+        var head = repo.Head;
+        var hasAnyCommit = head.Tip is not null;
+        // Branche connue uniquement si HEAD est sur une branche avec au moins un commit.
+        var currentBranch = isDetached || !hasAnyCommit ? null : head.FriendlyName;
+
+        var hasOrigin = repo.Network.Remotes[OriginName] is not null;
+        var aheadOfOrigin = ComputeAheadOfOrigin(repo, currentBranch, head);
+
+        var conflicted = CollectConflictedFiles(repo);
+
+        return new RepoState
+        {
+            IsRepository = true,
+            CurrentBranch = currentBranch,
+            IsDetachedHead = isDetached,
+            HasAnyCommit = hasAnyCommit,
+            StagedCount = stagedCount,
+            UnstagedCount = unstagedCount,
+            UntrackedCount = untrackedCount,
+            HasOrigin = hasOrigin,
+            AheadOfOrigin = aheadOfOrigin,
+            ConflictedFiles = conflicted,
+        };
+    }
+
+    /// <summary>
+    /// Commits atteignables depuis HEAD non atteignables depuis <c>origin/&lt;branche&gt;</c>.
+    /// 0 si pas de branche courante, pas de commit, ou pas de pendant distant.
+    /// </summary>
+    private static int ComputeAheadOfOrigin(Repository repo, string? currentBranch, Branch head)
+    {
+        if (currentBranch is null || head.Tip is null)
+        {
+            return 0;
+        }
+
+        var tracked = repo.Branches[$"{OriginName}/{currentBranch}"];
+        if (tracked?.Tip is null)
+        {
+            return 0;
+        }
+
+        var filter = new CommitFilter
+        {
+            IncludeReachableFrom = head.Tip,
+            ExcludeReachableFrom = tracked.Tip,
+        };
+        return repo.Commits.QueryBy(filter).Count();
+    }
+
+    /// <summary>
+    /// Fichiers en conflit : d'abord l'index (<see cref="Index.Conflicts"/>, signal net) ; en filet,
+    /// un scan textuel des fichiers suivis cherchant les trois marqueurs <b>en debut de ligne</b>
+    /// (meme detection que <c>GitGrader</c>, pour eviter les faux positifs : art ASCII, doc, diff).
+    /// </summary>
+    private static IReadOnlyList<string> CollectConflictedFiles(Repository repo)
+    {
+        var result = new List<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var conflict in repo.Index.Conflicts)
+        {
+            // Ours/Theirs/Ancestor pointent tous le meme chemin ; on prend le premier non nul.
+            var path = conflict.Ours?.Path ?? conflict.Theirs?.Path ?? conflict.Ancestor?.Path;
+            if (path is not null && seen.Add(path))
+            {
+                result.Add(path);
+            }
+        }
+
+        var workdir = repo.Info.WorkingDirectory;
+        if (string.IsNullOrEmpty(workdir))
+        {
+            return result;
+        }
+
+        foreach (var entry in repo.RetrieveStatus(new StatusOptions { IncludeUntracked = true }))
+        {
+            var path = entry.FilePath;
+            if (seen.Contains(path))
+            {
+                continue;
+            }
+
+            var full = Path.Combine(workdir, path);
+            if (!File.Exists(full))
+            {
+                continue;
+            }
+
+            string text;
+            try
+            {
+                text = File.ReadAllText(full);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                continue;
+            }
+
+            if (HasMarkerAtLineStart(text, "<<<<<<<")
+                && HasMarkerAtLineStart(text, "=======")
+                && HasMarkerAtLineStart(text, ">>>>>>>"))
+            {
+                if (seen.Add(path))
+                {
+                    result.Add(path);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>Vrai si <paramref name="marker"/> apparait en debut de ligne (debut du texte ou apres un <c>\n</c>).</summary>
+    private static bool HasMarkerAtLineStart(string text, string marker)
+    {
+        if (text.StartsWith(marker, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        return text.Contains("\n" + marker, StringComparison.Ordinal);
+    }
+}
