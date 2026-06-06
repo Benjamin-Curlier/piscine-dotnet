@@ -80,6 +80,39 @@ public sealed class GitAssertions
 
     /// <summary>Fusions attendues : la pointe de <c>branch</c> doit être un ancêtre de <c>into</c>.</summary>
     public List<GitMerge> Merged { get; set; } = new();
+
+    /// <summary>
+    /// Scénario de **fixture** (côté auteur) : étapes ordonnées construisant un dépôt de référence
+    /// que le gate <c>validate-content</c> matérialise et confronte aux assertions ci-dessus.
+    /// Ignoré à la correction d'un vrai rendu (le dépôt de la recrue fait foi).
+    /// </summary>
+    public List<GitFixtureStep> Fixture { get; set; } = new();
+}
+
+/// <summary>
+/// Une étape de construction d'un dépôt de fixture (grader <c>git</c>, côté auteur). Champs optionnels :
+/// un commit (<see cref="Message"/> + <see cref="Files"/> sur <see cref="Branch"/>), une création de
+/// branche (<see cref="Branch"/> + <see cref="Base"/>), ou une fusion (<see cref="MergeInto"/> + <see cref="MergeFrom"/>).
+/// </summary>
+public sealed class GitFixtureStep
+{
+    /// <summary>Branche cible d'un commit, ou nom de la branche à créer.</summary>
+    public string Branch { get; set; } = string.Empty;
+
+    /// <summary>Branche source pour une création de branche.</summary>
+    public string Base { get; set; } = string.Empty;
+
+    /// <summary>Message de commit (sa présence indique un commit).</summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>Fichiers à écrire avant le commit (chemin relatif → contenu).</summary>
+    public Dictionary<string, string> Files { get; set; } = new();
+
+    /// <summary>Branche cible d'une fusion.</summary>
+    public string MergeInto { get; set; } = string.Empty;
+
+    /// <summary>Branche fusionnée dans <see cref="MergeInto"/>.</summary>
+    public string MergeFrom { get; set; } = string.Empty;
 }
 
 /// <summary>
