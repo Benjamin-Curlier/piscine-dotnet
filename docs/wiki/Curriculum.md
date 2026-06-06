@@ -67,7 +67,9 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
   Domain/Application/Infrastructure + composition root ; noté io + assertions d'architecture).
 - **Modules V3 (lecture)** : **M37 Docker** (conteneurisation .NET 10 : Dockerfile multi-étapes,
   `dotnet publish -t:PublishContainer` sans Dockerfile, images chiseled) ; **M38 Silk.NET**
-  (fenêtrage & rendu GPU : boucle Load/Update/Render, OpenGL, entrées ; guidé, non déterministe).
+  (fenêtrage & rendu GPU : boucle Load/Update/Render, OpenGL, entrées ; guidé, non déterministe) ;
+  **M39 Blazor** (interfaces web en C# : composants, paramètres, `@bind`, cycle de vie, DI, modèles
+  de rendu .NET 10 ; guidé, web/DOM non déterministe).
 - **M19/M20 débloqués** (post-v1.0, en `io`) : un `ILoggerProvider` synchrone fourni rend la sortie
   des logs déterministe (captée par le grader) — solution **contenu pur**, sans changement moteur.
 - **Hors périmètre v1.0** (drafts + design sur la branche `v1.0-blockers`, à traiter ensuite) :
