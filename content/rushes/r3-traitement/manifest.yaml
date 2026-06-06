@@ -1,0 +1,37 @@
+id: r3-traitement
+title: "Rush 3 — Traitement de commandes (Worker)"
+objective: "Synthèse Worker Service : un BackgroundService consomme une file (Channel) de commandes injectée par DI, journalise chaque décision via un logger déterministe, dresse un bilan, puis s'arrête."
+difficulty: difficile
+deliverables: [Traitement.cs, LogCapture.cs]
+starter: [Traitement.cs, LogCapture.cs]
+grading:
+  - type: io
+    cases:
+      # mélange accepté / rejeté
+      - stdin: "3\nalice 10\nbob -5\ncarol 20\n"
+        expect_stdout: "Traitement [Information] Commande acceptée : alice (10)\nTraitement [Warning] Commande rejetée : bob\nTraitement [Information] Commande acceptée : carol (20)\nTraitement [Information] Bilan : 2 acceptée(s), 1 rejetée(s), total 30\n"
+        expect_exit: 0
+      # toutes acceptées
+      - stdin: "2\nx 5\ny 15\n"
+        expect_stdout: "Traitement [Information] Commande acceptée : x (5)\nTraitement [Information] Commande acceptée : y (15)\nTraitement [Information] Bilan : 2 acceptée(s), 0 rejetée(s), total 20\n"
+        expect_exit: 0
+      # montant nul = rejeté (borne stricte > 0)
+      - stdin: "2\nzero 0\nplus 4\n"
+        expect_stdout: "Traitement [Warning] Commande rejetée : zero\nTraitement [Information] Commande acceptée : plus (4)\nTraitement [Information] Bilan : 1 acceptée(s), 1 rejetée(s), total 4\n"
+        expect_exit: 0
+      # une seule commande
+      - stdin: "1\nsolo 42\n"
+        expect_stdout: "Traitement [Information] Commande acceptée : solo (42)\nTraitement [Information] Bilan : 1 acceptée(s), 0 rejetée(s), total 42\n"
+        expect_exit: 0
+      # toutes rejetées
+      - stdin: "2\na -1\nb 0\n"
+        expect_stdout: "Traitement [Warning] Commande rejetée : a\nTraitement [Warning] Commande rejetée : b\nTraitement [Information] Bilan : 0 acceptée(s), 2 rejetée(s), total 0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Channel.CreateUnbounded<Commande>() : écris toutes les commandes, Writer.Complete(), puis consomme via ReadAllAsync (FIFO). Accepte si montant > 0 (LogInformation \"Commande acceptée : {Nom} ({Montant})\"), sinon LogWarning \"Commande rejetée : {Nom}\". Termine par \"Bilan : {A} acceptée(s), {R} rejetée(s), total {T}\"."
+    - when: runtime_error
+      message: "Vérifie le format d'entrée : un entier N, puis N lignes \"nom montant\" séparés par un espace. Pense à StopApplication() pour que l'hôte se termine."
+  course_ref: "subject.md"
+solution: [Traitement.cs, LogCapture.cs]
