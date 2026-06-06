@@ -128,6 +128,12 @@ ipch/
 
 # Visual Studio Trace Files
 *.e2e
+# ...mais pas notre projet de tests E2E (le motif VS ci-dessus capture le dossier .E2E).
+# On ré-inclut uniquement le dossier + ses sources ; bin/ et obj/ restent ignorés
+# par les règles standard plus haut.
+!tests/Piscine.DevHost.E2E/
+!tests/Piscine.DevHost.E2E/*.cs
+!tests/Piscine.DevHost.E2E/*.csproj
 
 # TFS 2012 Local Workspace
 $tf/
