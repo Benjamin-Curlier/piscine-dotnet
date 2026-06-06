@@ -36,10 +36,13 @@ public static class FeedbackTriggers
     /// <summary>Le formatage diffère de la norme (grader <c>norme</c> bloquant).</summary>
     public const string NormeViolation = "norme_violation";
 
+    /// <summary>L'état du dépôt git diffère de l'attendu (grader <c>git</c>).</summary>
+    public const string GitState = "git_state";
+
     /// <summary>Ensemble des déclencheurs reconnus (pour validation du contenu).</summary>
     public static readonly IReadOnlySet<string> All = new HashSet<string>
     {
         CompileError, IoMismatch, ExitCode, Timeout, RuntimeError, UnitFailure, NormeViolation,
-        TestsFailOnReference, MutantSurvived,
+        TestsFailOnReference, MutantSurvived, GitState,
     };
 }

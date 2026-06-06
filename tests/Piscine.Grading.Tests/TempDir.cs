@@ -28,12 +28,24 @@ public sealed class TempDir : IDisposable
     {
         try
         {
-            if (Directory.Exists(Path))
+            if (!Directory.Exists(Path))
             {
-                Directory.Delete(Path, recursive: true);
+                return;
             }
+
+            // Les dépôts git posent l'attribut ReadOnly sur leurs fichiers pack : un Delete récursif
+            // échoue alors (UnauthorizedAccessException). On lève l'attribut avant suppression.
+            foreach (var file in Directory.EnumerateFiles(Path, "*", SearchOption.AllDirectories))
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+            }
+
+            Directory.Delete(Path, recursive: true);
         }
         catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
         {
         }
     }

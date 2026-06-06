@@ -21,6 +21,54 @@ public sealed class GradingStep
 
     /// <summary>Pour le grader <c>mutation</c> : mutations à dériver de la référence par find/replace.</summary>
     public List<Mutant> Mutants { get; set; } = new();
+
+    /// <summary>Pour le grader <c>git</c> : état attendu du dépôt rendu par la recrue.</summary>
+    public GitAssertions? Git { get; set; }
+}
+
+/// <summary>État attendu d'un dépôt git rendu (grader <c>git</c>).</summary>
+public sealed class GitAssertions
+{
+    /// <summary>Branches qui doivent exister dans le dépôt.</summary>
+    public List<string> Branches { get; set; } = new();
+
+    /// <summary>Nombre minimum de commits atteignables depuis <c>HEAD</c> (0 = non vérifié).</summary>
+    public int MinCommits { get; set; }
+
+    /// <summary>Si vrai, aucun marqueur de conflit (<![CDATA[<<<<<<<]]> / ======= / <![CDATA[>>>>>>>]]>) ne doit subsister dans l'arbre de <c>HEAD</c>.</summary>
+    public bool NoConflictMarkers { get; set; }
+
+    /// <summary>Assertions de contenu de fichiers.</summary>
+    public List<GitFileAssertion> Files { get; set; } = new();
+
+    /// <summary>Fusions attendues : la pointe de <c>branch</c> doit être un ancêtre de <c>into</c>.</summary>
+    public List<GitMerge> Merged { get; set; } = new();
+}
+
+/// <summary>Assertion de contenu d'un fichier dans une ref donnée (grader <c>git</c>).</summary>
+public sealed class GitFileAssertion
+{
+    /// <summary>Chemin du fichier relatif à la racine du dépôt.</summary>
+    public string Path { get; set; } = string.Empty;
+
+    /// <summary>Branche ou ref où lire le fichier (défaut <c>HEAD</c>).</summary>
+    public string Ref { get; set; } = "HEAD";
+
+    /// <summary>Sous-chaîne qui doit être présente dans le fichier (optionnel).</summary>
+    public string Contains { get; set; } = string.Empty;
+
+    /// <summary>Contenu exact attendu du fichier (optionnel ; le grader normalise les fins de ligne).</summary>
+    public string Content { get; set; } = string.Empty;
+}
+
+/// <summary>Une fusion attendue : la pointe de <see cref="Branch"/> est un ancêtre de <see cref="Into"/> (grader <c>git</c>).</summary>
+public sealed class GitMerge
+{
+    /// <summary>Branche cible (qui a reçu la fusion).</summary>
+    public string Into { get; set; } = string.Empty;
+
+    /// <summary>Branche dont la pointe doit être atteignable depuis <see cref="Into"/>.</summary>
+    public string Branch { get; set; } = string.Empty;
 }
 
 /// <summary>Une mutation : un remplacement textuel nommé appliqué à l'impl de référence (grader <c>mutation</c>).</summary>

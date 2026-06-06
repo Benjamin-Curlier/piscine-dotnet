@@ -43,6 +43,7 @@ public static class SubmissionLoader
             }
         }
 
-        return new ExerciseSubmission(manifest, new GradingContext(sources, graderFiles));
+        // Le dossier rendu peut être un dépôt git (grader `git`) : on le transmet tel quel.
+        return new ExerciseSubmission(manifest, new GradingContext(sources, graderFiles, workspaceExerciseDir));
     }
 }
