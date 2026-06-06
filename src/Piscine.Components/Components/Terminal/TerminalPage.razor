@@ -1,0 +1,116 @@
+@page "/terminal"
+@namespace Piscine.Components.Components.Terminal
+@rendermode InteractiveServer
+@using System.Text
+@using Microsoft.Extensions.Hosting
+@using Piscine.App.Terminal
+@inject PtyService Pty
+@inject IHostEnvironment Env
+@implements IAsyncDisposable
+
+<PageTitle>Terminal — Piscine .NET</PageTitle>
+<h1>Terminal embarque (spike)</h1>
+
+@if (_enabled)
+{
+    <Terminal @ref="_terminal" OnData="HandleInput" OnResize="HandleResize" />
+}
+else
+{
+    <div class="notice notice-warn">
+        Le terminal embarque n'est actif qu'en environnement de developpement
+        (<code>Piscine.DevHost</code> est un harnais hors release). Il lance un shell OS sans
+        authentification : ne jamais l'exposer hors loopback ni le livrer.
+    </div>
+}
+
+@code {
+    private Terminal? _terminal;
+    private IPtySession? _session;
+    private bool _enabled;
+
+    // Garde-fou securite : /terminal lance un shell OS arbitraire SANS authentification. On ne le
+    // spawn qu'en Development (DevHost = harnais hors release) afin qu'un DevHost publie par erreur
+    // n'expose pas un shell distant. Regle d'exploitation : ne JAMAIS binder hors loopback.
+    protected override void OnInitialized() => _enabled = Env.IsDevelopment();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !_enabled || _session is not null)
+        {
+            return;
+        }
+
+        _session = await Pty.StartAsync(new PtyStartInfo());
+        _session.Output += OnPtyOutput;
+        _session.Exited += OnPtyExited;
+    }
+
+    // PTY -> xterm : on encode en base64 et on repasse sur le thread du circuit (InvokeAsync)
+    // avant de pousser vers le composant. async void car c'est un handler d'evenement .NET ;
+    // les exceptions (circuit mort) sont avalees volontairement cote spike.
+    // NOTE debit/backpressure : pas de coalescence ici - une commande tres verbeuse (`dir /s`,
+    // `ls -R`) peut saturer le circuit SignalR. Acceptable pour le spike (echo) ; coalescer
+    // (buffer + flush ~30 ms) si besoin (suivi ; non bloquant - l'hote cible reel est Photino).
+    private async void OnPtyOutput(byte[] bytes)
+    {
+        var b64 = Convert.ToBase64String(bytes);
+        try
+        {
+            await InvokeAsync(async () =>
+            {
+                if (_terminal is not null)
+                {
+                    await _terminal.WriteAsync(b64);
+                }
+            });
+        }
+        catch (Exception)
+        {
+            // Circuit SignalR ferme (navigation/reload) pendant l'ecriture : ignore (spike).
+        }
+    }
+
+    // Le shell s'est termine (ex. l'utilisateur a tape `exit`) : on le signale dans xterm pour que
+    // le terminal ne paraisse pas juste "fige". (La session reste disposable a la destruction de page.)
+    private async void OnPtyExited(int code)
+    {
+        var msg = Convert.ToBase64String(
+            Encoding.UTF8.GetBytes($"\r\n[processus termine : code {code}]\r\n"));
+        try
+        {
+            await InvokeAsync(async () =>
+            {
+                if (_terminal is not null)
+                {
+                    await _terminal.WriteAsync(msg);
+                }
+            });
+        }
+        catch (Exception)
+        {
+            // Circuit ferme : ignore.
+        }
+    }
+
+    private async Task HandleInput(string data)
+    {
+        if (_session is not null)
+        {
+            await _session.WriteAsync(data);
+        }
+    }
+
+    private void HandleResize((int Cols, int Rows) size) =>
+        _session?.Resize(size.Cols, size.Rows);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_session is not null)
+        {
+            _session.Output -= OnPtyOutput;
+            _session.Exited -= OnPtyExited;
+            await _session.DisposeAsync();
+        }
+    }
+}

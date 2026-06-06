@@ -11,6 +11,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Piscine.Components\Piscine.Components.csproj" />
+    <!-- PtyService (cote hote) vit dans Piscine.App : la page /terminal le consomme via DI. -->
+    <ProjectReference Include="..\Piscine.App\Piscine.App.csproj" />
   </ItemGroup>
 
 </Project>
