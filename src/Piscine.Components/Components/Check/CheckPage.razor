@@ -22,9 +22,21 @@
 
 <CheckFeedback Outcome="_outcome" />
 
+@if (_error is not null)
+{
+    <p data-testid="check-error" class="check-error">Erreur : @_error</p>
+}
+
+@if (_running)
+{
+    <p data-testid="check-running" class="check-running">Correction en cours…</p>
+}
+
 @code {
     private string _selectedId = string.Empty;
     private CheckOutcome? _outcome;
+    private bool _running;
+    private string? _error;
 
     protected override void OnInitialized()
     {
@@ -36,11 +48,32 @@
         }
     }
 
-    private void RunCheck()
+    private async Task RunCheck()
     {
-        if (!string.IsNullOrWhiteSpace(_selectedId))
+        if (string.IsNullOrWhiteSpace(_selectedId) || _running)
         {
-            _outcome = Check.Check(_selectedId);
+            return;
+        }
+
+        _running = true;
+        _error = null;
+        _outcome = null;
+        StateHasChanged();
+
+        try
+        {
+            // La correction in-process (compilation + exécution via Piscine.Grading) est CPU-intensive :
+            // on la déporte sur le thread pool pour ne pas bloquer le thread SignalR.
+            var id = _selectedId;
+            _outcome = await Task.Run(() => Check.Check(id));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _running = false;
             StateHasChanged();
         }
     }
