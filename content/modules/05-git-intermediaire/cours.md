@@ -8,10 +8,11 @@ parallèle** (les *branches*), à **réunir** ces versions (le *merge*), à **g�
 disputes** entre deux versions (les *conflits*) et à **explorer puis défaire** des
 changements sans tout casser.
 
-> **Ce module ne se corrige pas par la moulinette.** Il n'y a pas d'exercice auto-noté.
-> Tu pratiques sur **ton propre dépôt git**, à la main. Une notation dédiée aux opérations
-> git arrivera plus tard, via un outil séparé. Pour l'instant : lis, tape les commandes,
-> observe ce qui se passe. C'est en cassant (puis en réparant) qu'on apprend git.
+> **Ce module se pratique sur ton propre dépôt git, à la main.** Lis, tape les commandes, observe ce
+> qui se passe — c'est en cassant (puis en réparant) qu'on apprend git. Il se termine par un
+> **exercice auto-noté** (« Branche et fusion ») où la moulinette **inspecte l'état de ton dépôt**
+> (branches, commits, fusion) au lieu de comparer une sortie : il n'y a donc **pas de fichier de code
+> à rendre**, c'est ton **historique** qui est évalué.
 
 Un peu de vocabulaire avant de commencer, pour que rien ne te surprenne :
 

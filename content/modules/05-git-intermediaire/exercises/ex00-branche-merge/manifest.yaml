@@ -1,0 +1,28 @@
+id: ex00-branche-merge
+title: "Branche et fusion"
+objective: "Créer une branche, y faire un commit, puis la fusionner dans main. La moulinette inspecte l'état de ton dépôt git (pas de fichier à rendre : c'est l'historique qui est noté)."
+difficulty: moyen
+deliverables: []
+starter: []
+grading:
+  - type: git
+    git:
+      branches: [main, feature]
+      min_commits: 2
+      no_conflict_markers: true
+      merged:
+        - { into: main, branch: feature }
+      files:
+        - { path: feature.txt, ref: main, contains: "salut" }
+      # Fixture = scénario corrigé, construit et vérifié par la gate validate-content.
+      fixture:
+        - { branch: main, message: "init", files: { "README.md": "Projet\n" } }
+        - { branch: feature, base: main }
+        - { branch: feature, message: "ajout feature", files: { "feature.txt": "salut\n" } }
+        - { merge_into: main, merge_from: feature }
+feedback:
+  hints:
+    - when: git_state
+      message: "Crée la branche feature (git switch -c feature), fais-y un commit qui ajoute feature.txt contenant « salut », reviens sur main (git switch main), puis fusionne (git merge feature). Vérifie qu'il ne reste aucun marqueur de conflit."
+  course_ref: "cours.md#merge"
+solution: []

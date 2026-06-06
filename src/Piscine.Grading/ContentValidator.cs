@@ -102,6 +102,14 @@ public sealed class ContentValidator
         ValidateCourseRef(exerciseId, location, manifest, issues);
         ValidateHints(exerciseId, manifest, issues);
 
+        // Un exercice `git` n'a pas de dossier solution/ : son « corrigé » est une fixture de dépôt
+        // que l'on construit puis confronte aux assertions du grader.
+        if (manifest.Grading.Any(s => s.Type == "git"))
+        {
+            ValidateGitExercise(exerciseId, manifest, issues);
+            return;
+        }
+
         var solutionDir = Path.Combine(location.ContentDir, SolutionDirName);
         if (!Directory.Exists(solutionDir))
         {
@@ -123,6 +131,64 @@ public sealed class ContentValidator
         {
             var detail = string.Join(" ; ", result.Results.SelectMany(r => r.Messages));
             issues.Add(new ContentIssue(exerciseId, $"le corrigé ne passe pas ses graders : {detail}"));
+        }
+    }
+
+    /// <summary>Valide un exercice <c>git</c> : construit sa fixture de dépôt et la confronte aux assertions.</summary>
+    private void ValidateGitExercise(string exerciseId, ExerciseManifest manifest, List<ContentIssue> issues)
+    {
+        foreach (var step in manifest.Grading.Where(s => s.Type == "git"))
+        {
+            if (step.Git is null || step.Git.Fixture.Count == 0)
+            {
+                issues.Add(new ContentIssue(exerciseId, "étape git sans fixture : impossible de valider le corrigé."));
+                continue;
+            }
+
+            var dir = Path.Combine(Path.GetTempPath(), "piscine-fixture", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(dir);
+            try
+            {
+                GitFixtureBuilder.Build(step.Git.Fixture, dir);
+                var context = new GradingContext(new Dictionary<string, string>(), repositoryPath: dir);
+                var result = _grader.Grade(manifest, context);
+                if (result.Status != GraderStatus.Reussi)
+                {
+                    var detail = string.Join(" ; ", result.Results.SelectMany(r => r.Messages));
+                    issues.Add(new ContentIssue(exerciseId, $"la fixture git ne passe pas les assertions : {detail}"));
+                }
+            }
+            catch (Exception e)
+            {
+                issues.Add(new ContentIssue(exerciseId, $"construction de la fixture git échouée : {e.Message}"));
+            }
+            finally
+            {
+                DeleteRepo(dir);
+            }
+        }
+    }
+
+    /// <summary>Supprime un dépôt temporaire (les packs git sont en lecture seule sous Windows).</summary>
+    private static void DeleteRepo(string dir)
+    {
+        try
+        {
+            if (!Directory.Exists(dir))
+            {
+                return;
+            }
+
+            foreach (var file in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+            }
+
+            Directory.Delete(dir, recursive: true);
+        }
+        catch (Exception)
+        {
+            // nettoyage best-effort
         }
     }
 

@@ -3,6 +3,6 @@ title: "Git intermédiaire"
 order: 5
 course: cours.md
 groups:
-  - id: lecture
-    title: "À lire et pratiquer"
-    exercises: []
+  - id: git-pratique
+    title: "Branches & fusion (auto-noté)"
+    exercises: [ex00-branche-merge]
