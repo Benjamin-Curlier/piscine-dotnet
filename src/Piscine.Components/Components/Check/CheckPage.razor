@@ -1,0 +1,52 @@
+@page "/check"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Check
+@using Piscine.App.Checking
+@using Piscine.Components.Services
+@inject CourseCatalog Catalog
+@inject CheckService Check
+
+<h1 class="check-page-title">Vérifier un exercice</h1>
+
+<div class="check-controls">
+    <label for="exo-select" class="check-label">Exercice</label>
+    <select id="exo-select" data-testid="exo-select" @bind="_selectedId" class="check-select">
+        @foreach (var exercise in AllExercises())
+        {
+            <option value="@exercise.Id">@exercise.Title</option>
+        }
+    </select>
+
+    <button data-testid="run-check" class="check-btn" @onclick="RunCheck">Vérifier</button>
+</div>
+
+<CheckFeedback Outcome="_outcome" />
+
+@code {
+    private string _selectedId = string.Empty;
+    private CheckOutcome? _outcome;
+
+    protected override void OnInitialized()
+    {
+        // Pré-sélectionner le premier exercice disponible pour qu'un clic ait toujours une cible.
+        var first = AllExercises().FirstOrDefault();
+        if (first is not null)
+        {
+            _selectedId = first.Id;
+        }
+    }
+
+    private void RunCheck()
+    {
+        if (!string.IsNullOrWhiteSpace(_selectedId))
+        {
+            _outcome = Check.Check(_selectedId);
+            StateHasChanged();
+        }
+    }
+
+    private IEnumerable<CourseExercise> AllExercises()
+        => Catalog.Modules
+            .SelectMany(m => m.Groups)
+            .SelectMany(g => g.Exercises);
+}

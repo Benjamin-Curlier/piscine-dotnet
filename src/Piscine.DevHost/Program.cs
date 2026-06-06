@@ -1,5 +1,8 @@
+using Piscine.App.Checking;
 using Piscine.Components.Services;
+using Piscine.Core;
 using Piscine.DevHost.Components;
+using Piscine.Grading;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,31 @@ builder.Services.AddRazorComponents()
 // Contenu pédagogique : chargé une fois au démarrage, partagé par toutes les requêtes.
 builder.Services.AddSingleton<CourseCatalog>();
 builder.Services.AddSingleton<MarkdownRenderer>();
+
+// Layout piscine : contenu depuis PISCINE_CONTENT (ou l'appsettings), workspace depuis
+// PISCINE_WORKSPACE (pour permettre à l'E2E de pointer vers un workspace isolé), état depuis
+// PISCINE_HOME (comme FromEnvironment).  Construit explicitement pour être controlable par env.
+builder.Services.AddSingleton(sp =>
+{
+    var catalog = sp.GetRequiredService<CourseCatalog>();
+
+    var content = Environment.GetEnvironmentVariable("PISCINE_CONTENT")
+        ?? catalog.ContentRoot;
+
+    var home = Environment.GetEnvironmentVariable("PISCINE_HOME")
+        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "piscine");
+
+    var workspace = Environment.GetEnvironmentVariable("PISCINE_WORKSPACE")
+        ?? Path.Combine(home, "workspace");
+
+    var state = Path.Combine(home, ".state");
+
+    return new PiscineLayout(content, workspace, state);
+});
+
+// Service de correction in-process (pur, sans git ni progression) : singleton sans état.
+builder.Services.AddSingleton(sp =>
+    new CheckService(sp.GetRequiredService<PiscineLayout>(), Graders.Default()));
 
 // Lance des sessions PTY (un vrai shell OS) — sans état partagé, donc singleton.
 builder.Services.AddSingleton<Piscine.App.Terminal.PtyService>();
