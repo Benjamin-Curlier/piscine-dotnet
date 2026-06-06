@@ -14,6 +14,12 @@ builder.Services.AddSingleton<MarkdownRenderer>();
 // Lance des sessions PTY (un vrai shell OS) — sans état partagé, donc singleton.
 builder.Services.AddSingleton<Piscine.App.Terminal.PtyService>();
 
+// Boucle de coaching git : services purs (statut + règles, sans état) en singletons, et un canal
+// named pipe singleton qui reçoit les événements du shim git pour la page /terminal.
+builder.Services.AddSingleton<Piscine.App.Git.GitStatusService>();
+builder.Services.AddSingleton<Piscine.App.Coaching.CoachingService>();
+builder.Services.AddSingleton<Piscine.App.Coaching.ICoachingChannel, Piscine.App.Coaching.NamedPipeCoachingChannel>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

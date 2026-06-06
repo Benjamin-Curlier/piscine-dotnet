@@ -1,10 +1,16 @@
 @page "/terminal"
 @namespace Piscine.Components.Components.Terminal
 @rendermode InteractiveServer
+@using System.IO
 @using System.Text
 @using Microsoft.Extensions.Hosting
+@using Piscine.App.Coaching
+@using Piscine.App.Git
 @using Piscine.App.Terminal
 @inject PtyService Pty
+@inject GitStatusService Status
+@inject CoachingService Coach
+@inject ICoachingChannel Channel
 @inject IHostEnvironment Env
 @implements IAsyncDisposable
 
@@ -13,7 +19,49 @@
 
 @if (_enabled)
 {
-    <Terminal @ref="_terminal" OnData="HandleInput" OnResize="HandleResize" />
+    <div class="terminal-layout">
+        <div class="terminal-pane">
+            <Terminal @ref="_terminal" OnData="HandleInput" OnResize="HandleResize" />
+        </div>
+        <aside class="coaching-pane" data-testid="coaching-pane">
+            <section class="coaching-status">
+                <h2>Statut git</h2>
+                @if (_state is null || !_state.IsRepository)
+                {
+                    <p class="coaching-status-empty">Pas encore de depot (lance <code>git init</code>).</p>
+                }
+                else
+                {
+                    <dl class="coaching-status-grid">
+                        <dt>Branche</dt>
+                        <dd data-testid="status-branch">@(_state.CurrentBranch ?? (_state.IsDetachedHead ? "(HEAD detache)" : "(sans commit)"))</dd>
+                        <dt>Indexes</dt>
+                        <dd data-testid="status-staged">@_state.StagedCount</dd>
+                        <dt>Non pousses</dt>
+                        <dd data-testid="status-ahead">@_state.AheadOfOrigin</dd>
+                    </dl>
+                }
+            </section>
+            <section class="coaching-hints">
+                <h2>Indices</h2>
+                @if (_cards.Count == 0)
+                {
+                    <p class="coaching-hints-empty">Rien a signaler pour le moment.</p>
+                }
+                else
+                {
+                    @foreach (var card in _cards)
+                    {
+                        <article class="hint-card hint-@card.Severity.ToString().ToLowerInvariant()"
+                                 data-hint-id="@card.Id">
+                            <h3>@card.Title</h3>
+                            <p>@card.Message</p>
+                        </article>
+                    }
+                }
+            </section>
+        </aside>
+    </div>
 }
 else
 {
@@ -29,6 +77,17 @@ else
     private IPtySession? _session;
     private bool _enabled;
 
+    // Etat de la boucle de coaching, rafraichi a chaque evenement git recu du shim.
+    private RepoState? _state;
+    private IReadOnlyList<HintCard> _cards = [];
+    private readonly ExerciseExpectation _expectation = new();
+
+    // Dossier de travail TEMPORAIRE et isole par session : le terminal NE DOIT PAS operer sur le
+    // vrai depot piscine-dotnet (cwd de l'app), sinon `git init`/`git commit` muteraient le repo reel
+    // et rendraient l'etat non deterministe. On le supprime au Dispose.
+    private string? _tempDir;
+    private bool _channelStarted;
+
     // Garde-fou securite : /terminal lance un shell OS arbitraire SANS authentification. On ne le
     // spawn qu'en Development (DevHost = harnais hors release) afin qu'un DevHost publie par erreur
     // n'expose pas un shell distant. Regle d'exploitation : ne JAMAIS binder hors loopback.
@@ -41,17 +100,77 @@ else
             return;
         }
 
-        _session = await Pty.StartAsync(new PtyStartInfo());
+        // Dossier de travail jetable, propre a cette session de terminal.
+        _tempDir = Path.Combine(Path.GetTempPath(), "piscine-term-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_tempDir);
+
+        // Le dossier du shim git (notre faux `git` en tete de PATH) : on prend la config buildee
+        // existante (Release prioritaire, sinon Debug), sous <racine>/src/Piscine.GitShim/bin/...
+        var shimDir = ResolveShimDir();
+
+        // Canal de coaching : on demarre l'ecoute AVANT de spawner le PTY (le premier serveur est cree
+        // de facon synchrone dans Start()), puis on s'abonne aux evenements emis par le shim.
+        if (!_channelStarted)
+        {
+            Channel.Start();
+            Channel.CommandReceived += OnGitCommand;
+            _channelStarted = true;
+        }
+
+        var startInfo = new PtyStartInfo { WorkingDirectory = _tempDir };
+
+        // Si le shim est introuvable (build absent), on degrade proprement : terminal nu, sans coaching
+        // de commande (comportement S2). Sinon on prefixe PATH du dossier shim et on passe le vrai git
+        // resolu + le nom du pipe.
+        if (shimDir is not null)
+        {
+            var currentPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
+            var realGit = GitPathResolver.Resolve(currentPath, shimDir);
+            var newPath = shimDir + Path.PathSeparator + currentPath;
+
+            var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                // Sous Windows la variable est "Path" ; PtyService fusionne en casse-insensible, donc
+                // une seule cle "PATH" ecrase l'existante sans la dupliquer.
+                ["PATH"] = newPath,
+                ["PISCINE_COACH_PIPE"] = Channel.Endpoint,
+            };
+            if (realGit is not null)
+            {
+                overrides["PISCINE_REAL_GIT"] = realGit;
+            }
+
+            startInfo = startInfo with { Environment = overrides };
+        }
+
+        _session = await Pty.StartAsync(startInfo);
         _session.Output += OnPtyOutput;
         _session.Exited += OnPtyExited;
+    }
+
+    // Evenement du shim git (reçu sur le thread du canal) : on relit l'etat du depot a partir du cwd
+    // RAPPORTE PAR LE SHIM (le vrai dossier de travail, qui demarre au temp dir) puis on recalcule les
+    // cartes. On repasse sur le thread du circuit pour rendre.
+    private async void OnGitCommand(GitCommandEvent evt)
+    {
+        try
+        {
+            await InvokeAsync(() =>
+            {
+                _state = Status.Read(evt.Cwd);
+                _cards = Coach.Evaluate(_state, evt, _expectation);
+                StateHasChanged();
+            });
+        }
+        catch (Exception)
+        {
+            // Circuit ferme (navigation/reload) pendant le rendu : ignore (spike).
+        }
     }
 
     // PTY -> xterm : on encode en base64 et on repasse sur le thread du circuit (InvokeAsync)
     // avant de pousser vers le composant. async void car c'est un handler d'evenement .NET ;
     // les exceptions (circuit mort) sont avalees volontairement cote spike.
-    // NOTE debit/backpressure : pas de coalescence ici - une commande tres verbeuse (`dir /s`,
-    // `ls -R`) peut saturer le circuit SignalR. Acceptable pour le spike (echo) ; coalescer
-    // (buffer + flush ~30 ms) si besoin (suivi ; non bloquant - l'hote cible reel est Photino).
     private async void OnPtyOutput(byte[] bytes)
     {
         var b64 = Convert.ToBase64String(bytes);
@@ -104,13 +223,61 @@ else
     private void HandleResize((int Cols, int Rows) size) =>
         _session?.Resize(size.Cols, size.Rows);
 
+    /// <summary>
+    /// Localise le dossier du shim git buildé : remonte jusqu'a <c>Piscine.slnx</c> puis cherche
+    /// <c>src/Piscine.GitShim/bin/&lt;config&gt;/net10.0/git[.exe]</c> en preferant Release puis Debug
+    /// (le E2E lance le DevHost en Debug ; le build solution produit Release). <c>null</c> si absent.
+    /// </summary>
+    private static string? ResolveShimDir()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Piscine.slnx")))
+        {
+            dir = dir.Parent;
+        }
+
+        if (dir is null)
+        {
+            return null;
+        }
+
+        var gitName = OperatingSystem.IsWindows() ? "git.exe" : "git";
+        foreach (var config in new[] { "Release", "Debug" })
+        {
+            var candidate = Path.Combine(dir.FullName, "src", "Piscine.GitShim", "bin", config, "net10.0");
+            if (File.Exists(Path.Combine(candidate, gitName)))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
     public async ValueTask DisposeAsync()
     {
+        if (_channelStarted)
+        {
+            Channel.CommandReceived -= OnGitCommand;
+        }
+
         if (_session is not null)
         {
             _session.Output -= OnPtyOutput;
             _session.Exited -= OnPtyExited;
             await _session.DisposeAsync();
+        }
+
+        if (_tempDir is not null)
+        {
+            try
+            {
+                Directory.Delete(_tempDir, recursive: true);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or DirectoryNotFoundException)
+            {
+                // Best-effort : le shell peut encore tenir un handle, ou le dossier a deja disparu.
+            }
         }
     }
 }
