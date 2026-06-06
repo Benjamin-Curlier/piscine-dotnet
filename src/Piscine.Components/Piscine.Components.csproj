@@ -16,6 +16,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
+    <!-- La page /terminal (RCL, routable) consomme PtyService (logique PTY cote hote). Pas de cycle :
+         Piscine.App ne reference pas Piscine.Components. -->
+    <ProjectReference Include="..\Piscine.App\Piscine.App.csproj" />
   </ItemGroup>
 
 </Project>

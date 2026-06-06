@@ -11,6 +11,9 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<CourseCatalog>();
 builder.Services.AddSingleton<MarkdownRenderer>();
 
+// Lance des sessions PTY (un vrai shell OS) — sans état partagé, donc singleton.
+builder.Services.AddSingleton<Piscine.App.Terminal.PtyService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

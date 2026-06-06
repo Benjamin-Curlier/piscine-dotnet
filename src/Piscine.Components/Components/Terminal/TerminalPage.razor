@@ -1,0 +1,69 @@
+@page "/terminal"
+@namespace Piscine.Components.Components.Terminal
+@rendermode @(Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveServer)
+@using Piscine.App.Terminal
+@inject PtyService Pty
+@implements IAsyncDisposable
+
+<PageTitle>Terminal — Piscine .NET</PageTitle>
+<h1>Terminal embarque (spike)</h1>
+
+<Terminal @ref="_terminal" OnData="HandleInput" OnResize="HandleResize" />
+
+@code {
+    private Terminal? _terminal;
+    private IPtySession? _session;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _session is not null)
+        {
+            return;
+        }
+
+        _session = await Pty.StartAsync(new PtyStartInfo());
+        _session.Output += OnPtyOutput;
+    }
+
+    // PTY -> xterm : on encode en base64 et on repasse sur le thread du circuit (InvokeAsync)
+    // avant de pousser vers le composant. async void car c'est un handler d'evenement .NET ;
+    // les exceptions (circuit mort) sont avalees volontairement cote spike.
+    private async void OnPtyOutput(byte[] bytes)
+    {
+        var b64 = Convert.ToBase64String(bytes);
+        try
+        {
+            await InvokeAsync(async () =>
+            {
+                if (_terminal is not null)
+                {
+                    await _terminal.WriteAsync(b64);
+                }
+            });
+        }
+        catch (Exception)
+        {
+            // Circuit SignalR ferme (navigation/reload) pendant l'ecriture : ignore (spike).
+        }
+    }
+
+    private async Task HandleInput(string data)
+    {
+        if (_session is not null)
+        {
+            await _session.WriteAsync(data);
+        }
+    }
+
+    private void HandleResize((int Cols, int Rows) size) =>
+        _session?.Resize(size.Cols, size.Rows);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_session is not null)
+        {
+            _session.Output -= OnPtyOutput;
+            await _session.DisposeAsync();
+        }
+    }
+}
