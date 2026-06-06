@@ -1,0 +1,103 @@
+@page "/resultat"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Push
+@using Piscine.App.Push
+@using Piscine.App.Progress
+@using Piscine.Components.Components.Progress
+@inject IPushResultWatcher Watcher
+@implements IAsyncDisposable
+
+<PageTitle>Résultat du push — Piscine .NET</PageTitle>
+
+<h1 class="push-panel-title">Résultat du dernier push</h1>
+
+<p class="push-phase" data-testid="push-phase">
+    @(_phase switch
+    {
+        PushPhase.Recu => "Résultat reçu",
+        PushPhase.EnAttente => "En attente du rendu…",
+        _ => "En attente d'un push…",
+    })
+</p>
+
+@if (_result is null)
+{
+    <p class="push-empty" data-testid="push-empty">
+        Pousse ton travail (<code>git push</code>) ; le verdict s'affichera ici automatiquement.
+    </p>
+}
+else
+{
+    <ul class="push-entries">
+        @foreach (var e in _result.Changed)
+        {
+            <li class="push-entry" data-testid="push-entry">
+                <StatusBadge Status="MapStatus(e.Verdict)" Source="StatusSource.Progress" />
+                <span class="push-entry-id">@e.ExerciseId</span>
+                <span class="push-entry-attempts">Tentatives : @e.Attempts</span>
+                @if (e.LastAttempt.HasValue)
+                {
+                    <span class="push-entry-last">@e.LastAttempt.Value.ToLocalTime().ToString("g")</span>
+                }
+                @if (e.Verdict == PushVerdict.ARevoir)
+                {
+                    <a class="push-check-link" data-testid="push-check-link" href="/check">
+                        Voir le détail (diff attendu/obtenu)
+                    </a>
+                }
+            </li>
+        }
+    </ul>
+
+    <p class="push-observed-at">
+        Reçu le @_result.ObservedAt.ToLocalTime().ToString("g")
+    </p>
+}
+
+@code {
+    private PushResult? _result;
+    private PushPhase _phase = PushPhase.Idle;
+
+    protected override void OnInitialized()
+    {
+        Watcher.Start();
+        Watcher.ResultReceived += OnResult;
+        _result = Watcher.LatestResult();
+        if (_result is not null)
+        {
+            _phase = PushPhase.Recu;
+        }
+    }
+
+    // Handler d'événement appelé sur le thread du watcher (thread de fond FSW).
+    // On repasse sur le circuit Blazor via InvokeAsync.
+    private async void OnResult(PushResult r)
+    {
+        try
+        {
+            await InvokeAsync(() =>
+            {
+                _result = r;
+                _phase = PushPhase.Recu;
+                StateHasChanged();
+            });
+        }
+        catch (Exception)
+        {
+            // Circuit fermé (navigation/reload) : ignore.
+        }
+    }
+
+    private static ExerciseProgressStatus MapStatus(PushVerdict verdict) => verdict switch
+    {
+        PushVerdict.Reussi => ExerciseProgressStatus.PousseNote,
+        _ => ExerciseProgressStatus.ARevoir,
+    };
+
+    public ValueTask DisposeAsync()
+    {
+        // Désabonnement uniquement — ne pas disposer le watcher singleton de l'hôte.
+        Watcher.ResultReceived -= OnResult;
+        return ValueTask.CompletedTask;
+    }
+}
