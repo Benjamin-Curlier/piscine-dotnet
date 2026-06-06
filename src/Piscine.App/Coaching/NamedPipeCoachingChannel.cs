@@ -20,50 +20,68 @@ public sealed class NamedPipeCoachingChannel : ICoachingChannel
 
     public void Start()
     {
-        _loop ??= Task.Run(() => AcceptLoopAsync(_cts.Token));
+        if (_loop is not null)
+        {
+            return;
+        }
+
+        // On cree le PREMIER pipe serveur de facon SYNCHRONE : des que Start() retourne, le canal est
+        // garanti a l'ecoute (le shim a un timeout de connexion court — on evite toute course au
+        // demarrage de la session).
+        var first = CreateServer();
+        _loop = Task.Run(() => AcceptLoopAsync(first, _cts.Token));
     }
 
-    private async Task AcceptLoopAsync(CancellationToken ct)
+    private NamedPipeServerStream CreateServer() =>
+        new(
+            Endpoint,
+            PipeDirection.In,
+            NamedPipeServerStream.MaxAllowedServerInstances,
+            PipeTransmissionMode.Byte,
+            PipeOptions.Asynchronous);
+
+    private async Task AcceptLoopAsync(NamedPipeServerStream first, CancellationToken ct)
     {
+        var server = first;
         while (!ct.IsCancellationRequested)
         {
             try
             {
-                await using var server = new NamedPipeServerStream(
-                    Endpoint,
-                    PipeDirection.In,
-                    NamedPipeServerStream.MaxAllowedServerInstances,
-                    PipeTransmissionMode.Byte,
-                    PipeOptions.Asynchronous);
-
                 await server.WaitForConnectionAsync(ct);
 
-                using var reader = new StreamReader(server);
-                var line = await reader.ReadLineAsync(ct);
-                if (string.IsNullOrWhiteSpace(line))
+                using (var reader = new StreamReader(server, leaveOpen: false))
                 {
-                    continue;
+                    var line = await reader.ReadLineAsync(ct);
+                    if (!string.IsNullOrWhiteSpace(line))
+                    {
+                        var payload = JsonSerializer.Deserialize(line, ChannelJsonContext.Default.ChannelPayload);
+                        if (payload is not null)
+                        {
+                            var evt = new GitCommandEvent(
+                                payload.Argv ?? [],
+                                payload.ExitCode,
+                                payload.Cwd ?? string.Empty);
+                            CommandReceived?.Invoke(evt);
+                        }
+                    }
                 }
-
-                var payload = JsonSerializer.Deserialize(line, ChannelJsonContext.Default.ChannelPayload);
-                if (payload is null)
-                {
-                    continue;
-                }
-
-                var evt = new GitCommandEvent(payload.Argv ?? [], payload.ExitCode, payload.Cwd ?? string.Empty);
-                CommandReceived?.Invoke(evt);
             }
             catch (OperationCanceledException)
             {
                 // Arret demande (Dispose) : on sort proprement.
+                await server.DisposeAsync();
                 return;
             }
             catch (Exception e) when (e is IOException or JsonException)
             {
                 // Connexion corrompue / JSON invalide : on re-ecoute sans tuer la boucle.
             }
+
+            // Le StreamReader a dispose le pipe servi ; on en recree un pour la connexion suivante.
+            server = CreateServer();
         }
+
+        await server.DisposeAsync();
     }
 
     public async ValueTask DisposeAsync()

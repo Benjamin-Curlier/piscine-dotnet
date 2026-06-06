@@ -16,8 +16,41 @@ public sealed class PtyService
             Cols = info.Cols,
             Rows = info.Rows,
         };
+
+        // Surcharges d'env (shim git) : on part de l'env courant puis on applique les overrides du
+        // caller (PATH prefixe du dossier shim, PISCINE_REAL_GIT, PISCINE_COACH_PIPE). Si aucune
+        // surcharge n'est demandee, on laisse l'env par defaut du PTY (comportement S2 inchange).
+        if (info.Environment is { Count: > 0 })
+        {
+            options.Environment = BuildEnvironment(info.Environment);
+        }
+
         var connection = await PtyProvider.SpawnAsync(options, ct);
         return new PtySession(connection);
+    }
+
+    /// <summary>
+    /// Construit l'env de la session : copie de l'env du processus courant, puis surcharges du caller.
+    /// Les surcharges ecrasent les cles existantes (insensible a la casse pour gerer PATH/Path sous
+    /// Windows : on ne cree pas de cle PATH dupliquee).
+    /// </summary>
+    private static IDictionary<string, string> BuildEnvironment(IReadOnlyDictionary<string, string> overrides)
+    {
+        var env = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (System.Collections.DictionaryEntry entry in Environment.GetEnvironmentVariables())
+        {
+            if (entry.Key is string key && entry.Value is string value)
+            {
+                env[key] = value;
+            }
+        }
+
+        foreach (var (key, value) in overrides)
+        {
+            env[key] = value;
+        }
+
+        return env;
     }
 
     private sealed class PtySession : IPtySession
