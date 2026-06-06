@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Playwright;
+using Piscine.Core.Model;
+using Piscine.Core.Progression;
 using Xunit;
 
 namespace Piscine.DevHost.E2E;
@@ -36,20 +38,12 @@ public sealed class ProgressSmokeTests : IAsyncLifetime
         Directory.CreateDirectory(stateDir);
         Directory.CreateDirectory(_tempWorkspace);
 
-        // Planter un progress.json avec ex00-hello en statut ARevoir.
-        // Format exact de ProgressStore : JSON camelCase, enum en chaîne.
+        // Planter un progress.json avec ex00-hello en statut ARevoir, via ProgressStore.Save :
+        // le format (camelCase, enum en chaîne) est garanti par le moteur, pas de littéral à maintenir.
         var progressPath = Path.Combine(stateDir, "progress.json");
-        await File.WriteAllTextAsync(progressPath, """
-            {
-              "exercises": {
-                "ex00-hello": {
-                  "status": "ARevoir",
-                  "attempts": 1,
-                  "lastAttempt": null
-                }
-              }
-            }
-            """);
+        var progress = new Progress();
+        progress.Exercises["ex00-hello"] = new ExerciseProgress { Status = ExerciseStatus.ARevoir, Attempts = 1 };
+        new ProgressStore(progressPath).Save(progress);
 
         // Le DevHost lit l'état depuis PISCINE_HOME/.state/progress.json
         // (PiscineLayout : stateDir = home/.state, ProgressPath = stateDir/progress.json).

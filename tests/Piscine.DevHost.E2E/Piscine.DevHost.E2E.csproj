@@ -19,4 +19,10 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Pour planter un progress.json déterministe via ProgressStore.Save (format moteur garanti,
+         pas de littéral JSON à maintenir à la main). -->
+    <ProjectReference Include="..\..\src\Piscine.Core\Piscine.Core.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -38,10 +38,13 @@
   | **PousseNote** (best-effort) | entrée `Reussi` ET `AheadOfOrigin == 0` ET `HasOrigin`. |
   | **ARevoir** | entrée `progress.json` `Status == ARevoir`. |
 
-- **(c) Git repo-wide, attribution par préfixe de chemin** : le workspace de la recrue est **un seul dépôt** à
-  `WorkspaceRoot` (`GitWorkspace.Initialize`), exos en sous-dossiers `<moduleId>/<exerciseId>/`. On lit `RepoState`
-  **une fois** et on l'applique ; attribution fine par exo via préfixe de chemin **best-effort** ; si ambigu, repli
-  sur le signal repo-wide + badge documenté.
+- **(c) Git repo-wide** : le workspace de la recrue est **un seul dépôt** à `WorkspaceRoot`
+  (`GitWorkspace.Initialize`), exos en sous-dossiers `<moduleId>/<exerciseId>/`. On lit `RepoState` **une fois** et
+  on l'applique. **ÉCART D'IMPLÉMENTATION (revue S5)** : seul le signal **repo-wide** est appliqué (badge `GitDerived`
+  + infobulle « best-effort » qui le disclose honnêtement) ; l'**attribution fine par préfixe de chemin** envisagée
+  ici est **REPORTÉE en suivi** (nécessite que `GitStatusService` expose l'avance/le travail non committé par chemin,
+  pas seulement repo-wide). Conséquence assumée : dès qu'un commit local est en avance, tous les exos `Reussi`/sans
+  entrée concernés affichent `CommiteNonPousse`.
 - **(d) Déterminisme tests** : `ProgressServiceTests` plante un `progress.json` réel via `ProgressStore.Save` + des
   fichiers workspace + des états git via `GitFixtureBuilder` (comme `GitStatusServiceTests`) → un `[Fact]` par statut
   dérivable. bUnit : badges construits à la main (composant pur). E2E : `PISCINE_CONTENT`/`PISCINE_WORKSPACE`/
