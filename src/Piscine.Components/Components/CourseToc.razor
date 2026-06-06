@@ -1,0 +1,74 @@
+@using System.Globalization
+@using System.Net
+@using System.Text.RegularExpressions
+@inject Piscine.Components.Services.MarkdownRenderer Md
+
+@* Sommaire dérivé du HTML RÉELLEMENT rendu par Markdig (MarkdownRenderer) : les ancres du sommaire
+   == les `id` que Markdig émet (diacritiques retirés via FormD, suffixes de doublons, `{#id}` explicite
+   — tout est géré par le moteur de rendu lui-même). On ne re-slugifie donc PAS à la main (ce qui
+   divergerait : CourseAnchors/FormC garde les accents, Markdig+AdvancedExtensions les retire) → jamais
+   de lien de sommaire cassé vers une ancre inexistante. *@
+
+@if (_entries.Count > 0)
+{
+    <nav class="toc" data-testid="course-toc">
+        <ul>
+            @foreach (var entry in _entries)
+            {
+                <li class="toc-level-@entry.Level">
+                    <a href="#@entry.Slug">@entry.Text</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+@code {
+    [Parameter] public string? Markdown { get; set; }
+
+    /// <summary>Niveau ATX minimal listé (2 = on liste `##`/`###`… ; le titre `#` n'est pas une entrée).</summary>
+    [Parameter] public int MinLevel { get; set; } = 2;
+
+    private readonly List<(int Level, string Slug, string Text)> _entries = [];
+
+    // Titre rendu par Markdig : <h2 id="slug">contenu inline</h2> (h2..h6 ; id = ancre réelle).
+    private static readonly Regex Heading = new(
+        "<h(?<level>[2-6])\\b[^>]*?\\bid=\"(?<id>[^\"]+)\"[^>]*>(?<inner>.*?)</h\\k<level>>",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+
+    // Retire le balisage inline d'un titre (ex. <code>…</code>) pour l'affichage du sommaire.
+    private static readonly Regex InlineTag = new("<[^>]+>", RegexOptions.Compiled);
+
+    protected override void OnParametersSet()
+    {
+        _entries.Clear();
+        if (string.IsNullOrEmpty(Markdown))
+        {
+            return;
+        }
+
+        var html = Md.Render(Markdown).Value;
+        if (string.IsNullOrEmpty(html))
+        {
+            return;
+        }
+
+        foreach (Match match in Heading.Matches(html))
+        {
+            var level = int.Parse(match.Groups["level"].Value, CultureInfo.InvariantCulture);
+            if (level < MinLevel)
+            {
+                continue;
+            }
+
+            var slug = match.Groups["id"].Value;
+            var text = WebUtility.HtmlDecode(InlineTag.Replace(match.Groups["inner"].Value, string.Empty)).Trim();
+            if (text.Length == 0)
+            {
+                continue;
+            }
+
+            _entries.Add((level, slug, text));
+        }
+    }
+}

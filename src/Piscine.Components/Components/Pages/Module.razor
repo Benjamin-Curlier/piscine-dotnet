@@ -14,6 +14,7 @@ else
         <a href="/">Curriculum</a> <span>/</span> <span>Module @_module.Number</span>
     </nav>
 
+    <CourseToc Markdown="@_module.CourseMarkdown" />
     <MarkdownView Markdown="@_module.CourseMarkdown" />
 
     @if (_module.HasExercises)

@@ -7,7 +7,7 @@
     <meta name="description" content="Piscine .NET — bootcamp C# / .NET 10, cours et exercices auto-corrigés." />
     <base href="/" />
     <script>
-        // Appliqué avant le rendu pour éviter tout flash de thème clair.
+        // Anti-flash : appliqué avant le premier paint, avant le chargement de theme.js.
         window.__applyTheme = function () {
             var t = localStorage.getItem('theme')
                 || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -15,8 +15,9 @@
         };
         window.__applyTheme();
     </script>
+    <script src="@Assets["_content/Piscine.Components/js/theme.js"]"></script>
     <ResourcePreloader />
-    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["_content/Piscine.Components/css/piscine.css"]" />
     <link rel="stylesheet" href="@Assets["Piscine.DevHost.styles.css"]" />
     <link rel="stylesheet" href="@Assets["_content/Piscine.Components/lib/xterm/xterm.css"]" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" />
@@ -31,29 +32,17 @@
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
     <script>
+        // toggleTheme / updateThemeIcon / __applyTheme sont définis dans theme.js (RCL).
         function highlightAll() {
             if (!window.hljs) return;
             document.querySelectorAll('pre code:not([data-highlighted])').forEach(function (el) {
                 window.hljs.highlightElement(el);
             });
         }
-        function updateThemeIcon() {
-            var b = document.getElementById('theme-toggle');
-            if (b) {
-                b.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀' : '☾';
-            }
-        }
-        function toggleTheme() {
-            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('theme', next);
-            document.documentElement.setAttribute('data-theme', next);
-            updateThemeIcon();
-        }
-        window.toggleTheme = toggleTheme;
         function onPageReady() {
             // La navigation enhanced peut réécrire <html> : on réapplique le thème.
-            window.__applyTheme();
-            updateThemeIcon();
+            window.__applyTheme && window.__applyTheme();
+            window.updateThemeIcon && window.updateThemeIcon();
             highlightAll();
         }
         document.addEventListener('DOMContentLoaded', onPageReady);

@@ -3,9 +3,32 @@
 <head>
     <meta charset="utf-8" />
     <base href="/" />
+    <!-- Anti-flash : applique le thème (clair/sombre) avant le premier paint -->
+    <script>window.__applyTheme=function(){var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);};window.__applyTheme();</script>
+    <!-- CSS thème partagé (variables CSS + [data-theme], layout) depuis la RCL -->
+    <link rel="stylesheet" href="_content/Piscine.Components/css/piscine.css" />
+    <!-- Coloration syntaxique highlight.js (thème sombre github-dark) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/github-dark.min.css" />
 </head>
 <body>
     <div id="app">Chargement…</div>
     <script src="_framework/blazor.webview.js"></script>
+    <!-- JS thème partagé (toggleTheme, updateThemeIcon, __applyTheme) depuis la RCL -->
+    <script src="_content/Piscine.Components/js/theme.js"></script>
+    <!-- highlight.js : coloration des blocs de code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"></script>
+    <script>
+        function highlightAll() {
+            if (!window.hljs) return;
+            document.querySelectorAll('pre code:not([data-highlighted])').forEach(function (el) {
+                window.hljs.highlightElement(el);
+            });
+        }
+        window.addEventListener('load', function () {
+            window.__applyTheme && window.__applyTheme();
+            window.updateThemeIcon && window.updateThemeIcon();
+            highlightAll();
+        });
+    </script>
 </body>
 </html>
