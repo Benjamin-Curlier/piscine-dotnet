@@ -127,6 +127,20 @@ Expected : `release.yml` produit un **installeur Windows (.exe)** + un **AppImag
   inutile pour un Blazor `app://` hors-ligne (contenu servi in-process par Photino). À affiner si le rendu
   proprio le révèle ; sinon **repli (B) .deb** (webkit distro, robuste). Rendu visuel final = smoke proprio.
 
+## CONSTATS d'implémentation (T2 Windows, local — Inno installé)
+- **Installeur Windows VÉRIFIÉ EN LOCAL** (proprio a autorisé l'install d'Inno) : `build/installer/windows/piscine.iss`
+  **compile** les 2 modes (`ISCC /DMODE=offline|online /DAPPVERSION=.. /DPAYLOAD=..`) → `piscine-<ver>-win-x64-{offline,online}-setup.exe`.
+  Le offline **s'installe en silencieux sans admin** (`/VERYSILENT`, PrivilegesRequired=lowest), pose la
+  bonne arborescence (`piscine.exe`, `desktop\Piscine.Desktop.exe`, `desktop\gitshim\git.exe`,
+  `content\modules`, lanceurs, `webview2\`, `unins000.exe`) et **se désinstalle proprement**. ISCC =
+  `C:\Users\bencu\AppData\Local\Programs\Inno Setup 6\ISCC.exe`.
+- **RESTE à trancher (WebView2 offline) pour le job release** : (a) **Fixed Version** embarqué + lanceur
+  `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER` (sans admin) — design actuel du .iss/launcher ; friction = télécharger
+  le FV en CI (pas d'URL stable triviale). (b) **Standalone Evergreen** (offline, fwlink stable
+  `go.microsoft.com/fwlink/?linkid=2124701`) lancé à l'install si WebView2 absent (robuste/automatable mais
+  **UAC** pour le runtime per-machine, une fois). Décider à l'écriture du job release ; le mécanisme .iss
+  supporte les deux (offline [Run] possible comme online).
+
 ## Notes / risques
 - **Inno non préinstallé** sur les runners GitHub → `choco install innosetup`. Build installeur **non signé**
   (SmartScreen persiste, comme aujourd'hui — assumé). Ces téléchargements/outillages sont au **build CI**
