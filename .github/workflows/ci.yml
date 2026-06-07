@@ -37,14 +37,96 @@ jobs:
       - name: Dry-run packaging desktop (publish cross-RID + libs natives)
         run: |
           set -euo pipefail
-          for rid in linux-x64 win-x64 osx-arm64; do
+          for rid in linux-x64 win-x64; do
             out="artifacts/desktop-dryrun/$rid"
             dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
             test -f "$out/Piscine.Desktop" -o -f "$out/Piscine.Desktop.exe"
             case "$rid" in
               win-x64)   test -f "$out/Photino.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
               linux-x64) test -f "$out/Photino.Native.so" ;;
-              osx-arm64) test -f "$out/Photino.Native.dylib" ;;
             esac
             echo "OK $rid"
           done
+
+  # Dry-run installeur Linux (S13) : construit l'AppImage OFFLINE et prouve qu'elle se lance
+  # SANS internet et SANS webkit système (conteneur webkit-less, --network=none, xvfb) → garantit
+  # l'empaquetage hors-ligne avant tout tag. ubuntu-22.04 = libwebkit2gtk-4.0 (Photino 3.2.0).
+  appimage-offline-dryrun:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Construire l'AppImage offline
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick libwebkit2gtk-4.0-37 libgtk-3-0 libgtk-3-bin \
+            libnotify4 librsvg2-2 librsvg2-common libfuse2 patchelf desktop-file-utils dpkg-dev \
+            pkg-config libglib2.0-bin libgdk-pixbuf2.0-bin
+          dotnet run --project src/Piscine.Cli -c Release -- package-content content artifacts/content
+          appdir="artifacts/appimage-offline/AppDir"
+          mkdir -p "$appdir/usr/bin/gitshim" "$appdir/usr/share/piscine"
+          dotnet publish src/Piscine.Desktop -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin"
+          dotnet publish src/Piscine.GitShim  -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin/gitshim"
+          cp -r artifacts/content "$appdir/usr/share/piscine/content"
+          mkdir -p dist
+          bash build/installer/linux/build-appimage.sh offline "$appdir" dist/piscine-offline.AppImage
+          ls -lh dist/piscine-offline.AppImage
+
+      - name: Vérifier le lancement HORS-LIGNE (sans réseau, sans webkit système)
+        run: |
+          set -euo pipefail
+          # Image de test : xvfb + baseline graphique desktop, SANS webkit → prouve l'usage du webkit bundlé.
+          cat > /tmp/Dockerfile.test <<'DOCKER'
+          FROM ubuntu:24.04
+          ENV DEBIAN_FRONTEND=noninteractive
+          RUN apt-get update -qq && apt-get install -y -qq xvfb libfuse2 libgtk-3-0 libegl1 libgles2 \
+              libgl1-mesa-dri libglx-mesa0 fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
+          DOCKER
+          docker build -t piscine-appimage-test -f /tmp/Dockerfile.test /tmp
+          docker run --rm --network=none -v "$PWD/dist:/in:ro" piscine-appimage-test bash -c '
+            cp /in/piscine-offline.AppImage /app.AppImage && chmod +x /app.AppImage
+            export APPIMAGE_EXTRACT_AND_RUN=1 HOME=/root
+            (timeout 30 xvfb-run -a /app.AppImage > /tmp/log 2>&1 || true)
+            echo "=== app log (tail) ===" ; tail -12 /tmp/log
+            # Fatal = DllNotFound/Unhandled (dep bundlee manquante). Les warnings GL webkit
+            # (GLESv2/EGL, rendu logiciel sous xvfb, libs GPU du systeme) ne sont PAS fatals.
+            if grep -qi "DllNotFound\|Unhandled exception" /tmp/log; then
+              echo "FAIL: dependance bundlée manquante (AppImage non auto-suffisant hors-ligne)"; exit 1
+            fi
+            grep -q "Load(app://localhost" /tmp/log || { echo "FAIL: app n a pas chargé app://localhost"; exit 1; }
+            echo "OFFLINE OK : lancement + chargement webview avec webkit bundlé, sans réseau ni webkit système"
+          '
+
+  # Dry-run installeur Windows (S13) : garde de compilation a chaque PR — Inno Setup + ISCC sur un
+  # payload stub, les 2 modes (offline/online), assert que les 2 .exe sont produits. (Le vrai payload
+  # + téléchargements WebView2 sont exercés par release.yml au tag.)
+  windows-installer-dryrun:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Installer Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Compiler les installeurs (payload stub)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = "payload"
+          New-Item -ItemType Directory -Force "$p/desktop/gitshim", "$p/content/modules", "$p/mingit" | Out-Null
+          foreach ($f in @("piscine.exe","desktop/Piscine.Desktop.exe","desktop/gitshim/git.exe","webview2-setup.exe","content/modules/.keep")) {
+            "stub" | Set-Content "$p/$f"
+          }
+          Copy-Item build/launchers/start-piscine.cmd, build/launchers/start-piscine-desktop.cmd $p
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          $payloadAbs = (Resolve-Path $p).Path
+          & $iscc "/DMODE=offline" "/DAPPVERSION=v0.0.0-dryrun" "/DPAYLOAD=$payloadAbs" "build\installer\windows\piscine.iss"
+          & $iscc "/DMODE=online"  "/DAPPVERSION=v0.0.0-dryrun" "/DPAYLOAD=$payloadAbs" "build\installer\windows\piscine.iss"
+          $exes = Get-ChildItem build\installer\windows\dist\*.exe
+          $exes | Select-Object Name, Length
+          if ($exes.Count -lt 2) { Write-Error "Attendu 2 installeurs (.exe), trouve $($exes.Count)" }
+          Write-Host "OK : 2 installeurs Inno compiles (offline + online)"

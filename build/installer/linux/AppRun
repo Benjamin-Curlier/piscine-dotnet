@@ -1,0 +1,29 @@
+#!/bin/sh
+# Lanceur AppImage Piscine .NET.
+# - mode OFFLINE : les libs webkit/gtk + helpers + git sont bundlés sous usr/ → on les met sur le chemin.
+# - mode ONLINE  : ces dossiers sont absents → les exports sont des no-op et on utilise le webkit système.
+set -eu
+HERE="$(dirname "$(readlink -f "$0")")"
+LIB="$HERE/usr/lib"
+
+# Libs partagées bundlées (webkit, gtk, javascriptcore, soup, …) en priorité.
+export LD_LIBRARY_PATH="$LIB:$LIB/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+# Process auxiliaires WebKit (WebKitNetworkProcess/WebKitWebProcess) + injected bundle (offline).
+# Version-agnostique : 4.0 (Photino 3.2.0) ou 4.1.
+for d in "$LIB"/webkit2gtk-4.*; do [ -d "$d" ] && export WEBKIT_EXEC_PATH="$d"; done
+
+# Chargeurs gdk-pixbuf + modules GIO bundlés (cache régénéré au build).
+[ -f "$LIB/gdk-pixbuf-2.0/2.10.0/loaders.cache" ] && export GDK_PIXBUF_MODULE_FILE="$LIB/gdk-pixbuf-2.0/2.10.0/loaders.cache"
+[ -d "$LIB/gio/modules" ] && export GIO_MODULE_DIR="$LIB/gio/modules"
+
+# git bundlé (offline) sous usr/bin/git ; sinon git système (online).
+[ -x "$HERE/usr/bin/git/bin/git" ] && export PATH="$HERE/usr/bin/git/bin:$PATH"
+
+# Contenu pédagogique bundlé (cours + exercices) si présent.
+[ -d "$HERE/usr/share/piscine/content/modules" ] && export PISCINE_CONTENT="$HERE/usr/share/piscine/content"
+
+# L'app de bureau (+ gitshim sous usr/bin/gitshim, trouvé par ShimLocator) est dans usr/bin.
+export PATH="$HERE/usr/bin:$PATH"
+
+exec "$HERE/usr/bin/Piscine.Desktop" "$@"

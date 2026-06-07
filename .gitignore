@@ -489,3 +489,7 @@ $RECYCLE.BIN/
 
 # Claude Code runtime locks
 .claude/scheduled_tasks.lock
+
+# Sorties locales des installeurs (ISCC) + payload assemblé
+build/installer/windows/dist/
+payload/
