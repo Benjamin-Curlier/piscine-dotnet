@@ -231,4 +231,42 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         Assert.Equal(0, Volatile.Read(ref eventCount));
         // TempDir doit se nettoyer sans IOException.
     }
+
+    // ── Test 7 : Résultat riche absent → null (rétro-compat statut-only) ───────
+
+    [Fact]
+    public void LatestRichResult_WhenArtifactAbsent_ReturnsNull()
+    {
+        var layout = CreateLayout();
+        var watcher = new ProgressFileWatcher(layout);
+        Assert.Null(watcher.LatestRichResult());
+    }
+
+    // ── Test 8 : Résultat riche présent → document lu (diff/indice/cours) ──────
+
+    [Fact]
+    public void LatestRichResult_AfterArtifactWritten_ReturnsDocument()
+    {
+        var layout = CreateLayout();
+        var doc = new PushResultDocument(
+            new[]
+            {
+                new PushExerciseResult(
+                    "ex00-hello", "00-setup", "ARevoir",
+                    new[] { new PushCaseResult("io", false, new[] { "Attendu : ok", "Obtenu  : non" }) },
+                    Hint: "Relis l'énoncé.",
+                    CourseRef: "cours.md#hello"),
+            },
+            DateTimeOffset.UtcNow);
+        new LastPushResultStore(layout.LastPushResultPath).Save(doc);
+
+        var loaded = new ProgressFileWatcher(layout).LatestRichResult();
+
+        Assert.NotNull(loaded);
+        var ex = Assert.Single(loaded!.Exercises);
+        Assert.Equal("ex00-hello", ex.ExerciseId);
+        Assert.Equal("ARevoir", ex.Status);
+        Assert.Equal("cours.md#hello", ex.CourseRef);
+        Assert.Contains(ex.Cases, c => c.GraderType == "io" && !c.Passed);
+    }
 }

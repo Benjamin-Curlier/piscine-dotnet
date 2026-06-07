@@ -45,6 +45,12 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     }
 
     /// <inheritdoc/>
+    public PushResultDocument? LatestRichResult()
+        // Lecture à la demande (sans état) : grade-received écrit last-push-result.json dans le même
+        // Persist que progress.json, donc l'artefact est présent au settle. Load() → null si absent.
+        => new LastPushResultStore(_layout.LastPushResultPath).Load();
+
+    /// <inheritdoc/>
     public void Start()
     {
         lock (_lock)
