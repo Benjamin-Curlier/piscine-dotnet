@@ -177,8 +177,9 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
   **➡️ BACKLOG V3 D'ORIGINE (issues #1–#9) : TERMINÉE.** Les modules plateforme non gradables par la
   moulinette console (Docker, Silk.NET, Blazor) sont livrés en **lecture guidée**, cohérent avec
   M22/M34. **Enhancements de suivi** (hors backlog d'origine) : ✅ **#17 notation live git FAIT** (PR #52) ;
-  restants : **#19** harnais web Blazor (rendu DOM, gros chantier optionnel), serveur **HTTP**/exo **M22**
-  (cf. #3), rush Clean Arch (optionnel).
+  ⏸ **#19 harnais web Blazor DIFFÉRÉ** (décision proprio, ADR `docs/superpowers/adr/2026-06-07-harnais-web-blazor.md` :
+  coût/risque élevés — Razor runtime + ASP.NET Components dans le binaire — pour valeur étroite ; M39 reste
+  guidé ; chemin minimal viable documenté) ; restants : serveur **HTTP**/exo **M22** (cf. #3), rush Clean Arch (optionnel).
 
 ## v5 — finalisation desktop (terminal in-app, résultat riche, packaging) — **TERMINÉ ✅ (milestone #3 CLOS)**
 Milestone **#3** (label `v5`). Objectif : compléter l'app de bureau (terminal embarqué + coaching git
@@ -225,7 +226,8 @@ le **2ᵉ écran/souris** pour Photino. **Aucun tag** (release = action proprio)
   moteur/CLI/`grade-received` inchangés ; **aucun tag** (release = décision proprio ; CHANGELOG « Non publié »
   prêt). **Reste proprio** : smoke pré-release des installeurs (fenêtre native + terminal/coaching, Win+Linux).
   **Enhancements de suivi** (hors v5, milestone #1) : ✅ **#17 notation live git FAIT** (PR #52, 267 tests) ;
-  reste **#19** harnais web Blazor (rendu/DOM) — gros chantier moteur **optionnel** (le module M39 reste guidé).
+  ⏸ **#19 harnais web Blazor DIFFÉRÉ** (décision proprio + ADR `2026-06-07-harnais-web-blazor.md` ; M39 reste guidé).
+  **➡️ BACKLOG « finish s14 + backlogs » TERMINÉ** : S14 (#47) + #17 livrés/mergés ; #19 tranché (différé).
 
 ## v4 — application desktop Photino (S1 → S10 FAITS ✅ — **milestone #2 CLOS**, backlog #22–#31 terminé)
 Objectif : **remplacer l'UX recrue console par une app de bureau Photino.Blazor**, **sans toucher au
