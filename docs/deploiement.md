@@ -78,13 +78,33 @@ Pour chaque RID (`linux-x64`, `win-x64`, `osx-arm64`) :
 
 1. **`package-content content artifacts/content`** — copie le contenu **sans les `solution/`**
    (les corrigés ne sont jamais distribués).
-2. **`dotnet publish` self-contained** — runtime .NET + Roslyn embarqués (aucun SDK requis côté recrue).
-3. Le dossier `content/` assemblé est copié à côté du binaire.
-4. **Windows uniquement** : MinGit portable (version épinglée dans `release.yml`) est dézippé dans
-   `mingit/` et `start-piscine.cmd` est ajouté → git fonctionne sans installation.
-5. Zip nommé `piscine-<tag>-<rid>.zip`.
+2. **`dotnet publish` self-contained du CLI `piscine`** — runtime .NET + Roslyn embarqués (aucun SDK
+   requis côté recrue). C'est le binaire que le hook `post-receive` appelle pour corriger.
+3. **`dotnet publish` self-contained de l'app de bureau `Piscine.Desktop`** dans `desktop/` — les
+   **libs natives Photino** sont posées **à la racine du dossier `desktop/`** : `Photino.Native.dll`
+   + `WebView2Loader.dll` (Windows), `Photino.Native.so` (Linux), `Photino.Native.dylib` (macOS)
+   — **pas** sous `runtimes/<rid>/native/`. `Piscine.DevHost` (site/harnais de dev) n'est **jamais**
+   empaqueté.
+4. Le dossier `content/` assemblé est copié à côté des binaires.
+5. **Lanceurs** : `start-piscine-desktop.cmd` (Windows) / `start-piscine-desktop.sh` (Linux/macOS)
+   sont ajoutés. **Windows uniquement** : MinGit portable (version épinglée dans `release.yml`) est
+   dézippé dans `mingit/` et `start-piscine.cmd` (CLI) est ajouté → git fonctionne sans installation.
+6. Zip nommé `piscine-<tag>-<rid>.zip`.
 
 Puis `gh release create <tag> dist/*.zip` attache les trois zips. Le titre est `Piscine .NET <tag>`.
+
+### Prérequis webview (par OS)
+
+L'app de bureau rend son interface dans le **webview système** ; chaque OS a son moteur. Le zip
+embarque le code de l'app, mais le **runtime navigateur** dépend du poste :
+
+- **Windows** : runtime **WebView2** (Evergreen). Préinstallé sur Windows 11 et les Windows 10
+  récents. Sur les **éditions N** ou les images Windows minimales il peut manquer → installer
+  l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) de
+  Microsoft. (`WebView2Loader.dll` est dans le zip ; c'est le **runtime** qui peut manquer, pas le loader.)
+- **Linux** : **`libwebkit2gtk-4.1`** — Debian/Ubuntu `sudo apt install libwebkit2gtk-4.1-0`,
+  Fedora `sudo dnf install webkit2gtk4.1`.
+- **macOS** : **WKWebView intégré** au système, rien à installer.
 
 ### Notes de release
 
@@ -105,7 +125,29 @@ Reproduire l'assemblage pour vérifier avant de déclencher la vraie release :
 dotnet run --project src/Piscine.Cli -c Release -- package-content content artifacts/content
 dotnet publish src/Piscine.Cli -c Release -r win-x64 --self-contained true -o artifacts/pkg/piscine-win-x64
 # vérifier que artifacts/content ne contient AUCUN dossier solution/
+
+# App de bureau (même opération que la release) + assertion des libs natives à la racine :
+dotnet publish src/Piscine.Desktop -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o artifacts/pkg/piscine-win-x64/desktop
+Test-Path artifacts/pkg/piscine-win-x64/desktop/Photino.Native.dll   # → True
+Test-Path artifacts/pkg/piscine-win-x64/desktop/WebView2Loader.dll   # → True
 ```
+
+> La **CI** (`ci.yml`) exécute déjà ce *dry-run* du packaging desktop pour les **3 RID** à chaque PR
+> (publish self-contained + assertion des libs natives à la racine de `desktop/`) : une régression
+> d'empaquetage est attrapée **avant** tout tag, sans déclencher de release.
+
+### Smoke pré-release par OS (action propriétaire)
+
+Le *dry-run* CI prouve que les binaires se **construisent** ; il ne peut pas ouvrir une fenêtre
+native. Pour valider l'app sur les 3 OS, **taguer une pré-release** (`gh release ... --prerelease`),
+télécharger le zip de chaque OS et dérouler :
+
+- [ ] **Windows** : dézipper → double-clic `start-piscine-desktop.cmd` → la fenêtre s'ouvre et affiche
+      un cours (titre + gras + bloc de code colorisé).
+- [ ] **Linux** : `libwebkit2gtk-4.1` installé → `./start-piscine-desktop.sh` → fenêtre + cours.
+- [ ] **macOS** : `./start-piscine-desktop.sh` → fenêtre + cours.
+- [ ] **CLI intact** dans le même zip : `piscine init` puis `piscine status` répondent (le hook de
+      correction n'est pas affecté par l'ajout de l'app de bureau).
 
 ---
 

@@ -22,6 +22,14 @@ auto-contenu (runtime .NET + Roslyn embarqués).
     - Debian/Ubuntu : `sudo apt install git`
     - Fedora : `sudo dnf install git`
     - macOS : `xcode-select --install` (ou Homebrew : `brew install git`)
+- **Webview (pour l'app de bureau)** : l'app `Piscine.Desktop` (en plus du CLI) rend son interface
+  dans le **webview système**. Le CLI seul n'en a pas besoin.
+  - **Windows** : **WebView2** — préinstallé sur Windows 11 / Windows 10 récents. Éditions N ou images
+    minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
+  - **Linux** : `sudo apt install libwebkit2gtk-4.1-0` (Debian/Ubuntu) ou
+    `sudo dnf install webkit2gtk4.1` (Fedora).
+  - **macOS** : rien à installer (WKWebView intégré).
+  Détails côté packaging : [docs/deploiement.md](deploiement.md).
 - **Espace disque** : ~150 Mo une fois dézippé (runtime + Roslyn inclus).
 
 ---
@@ -44,7 +52,9 @@ auto-contenu (runtime .NET + Roslyn embarqués).
      macOS peut demander d'autoriser le binaire dans *Réglages → Confidentialité et sécurité*.
 
 Le dossier dézippé contient le binaire `piscine` (`piscine.exe` sous Windows), le dossier
-`content/` (cours + exercices) et, sous Windows, `mingit/` + `start-piscine.cmd`.
+`content/` (cours + exercices), l'**app de bureau** dans `desktop/` avec son lanceur
+`start-piscine-desktop` (`.cmd` sous Windows, `.sh` sous Linux/macOS) et, sous Windows,
+`mingit/` + `start-piscine.cmd`.
 
 ---
 
@@ -77,6 +87,16 @@ piscine status        # bannière + état
 piscine list          # modules et exercices disponibles
 git --version         # (Windows : via start-piscine.cmd ; sinon git système)
 ```
+
+### App de bureau (optionnelle)
+
+En plus du CLI, le zip fournit une **app de bureau** (cours, terminal intégré, vérification,
+progression). La lancer après avoir vérifié les **prérequis webview** (§1) :
+
+- **Windows** : double-cliquer `start-piscine-desktop.cmd`.
+- **Linux / macOS** : `./start-piscine-desktop.sh`.
+
+Le CLI et l'app partagent le même workspace (`piscine init` suffit une fois).
 
 ---
 
@@ -119,5 +139,7 @@ git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enr
 - [ ] Vérifier sur un poste vierge : dézipper → `piscine init` → `piscine start <exo>` →
       `piscine check` → `git push` (rendu officiel) fonctionne de bout en bout.
 - [ ] S'assurer que la recrue sait lancer un terminal (ou `start-piscine.cmd` sous Windows).
+- [ ] (Si l'app de bureau est utilisée) prérequis webview en place (§1) et `start-piscine-desktop`
+      ouvre une fenêtre affichant un cours.
 - [ ] Remettre le zip (clé USB / partage interne) et ce guide.
 - [ ] Rappeler la philosophie : **retour éducatif, pas de note** ; progression auto-rythmée.
