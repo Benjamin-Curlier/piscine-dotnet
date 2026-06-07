@@ -45,6 +45,10 @@ builder.Services.AddSingleton(sp =>
 // Lance des sessions PTY (un vrai shell OS) — sans état partagé, donc singleton.
 builder.Services.AddSingleton<Piscine.App.Terminal.PtyService>();
 
+// Politique d'activation du terminal : DevHost = harnais → actif uniquement en Development
+// (un shell OS sans auth ne doit jamais être exposé hors loopback ni livré).
+builder.Services.AddSingleton(new Piscine.App.Terminal.TerminalPolicy(builder.Environment.IsDevelopment()));
+
 // Boucle de coaching git : services purs (statut + règles, sans état) en singletons, et un canal
 // named pipe singleton qui reçoit les événements du shim git pour la page /terminal.
 builder.Services.AddSingleton<Piscine.App.Git.GitStatusService>();
