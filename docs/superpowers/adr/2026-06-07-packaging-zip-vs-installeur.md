@@ -52,7 +52,23 @@
 seule douleur réelle (webview) se traite à moindre coût. Réserver **(B)** si l'on veut polir Windows plus
 tard ; **(C)** seulement si la distribution devient publique/large (et avec budget signature).
 
-## Décision
-- **EN ATTENTE — choix du propriétaire** (changement de distribution = visible/peu réversible).
-- Une fois tranché : implémenter dans `release.yml` (option A/B) ou acter « zip conservé tel quel », puis
-  refléter dans la doc (S14). **Aucun tag** poussé par la boucle.
+## Décision (proprio, 2026-06-07)
+**Option (C) adaptée — installeurs Windows + Linux, macOS abandonné, install « indépendant ».**
+- **Abandonner la cible macOS** (`osx-arm64`) : retirée de `release.yml` + dry-run `ci.yml` + docs.
+- **Installeurs par OS** (le livrable principal) :
+  - **Windows** : installeur **Inno Setup** (`.exe`) bâti dans un **job runner `windows-latest`** ;
+    embarque l'app desktop + le CLI `piscine` + `content/` + **MinGit** + le **bootstrapper WebView2
+    Evergreen** (exécuté si WebView2 absent) + raccourci. → poste **indépendant**.
+  - **Linux** : **AppImage** (un fichier exécutable, sans install/admin) embarquant l'app self-contained
+    + **git** ; `libwebkit2gtk-4.1` = la lib hôte restante (bundling webkit dans l'AppImage fragile →
+    à embarquer si faisable, sinon prérequis documenté minimal). → aussi proche que possible d'indépendant.
+- **« .NET SDK »** : interprété comme **runtime .NET embarqué** (publish **self-contained**, déjà le cas) +
+  **Roslyn embarqué** pour la correction → **aucun SDK .NET requis** côté recrue. **On NE bundle PAS le SDK**
+  (≈ Go inutiles, contraire au design « sans SDK »). *(Si le proprio voulait littéralement le SDK, me le dire.)*
+- **git** : bundlé pour être indépendant — Windows via MinGit (déjà) ; Linux via git embarqué dans l'AppImage.
+- **Zips** : conservés en parallèle (repli portable, faible coût) sauf avis contraire.
+- **Aucun tag** poussé par la boucle (release publique = action proprio).
+
+> Réalisation **étagée** (gros chantier CI) : T1 drop macOS, T2 installeur Windows (Inno + runner Windows),
+> T3 AppImage Linux (+ git), T4 dry-run CI des installeurs, T5 docs (S14). Vérif Linux via Docker ;
+> installeur Windows vérifié par le job CI ; install « réel » par OS = smoke proprio.
