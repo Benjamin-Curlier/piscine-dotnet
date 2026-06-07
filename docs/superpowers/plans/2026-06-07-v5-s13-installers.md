@@ -108,6 +108,25 @@ Expected : `release.yml` produit un **installeur Windows (.exe)** + un **AppImag
   `Load http://localhost/` **0 crash** (prouve que webkit bundlé se charge, hors-ligne, sans webkit système).
   La fenêtre réelle = smoke proprio. Si (2) échoue malgré le bundling → basculer sur le repli **(B) .deb**.
 
+## CONSTATS d'implémentation (T3 offline, Docker — 2026-06-07)
+- **Photino.Blazor 3.2.0 → `Photino.Native.so` a une dépendance ELF DIRECTE vers `libwebkit2gtk-4.0.so.37`
+  (webkit2gtk 4.0, PAS 4.1 !).** ⇒ corrige les docs S9 (qui disaient `libwebkit2gtk-4.1`). Impacte AUSSI
+  le **mode online** (Linux) et les docs S14 : prérequis = `libwebkit2gtk-4.0-37` (apt) / `webkit2gtk4.0`
+  (dnf), pas 4.1. (Mon 1er POC « dlopen, pas de dep directe » était FAUX : readelf n'était pas installé.)
+- **Bundling offline = AUTO via linuxdeploy** (dep directe) + `--plugin gtk` + copie manuelle du dossier
+  `webkit2gtk-4.0/` (process auxiliaires) + `--library` fontconfig/freetype (baseline forcée). Autres deps
+  bundlées auto : libnotify4, soup, etc. **Build sur Ubuntu 22.04** (a `libwebkit2gtk-4.0-37` ; 24.04 ne
+  l'a plus). Retirer `libcoreclrtraceptprovider.so` (LTTng optionnel → `liblttng-ust.so.0` absent).
+  Outils plugin gtk : `dpkg-dev pkg-config libglib2.0-bin libgtk-3-bin libgdk-pixbuf2.0-bin`.
+- **PROUVÉ hors-ligne (Docker `--network=none`, conteneur SANS webkit, `xvfb`)** : l'AppImage offline se
+  lance et **charge `app://localhost/`** avec le webkit **bundlé** (aucun webkit système, aucun réseau).
+  L'app dépend du **baseline graphique desktop universel** (X11, fontconfig, freetype, harfbuzz, mesa/EGL/GL)
+  présent sur tout poste Linux desktop — c'est le fonctionnement AppImage normal (on ne bundle pas les
+  pilotes GPU). ⇒ « hors-ligne » garanti sur un desktop Linux normal.
+- **Nuance restante** : `WebKitNetworkProcess` (process réseau HTTP de webkit) peut échouer à spawn ;
+  inutile pour un Blazor `app://` hors-ligne (contenu servi in-process par Photino). À affiner si le rendu
+  proprio le révèle ; sinon **repli (B) .deb** (webkit distro, robuste). Rendu visuel final = smoke proprio.
+
 ## Notes / risques
 - **Inno non préinstallé** sur les runners GitHub → `choco install innosetup`. Build installeur **non signé**
   (SmartScreen persiste, comme aujourd'hui — assumé). Ces téléchargements/outillages sont au **build CI**
