@@ -6,11 +6,14 @@
 > **PAS** le SDK .NET — self-contained + Roslyn embarqué suffisent). **Aucun tag** (release = proprio).
 
 ## Objectif
-Remplacer/compléter les zips par des **installeurs indépendants et 100% HORS-LIGNE** : Windows **Inno
-Setup (.exe)** et Linux **AppImage**, chacun embarquant tout le nécessaire (app desktop + CLI `piscine` +
-`content/` + git + shim + **runtime webview**). Abandonner `osx-arm64`. Le poste recrue n'installe **rien**
-et **n'a besoin d'aucun accès internet** — ni à l'installation, ni à l'usage (correction Roslyn embarquée,
-runtime .NET self-contained, git bundlé, webview bundlé).
+Remplacer/compléter les zips par des **installeurs** : Windows **Inno Setup (.exe)** et Linux **AppImage**,
+**en DEUX modes par OS** :
+- **OFFLINE** : tout embarqué (app desktop + CLI `piscine` + `content/` + git + shim + **runtime webview**)
+  → fonctionne **sans internet** (install + usage).
+- **ONLINE** : plus léger, **récupère le runtime webview à l'installation** (le reste reste embarqué).
+
+App/CLI/content/git/shim/runtime .NET (self-contained) + Roslyn embarqué sont **toujours** embarqués ;
+**seul le webview diffère** entre les deux modes. Abandonner `osx-arm64`.
 
 ## ⚠️ Ampleur & garde-fous
 - **Gros chantier CI** (nouveau job runner Windows, nouveaux outils d'empaquetage) → **étagé** ; commits
@@ -43,26 +46,32 @@ runtime .NET self-contained, git bundlé, webview bundlé).
   (publish win-x64 self-contained du CLI + desktop + gitshim, `content/`, MinGit, lanceurs). Crée
   raccourcis (menu Démarrer : « Piscine .NET » → desktop ; « Piscine (terminal) » → start-piscine.cmd),
   installe sous `{autopf}\Piscine .NET` ou `{localappdata}` (sans admin si possible : `PrivilegesRequired=lowest`).
-- [ ] **WebView2 HORS-LIGNE = Fixed Version** (PAS le bootstrapper Evergreen qui télécharge) : au build CI,
-  télécharger le **runtime WebView2 Fixed Version** (paquet versionné Microsoft, ~120–180 Mo), l'extraire
-  dans le payload sous `webview2/`. L'installeur le copie ; le lanceur desktop exporte
-  `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=<install>\webview2\...` avant de lancer l'app (le loader WebView2
-  honore cette variable ; sans admin, hors-ligne). Vérifier que Photino démarre avec cette variable pointée
-  (smoke local : poser un FV extrait + lancer l'exe avec la variable → 0 crash).
-- [ ] `release.yml` : **nouveau job `release-windows` (runs-on: windows-latest)** : setup-dotnet ;
-  `package-content` ; publish win-x64 (CLI+desktop+gitshim) ; télécharger MinGit + **WebView2 Fixed Version** ;
-  `choco install innosetup` ; `ISCC piscine.iss` → `dist/piscine-<tag>-win-x64-setup.exe` ; upload à la
-  release. (Installeur volumineux = assumé pour l'hors-ligne.)
+- [ ] **Un seul `.iss`, 2 modes via define ISCC `/DMODE=offline|online`** (commun : app desktop + CLI +
+  `content/` + MinGit + raccourcis ; `PrivilegesRequired=lowest`) :
+  - **offline** : embarque le **runtime WebView2 Fixed Version** (téléchargé au build CI, ~120–180 Mo,
+    extrait sous `webview2/`) ; le lanceur desktop exporte
+    `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=<install>\webview2\…` avant de lancer l'app (loader honore la
+    variable ; sans admin ; **hors-ligne**). Smoke local : FV extrait + variable → 0 crash.
+  - **online** : embarque le **bootstrapper Evergreen** (`MicrosoftEdgeWebview2Setup.exe`) ; étape
+    `[Run]`/`[Code]` qui l'exécute **si WebView2 absent** (clé registre `pv` sous
+    `…\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}`) → **télécharge** WebView2. Plus léger.
+- [ ] `release.yml` : **job `release-windows` (windows-latest)** : setup-dotnet ; `package-content` ;
+  publish win-x64 (CLI+desktop+gitshim) ; télécharger MinGit + **WebView2 Fixed Version** + bootstrapper ;
+  `choco install innosetup` ; **2 builds** `ISCC /DMODE=offline` et `/DMODE=online` →
+  `dist/piscine-<tag>-win-x64-offline-setup.exe` et `…-online-setup.exe` ; upload.
 - [ ] Commit : `build(release): installeur Windows Inno Setup (app+CLI+content+MinGit+WebView2 bootstrapper)`
 
 ## T3 — Installeur Linux (AppImage, indépendant)
 - [ ] `build/installer/linux/` : `AppDir/AppRun` (lance `desktop/Piscine.Desktop`, met `gitshim`+git sur
-  PATH, exporte les libs bundlées), `piscine.desktop`, icône. **git embarqué** (binaire statique/portable
-  Linux sous l'AppDir). **`libwebkit2gtk-4.1` + dépendances embarquées OBLIGATOIRE** (hors-ligne interdit
-  `apt`) via **`linuxdeploy` + `linuxdeploy-plugin-gtk`** (bundle webkit2gtk/gtk/gdk-pixbuf/loaders).
-- [ ] `release.yml` (job ubuntu) : publish linux-x64 self-contained (CLI+desktop+gitshim) → AppDir ;
-  installer les libs sur le runner (apt) pour que `linuxdeploy` les **copie dans l'AppImage** ;
-  `appimagetool` → `dist/piscine-<tag>-linux-x86_64.AppImage` ; upload. (AppImage volumineux = assumé.)
+  PATH, exporte les libs bundlées le cas échéant), `piscine.desktop`, icône. **git embarqué** (binaire
+  statique/portable Linux) dans **les deux modes**. **2 modes** :
+  - **offline** : **`libwebkit2gtk-4.1` + deps embarqués** via **`linuxdeploy` + `linuxdeploy-plugin-gtk`**
+    (bundle webkit2gtk/gtk/gdk-pixbuf/loaders) → fonctionne sans `apt`.
+  - **online** : AppImage **léger** sans webkit bundlé → s'appuie sur le **webkit système** (sinon
+    `apt install libwebkit2gtk-4.1-0` à l'install).
+- [ ] `release.yml` (job ubuntu) : publish linux-x64 (CLI+desktop+gitshim) → AppDir ; **2 sorties** :
+  `appimagetool` direct (online) et via `linuxdeploy`+gtk (offline) →
+  `dist/piscine-<tag>-linux-x86_64-online.AppImage` et `…-offline.AppImage` ; upload. (Offline volumineux = assumé.)
 - [ ] **Vérif Docker** : monter/extraire l'AppDir et lancer le CLI + tester le PTY dans
   `dotnet/sdk:10.0` (la fenêtre AppImage = proprio ; mais le CLI + PtyService testables headless).
 - [ ] Commit : `build(release): AppImage Linux (app+CLI+content+git+shim, independant)`

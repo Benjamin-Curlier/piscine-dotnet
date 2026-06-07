@@ -55,21 +55,26 @@ tard ; **(C)** seulement si la distribution devient publique/large (et avec budg
 ## Décision (proprio, 2026-06-07)
 **Option (C) adaptée — installeurs Windows + Linux, macOS abandonné, environnement prêt et 100% HORS-LIGNE.**
 
-> **EXIGENCE CLÉ (proprio)** : l'installeur déploie un **environnement prêt pour la piscine qui fonctionne
-> SANS INTERNET** — ni au moment de l'installation, ni à l'usage. Donc **tout est embarqué** : runtime,
-> git, **runtime webview**, contenu. Aucun téléchargement sur le poste recrue.
+> **EXIGENCE CLÉ (proprio)** : livrer, par OS, **DEUX modes d'installeur** :
+> - **OFFLINE** — environnement prêt qui fonctionne **SANS INTERNET** (install + usage) : **tout embarqué**
+>   (runtime, git, **runtime webview**, contenu). Aucun téléchargement sur le poste recrue.
+> - **ONLINE** — installeur **plus léger** qui **récupère le runtime webview à l'installation** (le reste —
+>   app, CLI, `content/`, git, shim — reste embarqué dans les deux modes ; seul le **webview** diffère).
+>
+> Les deux modes sont produits par OS. La différence = **uniquement le runtime webview** (embarqué vs récupéré).
 
 - **Abandonner la cible macOS** (`osx-arm64`) : retirée de `release.yml` + dry-run `ci.yml` + docs.
-- **Installeurs par OS** (le livrable principal), **auto-suffisants hors-ligne** :
+- **Installeurs par OS** (le livrable principal), **2 variantes (offline / online)** :
   - **Windows** : installeur **Inno Setup** (`.exe`) bâti dans un **job runner `windows-latest`** ;
-    embarque l'app desktop + le CLI `piscine` + `content/` + **MinGit** + **le runtime WebView2 « Fixed
-    Version »** (dossier versionné téléchargé au build CI, embarqué) + raccourci. **PAS le bootstrapper
-    Evergreen** (il télécharge → exige internet). Le lanceur pointe WebView2 via
-    `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=<install>/webview2` (loader WebView2 honore cette variable ;
-    sans admin). → poste **indépendant et hors-ligne**.
-  - **Linux** : **AppImage** (un fichier exécutable, sans install/admin) embarquant l'app self-contained
-    + **git** + **`libwebkit2gtk-4.1` ET ses dépendances** (bundling **obligatoire** via
-    `linuxdeploy`+plugin gtk — l'hors-ligne interdit le `apt install`). → **indépendant et hors-ligne**.
+    embarque app desktop + CLI `piscine` + `content/` + **MinGit** + raccourci dans **les deux modes**.
+    WebView2 : **offline** = runtime **« Fixed Version »** embarqué (lanceur pointe
+    `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=<install>/webview2`, sans admin) ; **online** = **bootstrapper
+    Evergreen** exécuté à l'install (télécharge WebView2). 2 sorties : `…-win-x64-offline-setup.exe` /
+    `…-win-x64-online-setup.exe` (même `.iss`, define ISCC `/DMODE`).
+  - **Linux** : **AppImage** embarquant app self-contained + **git** dans les deux modes. webkit :
+    **offline** = **`libwebkit2gtk-4.1` + deps embarqués** (`linuxdeploy`+plugin gtk) ; **online** = AppImage
+    léger s'appuyant sur le **webkit système** (sinon `apt install libwebkit2gtk-4.1-0`). 2 sorties :
+    `…-linux-x86_64-offline.AppImage` / `…-linux-x86_64-online.AppImage`.
 - **« .NET SDK »** : interprété comme **runtime .NET embarqué** (publish **self-contained**, déjà le cas) +
   **Roslyn embarqué** pour la correction → **aucun SDK .NET requis** côté recrue. **On NE bundle PAS le SDK**
   (≈ Go inutiles, contraire au design « sans SDK »). *(Si le proprio voulait littéralement le SDK, me le dire.)*
