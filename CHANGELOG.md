@@ -14,20 +14,35 @@ moteur** : graders, **CLI headless `piscine`** et `grade-received` (hook `post-r
 
 - **App `Piscine.Desktop`** (Photino.Blazor, fenêtre native) : lecteur de **cours/sujets** (sommaire,
   coloration syntaxique, mode sombre), **vérification** instantanée d'un exercice (page *Vérifier*, ne
-  compte pas comme rendu), **progression** par exercice (*Progression*), **initialisation** du workspace
-  (*Initialiser*), **résultat** de push auto-rafraîchi (*Résultat*). Composants/services partagés dans la
-  bibliothèque `Piscine.Components` (consommée aussi par le site de dev `Piscine.DevHost`, hors release).
-- **Packaging** : `Piscine.Desktop` est livré **self-contained par OS** dans le zip (dossier `desktop/`
-  + lanceur `start-piscine-desktop`), **à côté** du CLI `piscine` inchangé, du `content/` et de MinGit
-  (Windows). Un **dry-run CI** publie les 3 RID et vérifie la présence des libs natives à chaque PR.
-- **Prérequis webview** par OS documentés (Windows **WebView2** / Linux **`libwebkit2gtk-4.1`** /
-  macOS **WKWebView**) — voir [docs/mise-en-oeuvre.md](docs/mise-en-oeuvre.md) et
-  [docs/deploiement.md](docs/deploiement.md).
+  compte pas comme rendu, avec diff/indice/lien cours), **progression** par exercice (*Progression*),
+  **initialisation** du workspace (*Initialiser*), **terminal embarqué + coaching git** (page *Terminal*),
+  **résultat** de push **riche** auto-rafraîchi (*Résultat* : verdict + diff + indice + lien cours).
+  Composants/services partagés dans la bibliothèque `Piscine.Components` (consommée aussi par le site de
+  dev `Piscine.DevHost`, hors release).
+- **Terminal embarqué + coaching git** : la page *Terminal* lance un vrai shell (PTY) et un **coaching
+  éducatif** qui réagit aux commandes git (sans parser le stdout : un **shim `git`** émet `{argv,exitCode,cwd}`
+  sur un canal IPC). Le shim est livré dans `desktop/gitshim/`. *(Prouvé sur Windows et sur Linux via Docker.)*
+- **Résultat de push riche** : `grade-received` persiste, en plus de `progress.json`, un
+  `last-push-result.json` (par exercice : statut + diff verbatim + indice + lien cours) — **sans changer
+  la logique de notation ni le stdout** ; la page *Résultat* le rend inline (rétro-compat statut-only).
+- **Packaging** — Windows + Linux (**macOS abandonné**) :
+  - **Installeurs** (recommandés) : Windows `.exe` **per-utilisateur** (offline = runtime WebView2
+    embarqué / online = bootstrapper) ; Linux **AppImage** (offline = webkit2gtk-4.0 bundlé, **hors-ligne** /
+    online = webkit système).
+  - **Zips** self-contained conservés (`win-x64`, `linux-x64`) : CLI `piscine` + app de bureau `desktop/`
+    (+ `gitshim/`) + `content/` + MinGit (Windows). Libs natives Photino à la **racine** de `desktop/`.
+  - **Dry-runs CI** à chaque PR : publish desktop + libs natives, AppImage offline **lancé hors-ligne**,
+    installeur Windows compilé (Inno).
+- **Prérequis webview** par OS — gérés par les installeurs ; en mode zip : Windows **WebView2** /
+  Linux **`libwebkit2gtk-4.0`** (Photino 3.2.0 — **pas** 4.1). Voir
+  [docs/mise-en-oeuvre.md](docs/mise-en-oeuvre.md) et [docs/deploiement.md](docs/deploiement.md).
 
 ### Limites connues
 
-- **Terminal embarqué** et **coaching git** dans l'app **différés** : le rendu (`git add/commit/push`)
-  se fait au **terminal système** (sous Windows, `start-piscine.cmd` met `git` + `piscine` sur le PATH).
+- **macOS** n'est plus distribué (pas de runner pour prouver la fenêtre native / webview WKWebView non
+  automatisable en CI).
+- **AppImage Linux** : pour le `git push` du rendu, préférer le **terminal système** (le hook a besoin
+  d'un git stable, le montage AppImage est éphémère). Le terminal embarqué + coaching restent disponibles.
 
 ## [v2.0.0] — 2026-06-06
 

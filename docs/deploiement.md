@@ -74,45 +74,70 @@ gh release view v2.0.0
 
 ## 4. Ce que produit `release.yml`
 
-Pour chaque RID (`linux-x64`, `win-x64`, `osx-arm64`) :
+> **Plateformes : Windows + Linux.** macOS (`osx-arm64`) est **abandonné** depuis v5 (pas de runner
+> macOS pour prouver la fenêtre native ; webview WKWebView non automatisable en CI).
+
+Le workflow a **3 jobs** :
+
+### `package-linux` (ubuntu-22.04)
+
+> Ubuntu **22.04** car Photino.Blazor 3.2.0 cible **webkit2gtk-4.0** (la 24.04 ne fournit plus la 4.0).
 
 1. **`package-content content artifacts/content`** — copie le contenu **sans les `solution/`**
    (les corrigés ne sont jamais distribués).
-2. **`dotnet publish` self-contained du CLI `piscine`** — runtime .NET + Roslyn embarqués (aucun SDK
-   requis côté recrue). C'est le binaire que le hook `post-receive` appelle pour corriger.
-3. **`dotnet publish` self-contained de l'app de bureau `Piscine.Desktop`** dans `desktop/` — les
-   **libs natives Photino** sont posées **à la racine du dossier `desktop/`** : `Photino.Native.dll`
-   + `WebView2Loader.dll` (Windows), `Photino.Native.so` (Linux), `Photino.Native.dylib` (macOS)
-   — **pas** sous `runtimes/<rid>/native/`. `Piscine.DevHost` (site/harnais de dev) n'est **jamais**
-   empaqueté.
-4. Le dossier `content/` assemblé est copié à côté des binaires.
-5. **Lanceurs** : `start-piscine-desktop.cmd` (Windows) / `start-piscine-desktop.sh` (Linux/macOS)
-   sont ajoutés. **Windows uniquement** : MinGit portable (version épinglée dans `release.yml`) est
-   dézippé dans `mingit/` et `start-piscine.cmd` (CLI) est ajouté → git fonctionne sans installation.
-6. Zip nommé `piscine-<tag>-<rid>.zip`.
+2. **Zips self-contained `win-x64` + `linux-x64`** (cross-publiés depuis Linux) : CLI `piscine` (runtime
+   .NET + Roslyn embarqués — c'est le binaire que le hook `post-receive` appelle), app de bureau
+   `Piscine.Desktop` dans `desktop/`, **shim git** `Piscine.GitShim` dans `desktop/gitshim/`, et le
+   `content/` assemblé. Lanceurs `start-piscine-desktop.{cmd,sh}` ; **Windows uniquement** : MinGit
+   portable dans `mingit/` + `start-piscine.cmd`. Zips nommés `piscine-<tag>-<rid>.zip`.
+   - Les **libs natives Photino** sont à la **racine** du dossier `desktop/` (`Photino.Native.dll` +
+     `WebView2Loader.dll` Windows, `Photino.Native.so` Linux) — **pas** sous `runtimes/<rid>/native/`.
+3. **AppImage Linux** en deux variantes (`linuxdeploy` + plugin GTK) :
+   - `piscine-<tag>-linux-x86_64-offline.AppImage` — **webkit2gtk-4.0 + gtk + git bundlés** → tourne
+     **hors-ligne**, sans rien installer sur le poste.
+   - `piscine-<tag>-linux-x86_64-online.AppImage` — léger, s'appuie sur le `libwebkit2gtk-4.0` système.
 
-Puis `gh release create <tag> dist/*.zip` attache les trois zips. Le titre est `Piscine .NET <tag>`.
+### `package-windows` (windows-latest)
+
+Installe Inno Setup (choco), assemble le **payload** (CLI + desktop + gitshim + content + MinGit), puis
+compile **deux installeurs** Inno (`ISCC /DMODE`) — installation **par utilisateur** (`PrivilegesRequired=lowest`),
+raccourcis menu Démarrer + Bureau :
+
+- `piscine-<tag>-win-x64-offline-setup.exe` — runtime **WebView2 Standalone Evergreen** embarqué (full,
+  hors-ligne), installé **si WebView2 manque**.
+- `piscine-<tag>-win-x64-online-setup.exe` — **bootstrapper** WebView2 (léger, télécharge le runtime
+  manquant).
+
+> Fwlinks WebView2 (stables) : offline `go.microsoft.com/fwlink/?linkid=2124701`
+> (`MicrosoftEdgeWebView2RuntimeInstallerX64.exe`), online `.../p/?LinkId=2124703`
+> (`MicrosoftEdgeWebview2Setup.exe`).
+
+### `release` (ubuntu-latest)
+
+Agrège les artefacts des deux jobs et crée la **GitHub Release** :
+`gh release create <tag>` attache les **zips** (win + linux), les **AppImages** (offline + online) et
+les **installeurs Windows** (offline + online). Titre `Piscine .NET <tag>`.
 
 ### Prérequis webview (par OS)
 
-L'app de bureau rend son interface dans le **webview système** ; chaque OS a son moteur. Le zip
-embarque le code de l'app, mais le **runtime navigateur** dépend du poste :
+L'app de bureau rend son interface dans le **webview système**. Avec un **installeur**, le runtime est
+**géré** (offline = embarqué/installé au besoin ; online = téléchargé). En **mode zip** (portable), il
+peut falloir l'installer à la main :
 
 - **Windows** : runtime **WebView2** (Evergreen). Préinstallé sur Windows 11 et les Windows 10
-  récents. Sur les **éditions N** ou les images Windows minimales il peut manquer → installer
-  l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) de
-  Microsoft. (`WebView2Loader.dll` est dans le zip ; c'est le **runtime** qui peut manquer, pas le loader.)
-- **Linux** : **`libwebkit2gtk-4.1`** — Debian/Ubuntu `sudo apt install libwebkit2gtk-4.1-0`,
-  Fedora `sudo dnf install webkit2gtk4.1`.
-- **macOS** : **WKWebView intégré** au système, rien à installer.
+  récents. **Éditions N** / images minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
+  (`WebView2Loader.dll` est dans le paquet ; c'est le **runtime** qui peut manquer, pas le loader.)
+- **Linux** : **`libwebkit2gtk-4.0`** (Photino 3.2.0 — **pas** 4.1) — Debian/Ubuntu
+  `sudo apt install libwebkit2gtk-4.0-37`, Fedora `sudo dnf install webkit2gtk4.0`.
+  *(L'AppImage **offline** l'embarque → aucun prérequis.)*
 
 ### Notes de release
 
-`release.yml` pose une **note générique**. Pour publier de vraies notes (recommandé), les remplacer
-après coup à partir du CHANGELOG :
+`release.yml` pose une **note générique** (résumé des artefacts). Pour publier de vraies notes
+(recommandé), les remplacer après coup à partir du CHANGELOG :
 
 ```powershell
-gh release edit v2.0.0 --notes-file release-notes.md   # extrait de la section v2.0.0 du CHANGELOG
+gh release edit v2.0.0 --notes-file release-notes.md   # extrait de la section visée du CHANGELOG
 ```
 
 ---
@@ -132,23 +157,30 @@ Test-Path artifacts/pkg/piscine-win-x64/desktop/Photino.Native.dll   # → True
 Test-Path artifacts/pkg/piscine-win-x64/desktop/WebView2Loader.dll   # → True
 ```
 
-> La **CI** (`ci.yml`) exécute déjà ce *dry-run* du packaging desktop pour les **3 RID** à chaque PR
-> (publish self-contained + assertion des libs natives à la racine de `desktop/`) : une régression
-> d'empaquetage est attrapée **avant** tout tag, sans déclencher de release.
+> La **CI** (`ci.yml`) exécute déjà des *dry-runs* de packaging à chaque PR — une régression
+> d'empaquetage est attrapée **avant** tout tag, sans déclencher de release :
+> - **publish desktop self-contained** (win-x64 + linux-x64) + assertion des **libs natives à la racine** ;
+> - **AppImage offline** bâti puis **lancé hors-ligne** (docker `--network=none`, conteneur sans webkit + xvfb) ;
+> - **installeur Windows** compilé par Inno (`ISCC`, offline + online) — garde de compilation.
 
 ### Smoke pré-release par OS (action propriétaire)
 
-Le *dry-run* CI prouve que les binaires se **construisent** ; il ne peut pas ouvrir une fenêtre
-native. Pour valider l'app sur les 3 OS, **taguer une pré-release** (`gh release ... --prerelease`),
-télécharger le zip de chaque OS et dérouler :
+Les *dry-runs* CI prouvent que les paquets se **construisent** (et, pour l'AppImage offline, qu'il
+**démarre hors-ligne**) ; ils ne peuvent pas valider une fenêtre native visuellement. Pour ça,
+**taguer une pré-release** (`gh release ... --prerelease`), récupérer chaque artefact et dérouler :
 
-- [ ] **Windows** : dézipper → double-clic `start-piscine-desktop.cmd` → la fenêtre s'ouvre et
-      **route le flux** : Accueil → un module/cours (titre + gras + bloc de code **colorisé**) →
-      *Vérifier* (sélection d'un exo → verdict) → *Progression* → *Initialiser* → *Résultat*.
-- [ ] **Linux** : `libwebkit2gtk-4.1` installé → `./start-piscine-desktop.sh` → même flux.
-- [ ] **macOS** : `./start-piscine-desktop.sh` → même flux.
-- [ ] **CLI intact** dans le même zip : `piscine init` puis `piscine status` répondent (le hook de
-      correction n'est pas affecté par l'ajout de l'app de bureau).
+- [ ] **Windows (installeur offline)** : `piscine-<v>-win-x64-offline-setup.exe` sur une machine
+      **sans internet** → installe (sans admin) → raccourci « Piscine .NET » → la fenêtre **route le flux** :
+      Accueil → cours (titre + bloc de code **colorisé**) → *Vérifier* (sélection d'un exo → verdict +
+      diff/indice) → *Progression* → *Initialiser* → *Terminal* (`git init` puis `git commit` rien stagé
+      → **carte de coaching**) → *Résultat* (riche après un `git push`).
+- [ ] **Windows (installeur online)** : idem sur une machine **sans WebView2** → l'installeur télécharge le runtime.
+- [ ] **Linux (AppImage offline)** : `*-offline.AppImage` sur une machine **sans** `libwebkit2gtk-4.0` et
+      **hors-ligne** → même flux.
+- [ ] **Linux (AppImage online)** : `*-online.AppImage` (webkit système / `apt install libwebkit2gtk-4.0-37`) → même flux.
+- [ ] **Terminal + coaching** confirmés dans la fenêtre native (page *Terminal*) sur Windows et Linux.
+- [ ] **CLI intact** (zips) : `piscine init` puis `piscine status` répondent (le hook de correction
+      n'est pas affecté par l'app de bureau ni par les installeurs).
 
 ---
 
