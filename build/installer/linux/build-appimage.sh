@@ -67,13 +67,17 @@ if [ "$MODE" = "offline" ]; then
     if [ -d "$d" ]; then cp -rn "$d" "$APPDIR/usr/lib/"; echo ">> helpers WebKit: $d"; break; fi
   done
 else
-  "$WORK/linuxdeploy" --appdir "$APPDIR" \
-    -e "$APPDIR/usr/bin/Piscine.Desktop" -d "$APPDIR/piscine.desktop" -i "$APPDIR/piscine.png"
+  # ONLINE : AUCUN bundling — l'AppImage s'appuie sur le webkit/gtk SYSTÈME du poste (apt si besoin).
+  # On ne lance pas linuxdeploy (qui re-bundlerait webkit, dep directe) : AppImage léger.
+  echo ">> mode online : pas de bundling (webkit2gtk-4.0 + gtk système requis sur le poste)"
 fi
 
-# AppRun maison (env webkit/gtk/gio/git/content) — écrase celui généré par linuxdeploy.
+# AppRun maison (env webkit/gtk/gio/git/content) — écrase celui éventuellement généré par linuxdeploy.
 cp "$HERE/AppRun" "$APPDIR/AppRun"
 chmod +x "$APPDIR/AppRun"
+
+# Icône AppImage (.DirIcon), requise par appimagetool — surtout en online (sans linuxdeploy).
+cp -f "$APPDIR/piscine.png" "$APPDIR/.DirIcon"
 
 # ── Assemblage final ────────────────────────────────────────────────────────
 "$WORK/appimagetool" "$APPDIR" "$OUT"
