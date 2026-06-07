@@ -1,12 +1,14 @@
 @using Piscine.Components
+@using Piscine.Components.Components.Layout
+@using Piscine.Components.Components.Pages
 
-<MarkdownView Markdown="@_md" />
-
-@code {
-    // Spike S1 : on monte le composant MarkdownView de la RCL Piscine.Components avec un
-    // markdown en dur (ni Router, ni découverte de contenu — c'est volontairement minimal).
-    private const string _md =
-        "# Piscine .NET\n\n" +
-        "L'hôte **Photino** rend un composant de la RCL `Piscine.Components`.\n\n" +
-        "```csharp\nSystem.Console.WriteLine(\"Bonjour\");\n```";
-}
+@* Hôte Photino : on monte le Router de la RCL Piscine.Components (les pages @page y vivent).
+   Les render modes sont neutralisés au démarrage (Program.cs) → rendu in-process WebView. *@
+<Router AppAssembly="typeof(Piscine.Desktop.App).Assembly"
+        AdditionalAssemblies="new[] { typeof(MarkdownView).Assembly }"
+        NotFoundPage="typeof(NotFound)">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
