@@ -34,10 +34,16 @@ jobs:
             out="artifacts/pkg/piscine-$rid"
             dotnet publish src/Piscine.Cli --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
             cp -r artifacts/content "$out/content"
+            # App desktop Photino (self-contained par RID), a cote du CLI. DevHost JAMAIS empaquete.
+            dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop"
             if [ "$rid" = "win-x64" ]; then
               mkdir -p "$out/mingit"
               unzip -q mingit.zip -d "$out/mingit"
               cp build/launchers/start-piscine.cmd "$out/start-piscine.cmd"
+              cp build/launchers/start-piscine-desktop.cmd "$out/start-piscine-desktop.cmd"
+            else
+              cp build/launchers/start-piscine-desktop.sh "$out/start-piscine-desktop.sh"
+              chmod +x "$out/start-piscine-desktop.sh"
             fi
             ( cd artifacts/pkg && zip -qr "$GITHUB_WORKSPACE/dist/piscine-${{ github.ref_name }}-$rid.zip" "piscine-$rid" )
           done
@@ -49,4 +55,4 @@ jobs:
         run: |
           gh release create "${{ github.ref_name }}" dist/*.zip \
             --title "Piscine .NET ${{ github.ref_name }}" \
-            --notes "Binaires self-contained par OS (win-x64, linux-x64, osx-arm64). Dézippe, lis docs/mise-en-oeuvre.md."
+            --notes "Binaires self-contained par OS (win-x64, linux-x64, osx-arm64). Chaque zip contient le CLI \`piscine\` ET l'app de bureau (dossier \`desktop/\`, lanceur \`start-piscine-desktop\`). Prérequis webview par OS : voir docs/mise-en-oeuvre.md. Dézippe, lis docs/mise-en-oeuvre.md."
