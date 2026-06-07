@@ -1,6 +1,6 @@
 # HANDOFF — reprise à froid
 
-> Point d'entrée pour reprendre le projet **sans contexte préalable**. Dernière MAJ : 2026-06-06.
+> Point d'entrée pour reprendre le projet **sans contexte préalable**. Dernière MAJ : 2026-06-07.
 > Lis aussi `docs/superpowers/specs/2026-05-29-piscine-dotnet-design.md` (design complet) et
 > `docs/wiki/Curriculum.md` (état du curriculum).
 
@@ -177,7 +177,7 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
   M22/M34. **Enhancements de suivi** (hors backlog d'origine) : **#17** notation live git,
   **#19** harnais web Blazor (rendu DOM), serveur **HTTP**/exo **M22** (cf. #3), rush Clean Arch (optionnel).
 
-## v4 — application desktop Photino (S1 → S8 FAITS ✅, S9 à suivre)
+## v4 — application desktop Photino (S1 → S9 FAITS ✅, S10 à suivre)
 Objectif : **remplacer l'UX recrue console par une app de bureau Photino.Blazor**, **sans toucher au
 moteur ni au CLI headless** (`grade-received` tourne dans le hook `post-receive` → reste CLI). v4 =
 *remplacer la surface recrue*, pas supprimer le cœur.
@@ -260,8 +260,20 @@ moteur ni au CLI headless** (`grade-received` tourne dans le hook `post-receive`
   **statut-only** + pont `/check` ; **seam « persister le résultat riche » = issue de suivi #40** (NON fait, grader
   inchangé). Prouvé : 6 unit + 4 bUnit + E2E (artefact écrit → rendu sans action). **246 tests verts**, build 0
   warning, moteur/`Cli`/`release.yml` intacts.
-- ⏭ **#30 S9** = **packaging/release Photino** (`Piscine.Desktop` livré : publish self-contained par OS, libs
-  natives Photino/WebView2/libwebkit2gtk) + **docs setup webview** (checklist encadrant par OS).
+- ✅ **#30 S9 — Packaging/release Photino + docs setup webview** (PR #41 mergée). `release.yml` publie
+  **`Piscine.Desktop` self-contained par RID** dans `desktop/` (à côté du CLI `piscine` intact, du
+  `content/` et de MinGit Windows) + lanceurs `start-piscine-desktop.{cmd,sh}` ; `Piscine.DevHost` jamais
+  empaqueté. **Dry-run CI 3 RID** (`ci.yml`) publie + asserte les libs natives **à chaque PR** (filet
+  avant tag). Docs : setup webview par OS (WebView2 / `libwebkit2gtk-4.1` / WKWebView) + app desktop dans
+  le zip + **checklist smoke pré-release par OS** (action proprio). **Constats clés** : (1) `WinExe`
+  publie **cross-RID** sans modif csproj (flag PE ignoré hors Windows) → **aucun fichier `src/` touché** ;
+  (2) **CORRECTION** : les libs natives Photino self-contained sont **à la RACINE** du dossier de sortie
+  (`Photino.Native.dll/.so/.dylib`, `WebView2Loader.dll`), **pas** `runtimes/<rid>/native/`. Prouvé :
+  publish réel des 3 RID + dry-run CI vert (OK linux/win/osx). **246 tests verts**, build 0 warning, moteur
+  source intact, **aucun tag** (release = action proprio). Retex : `docs/superpowers/retex/2026-06-06-v4-s9-packaging-release.md`.
+- ⏭ **#31 S10** = **Docs recrue/encadrant + Curriculum/HANDOFF** (refléter le flux desktop dans toute la
+  doc : `mise-en-oeuvre.md` flux desktop, checklist encadrant webview, MAJ `Curriculum.md`/`HANDOFF.md`/`CHANGELOG.md`).
+  Dernier sprint du backlog v4 (#22–#31). S9 a déjà amorcé `mise-en-oeuvre.md`/`deploiement.md` (webview + desktop).
 - **Suivis notés (pour sprints suivants)** : (a) déplacer `Error.razor` (dépend de `HttpContext`, host-only)
   de la RCL vers `Piscine.DevHost` ; (b) **câbler l'hôte Photino `Piscine.Desktop`** sur les services `Piscine.App`
   (`CourseCatalog`/`GitStatusService`/`CheckService`/`ProgressService` + routage RCL) — aujourd'hui spike, ne monte que
@@ -281,8 +293,11 @@ moteur ni au CLI headless** (`grade-received` tourne dans le hook `post-receive`
 - **Photino.Blazor** : épingler **3.2.0** (sur Photino.NET v3 ; la 4.x plafonne net9). Avec WarningsAsErrors :
   ajouter explicitement `Microsoft.AspNetCore.Components.WebView 10.0.8` (sinon **NU1605**, downgrade
   transitif vs framework net10) et `<Content Update="wwwroot\**">` (pas `Include` — **NETSDK1022**, le SDK
-  Razor inclut déjà `wwwroot`). Libs natives par RID dans `runtimes/<rid>/native/` (WebView2 sous Windows ;
-  `libwebkit2gtk` à documenter pour Linux en S9). `blazor.webview.js` est servi en mémoire, pas sur disque.
+  Razor inclut déjà `wwwroot`). **Libs natives à la RACINE de la sortie d'un publish self-contained**
+  (`Photino.Native.dll/.so/.dylib` + `WebView2Loader.dll` Windows), **PAS** sous `runtimes/<rid>/native/`
+  (corrigé en S9 par publish réel des 3 RID). `WinExe` publie **cross-RID** (flag PE ignoré hors Windows).
+  Runtime webview par OS : WebView2 (Windows, éditions N → Evergreen) / `libwebkit2gtk-4.1` (Linux) /
+  WKWebView (macOS intégré) — cf. `docs/deploiement.md`. `blazor.webview.js` est servi en mémoire, pas sur disque.
   Fenêtre native non vérifiable par un agent → smoke = « se lance, reste vivant ~12 s, 0 exception ».
 - **bUnit 2.x** : base `BunitContext` (pas `TestContext` 1.x), rendu `Render<T>()` (pas `RenderComponent<T>()`) ;
   projet de test en `Sdk="Microsoft.NET.Sdk.Razor"` ; enregistrer les services `@inject` dans `Services`
