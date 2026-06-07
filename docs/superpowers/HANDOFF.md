@@ -178,11 +178,12 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
   M22/M34. **Enhancements de suivi** (hors backlog d'origine) : **#17** notation live git,
   **#19** harnais web Blazor (rendu DOM), serveur **HTTP**/exo **M22** (cf. #3), rush Clean Arch (optionnel).
 
-## v5 — finalisation desktop (terminal in-app, résultat riche, packaging) — EN COURS
+## v5 — finalisation desktop (terminal in-app, résultat riche, packaging) — **TERMINÉ ✅ (milestone #3 CLOS)**
 Milestone **#3** (label `v5`). Objectif : compléter l'app de bureau (terminal embarqué + coaching git
 **dans** Photino, packager `Piscine.GitShim`), résultat de push **riche** (#40), confirmation Linux/macOS,
 et **révision packaging (zip vs installeur)**. Le proprio autorise **WSL/Docker** pour les tests Linux et
-le **2ᵉ écran/souris** pour Photino. **Aucun tag** (release = action proprio).
+le **2ᵉ écran/souris** pour Photino. **Aucun tag** (release = action proprio). **S11→S14 FAITS** (#40, #45,
+#46, #47) ; CHANGELOG « Non publié » prêt ; reste proprio = smoke pré-release installeurs + tag/release.
 - ✅ **#40 S11 — `grade-received` persiste le résultat riche** (PR #48 mergée). `grade-received` écrit
   `last-push-result.json` (par exo : statut + diff verbatim + indice + `course_ref`) en plus de
   `progress.json`, **sans changer la logique de notation ni le stdout**. `IPushResultWatcher.LatestRichResult()`
@@ -208,9 +209,21 @@ le **2ᵉ écran/souris** pour Photino. **Aucun tag** (release = action proprio)
   `ci.yml` = dry-runs AppImage-offline (hors-ligne) + Windows-installeur (compile). **Aucun `src/` touché, aucun
   tag.** **CONSTAT clé : Photino.Blazor 3.2.0 → webkit2gtk-4.0 (PAS 4.1)** → online Linux prereq `libwebkit2gtk-4.0-37`.
   Retex : `docs/superpowers/retex/2026-06-07-v5-s13-installers.md`. WebView2 fwlinks : offline `linkid=2124701`, online `LinkId=2124703`.
-- ⏭ **#47 S14 — Docs recrue + déploiement** (refléter terminal in-app + résultat riche + packaging/installeurs +
-  **corriger webkit2gtk → 4.0** dans `mise-en-oeuvre.md`/`deploiement.md` + macOS abandonné). **Dernier sprint v5
-  — NON démarré (boucle arrêtée à la demande du proprio avant S14).**
+- ✅ **#47 S14 — Docs recrue + déploiement** (PR #51 mergée). **Dernier sprint v5.** `mise-en-oeuvre.md`
+  (réécrit) + `deploiement.md` reflètent l'état final : **terminal embarqué + coaching git** (page *Terminal*,
+  `git push` du rendu possible au terminal de l'app ou système), **résultat de push riche** (*Vérifier*/*Résultat*
+  = diff/indice/lien cours), **installeurs** Windows `.exe` per-utilisateur + Linux `.AppImage` (offline/online)
+  + **zips** conservés, **macOS abandonné**, **webkit2gtk-4.0** (pas 4.1). `deploiement.md` §4 = 3 jobs release ;
+  §5 dry-runs + smoke MAJ. `CHANGELOG.md` « Non publié » : terminal+coaching+résultat riche **passés en Ajouté**.
+  `Curriculum.md` + `docs/wiki/Mise-en-oeuvre.md` alignés. **Docs/CHANGELOG uniquement** (0 `src/`/`.github`),
+  `validate-content` OK, **aucun tag**. Retex : `docs/superpowers/retex/2026-06-07-v5-s14-docs.md`.
+
+  **➡️ BACKLOG v5 (#40/#45/#46/#47) TERMINÉ, milestone #3 CLOS** : app de bureau Photino complète
+  (terminal+coaching in-app, résultat riche, installeurs Win+Linux offline/online), docs alignées ;
+  moteur/CLI/`grade-received` inchangés ; **aucun tag** (release = décision proprio ; CHANGELOG « Non publié »
+  prêt). **Reste proprio** : smoke pré-release des installeurs (fenêtre native + terminal/coaching, Win+Linux).
+  **Enhancements de suivi restants** (hors v5, milestone #1) : **#17** notation live git côté `grade-received`,
+  **#19** harnais web Blazor (rendu/DOM) — gros chantier moteur optionnel.
 
 ## v4 — application desktop Photino (S1 → S10 FAITS ✅ — **milestone #2 CLOS**, backlog #22–#31 terminé)
 Objectif : **remplacer l'UX recrue console par une app de bureau Photino.Blazor**, **sans toucher au
