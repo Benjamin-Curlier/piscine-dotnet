@@ -60,7 +60,9 @@ feedback:
 solution: [solution/Hello.cs]       # corrigé de référence — CI uniquement
 ```
 
-Voir [Moulinette](Moulinette) pour le détail des graders `io` / `unit` / `norme`.
+Voir [Moulinette](Moulinette) pour le détail des graders — outre `io` / `unit` / `norme`, le moteur
+fournit aussi `mutation` (l'élève écrit ses tests), `git` (état du dépôt), `projet` (multi-fichiers +
+archi) et `reseau` (écho TCP).
 
 ## Étapes
 

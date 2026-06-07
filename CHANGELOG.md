@@ -4,13 +4,17 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
-## [Non publié]
+## [v3.0.0] — 2026-06-07
+
+Release majeure : **nouvelle UX recrue de bureau** (app Photino.Blazor) en plus du CLI, **installeurs**
+Windows + Linux (offline & online), et **notation live des exercices git** au push. Le moteur de notation
+console reste compatible `v2.0.0`. **macOS n'est plus distribué.**
 
 ### Ajouté — Application de bureau (Photino.Blazor)
 
-Nouvelle **UX recrue de bureau** qui complète (et peut remplacer) le CLI console, **sans changer le
-moteur** : graders, **CLI headless `piscine`** et `grade-received` (hook `post-receive`) restent
-**identiques** à `v2.0.0`.
+Nouvelle **UX recrue de bureau** qui complète (et peut remplacer) le CLI console, **sans changer la
+logique de notation** : graders, **CLI headless `piscine`** et le verdict de `grade-received`
+(hook `post-receive`) restent **compatibles** `v2.0.0`.
 
 - **App `Piscine.Desktop`** (Photino.Blazor, fenêtre native) : lecteur de **cours/sujets** (sommaire,
   coloration syntaxique, mode sombre), **vérification** instantanée d'un exercice (page *Vérifier*, ne
@@ -36,6 +40,14 @@ moteur** : graders, **CLI headless `piscine`** et `grade-received` (hook `post-r
 - **Prérequis webview** par OS — gérés par les installeurs ; en mode zip : Windows **WebView2** /
   Linux **`libwebkit2gtk-4.0`** (Photino 3.2.0 — **pas** 4.1). Voir
   [docs/mise-en-oeuvre.md](docs/mise-en-oeuvre.md) et [docs/deploiement.md](docs/deploiement.md).
+
+### Moteur — notation live des exercices `git`
+
+- **`grade-received` note désormais les exercices `git` au push**, contre le **dépôt bare** (l'historique
+  reçu), via un « HEAD effectif » sur la branche de rendu (`main`). Un **signal « tenté »** (`attempt` :
+  présence d'une branche/d'un fichier) évite tout « à revoir » parasite sur les exos non commencés ;
+  l'exo M05 (`ex00-branche-merge`) est noté en live (penser à `git push origin --all`). Aucun changement
+  aux autres graders ni au CLI.
 
 ### Limites connues
 
@@ -93,6 +105,7 @@ C#/.NET et plateformes & architecture), et déblocage de modules restés en atte
 
 - Amorçage du moteur et de la structure de contenu.
 
+[v3.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v3.0.0
 [v2.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v2.0.0
 [v1.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v1.0.0
 [v0.1.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v0.1.0
