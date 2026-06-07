@@ -30,3 +30,21 @@ jobs:
         run: dotnet run --project src/Piscine.Cli --configuration Release --no-restore -- validate-content
         env:
           PISCINE_CONTENT: ${{ github.workspace }}/content
+
+      # Dry-run du packaging desktop (S9) : exerce, a chaque PR, la meme operation que la
+      # release (publish self-contained par RID) AVANT tout tag. Les libs natives Photino
+      # sont posees a la RACINE de sortie (pas runtimes/<rid>/native/) — verifie en T1.
+      - name: Dry-run packaging desktop (publish cross-RID + libs natives)
+        run: |
+          set -euo pipefail
+          for rid in linux-x64 win-x64 osx-arm64; do
+            out="artifacts/desktop-dryrun/$rid"
+            dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
+            test -f "$out/Piscine.Desktop" -o -f "$out/Piscine.Desktop.exe"
+            case "$rid" in
+              win-x64)   test -f "$out/Photino.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
+              linux-x64) test -f "$out/Photino.Native.so" ;;
+              osx-arm64) test -f "$out/Photino.Native.dylib" ;;
+            esac
+            echo "OK $rid"
+          done
