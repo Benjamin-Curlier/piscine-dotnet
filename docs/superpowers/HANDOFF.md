@@ -177,10 +177,12 @@ Blazor, Silk.NET, Docker, clean architecture. Voir `docs/superpowers/plans/2026-
   M22/M34. **Enhancements de suivi** (hors backlog d'origine) : **#17** notation live git,
   **#19** harnais web Blazor (rendu DOM), serveur **HTTP**/exo **M22** (cf. #3), rush Clean Arch (optionnel).
 
-## v4 — application desktop Photino (S1 → S9b FAITS ✅, S10 à suivre)
+## v4 — application desktop Photino (S1 → S10 FAITS ✅ — **milestone #2 CLOS**, backlog #22–#31 terminé)
 Objectif : **remplacer l'UX recrue console par une app de bureau Photino.Blazor**, **sans toucher au
 moteur ni au CLI headless** (`grade-received` tourne dans le hook `post-receive` → reste CLI). v4 =
-*remplacer la surface recrue*, pas supprimer le cœur.
+*remplacer la surface recrue*, pas supprimer le cœur. **ÉTAT : v4 livré côté capacité** — app de bureau
+fonctionnelle (cours/check/progress/init/resultat), packagée par OS, documentée. **Aucun tag poussé**
+(release/pré-release = décision proprio). **Suite = hors backlog v4** (voir « Suivis (post-v4) » + #40).
 - **Spec** : `docs/superpowers/specs/2026-06-06-v4-photino-desktop-design.md` (design validé en brainstorming).
 - **Plan S1** : `docs/superpowers/plans/2026-06-06-v4-s1-foundation.md` (bite-sized, prêt à exécuter).
 - **Backlog** : milestone **#2 « v4 — application desktop Photino »**, label `v4`, issues **#22–#31**
@@ -288,11 +290,13 @@ moteur ni au CLI headless** (`grade-received` tourne dans le hook `post-receive`
   du zip sans `PISCINE_CONTENT`. Prouvé : build 0 warning, **247 tests verts** (DevHost E2E inclus, +1 test
   d'indirection), smoke Photino Windows (fenêtre + `http://localhost/`, 0 crash), moteur/`Cli`/`release.yml`
   intacts, aucun tag. Retex : `docs/superpowers/retex/2026-06-07-v4-s9b-photino-wiring.md`.
-- ⏭ **#31 S10** = **Docs recrue/encadrant + Curriculum/HANDOFF** (refléter le flux desktop dans toute la
-  doc : `mise-en-oeuvre.md` flux desktop, checklist encadrant webview, MAJ `Curriculum.md`/`HANDOFF.md`/`CHANGELOG.md`).
-  **Dernier sprint du backlog v4** (#22–#31). S9 a amorcé `mise-en-oeuvre.md`/`deploiement.md` (webview +
-  desktop) ; **S9b rend le flux desktop réel** → S10 peut le décrire honnêtement (cours/check/progress/init/
-  resultat dans l'app ; terminal via OS pour `git push`).
+- ✅ **#31 S10 — Docs recrue/encadrant + Curriculum/CHANGELOG** (PR #44 mergée). **Dernier sprint du
+  backlog v4.** `mise-en-oeuvre.md` : app de bureau = **UX recrue principale** (cours/check/progress/init/
+  resultat ; `git push` au **terminal système** ; CLI conservé) — **mention erronée du « terminal intégré »
+  retirée** (déféré). `CHANGELOG.md` : section **`## [Non publié]`** (app Photino v4, moteur/CLI/`grade-received`
+  inchangés, terminal différé) → prête à versionner. `Curriculum.md` : note UX. `deploiement.md` : smoke
+  « la fenêtre **route le flux** ». **Docs/CHANGELOG uniquement** (0 `src/`/`.github`), `validate-content`
+  OK, **aucun tag**. Retex : `docs/superpowers/retex/2026-06-07-v4-s10-docs-desktop.md`.
 - **Suivis notés (post-v4)** : (a) déplacer `Error.razor` (dépend de `HttpContext`, host-only) de la RCL vers
   `Piscine.DevHost` ; (b) **terminal + coaching dans Photino** (packager `Piscine.GitShim` + fournir
   `IHostEnvironment`/garde adaptée + PTY in-process) — déféré en S9b ; (c) confirmer terminal/coaching/fenêtre
