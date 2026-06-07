@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Piscine .NET
+Comment=Bootcamp C# / .NET 10 — cours, vérification, progression
+Exec=Piscine.Desktop
+Icon=piscine
+Categories=Development;Education;
+Terminal=false
