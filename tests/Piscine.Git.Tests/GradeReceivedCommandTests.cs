@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LibGit2Sharp;
@@ -162,5 +163,117 @@ public class GradeReceivedCommandTests
         var ex = Assert.Single(doc!.Exercises);
         Assert.Equal("ex00", ex.ExerciseId);
         Assert.Equal("Reussi", ex.Status);
+    }
+
+    // ── #17 : notation live des exos git contre le dépôt bare, gardée par le signal « tenté » ──────
+
+    private static PiscineLayout SetupGitContent(TempDir dir)
+    {
+        dir.WriteFile(Path.Combine("content", "modules", "05-git", "module.yaml"), """
+            id: 05-git
+            order: 5
+            groups:
+              - id: g
+                exercises: [ex-git]
+            """);
+        dir.WriteFile(Path.Combine("content", "modules", "05-git", "exercises", "ex-git", "manifest.yaml"), """
+            id: ex-git
+            deliverables: []
+            grading:
+              - type: git
+                git:
+                  branches: [main, feature]
+                  min_commits: 2
+                  no_conflict_markers: true
+                  merged:
+                    - { into: main, branch: feature }
+                  files:
+                    - { path: feature.txt, ref: main, contains: "salut" }
+                  attempt:
+                    branch: feature
+            feedback:
+              hints:
+                - when: git_state
+                  message: "Crée la branche feature, commite, puis fusionne dans main."
+              course_ref: "cours.md#merge"
+            """);
+        return new PiscineLayout(dir.Combine("content"), dir.Combine("ws"), dir.Combine("state"));
+    }
+
+    private static List<GitFixtureStep> BrancheEtFusion() => new()
+    {
+        new GitFixtureStep { Branch = "main", Message = "init", Files = new() { ["README.md"] = "Projet\n" } },
+        new GitFixtureStep { Branch = "feature", Base = "main" },
+        new GitFixtureStep { Branch = "feature", Message = "ajout", Files = new() { ["feature.txt"] = "salut\n" } },
+        new GitFixtureStep { MergeInto = "main", MergeFrom = "feature" },
+    };
+
+    // Construit le dépôt de la recrue (steps), pousse <refs> vers le bare, renvoie le sha de main.
+    private static string BuildAndPush(PiscineLayout layout, TempDir dir, List<GitFixtureStep> steps, params string[] refs)
+    {
+        var workPath = dir.Combine("work");
+        GitFixtureBuilder.Build(steps, workPath);
+        Repository.Init(layout.RemoteRepoPath, isBare: true);
+        using var repo = new Repository(workPath);
+        repo.Network.Remotes.Add("origin", layout.RemoteRepoPath);
+        var specs = refs.Select(r => $"refs/heads/{r}:refs/heads/{r}").ToList();
+        repo.Network.Push(repo.Network.Remotes["origin"], specs, new PushOptions());
+        return repo.Branches["main"].Tip.Sha;
+    }
+
+    [Fact]
+    public void Run_GitExercise_BranchPushedAndMerged_ReussiAndRecorded()
+    {
+        using var dir = new TempDir();
+        var layout = SetupGitContent(dir);
+        var sha = BuildAndPush(layout, dir, BrancheEtFusion(), "main", "feature");
+
+        var result = new GradeReceivedCommand(layout, Graders.Default()).Run(sha);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Réussi", result.Output);
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.Equal(ExerciseStatus.Reussi, progress.Exercises["ex-git"].Status);
+    }
+
+    [Fact]
+    public void Run_GitExercise_NotAttempted_IsSkipped_NoSpuriousReview()
+    {
+        using var dir = new TempDir();
+        var layout = SetupGitContent(dir);
+        // Seul main poussé (pas de branche feature) : l'exo git n'est pas « tenté ».
+        var sha = BuildAndPush(layout, dir, new List<GitFixtureStep>
+        {
+            new() { Branch = "main", Message = "init", Files = new() { ["README.md"] = "Projet\n" } },
+        }, "main");
+
+        var result = new GradeReceivedCommand(layout, Graders.Default()).Run(sha);
+
+        // Rien noté : l'exo git non commencé est ignoré (pas d'« à revoir » parasite).
+        Assert.Equal(0, result.ExitCode);
+        Assert.DoesNotContain("À revoir", result.Output);
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.False(progress.Exercises.ContainsKey("ex-git"));
+    }
+
+    [Fact]
+    public void Run_GitExercise_AttemptedButNotMerged_ARevoir()
+    {
+        using var dir = new TempDir();
+        var layout = SetupGitContent(dir);
+        // feature poussée mais NON fusionnée dans main → tenté, mais incomplet.
+        var sha = BuildAndPush(layout, dir, new List<GitFixtureStep>
+        {
+            new() { Branch = "main", Message = "init", Files = new() { ["README.md"] = "Projet\n" } },
+            new() { Branch = "feature", Base = "main" },
+            new() { Branch = "feature", Message = "ajout", Files = new() { ["feature.txt"] = "salut\n" } },
+        }, "main", "feature");
+
+        var result = new GradeReceivedCommand(layout, Graders.Default()).Run(sha);
+
+        Assert.Equal(1, result.ExitCode);
+        Assert.Contains("À revoir", result.Output);
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.Equal(ExerciseStatus.ARevoir, progress.Exercises["ex-git"].Status);
     }
 }

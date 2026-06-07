@@ -82,6 +82,14 @@ public sealed class GitAssertions
     public List<GitMerge> Merged { get; set; } = new();
 
     /// <summary>
+    /// Signal « exercice tenté » pour la notation **live** au push (<c>grade-received</c>) : sans lui,
+    /// l'exo n'est **pas** noté en live (évite des « à revoir » parasites pour les exos non commencés).
+    /// Présent et satisfait dans le dépôt rendu ⇒ l'exo est noté. <c>null</c> ⇒ pas de notation live
+    /// (la fixture <c>validate-content</c> valide quand même le corrigé).
+    /// </summary>
+    public GitAttempt? Attempt { get; set; }
+
+    /// <summary>
     /// Scénario de **fixture** (côté auteur) : étapes ordonnées construisant un dépôt de référence
     /// que le gate <c>validate-content</c> matérialise et confronte aux assertions ci-dessus.
     /// Ignoré à la correction d'un vrai rendu (le dépôt de la recrue fait foi).
@@ -113,6 +121,20 @@ public sealed class GitFixtureStep
 
     /// <summary>Branche fusionnée dans <see cref="MergeInto"/>.</summary>
     public string MergeFrom { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Signal « exercice tenté » (grader <c>git</c>, notation live au push). L'exo est noté dès qu'au moins
+/// un prédicat déclaré est satisfait dans le dépôt rendu : la branche <see cref="Branch"/> existe, ou le
+/// fichier <see cref="File"/> est présent. Au moins un des deux doit être renseigné.
+/// </summary>
+public sealed class GitAttempt
+{
+    /// <summary>Branche dont la présence signale que la recrue a commencé l'exercice (optionnel).</summary>
+    public string Branch { get; set; } = string.Empty;
+
+    /// <summary>Fichier dont la présence signale une tentative (optionnel ; <c>contains</c>/<c>content</c> ignorés ici).</summary>
+    public GitFileAssertion? File { get; set; }
 }
 
 /// <summary>

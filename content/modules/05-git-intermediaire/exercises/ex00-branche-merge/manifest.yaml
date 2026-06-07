@@ -14,6 +14,10 @@ grading:
         - { into: main, branch: feature }
       files:
         - { path: feature.txt, ref: main, contains: "salut" }
+      # Signal « exercice tenté » : noté en live au push dès que la branche feature est poussée
+      # (sinon l'exo n'est pas noté → pas d'« à revoir » parasite tant qu'il n'est pas commencé).
+      attempt:
+        branch: feature
       # Fixture = scénario corrigé, construit et vérifié par la gate validate-content.
       fixture:
         - { branch: main, message: "init", files: { "README.md": "Projet\n" } }

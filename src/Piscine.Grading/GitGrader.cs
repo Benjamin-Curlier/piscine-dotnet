@@ -31,11 +31,14 @@ public sealed class GitGrader : IGrader
         var failures = new List<string>();
         using (var repo = new Repository(context.RepositoryPath))
         {
+            // HEAD effectif : la branche de rendu côté dépôt bare (HeadRef), sinon le HEAD réel du
+            // dépôt (check local + fixture). Permet de noter un bare dont le HEAD est orphelin.
+            var head = ResolveHead(repo, context.HeadRef);
             CheckBranches(repo, step.Git, failures);
-            CheckCommitCount(repo, step.Git, failures);
+            CheckCommitCount(repo, step.Git, head, failures);
             CheckMerges(repo, step.Git, failures);
             CheckFiles(repo, step.Git, failures);
-            CheckConflictMarkers(repo, step.Git, failures);
+            CheckConflictMarkers(repo, step.Git, head, failures);
         }
 
         if (failures.Count == 0)
@@ -59,21 +62,22 @@ public sealed class GitGrader : IGrader
         }
     }
 
-    private static void CheckCommitCount(Repository repo, GitAssertions git, List<string> failures)
+    private static void CheckCommitCount(Repository repo, GitAssertions git, Commit? head, List<string> failures)
     {
         if (git.MinCommits <= 0)
         {
             return;
         }
 
-        if (repo.Head?.Tip is null)
+        if (head is null)
         {
             failures.Add($"au moins {git.MinCommits} commit(s) attendu(s), mais le dépôt n'a aucun commit.");
             return;
         }
 
         // On ne walk l'historique que jusqu'au seuil : inutile de parcourir un long passé.
-        var count = repo.Commits.Take(git.MinCommits).Count();
+        var filter = new CommitFilter { IncludeReachableFrom = head };
+        var count = repo.Commits.QueryBy(filter).Take(git.MinCommits).Count();
         if (count < git.MinCommits)
         {
             failures.Add($"au moins {git.MinCommits} commit(s) attendu(s) sur HEAD, trouvé {count}.");
@@ -149,14 +153,13 @@ public sealed class GitGrader : IGrader
         }
     }
 
-    private static void CheckConflictMarkers(Repository repo, GitAssertions git, List<string> failures)
+    private static void CheckConflictMarkers(Repository repo, GitAssertions git, Commit? head, List<string> failures)
     {
         if (!git.NoConflictMarkers)
         {
             return;
         }
 
-        var head = repo.Head?.Tip;
         if (head is null)
         {
             return;
@@ -185,6 +188,13 @@ public sealed class GitGrader : IGrader
 
         return text.Contains("\n" + marker, StringComparison.Ordinal);
     }
+
+    /// <summary>
+    /// HEAD effectif du dépôt : la pointe de <paramref name="headRef"/> quand il est fourni (dépôt bare
+    /// côté <c>grade-received</c>), sinon le HEAD réel (<c>repo.Head</c>, check local + fixture).
+    /// </summary>
+    private static Commit? ResolveHead(Repository repo, string? headRef)
+        => string.IsNullOrEmpty(headRef) ? repo.Head?.Tip : repo.Branches[headRef]?.Tip;
 
     /// <summary>Résout une ref (branche, <c>HEAD</c>, ou sha) vers son commit, ou <c>null</c>.</summary>
     private static Commit? ResolveCommit(Repository repo, string refName)

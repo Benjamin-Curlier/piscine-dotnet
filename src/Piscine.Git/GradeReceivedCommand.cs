@@ -17,6 +17,10 @@ namespace Piscine.Git;
 /// </summary>
 public sealed class GradeReceivedCommand
 {
+    /// <summary>Branche de rendu : la recrue pousse <c>origin main</c>. Sert de « HEAD » au grader git
+    /// côté dépôt bare (dont le HEAD réel reste orphelin après un push).</summary>
+    private const string RenduBranch = "main";
+
     private readonly PiscineLayout _layout;
     private readonly ExerciseGrader _grader;
 
@@ -47,6 +51,26 @@ public sealed class GradeReceivedCommand
                         if (location is null)
                         {
                             continue;
+                        }
+
+                        var manifest = ExerciseManifestLoader.Load(location.ContentDir);
+                        var gitStep = manifest.Grading.FirstOrDefault(s => s.Type == "git");
+                        if (gitStep is not null)
+                        {
+                            // Exo git : pas de fichier dans le snapshot plat — noté contre le dépôt bare
+                            // (qui contient les refs poussées), et seulement si « tenté » (cf. #17), pour
+                            // éviter un « à revoir » parasite sur un exo non commencé.
+                            if (GitAttemptEvaluator.IsAttempted(gitStep.Git?.Attempt, _layout.RemoteRepoPath))
+                            {
+                                submissions.Add(new ExerciseSubmission(
+                                    manifest,
+                                    new GradingContext(
+                                        new Dictionary<string, string>(),
+                                        repositoryPath: _layout.RemoteRepoPath,
+                                        headRef: RenduBranch)));
+                            }
+
+                            continue; // un exo git ne se charge jamais depuis le snapshot plat
                         }
 
                         var submittedDir = Path.Combine(snapshot, module.Id, exerciseId);
