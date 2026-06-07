@@ -4,6 +4,31 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [Non publié]
+
+### Ajouté — Application de bureau (Photino.Blazor)
+
+Nouvelle **UX recrue de bureau** qui complète (et peut remplacer) le CLI console, **sans changer le
+moteur** : graders, **CLI headless `piscine`** et `grade-received` (hook `post-receive`) restent
+**identiques** à `v2.0.0`.
+
+- **App `Piscine.Desktop`** (Photino.Blazor, fenêtre native) : lecteur de **cours/sujets** (sommaire,
+  coloration syntaxique, mode sombre), **vérification** instantanée d'un exercice (page *Vérifier*, ne
+  compte pas comme rendu), **progression** par exercice (*Progression*), **initialisation** du workspace
+  (*Initialiser*), **résultat** de push auto-rafraîchi (*Résultat*). Composants/services partagés dans la
+  bibliothèque `Piscine.Components` (consommée aussi par le site de dev `Piscine.DevHost`, hors release).
+- **Packaging** : `Piscine.Desktop` est livré **self-contained par OS** dans le zip (dossier `desktop/`
+  + lanceur `start-piscine-desktop`), **à côté** du CLI `piscine` inchangé, du `content/` et de MinGit
+  (Windows). Un **dry-run CI** publie les 3 RID et vérifie la présence des libs natives à chaque PR.
+- **Prérequis webview** par OS documentés (Windows **WebView2** / Linux **`libwebkit2gtk-4.1`** /
+  macOS **WKWebView**) — voir [docs/mise-en-oeuvre.md](docs/mise-en-oeuvre.md) et
+  [docs/deploiement.md](docs/deploiement.md).
+
+### Limites connues
+
+- **Terminal embarqué** et **coaching git** dans l'app **différés** : le rendu (`git add/commit/push`)
+  se fait au **terminal système** (sous Windows, `start-piscine.cmd` met `git` + `piscine` sur le PATH).
+
 ## [v2.0.0] — 2026-06-06
 
 Release cumulative depuis `v1.0.0` : nouveaux graders, deux paliers de contenu (approfondissement

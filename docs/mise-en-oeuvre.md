@@ -7,7 +7,8 @@ auto-contenu (runtime .NET + Roslyn embarqués).
 > **Ce que contient le zip** : un parcours complet **C# / .NET 10** — modules **M00 à M39**
 > (fondamentaux → palier avancé → approfondissement → plateformes & architecture) et **4 Rushes**
 > de synthèse. Correction locale par la moulinette (graders `io` / `unit` / `norme` / `mutation` /
-> `git` / `projet` / `reseau`), rendu par **vrai git**. Carte détaillée :
+> `git` / `projet` / `reseau`), rendu par **vrai git**. **UX recrue** : une **app de bureau** (cours,
+> vérification, progression, résultat) **ou** le **CLI** `piscine` — même moteur. Carte détaillée :
 > [Curriculum](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/wiki/Curriculum.md).
 > Mainteneur qui prépare une release : voir [docs/deploiement.md](deploiement.md).
 
@@ -60,61 +61,70 @@ Le dossier dézippé contient le binaire `piscine` (`piscine.exe` sous Windows),
 
 ## 3. Premier lancement
 
-### Windows
-Double-cliquer **`start-piscine.cmd`** : il place `piscine` et le git portable sur le PATH et
-ouvre une invite prête à l'emploi. Puis :
+Deux façons d'utiliser la piscine, **au choix**, qui partagent le **même workspace** : l'**app de
+bureau** (recommandée — cours, vérification, progression et résultat dans une fenêtre) ou le **CLI**
+`piscine` (même moteur, sans fenêtre). Le **rendu** (`git push`) se fait toujours au **terminal** (§4).
 
-```bat
-piscine init
-```
+### Avec l'app de bureau (recommandé)
 
-### Linux / macOS
-Ouvrir un terminal dans le dossier dézippé :
+1. Lancer l'app (après avoir vérifié les **prérequis webview**, §1) :
+   - **Windows** : double-cliquer `start-piscine-desktop.cmd`.
+   - **Linux / macOS** : `./start-piscine-desktop.sh`.
+2. Dans la fenêtre, ouvrir **Initialiser** et cliquer le bouton : cela met en place le **workspace**,
+   le **dépôt bare local** (`origin`) et le **hook** qui lance la moulinette à chaque `git push`.
+   *(Équivalent en ligne de commande : `piscine init`.)*
+3. Parcourir les **cours** et les **sujets** via le sommaire de gauche ; la suite de la boucle (Vérifier,
+   Progression, Résultat) est décrite au §4.
+
+> L'app **n'embarque pas de terminal ni d'éditeur** : on code dans son IDE habituel et on rend
+> (`git add/commit/push`) depuis un terminal système (§4).
+
+### Avec le CLI
+
+Ouvrir un terminal dans le dossier dézippé — **Windows** : double-cliquer **`start-piscine.cmd`**, qui
+place `piscine` et le git portable (MinGit) sur le PATH — puis :
 
 ```bash
-./piscine init
-```
-
-`piscine init` met en place :
-- le **workspace** (espace de code de la recrue) ;
-- un **dépôt bare local** qui joue le rôle du « GitLab » (`origin`) ;
-- un **hook** qui lance automatiquement la moulinette à chaque `git push`.
-
-Vérifier ensuite que tout répond :
-
-```bash
+piscine init          # workspace + dépôt bare (origin) + hook de correction au push
 piscine status        # bannière + état
 piscine list          # modules et exercices disponibles
 git --version         # (Windows : via start-piscine.cmd ; sinon git système)
 ```
 
-### App de bureau (optionnelle)
-
-En plus du CLI, le zip fournit une **app de bureau** (cours, terminal intégré, vérification,
-progression). La lancer après avoir vérifié les **prérequis webview** (§1) :
-
-- **Windows** : double-cliquer `start-piscine-desktop.cmd`.
-- **Linux / macOS** : `./start-piscine-desktop.sh`.
-
-Le CLI et l'app partagent le même workspace (`piscine init` suffit une fois).
-
 ---
 
 ## 4. Boucle de travail
 
+On code dans l'**éditeur/IDE de son choix**. La vérification locale et le suivi se font **dans l'app**
+*ou* **au CLI** ; le **rendu officiel** est un `git push`.
+
+### Dans l'app de bureau
+
+1. Choisir un exercice (sommaire → module → exercice) : le sujet et le cours s'affichent.
+2. Coder dans son IDE (récupérer le squelette via `piscine start <exo>` au terminal).
+3. **Vérifier** : page *Vérifier* → choisir l'exercice → feedback éducatif instantané
+   (**ne compte pas**, autant de fois qu'on veut).
+4. Suivre l'avancement : page *Progression*.
+5. **Rendre** au terminal (ci-dessous), puis regarder la page *Résultat* qui **s'actualise**
+   automatiquement après la correction du push.
+
+### Le rendu : `git push` au terminal
+
+Le rendu officiel passe par git, depuis un terminal où `git` **et** `piscine` sont disponibles
+(**Windows** : `start-piscine.cmd` ; **Linux / macOS** : un terminal dans le dossier dézippé) :
+
 ```bash
-piscine start <exo>        # copie le squelette de l'exercice dans le workspace
-# ... la recrue code dans le workspace ...
-piscine check <exo>        # feedback éducatif instantané, autant de fois qu'on veut (ne compte pas)
+piscine start <exo>        # (si besoin) copie le squelette de l'exercice dans le workspace
+piscine check <exo>        # équivalent CLI de la page Vérifier (ne compte pas)
 git add .
 git commit -m "<exo>"
 git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enregistre la progression
 ```
 
-- `piscine check` = itération rapide locale, **ne compte pas** comme rendu.
-- `git push origin main` = **rendu officiel** : la moulinette corrige le commit reçu,
-  **par groupe et dans l'ordre, en s'arrêtant au premier exercice raté** (les suivants
-  passent en *Non corrigé*), affiche le feedback et met à jour la progression.
+- `piscine check` / la page *Vérifier* = itération rapide locale, **ne comptent pas** comme rendu.
+- `git push origin main` = **rendu officiel** : la moulinette corrige le commit reçu, **par groupe et
+  dans l'ordre, en s'arrêtant au premier exercice raté** (les suivants passent en *Non corrigé*),
+  affiche le feedback et met à jour la progression (visible dans l'app, page *Résultat*).
 
 ---
 
@@ -138,8 +148,10 @@ git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enr
 - [ ] Récupérer le zip de la dernière release pour l'OS de la recrue.
 - [ ] Vérifier sur un poste vierge : dézipper → `piscine init` → `piscine start <exo>` →
       `piscine check` → `git push` (rendu officiel) fonctionne de bout en bout.
-- [ ] S'assurer que la recrue sait lancer un terminal (ou `start-piscine.cmd` sous Windows).
-- [ ] (Si l'app de bureau est utilisée) prérequis webview en place (§1) et `start-piscine-desktop`
-      ouvre une fenêtre affichant un cours.
+- [ ] S'assurer que la recrue sait lancer un terminal (ou `start-piscine.cmd` sous Windows) pour le
+      `git push` du rendu.
+- [ ] (App de bureau) prérequis **webview** en place par OS (§1) ; `start-piscine-desktop` ouvre une
+      fenêtre qui **route le flux** : cours (titre + bloc de code colorisé), *Vérifier*, *Progression*,
+      *Initialiser*, *Résultat*.
 - [ ] Remettre le zip (clé USB / partage interne) et ce guide.
 - [ ] Rappeler la philosophie : **retour éducatif, pas de note** ; progression auto-rythmée.

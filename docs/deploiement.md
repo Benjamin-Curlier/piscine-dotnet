@@ -142,10 +142,11 @@ Le *dry-run* CI prouve que les binaires se **construisent** ; il ne peut pas ouv
 native. Pour valider l'app sur les 3 OS, **taguer une pré-release** (`gh release ... --prerelease`),
 télécharger le zip de chaque OS et dérouler :
 
-- [ ] **Windows** : dézipper → double-clic `start-piscine-desktop.cmd` → la fenêtre s'ouvre et affiche
-      un cours (titre + gras + bloc de code colorisé).
-- [ ] **Linux** : `libwebkit2gtk-4.1` installé → `./start-piscine-desktop.sh` → fenêtre + cours.
-- [ ] **macOS** : `./start-piscine-desktop.sh` → fenêtre + cours.
+- [ ] **Windows** : dézipper → double-clic `start-piscine-desktop.cmd` → la fenêtre s'ouvre et
+      **route le flux** : Accueil → un module/cours (titre + gras + bloc de code **colorisé**) →
+      *Vérifier* (sélection d'un exo → verdict) → *Progression* → *Initialiser* → *Résultat*.
+- [ ] **Linux** : `libwebkit2gtk-4.1` installé → `./start-piscine-desktop.sh` → même flux.
+- [ ] **macOS** : `./start-piscine-desktop.sh` → même flux.
 - [ ] **CLI intact** dans le même zip : `piscine init` puis `piscine status` répondent (le hook de
       correction n'est pas affecté par l'ajout de l'app de bureau).
 

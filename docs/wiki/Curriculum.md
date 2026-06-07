@@ -7,6 +7,10 @@ dédiés. Le contenu est généré **progressivement** au fil des itérations.
 > **Release `v2.0.0`** : la piscine couvre désormais **M00–M39 + Rushes 0/1/2/3**. Elle cumule le
 > tronc commun + palier avancé (v1.0), l'**approfondissement C#/.NET** (palier v2, M24–M35) et les
 > **plateformes & architecture** (palier v3, M36–M39). Voir [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
+>
+> **UX recrue** : le **contenu ci-dessous est inchangé**, accessible via une **app de bureau**
+> (cours, vérification, progression, résultat — cf. [Non publié] du CHANGELOG) **ou** le **CLI**
+> `piscine`. Le rendu reste un `git push` (cf. [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/mise-en-oeuvre.md)).
 
 ## Tronc commun
 
