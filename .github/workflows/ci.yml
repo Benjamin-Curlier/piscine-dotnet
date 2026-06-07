@@ -102,3 +102,31 @@ jobs:
             grep -q "Load(app://localhost" /tmp/log || { echo "FAIL: app n a pas chargé app://localhost"; exit 1; }
             echo "OFFLINE OK : lancement + chargement webview avec webkit bundlé, sans réseau ni webkit système"
           '
+
+  # Dry-run installeur Windows (S13) : garde de compilation a chaque PR — Inno Setup + ISCC sur un
+  # payload stub, les 2 modes (offline/online), assert que les 2 .exe sont produits. (Le vrai payload
+  # + téléchargements WebView2 sont exercés par release.yml au tag.)
+  windows-installer-dryrun:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Installer Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Compiler les installeurs (payload stub)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = "payload"
+          New-Item -ItemType Directory -Force "$p/desktop/gitshim", "$p/content/modules", "$p/mingit" | Out-Null
+          foreach ($f in @("piscine.exe","desktop/Piscine.Desktop.exe","desktop/gitshim/git.exe","webview2-setup.exe","content/modules/.keep")) {
+            "stub" | Set-Content "$p/$f"
+          }
+          Copy-Item build/launchers/start-piscine.cmd, build/launchers/start-piscine-desktop.cmd $p
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          $payloadAbs = (Resolve-Path $p).Path
+          & $iscc "/DMODE=offline" "/DAPPVERSION=v0.0.0-dryrun" "/DPAYLOAD=$payloadAbs" "build\installer\windows\piscine.iss"
+          & $iscc "/DMODE=online"  "/DAPPVERSION=v0.0.0-dryrun" "/DPAYLOAD=$payloadAbs" "build\installer\windows\piscine.iss"
+          $exes = Get-ChildItem build\installer\windows\dist\*.exe
+          $exes | Select-Object Name, Length
+          if ($exes.Count -lt 2) { Write-Error "Attendu 2 installeurs (.exe), trouve $($exes.Count)" }
+          Write-Host "OK : 2 installeurs Inno compiles (offline + online)"

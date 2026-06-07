@@ -12,13 +12,12 @@ env:
   MINGIT_TAG: v2.47.1.windows.1
 
 jobs:
-  release:
-    # ubuntu-22.04 : a libwebkit2gtk-4.0 (requis par Photino 3.2.0) pour bundler l'AppImage offline ;
-    # 24.04 ne l'a plus. (Le job Windows/Inno sera ajouté séparément.)
+  # ── Linux : zips self-contained (win+linux, cross-publiés) + AppImage (offline/online) ──────────
+  package-linux:
+    # ubuntu-22.04 : a libwebkit2gtk-4.0 (Photino 3.2.0) requis pour bundler l'AppImage offline.
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
@@ -27,7 +26,7 @@ jobs:
       - name: Assembler le contenu (sans solution/)
         run: dotnet run --project src/Piscine.Cli --configuration Release -- package-content content artifacts/content
 
-      - name: Publier, empaqueter, zipper par OS
+      - name: Zips self-contained (win + linux) + MinGit (win)
         run: |
           set -euo pipefail
           mkdir -p dist artifacts/pkg
@@ -36,25 +35,20 @@ jobs:
             out="artifacts/pkg/piscine-$rid"
             dotnet publish src/Piscine.Cli --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
             cp -r artifacts/content "$out/content"
-            # App desktop Photino (self-contained par RID), a cote du CLI. DevHost JAMAIS empaquete.
             dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop"
-            # Shim git (AssemblyName=git) : intercepte git en tete de PATH pour le coaching du terminal
-            # embarque (ShimLocator cherche desktop/gitshim/). Le vrai git = MinGit (win) ou git systeme.
             dotnet publish src/Piscine.GitShim --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop/gitshim"
             if [ "$rid" = "win-x64" ]; then
-              mkdir -p "$out/mingit"
-              unzip -q mingit.zip -d "$out/mingit"
+              mkdir -p "$out/mingit"; unzip -q mingit.zip -d "$out/mingit"
               cp build/launchers/start-piscine.cmd "$out/start-piscine.cmd"
               cp build/launchers/start-piscine-desktop.cmd "$out/start-piscine-desktop.cmd"
             else
-              cp build/launchers/start-piscine-desktop.sh "$out/start-piscine-desktop.sh"
-              chmod +x "$out/start-piscine-desktop.sh"
+              cp build/launchers/start-piscine-desktop.sh "$out/start-piscine-desktop.sh"; chmod +x "$out/start-piscine-desktop.sh"
             fi
             ( cd artifacts/pkg && zip -qr "$GITHUB_WORKSPACE/dist/piscine-${{ github.ref_name }}-$rid.zip" "piscine-$rid" )
           done
           ls -lh dist
 
-      - name: Construire les AppImage Linux (offline + online)
+      - name: AppImage Linux (offline + online)
         run: |
           set -euo pipefail
           sudo apt-get update -qq
@@ -72,10 +66,71 @@ jobs:
           done
           ls -lh dist
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-linux
+          path: dist/*
+
+  # ── Windows : installeurs Inno Setup (offline = Standalone WebView2 / online = bootstrapper) ─────
+  package-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+      - name: Installer Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Payload + installeurs (offline + online)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          dotnet run --project src/Piscine.Cli -c Release -- package-content content artifacts/content
+          $p = "payload"
+          dotnet publish src/Piscine.Cli      -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o $p
+          dotnet publish src/Piscine.Desktop  -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "$p/desktop"
+          dotnet publish src/Piscine.GitShim  -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "$p/desktop/gitshim"
+          Copy-Item -Recurse artifacts/content "$p/content"
+          Copy-Item build/launchers/start-piscine.cmd, build/launchers/start-piscine-desktop.cmd $p
+          Invoke-WebRequest "https://github.com/git-for-windows/git/releases/download/$env:MINGIT_TAG/MinGit-$env:MINGIT_VERSION-64-bit.zip" -OutFile mingit.zip
+          New-Item -ItemType Directory -Force "$p/mingit" | Out-Null
+          Expand-Archive mingit.zip -DestinationPath "$p/mingit" -Force
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          $payloadAbs = (Resolve-Path $p).Path
+          $ver = "${{ github.ref_name }}"
+          New-Item -ItemType Directory -Force dist | Out-Null
+          # OFFLINE : runtime WebView2 Standalone Evergreen (full, hors-ligne).
+          Invoke-WebRequest "https://go.microsoft.com/fwlink/?linkid=2124701" -OutFile "$p/webview2-setup.exe"
+          & $iscc "/DMODE=offline" "/DAPPVERSION=$ver" "/DPAYLOAD=$payloadAbs" "build\installer\windows\piscine.iss"
+          # ONLINE : bootstrapper Evergreen (léger, télécharge).
+          Invoke-WebRequest "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$p/webview2-setup.exe"
+          & $iscc "/DMODE=online" "/DAPPVERSION=$ver" "/DPAYLOAD=$payloadAbs" "build\installer\windows\piscine.iss"
+          Copy-Item build\installer\windows\dist\*.exe dist\
+          Get-ChildItem dist | Select-Object Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-windows
+          path: dist/*.exe
+
+  # ── Publication : agrège les artefacts et crée la GitHub Release ────────────────────────────────
+  release:
+    needs: [package-linux, package-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist-all
       - name: Créer la GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" dist/*.zip dist/*.AppImage \
+          set -euo pipefail
+          ls -lhR dist-all
+          gh release create "${{ github.ref_name }}" \
+            dist-all/dist-linux/* dist-all/dist-windows/* \
+            --repo "${{ github.repository }}" \
             --title "Piscine .NET ${{ github.ref_name }}" \
-            --notes "Windows & Linux (macOS abandonné). Zips self-contained (CLI \`piscine\` + app de bureau \`desktop/\`). **AppImage Linux** : \`-offline\` (tout embarqué, sans internet) ou \`-online\` (léger, webkit système). L'installeur Windows (offline/online) est ajouté à part. Prérequis webview (online Linux) : \`libwebkit2gtk-4.0-37\`. Voir docs/mise-en-oeuvre.md."
+            --notes "Windows & Linux (macOS abandonné). **Installeurs** : Windows \`.exe\` (offline = runtime WebView2 embarqué / online = télécharge) ; Linux \`.AppImage\` (offline = webkit embarqué, hors-ligne / online = webkit système). **Zips** self-contained aussi fournis (CLI \`piscine\` + app de bureau). Voir docs/mise-en-oeuvre.md."
