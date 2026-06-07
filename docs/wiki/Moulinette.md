@@ -14,7 +14,7 @@ les graders dans un contexte isolé.
 - Les erreurs/avertissements de compilation sont transformés en **feedback éducatif** (numéro de
   ligne + message).
 
-## Les trois types de grader
+## Les types de grader
 
 Un exercice combine un ou plusieurs graders, déclarés dans son `manifest.yaml` :
 
@@ -23,9 +23,16 @@ Un exercice combine un ou plusieurs graders, déclarés dans son `manifest.yaml`
 | **`io`** | Compile en exécutable, lance dans un `AssemblyLoadContext` isolé (args/stdin injectés, timeout), **compare stdout/exit** au résultat attendu → diff éducatif. | Oui |
 | **`unit`** | Compile le code recrue **+ des tests xUnit cachés** (`grader/`), exécute les `[Fact]` par réflexion dans un contexte isolé, récupère les messages d'assertion. | Oui |
 | **`norme`** | Diagnostics de style **Roslyn** (Formatter + `.editorconfig`). Souple. | **Non** (avertissement) |
+| **`mutation`** | La recrue **écrit ses propres tests** xUnit, confrontés à une impl. de référence cachée + des **mutants** nommés ; verdict binaire (tous les mutants tués). | Oui |
+| **`git`** | Verdict sur l'**état attendu du dépôt rendu** (branches, `min_commits`, fusions, contenu de fichiers, absence de marqueurs de conflit), via LibGit2Sharp. Au push, noté contre le **dépôt bare** si l'exo est « tenté ». | Oui |
+| **`projet`** | Compilation **multi-fichiers** + cas `io` optionnels + **assertions d'architecture** Roslyn (`requires_types`, `forbidden_dependencies` namespace→namespace). | Oui |
+| **`reseau`** | Lance un **harnais d'écho TCP** loopback, injecte host/port en arguments, compare `io`. | Oui |
 
-Chaque exécution se fait dans un `AssemblyLoadContext` **collectible** avec redirection de la
+Chaque exécution C# se fait dans un `AssemblyLoadContext` **collectible** avec redirection de la
 Console et un **timeout** — un programme qui boucle ou plante n'affecte pas la moulinette.
+
+> Tous les modules ne sont pas auto-notés : ceux dont la sortie n'est pas déterministe en console
+> (Docker, Silk.NET, Blazor, interop, git avancé, réseau brut) sont livrés en **lecture guidée**.
 
 ## Correction par groupe : arrêt au premier échec
 
