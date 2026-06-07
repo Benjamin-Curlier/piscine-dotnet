@@ -9,8 +9,9 @@ dédiés. Le contenu est généré **progressivement** au fil des itérations.
 > **plateformes & architecture** (palier v3, M36–M39). Voir [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
 >
 > **UX recrue** : le **contenu ci-dessous est inchangé**, accessible via une **app de bureau**
-> (cours, vérification, progression, résultat — cf. [Non publié] du CHANGELOG) **ou** le **CLI**
-> `piscine`. Le rendu reste un `git push` (cf. [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/mise-en-oeuvre.md)).
+> (cours, vérification, progression, **terminal + coaching git**, résultat **riche** — cf. [Non publié]
+> du CHANGELOG) **ou** le **CLI** `piscine`. Le rendu reste un `git push` (cf.
+> [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/mise-en-oeuvre.md)).
 
 ## Tronc commun
 
