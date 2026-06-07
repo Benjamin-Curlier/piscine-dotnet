@@ -94,9 +94,8 @@ jobs:
             export APPIMAGE_EXTRACT_AND_RUN=1 HOME=/root
             (timeout 30 xvfb-run -a /app.AppImage > /tmp/log 2>&1 || true)
             echo "=== app log (tail) ===" ; tail -12 /tmp/log
-            # Fatal = la couche .NET ne peut charger Photino.Native ou une de ses dépendances BUNDLÉES
-            # (DllNotFound/Unhandled exception). Les avertissements GL de webkit (libGLESv2/EGL — rendu
-            # logiciel sous xvfb, libs GPU fournies par l'hôte) ne sont PAS fatals.
+            # Fatal = DllNotFound/Unhandled (dep bundlee manquante). Les warnings GL webkit
+            # (GLESv2/EGL, rendu logiciel sous xvfb, libs GPU du systeme) ne sont PAS fatals.
             if grep -qi "DllNotFound\|Unhandled exception" /tmp/log; then
               echo "FAIL: dependance bundlée manquante (AppImage non auto-suffisant hors-ligne)"; exit 1
             fi
