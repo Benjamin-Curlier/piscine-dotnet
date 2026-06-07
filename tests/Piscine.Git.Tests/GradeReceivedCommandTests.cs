@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp;
 using Piscine.Core;
 using Piscine.Core.Model;
@@ -121,5 +122,45 @@ public class GradeReceivedCommandTests
         Assert.Contains("Réussi", result.Output);
         var progress = new ProgressStore(layout.ProgressPath).Load();
         Assert.Equal(ExerciseStatus.Reussi, progress.Exercises["r0-demo"].Status);
+    }
+
+    [Fact]
+    public void Run_ARevoir_PersistsRichResult_WithDiffAndCourseRef()
+    {
+        using var dir = new TempDir();
+        var layout = SetupContent(dir);
+        var sha = PushSnapshot(layout, dir, "System.Console.Write(\"non\");");
+
+        new GradeReceivedCommand(layout, Graders.Default()).Run(sha);
+
+        // #40 : le verdict riche est persisté en plus de progress.json.
+        var doc = new LastPushResultStore(layout.LastPushResultPath).Load();
+        Assert.NotNull(doc);
+        var ex = Assert.Single(doc!.Exercises);
+        Assert.Equal("ex00", ex.ExerciseId);
+        Assert.Equal("00-setup", ex.ModuleId);
+        Assert.Equal("ARevoir", ex.Status);
+        Assert.Equal("cours.md#hello", ex.CourseRef);
+        var io = Assert.Single(ex.Cases);
+        Assert.Equal("io", io.GraderType);
+        Assert.False(io.Passed);
+        // Le diff attendu/obtenu est bien capturé (et non plus perdu sur stdout du hook).
+        Assert.Contains(io.Messages, m => m.Contains("Attendu") || m.Contains("Obtenu"));
+    }
+
+    [Fact]
+    public void Run_Reussi_PersistsRichResult_StatusReussi()
+    {
+        using var dir = new TempDir();
+        var layout = SetupContent(dir);
+        var sha = PushSnapshot(layout, dir, "System.Console.Write(\"ok\");");
+
+        new GradeReceivedCommand(layout, Graders.Default()).Run(sha);
+
+        var doc = new LastPushResultStore(layout.LastPushResultPath).Load();
+        Assert.NotNull(doc);
+        var ex = Assert.Single(doc!.Exercises);
+        Assert.Equal("ex00", ex.ExerciseId);
+        Assert.Equal("Reussi", ex.Status);
     }
 }
