@@ -30,7 +30,7 @@ jobs:
           set -euo pipefail
           mkdir -p dist artifacts/pkg
           curl -sL "https://github.com/git-for-windows/git/releases/download/${MINGIT_TAG}/MinGit-${MINGIT_VERSION}-64-bit.zip" -o mingit.zip
-          for rid in linux-x64 win-x64 osx-arm64; do
+          for rid in linux-x64 win-x64; do
             out="artifacts/pkg/piscine-$rid"
             dotnet publish src/Piscine.Cli --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
             cp -r artifacts/content "$out/content"
@@ -58,4 +58,4 @@ jobs:
         run: |
           gh release create "${{ github.ref_name }}" dist/*.zip \
             --title "Piscine .NET ${{ github.ref_name }}" \
-            --notes "Binaires self-contained par OS (win-x64, linux-x64, osx-arm64). Chaque zip contient le CLI \`piscine\` ET l'app de bureau (dossier \`desktop/\`, lanceur \`start-piscine-desktop\`). Prérequis webview par OS : voir docs/mise-en-oeuvre.md. Dézippe, lis docs/mise-en-oeuvre.md."
+            --notes "Binaires self-contained Windows & Linux (win-x64, linux-x64 ; macOS abandonné). Chaque zip contient le CLI \`piscine\` ET l'app de bureau (dossier \`desktop/\`, lanceur \`start-piscine-desktop\`). Des installeurs (offline/online) sont aussi fournis. Prérequis webview : voir docs/mise-en-oeuvre.md."
