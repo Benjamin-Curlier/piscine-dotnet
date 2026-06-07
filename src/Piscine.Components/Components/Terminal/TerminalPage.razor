@@ -3,7 +3,6 @@
 @rendermode InteractiveServer
 @using System.IO
 @using System.Text
-@using Microsoft.Extensions.Hosting
 @using Piscine.App.Coaching
 @using Piscine.App.Git
 @using Piscine.App.Terminal
@@ -11,7 +10,7 @@
 @inject GitStatusService Status
 @inject CoachingService Coach
 @inject ICoachingChannel Channel
-@inject IHostEnvironment Env
+@inject TerminalPolicy Policy
 @implements IAsyncDisposable
 
 <PageTitle>Terminal — Piscine .NET</PageTitle>
@@ -88,10 +87,10 @@ else
     private string? _tempDir;
     private bool _channelStarted;
 
-    // Garde-fou securite : /terminal lance un shell OS arbitraire SANS authentification. On ne le
-    // spawn qu'en Development (DevHost = harnais hors release) afin qu'un DevHost publie par erreur
-    // n'expose pas un shell distant. Regle d'exploitation : ne JAMAIS binder hors loopback.
-    protected override void OnInitialized() => _enabled = Env.IsDevelopment();
+    // Activation deleguee a TerminalPolicy (injectee par l'hote) : Photino (bureau local) = actif ;
+    // DevHost (harnais Blazor Server) = actif seulement en Development. Un shell OS sans auth ne doit
+    // jamais etre expose hors loopback ni livre cote harnais ; cote Photino il est in-process et local.
+    protected override void OnInitialized() => _enabled = Policy.Enabled;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -104,9 +103,9 @@ else
         _tempDir = Path.Combine(Path.GetTempPath(), "piscine-term-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
 
-        // Le dossier du shim git (notre faux `git` en tete de PATH) : on prend la config buildee
-        // existante (Release prioritaire, sinon Debug), sous <racine>/src/Piscine.GitShim/bin/...
-        var shimDir = ResolveShimDir();
+        // Le dossier du shim git (notre faux `git` en tete de PATH) : emplacement packagé
+        // (<exe>/gitshim) en priorite, sinon la sortie de build dev. null => terminal nu (S2).
+        var shimDir = ShimLocator.Resolve();
 
         // Canal de coaching : on demarre l'ecoute AVANT de spawner le PTY (le premier serveur est cree
         // de facon synchrone dans Start()), puis on s'abonne aux evenements emis par le shim.
@@ -222,37 +221,6 @@ else
 
     private void HandleResize((int Cols, int Rows) size) =>
         _session?.Resize(size.Cols, size.Rows);
-
-    /// <summary>
-    /// Localise le dossier du shim git buildé : remonte jusqu'a <c>Piscine.slnx</c> puis cherche
-    /// <c>src/Piscine.GitShim/bin/&lt;config&gt;/net10.0/git[.exe]</c> en preferant Release puis Debug
-    /// (le E2E lance le DevHost en Debug ; le build solution produit Release). <c>null</c> si absent.
-    /// </summary>
-    private static string? ResolveShimDir()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Piscine.slnx")))
-        {
-            dir = dir.Parent;
-        }
-
-        if (dir is null)
-        {
-            return null;
-        }
-
-        var gitName = OperatingSystem.IsWindows() ? "git.exe" : "git";
-        foreach (var config in new[] { "Release", "Debug" })
-        {
-            var candidate = Path.Combine(dir.FullName, "src", "Piscine.GitShim", "bin", config, "net10.0");
-            if (File.Exists(Path.Combine(candidate, gitName)))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
-    }
 
     public async ValueTask DisposeAsync()
     {

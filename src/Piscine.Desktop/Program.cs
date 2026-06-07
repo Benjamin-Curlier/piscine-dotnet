@@ -1,10 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Photino.Blazor;
 using Piscine.App.Checking;
+using Piscine.App.Coaching;
 using Piscine.App.Git;
 using Piscine.App.Init;
 using Piscine.App.Progress;
 using Piscine.App.Push;
+using Piscine.App.Terminal;
 using Piscine.Components;
 using Piscine.Components.Services;
 using Piscine.Core;
@@ -66,8 +68,14 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton<IPushResultWatcher>(sp =>
     new ProgressFileWatcher(sp.GetRequiredService<PiscineLayout>()));
 
-// NB : terminal embarqué + coaching (PtyService/CoachingService/shim git) NON câblés ici —
-// dépendent de Piscine.GitShim, hors release (cf. plan S9b, suivi). NavMenu ne lie pas /terminal.
+// Terminal embarqué + coaching git (S12) : shell OS LOCAL in-process (Photino) — pas de réseau.
+// PtyService lance le shell ; le shim git (packagé dans desktop/gitshim/, résolu par ShimLocator)
+// émet ses commandes sur un canal named-pipe ; CoachingService en dérive les cartes.
+// TerminalPolicy(true) : activé (app de bureau locale, contrairement au harnais DevHost).
+builder.Services.AddSingleton<PtyService>();
+builder.Services.AddSingleton<CoachingService>();
+builder.Services.AddSingleton<ICoachingChannel, NamedPipeCoachingChannel>();
+builder.Services.AddSingleton(new TerminalPolicy(enabled: true));
 
 builder.RootComponents.Add<Piscine.Desktop.App>("#app");
 
