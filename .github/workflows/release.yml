@@ -36,6 +36,9 @@ jobs:
             cp -r artifacts/content "$out/content"
             # App desktop Photino (self-contained par RID), a cote du CLI. DevHost JAMAIS empaquete.
             dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop"
+            # Shim git (AssemblyName=git) : intercepte git en tete de PATH pour le coaching du terminal
+            # embarque (ShimLocator cherche desktop/gitshim/). Le vrai git = MinGit (win) ou git systeme.
+            dotnet publish src/Piscine.GitShim --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop/gitshim"
             if [ "$rid" = "win-x64" ]; then
               mkdir -p "$out/mingit"
               unzip -q mingit.zip -d "$out/mingit"
