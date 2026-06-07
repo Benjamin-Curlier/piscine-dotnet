@@ -1,3 +1,5 @@
+using Piscine.Core.Progression;
+
 namespace Piscine.App.Push;
 
 /// <summary>
@@ -11,6 +13,13 @@ public interface IPushResultWatcher : IAsyncDisposable
 
     /// <summary>Dernier résultat reçu, ou <c>null</c> si aucun depuis le démarrage.</summary>
     PushResult? LatestResult();
+
+    /// <summary>
+    /// Verdict <b>riche</b> du dernier push (diff/indice/cours), lu à la demande depuis
+    /// <c>last-push-result.json</c> (#40). <c>null</c> si l'artefact est absent (rétro-compat :
+    /// la page retombe alors sur le statut seul).
+    /// </summary>
+    PushResultDocument? LatestRichResult();
 
     /// <summary>
     /// Démarre la surveillance (idempotent). Prend un snapshot initial de <c>progress.json</c>

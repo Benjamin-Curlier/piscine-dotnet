@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Piscine.App.Progress;
 using Piscine.App.Push;
 using Piscine.Components.Components.Push;
+using Piscine.Core.Progression;
 using Xunit;
 
 namespace Piscine.Components.Tests;
@@ -19,15 +20,19 @@ public sealed class PushResultPanelTests : BunitContext
     private sealed class FakeWatcher : IPushResultWatcher
     {
         private PushResult? _latest;
+        private readonly PushResultDocument? _rich;
 
-        public FakeWatcher(PushResult? latest = null)
+        public FakeWatcher(PushResult? latest = null, PushResultDocument? rich = null)
         {
             _latest = latest;
+            _rich = rich;
         }
 
         public event Action<PushResult>? ResultReceived;
 
         public PushResult? LatestResult() => _latest;
+
+        public PushResultDocument? LatestRichResult() => _rich;
 
         public void Start() { /* no-op */ }
 
@@ -144,5 +149,36 @@ public sealed class PushResultPanelTests : BunitContext
         var entry = cut.Find("[data-testid='push-entry']");
         Assert.NotNull(entry);
         Assert.Empty(cut.FindAll("[data-testid='push-empty']"));
+    }
+
+    // ── Test 5 : résultat riche → diff inline (CheckFeedback), pas de lien /check ──
+
+    [Fact]
+    public void Render_WithRichResult_ShowsDiffInline_NoCheckLink()
+    {
+        // Arrange — statut + artefact riche (#40) pour le même exercice.
+        var result = MakeResult(("ex00-hello", PushVerdict.ARevoir, 1));
+        var rich = new PushResultDocument(
+            new[]
+            {
+                new PushExerciseResult(
+                    "ex00-hello", "00-setup", "ARevoir",
+                    new[] { new PushCaseResult("io", false, new[] { "Attendu : ok", "Obtenu  : non" }) },
+                    Hint: "Relis l'énoncé.",
+                    CourseRef: "cours.md#hello"),
+            },
+            DateTimeOffset.UtcNow);
+        Services.AddSingleton<IPushResultWatcher>(new FakeWatcher(latest: result, rich: rich));
+
+        // Act
+        var cut = Render<PushResultPanel>();
+
+        // Assert — le diff riche est rendu inline (CheckFeedback) au lieu du lien /check.
+        cut.Find("[data-testid='diff-expected']");
+        cut.Find("[data-testid='diff-actual']");
+        cut.Find("[data-testid='check-verdict']");
+        cut.Find("[data-testid='check-hint']");
+        cut.Find("[data-testid='check-course-ref']");
+        Assert.Empty(cut.FindAll("[data-testid='push-check-link']"));
     }
 }

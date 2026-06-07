@@ -1,9 +1,13 @@
 @page "/resultat"
 @rendermode InteractiveServer
 @namespace Piscine.Components.Components.Push
+@using System.Linq
 @using Piscine.App.Push
 @using Piscine.App.Progress
+@using Piscine.App.Checking
+@using Piscine.Core.Progression
 @using Piscine.Components.Components.Progress
+@using Piscine.Components.Components.Check
 @inject IPushResultWatcher Watcher
 @implements IAsyncDisposable
 
@@ -39,8 +43,17 @@ else
                 {
                     <span class="push-entry-last">@e.LastAttempt.Value.ToLocalTime().ToString("g")</span>
                 }
-                @if (e.Verdict == PushVerdict.ARevoir)
+                @{
+                    var rich = RichFor(e.ExerciseId);
+                }
+                @if (rich is not null)
                 {
+                    @* #40 : diff/indice/cours du dernier push, sans re-jouer le grader. *@
+                    <CheckFeedback Outcome="MapOutcome(rich)" />
+                }
+                else if (e.Verdict == PushVerdict.ARevoir)
+                {
+                    @* Rétro-compat : pas d'artefact riche → renvoi vers /check (comportement S8). *@
                     <a class="push-check-link" data-testid="push-check-link" href="/check">
                         Voir le détail (diff attendu/obtenu)
                     </a>
@@ -56,6 +69,7 @@ else
 
 @code {
     private PushResult? _result;
+    private PushResultDocument? _rich;
     private PushPhase _phase = PushPhase.Idle;
 
     protected override void OnInitialized()
@@ -63,6 +77,7 @@ else
         Watcher.Start();
         Watcher.ResultReceived += OnResult;
         _result = Watcher.LatestResult();
+        _rich = Watcher.LatestRichResult();
         if (_result is not null)
         {
             _phase = PushPhase.Recu;
@@ -78,6 +93,7 @@ else
             await InvokeAsync(() =>
             {
                 _result = r;
+                _rich = Watcher.LatestRichResult();
                 _phase = PushPhase.Recu;
                 StateHasChanged();
             });
@@ -87,6 +103,19 @@ else
             // Circuit fermé (navigation/reload) : ignore.
         }
     }
+
+    /// <summary>Résultat riche du dernier push pour cet exercice, ou <c>null</c> (rétro-compat).</summary>
+    private PushExerciseResult? RichFor(string exerciseId) =>
+        _rich?.Exercises.FirstOrDefault(x => x.ExerciseId == exerciseId);
+
+    /// <summary>Adapte le résultat riche persisté au modèle attendu par <c>CheckFeedback</c> (S4).</summary>
+    private static CheckOutcome MapOutcome(PushExerciseResult pe) => new(
+        pe.ExerciseId,
+        pe.ModuleId,
+        pe.Status == "Reussi" ? CheckVerdict.Reussi : CheckVerdict.ARevoir,
+        pe.Cases.Select(c => new CheckCaseResult(c.GraderType, c.Passed, c.Messages)).ToList(),
+        pe.Hint,
+        pe.CourseRef);
 
     private static ExerciseProgressStatus MapStatus(PushVerdict verdict) => verdict switch
     {

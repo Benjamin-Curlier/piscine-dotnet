@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Piscine.Core;
 using Piscine.Core.Content;
@@ -114,6 +115,11 @@ public sealed class GradeReceivedCommand
         ProgressRecorder.Apply(progress, results, DateTimeOffset.Now);
         store.Save(progress);
 
+        // En plus du statut (progress.json), persiste le verdict RICHE (diff/indice/cours) du push
+        // pour que /resultat l'affiche sans re-jouer le grader (#40). Best-effort : ne casse pas le
+        // rendu si l'écriture échoue.
+        PersistRichResult(results);
+
         var sb = new StringBuilder();
         var anyToReview = false;
         foreach (var result in results)
@@ -126,6 +132,60 @@ public sealed class GradeReceivedCommand
         }
 
         return new CommandResult(anyToReview ? 1 : 0, sb.ToString().TrimEnd());
+    }
+
+    /// <summary>
+    /// Écrit le résultat riche du push (par exercice : statut, cas/diff verbatim, indice apparié,
+    /// renvoi cours) dans <c>last-push-result.json</c>. Résolution indice/cours identique à
+    /// <c>ResultFormatter</c> / <c>CheckService</c>. Best-effort : une erreur d'écriture est ignorée.
+    /// </summary>
+    private void PersistRichResult(IReadOnlyList<ExerciseGradingResult> results)
+    {
+        var exercises = new List<PushExerciseResult>(results.Count);
+        foreach (var result in results)
+        {
+            var location = ContentLocator.FindExercise(_layout.Content, result.ExerciseId);
+            var feedback = location is null
+                ? new FeedbackConfig()
+                : ExerciseManifestLoader.Load(location.ContentDir).Feedback;
+
+            var cases = result.Results
+                .Select(r => new PushCaseResult(r.GraderType, r.Status == GraderStatus.Reussi, r.Messages))
+                .ToList();
+
+            string? hint = null;
+            string? courseRef = null;
+            if (result.Status == GraderStatus.ARevoir)
+            {
+                var trigger = result.Results
+                    .FirstOrDefault(r => r.Status == GraderStatus.ARevoir && r.Trigger is not null)
+                    ?.Trigger;
+                if (trigger is not null)
+                {
+                    hint = feedback.Hints.FirstOrDefault(h => h.When == trigger)?.Message;
+                }
+
+                courseRef = string.IsNullOrWhiteSpace(feedback.CourseRef) ? null : feedback.CourseRef;
+            }
+
+            exercises.Add(new PushExerciseResult(
+                result.ExerciseId,
+                location?.ModuleId ?? string.Empty,
+                result.Status.ToString(),
+                cases,
+                hint,
+                courseRef));
+        }
+
+        try
+        {
+            new LastPushResultStore(_layout.LastPushResultPath)
+                .Save(new PushResultDocument(exercises, DateTimeOffset.Now));
+        }
+        catch (IOException)
+        {
+            // Best-effort : l'absence de l'artefact riche fait retomber /resultat sur le statut seul.
+        }
     }
 
     private FeedbackConfig FeedbackFor(string exerciseId)

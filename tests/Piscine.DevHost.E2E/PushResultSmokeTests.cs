@@ -138,6 +138,64 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
         }
     }
 
+    [Fact]
+    public async Task Rich_push_result_renders_diff_inline_without_manual_action()
+    {
+        using var pw = await Playwright.CreateAsync();
+
+        IBrowser browser;
+        try
+        {
+            browser = await pw.Chromium.LaunchAsync();
+        }
+        catch (PlaywrightException)
+        {
+            return; // navigateur non installé : skip propre
+        }
+
+        await using (browser)
+        {
+            var page = await browser.NewPageAsync();
+
+            await page.GotoAsync($"{BaseUrl}/resultat", new PageGotoOptions { Timeout = 30_000 });
+            await page.WaitForSelectorAsync(
+                "[data-testid='push-empty']",
+                new PageWaitForSelectorOptions { Timeout = 30_000 });
+
+            // Écrire D'ABORD l'artefact riche (#40), PUIS progress.json (qui déclenche le watcher) :
+            // le handler de la page relit last-push-result.json et rend le diff inline.
+            var doc = new PushResultDocument(
+                new[]
+                {
+                    new PushExerciseResult(
+                        "ex00-hello", "00-setup", "ARevoir",
+                        new[] { new PushCaseResult("io", false, new[] { "Attendu : ok", "Obtenu  : non" }) },
+                        "Relis l'énoncé.", "cours.md#hello"),
+                },
+                DateTimeOffset.Now);
+            new LastPushResultStore(Path.Combine(_stateDir!, "last-push-result.json")).Save(doc);
+
+            var progress = new Progress();
+            progress.Exercises["ex00-hello"] = new ExerciseProgress
+            {
+                Status = ExerciseStatus.ARevoir,
+                Attempts = 1,
+                LastAttempt = DateTimeOffset.Now,
+            };
+            new ProgressStore(Path.Combine(_stateDir!, "progress.json")).Save(progress);
+
+            // Sans aucun clic : le diff riche (CheckFeedback) apparaît, pas le lien /check.
+            await page.WaitForSelectorAsync(
+                "[data-testid='diff-actual']",
+                new PageWaitForSelectorOptions { Timeout = 15_000 });
+
+            Assert.True(
+                await page.Locator("[data-testid='diff-expected']").CountAsync() > 0,
+                "Le diff attendu (#40) n'est pas rendu inline sur /resultat.");
+            Assert.Equal(0, await page.Locator("[data-testid='push-check-link']").CountAsync());
+        }
+    }
+
     /// <summary>Sonde l'URL racine en boucle jusqu'à ce qu'elle réponde (ou expiration).</summary>
     private static async Task WaitForServerAsync(TimeSpan timeout)
     {
