@@ -65,10 +65,17 @@ App/CLI/content/git/shim/runtime .NET (self-contained) + Roslyn embarqué sont *
 - [ ] `build/installer/linux/` : `AppDir/AppRun` (lance `desktop/Piscine.Desktop`, met `gitshim`+git sur
   PATH, exporte les libs bundlées le cas échéant), `piscine.desktop`, icône. **git embarqué** (binaire
   statique/portable Linux) dans **les deux modes**. **2 modes** :
-  - **offline** : **`libwebkit2gtk-4.1` + deps embarqués** via **`linuxdeploy` + `linuxdeploy-plugin-gtk`**
-    (bundle webkit2gtk/gtk/gdk-pixbuf/loaders) → fonctionne sans `apt`.
   - **online** : AppImage **léger** sans webkit bundlé → s'appuie sur le **webkit système** (sinon
-    `apt install libwebkit2gtk-4.1-0` à l'install).
+    `apt install libwebkit2gtk-4.1-0` à l'install). **(Facile — faire en premier.)**
+  - **offline (A, PRIMAIRE)** : AppImage **avec webkit bundlé MANUELLEMENT**. ⚠️ **CONSTAT POC** :
+    `Photino.Native.so` n'a **pas** de dépendance ELF directe vers webkit (Photino fait `dlopen`) →
+    `linuxdeploy`/plugin gtk ne le bundle **pas** tout seul. Donc copier explicitement dans l'AppDir :
+    `libwebkit2gtk-4.1.so*`, `libjavascriptcoregtk-4.1*`, le dossier `webkit2gtk-4.1/` (process
+    `WebKitNetworkProcess`/`WebKitWebProcess` + injected bundles), gtk/gdk-pixbuf + loaders, GIO modules,
+    `libsoup` ; `AppRun` exporte `LD_LIBRARY_PATH`, `GDK_PIXBUF_MODULE_FILE`, `GIO_MODULE_DIR`,
+    `WEBKIT_EXEC_PATH`/`PATH` vers les helpers. Passer `linuxdeploy --library` pour les libs dlopen'd.
+  - **offline (B, REPLI si A intractable)** : **`.deb`** bundlant les paquets webkit (+deps), installés
+    **hors-ligne** (`dpkg -i` des .deb embarqués) → webkit **distro** (robuste) ; **root + Debian/Ubuntu**.
 - [ ] `release.yml` (job ubuntu) : publish linux-x64 (CLI+desktop+gitshim) → AppDir ; **2 sorties** :
   `appimagetool` direct (online) et via `linuxdeploy`+gtk (offline) →
   `dist/piscine-<tag>-linux-x86_64-online.AppImage` et `…-offline.AppImage` ; upload. (Offline volumineux = assumé.)
@@ -94,10 +101,12 @@ Expected : `release.yml` produit un **installeur Windows (.exe)** + un **AppImag
 ## Vérification de l'exigence HORS-LIGNE
 - **Windows** : smoke local du FV WebView2 (`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER` → app démarre, 0 crash) ;
   build installeur en CI ; install + lancement **sans réseau** = smoke proprio (couper le réseau).
-- **Linux** : via **Docker** — exécuter l'AppImage extrait (`--appimage-extract`) dans un conteneur **minimal
-  SANS internet** (`docker run --network=none`) et vérifier que le CLI + PtyService tournent (la fenêtre
-  webview = proprio, mais l'absence des libs webkit bundlées se verrait via `ldd`/lancement). Confirme que
-  rien n'est tiré du réseau.
+- **Linux** : via **Docker** **sans internet** (`docker run --network=none`) sur un conteneur **minimal
+  SANS webkit installé** — extraire l'AppImage offline (`--appimage-extract`) et :
+  (1) `ldd` sur `Photino.Native.so` + la présence de `libwebkit2gtk-4.1.so*` & des helpers dans l'AppDir
+  (preuve du bundling) ; (2) **démarrage GUI sous `xvfb-run`** → la sortie Photino doit logguer
+  `Load http://localhost/` **0 crash** (prouve que webkit bundlé se charge, hors-ligne, sans webkit système).
+  La fenêtre réelle = smoke proprio. Si (2) échoue malgré le bundling → basculer sur le repli **(B) .deb**.
 
 ## Notes / risques
 - **Inno non préinstallé** sur les runners GitHub → `choco install innosetup`. Build installeur **non signé**

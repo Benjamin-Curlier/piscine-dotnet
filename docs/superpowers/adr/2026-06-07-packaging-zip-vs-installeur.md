@@ -72,9 +72,16 @@ tard ; **(C)** seulement si la distribution devient publique/large (et avec budg
     Evergreen** exécuté à l'install (télécharge WebView2). 2 sorties : `…-win-x64-offline-setup.exe` /
     `…-win-x64-online-setup.exe` (même `.iss`, define ISCC `/DMODE`).
   - **Linux** : **AppImage** embarquant app self-contained + **git** dans les deux modes. webkit :
-    **offline** = **`libwebkit2gtk-4.1` + deps embarqués** (`linuxdeploy`+plugin gtk) ; **online** = AppImage
-    léger s'appuyant sur le **webkit système** (sinon `apt install libwebkit2gtk-4.1-0`). 2 sorties :
-    `…-linux-x86_64-offline.AppImage` / `…-linux-x86_64-online.AppImage`.
+    - **online** = AppImage **léger** s'appuyant sur le **webkit système** (sinon `apt install libwebkit2gtk-4.1-0`).
+    - **offline** = **(A) AppImage avec webkit bundlé** (PRIMAIRE) ; si intractable, **(B) `.deb` offline
+      bundlant les paquets webkit (root, Debian/Ubuntu)** en REPLI. *(Décision proprio : « 1 et repli sur 2 ».)*
+    - **CONSTAT POC (Docker)** : `Photino.Native.so` **n'a aucune dépendance ELF directe** vers webkit/gtk
+      → Photino fait `dlopen` de webkit au runtime ⇒ `linuxdeploy` ne le bundle **pas** automatiquement.
+      L'offline AppImage doit donc bundler **manuellement** `libwebkit2gtk-4.1.so*` + les **process auxiliaires**
+      (`WebKitNetworkProcess`/`WebKitWebProcess`, dossier `webkit2gtk-4.1/`) + gtk/gdk-pixbuf/loaders + GIO,
+      et câbler `LD_LIBRARY_PATH`/env dans `AppRun`. **Vérif** : démarrage sous **xvfb + `--network=none`** en
+      CI (la fenêtre = smoke proprio). Si le bundling résiste après effort raisonnable → bascule sur (B).
+    - 2 sorties : `…-linux-x86_64-offline.AppImage` (ou `.deb` si repli) / `…-linux-x86_64-online.AppImage`.
 - **« .NET SDK »** : interprété comme **runtime .NET embarqué** (publish **self-contained**, déjà le cas) +
   **Roslyn embarqué** pour la correction → **aucun SDK .NET requis** côté recrue. **On NE bundle PAS le SDK**
   (≈ Go inutiles, contraire au design « sans SDK »). *(Si le proprio voulait littéralement le SDK, me le dire.)*
