@@ -24,6 +24,18 @@ commandes git, exactement comme dans le cours.
    git merge feature
    ```
 
+## Rendre ton travail
+
+La moulinette inspecte **le dépôt reçu** (`origin`). Comme cet exercice porte sur tes **branches**,
+pousse-les **toutes** (pas seulement `main`) pour que `feature` arrive aussi côté `origin` :
+
+```bash
+git push origin --all
+```
+
+> Tant que la branche `feature` n'est pas poussée, l'exercice est considéré comme **non commencé**
+> (il n'apparaît pas en « à revoir »). Dès qu'elle est là, la moulinette note l'état de ton dépôt.
+
 ## Ce qui est vérifié
 
 - les branches `main` **et** `feature` existent ;

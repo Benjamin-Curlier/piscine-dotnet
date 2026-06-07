@@ -163,6 +163,14 @@ public sealed class ContentValidator
                     var detail = string.Join(" ; ", result.Results.SelectMany(r => r.Messages));
                     issues.Add(new ContentIssue(exerciseId, $"la fixture git ne passe pas les assertions : {detail}"));
                 }
+
+                // Notation live (#17) : si un signal « attempt » est déclaré, le corrigé (la fixture)
+                // doit le satisfaire — sinon le vrai rendu ne serait jamais reconnu comme « tenté ».
+                if (step.Git.Attempt is { } attempt && !GitAttemptEvaluator.IsAttempted(attempt, dir))
+                {
+                    issues.Add(new ContentIssue(exerciseId,
+                        "le signal « attempt » n'est pas satisfait par la fixture : le corrigé devrait être reconnu comme « tenté »."));
+                }
             }
             catch (Exception e)
             {
