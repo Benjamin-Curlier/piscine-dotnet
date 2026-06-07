@@ -6,9 +6,11 @@
 > **PAS** le SDK .NET — self-contained + Roslyn embarqué suffisent). **Aucun tag** (release = proprio).
 
 ## Objectif
-Remplacer/compléter les zips par des **installeurs indépendants** : Windows **Inno Setup (.exe)** et
-Linux **AppImage**, chacun embarquant tout le nécessaire (app desktop + CLI `piscine` + `content/` + git +
-shim + webview). Abandonner `osx-arm64`. Le poste recrue n'installe **rien** d'autre.
+Remplacer/compléter les zips par des **installeurs indépendants et 100% HORS-LIGNE** : Windows **Inno
+Setup (.exe)** et Linux **AppImage**, chacun embarquant tout le nécessaire (app desktop + CLI `piscine` +
+`content/` + git + shim + **runtime webview**). Abandonner `osx-arm64`. Le poste recrue n'installe **rien**
+et **n'a besoin d'aucun accès internet** — ni à l'installation, ni à l'usage (correction Roslyn embarquée,
+runtime .NET self-contained, git bundlé, webview bundlé).
 
 ## ⚠️ Ampleur & garde-fous
 - **Gros chantier CI** (nouveau job runner Windows, nouveaux outils d'empaquetage) → **étagé** ; commits
@@ -41,21 +43,26 @@ shim + webview). Abandonner `osx-arm64`. Le poste recrue n'installe **rien** d'a
   (publish win-x64 self-contained du CLI + desktop + gitshim, `content/`, MinGit, lanceurs). Crée
   raccourcis (menu Démarrer : « Piscine .NET » → desktop ; « Piscine (terminal) » → start-piscine.cmd),
   installe sous `{autopf}\Piscine .NET` ou `{localappdata}` (sans admin si possible : `PrivilegesRequired=lowest`).
-- [ ] **WebView2** : étape `[Run]`/`[Code]` qui exécute le **bootstrapper Evergreen**
-  (`MicrosoftEdgeWebview2Setup.exe`, téléchargé dans le job) **si** WebView2 absent (clé registre
-  `pv` sous `...\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}`).
+- [ ] **WebView2 HORS-LIGNE = Fixed Version** (PAS le bootstrapper Evergreen qui télécharge) : au build CI,
+  télécharger le **runtime WebView2 Fixed Version** (paquet versionné Microsoft, ~120–180 Mo), l'extraire
+  dans le payload sous `webview2/`. L'installeur le copie ; le lanceur desktop exporte
+  `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=<install>\webview2\...` avant de lancer l'app (le loader WebView2
+  honore cette variable ; sans admin, hors-ligne). Vérifier que Photino démarre avec cette variable pointée
+  (smoke local : poser un FV extrait + lancer l'exe avec la variable → 0 crash).
 - [ ] `release.yml` : **nouveau job `release-windows` (runs-on: windows-latest)** : setup-dotnet ;
-  `package-content` ; publish win-x64 (CLI+desktop+gitshim) ; télécharger MinGit + WebView2 bootstrapper ;
+  `package-content` ; publish win-x64 (CLI+desktop+gitshim) ; télécharger MinGit + **WebView2 Fixed Version** ;
   `choco install innosetup` ; `ISCC piscine.iss` → `dist/piscine-<tag>-win-x64-setup.exe` ; upload à la
-  release (`gh release upload` ou artefact agrégé par le job principal).
+  release. (Installeur volumineux = assumé pour l'hors-ligne.)
 - [ ] Commit : `build(release): installeur Windows Inno Setup (app+CLI+content+MinGit+WebView2 bootstrapper)`
 
 ## T3 — Installeur Linux (AppImage, indépendant)
 - [ ] `build/installer/linux/` : `AppDir/AppRun` (lance `desktop/Piscine.Desktop`, met `gitshim`+git sur
-  PATH), `piscine.desktop`, icône. **git embarqué** : inclure un git portable Linux (ou un git statique)
-  sous l'AppDir → indépendance ; à défaut, documenter `libwebkit2gtk-4.1` comme seule dépendance hôte.
+  PATH, exporte les libs bundlées), `piscine.desktop`, icône. **git embarqué** (binaire statique/portable
+  Linux sous l'AppDir). **`libwebkit2gtk-4.1` + dépendances embarquées OBLIGATOIRE** (hors-ligne interdit
+  `apt`) via **`linuxdeploy` + `linuxdeploy-plugin-gtk`** (bundle webkit2gtk/gtk/gdk-pixbuf/loaders).
 - [ ] `release.yml` (job ubuntu) : publish linux-x64 self-contained (CLI+desktop+gitshim) → AppDir ;
-  `appimagetool` → `dist/piscine-<tag>-linux-x86_64.AppImage` ; upload.
+  installer les libs sur le runner (apt) pour que `linuxdeploy` les **copie dans l'AppImage** ;
+  `appimagetool` → `dist/piscine-<tag>-linux-x86_64.AppImage` ; upload. (AppImage volumineux = assumé.)
 - [ ] **Vérif Docker** : monter/extraire l'AppDir et lancer le CLI + tester le PTY dans
   `dotnet/sdk:10.0` (la fenêtre AppImage = proprio ; mais le CLI + PtyService testables headless).
 - [ ] Commit : `build(release): AppImage Linux (app+CLI+content+git+shim, independant)`
@@ -75,10 +82,21 @@ shim + webview). Abandonner `osx-arm64`. Le poste recrue n'installe **rien** d'a
 Expected : `release.yml` produit un **installeur Windows (.exe)** + un **AppImage Linux**, indépendants
 (runtime+git+webview gérés), **plus de macOS** ; CI verte ; Grading/CLI intacts ; aucun tag. La doc suit en S14.
 
+## Vérification de l'exigence HORS-LIGNE
+- **Windows** : smoke local du FV WebView2 (`WEBVIEW2_BROWSER_EXECUTABLE_FOLDER` → app démarre, 0 crash) ;
+  build installeur en CI ; install + lancement **sans réseau** = smoke proprio (couper le réseau).
+- **Linux** : via **Docker** — exécuter l'AppImage extrait (`--appimage-extract`) dans un conteneur **minimal
+  SANS internet** (`docker run --network=none`) et vérifier que le CLI + PtyService tournent (la fenêtre
+  webview = proprio, mais l'absence des libs webkit bundlées se verrait via `ldd`/lancement). Confirme que
+  rien n'est tiré du réseau.
+
 ## Notes / risques
 - **Inno non préinstallé** sur les runners GitHub → `choco install innosetup`. Build installeur **non signé**
-  (SmartScreen persiste, comme aujourd'hui — assumé).
-- **AppImage + git/webkit** : embarquer git est faisable (binaire portable) ; embarquer `libwebkit2gtk` est
-  fragile → si non bundlé proprement, garder la **dépendance hôte documentée** (compromis « indépendant au
-  mieux »). À trancher à l'implémentation selon ce que le smoke Docker confirme.
+  (SmartScreen persiste, comme aujourd'hui — assumé). Ces téléchargements/outillages sont au **build CI**
+  (avec internet) ; le **poste recrue** reste 100% hors-ligne.
+- **AppImage + webkit OBLIGATOIRE** (hors-ligne) : `linuxdeploy-plugin-gtk` bundle webkit2gtk/gtk/loaders ;
+  fiabiliser via `ldd` sur le binaire dans l'AppImage + lancement `--network=none`. C'est le **point dur**
+  du sprint → si le bundling webkit résiste, le remonter au proprio (pas de repli « apt » : ce serait violer
+  l'exigence hors-ligne).
+- **Taille** : FV WebView2 (~150 Mo) + webkit bundlé gonflent les installeurs → **assumé** (prix du hors-ligne).
 - **Zips** conservés (repli) ; si le proprio veut les retirer, le faire en T1.

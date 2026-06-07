@@ -53,15 +53,23 @@ seule douleur réelle (webview) se traite à moindre coût. Réserver **(B)** si
 tard ; **(C)** seulement si la distribution devient publique/large (et avec budget signature).
 
 ## Décision (proprio, 2026-06-07)
-**Option (C) adaptée — installeurs Windows + Linux, macOS abandonné, install « indépendant ».**
+**Option (C) adaptée — installeurs Windows + Linux, macOS abandonné, environnement prêt et 100% HORS-LIGNE.**
+
+> **EXIGENCE CLÉ (proprio)** : l'installeur déploie un **environnement prêt pour la piscine qui fonctionne
+> SANS INTERNET** — ni au moment de l'installation, ni à l'usage. Donc **tout est embarqué** : runtime,
+> git, **runtime webview**, contenu. Aucun téléchargement sur le poste recrue.
+
 - **Abandonner la cible macOS** (`osx-arm64`) : retirée de `release.yml` + dry-run `ci.yml` + docs.
-- **Installeurs par OS** (le livrable principal) :
+- **Installeurs par OS** (le livrable principal), **auto-suffisants hors-ligne** :
   - **Windows** : installeur **Inno Setup** (`.exe`) bâti dans un **job runner `windows-latest`** ;
-    embarque l'app desktop + le CLI `piscine` + `content/` + **MinGit** + le **bootstrapper WebView2
-    Evergreen** (exécuté si WebView2 absent) + raccourci. → poste **indépendant**.
+    embarque l'app desktop + le CLI `piscine` + `content/` + **MinGit** + **le runtime WebView2 « Fixed
+    Version »** (dossier versionné téléchargé au build CI, embarqué) + raccourci. **PAS le bootstrapper
+    Evergreen** (il télécharge → exige internet). Le lanceur pointe WebView2 via
+    `WEBVIEW2_BROWSER_EXECUTABLE_FOLDER=<install>/webview2` (loader WebView2 honore cette variable ;
+    sans admin). → poste **indépendant et hors-ligne**.
   - **Linux** : **AppImage** (un fichier exécutable, sans install/admin) embarquant l'app self-contained
-    + **git** ; `libwebkit2gtk-4.1` = la lib hôte restante (bundling webkit dans l'AppImage fragile →
-    à embarquer si faisable, sinon prérequis documenté minimal). → aussi proche que possible d'indépendant.
+    + **git** + **`libwebkit2gtk-4.1` ET ses dépendances** (bundling **obligatoire** via
+    `linuxdeploy`+plugin gtk — l'hors-ligne interdit le `apt install`). → **indépendant et hors-ligne**.
 - **« .NET SDK »** : interprété comme **runtime .NET embarqué** (publish **self-contained**, déjà le cas) +
   **Roslyn embarqué** pour la correction → **aucun SDK .NET requis** côté recrue. **On NE bundle PAS le SDK**
   (≈ Go inutiles, contraire au design « sans SDK »). *(Si le proprio voulait littéralement le SDK, me le dire.)*
