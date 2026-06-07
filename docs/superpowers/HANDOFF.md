@@ -197,9 +197,20 @@ le **2ᵉ écran/souris** pour Photino. **Aucun tag** (release = action proprio)
   57/57 App tests sur WSL2 : PTY forkpty + coaching named-pipe/socket Unix + shim) → **lève les checklists
   proprio S2/S3**. 257 tests, Grading/CLI/Core intacts. Retex : `docs/superpowers/retex/2026-06-07-v5-s12-terminal-photino.md`.
   **Reste proprio** : confirmer visuellement terminal+coaching dans la fenêtre native (Win/Linux/macOS).
-- ⏭ **#46 S13 — Packaging : zip vs installeur** (recherche + ADR + **reco au proprio AVANT** de changer la distribution).
-- ⏭ **#46 S13 — Packaging : zip vs installeur** (recherche + reco au proprio AVANT de changer la distribution).
-- ⏭ **#47 S14 — Docs recrue + déploiement** (refléter terminal in-app + résultat riche + packaging). **Dernier sprint v5.**
+- ✅ **#46 S13 — Installeurs Windows + Linux (offline & online), macOS abandonné** (PR #50 mergée).
+  **Décision proprio** : 2 modes (offline/online) × 2 OS ; **macOS abandonné** (`osx-arm64` retiré) ; zips
+  conservés. **Linux AppImage** (`build/installer/linux/`) : offline = webkit2gtk-4.0 + gtk + git bundlés
+  (linuxdeploy + plugin gtk, **bâti sur ubuntu-22.04**), **hors-ligne PROUVÉ en CI** (docker `--network=none`
+  + xvfb, conteneur sans webkit → charge `app://localhost/`) ; online = webkit système. **Windows Inno**
+  (`build/installer/windows/piscine.iss`) : per-utilisateur (`PrivilegesRequired=lowest`), offline = runtime
+  **WebView2 Standalone Evergreen** embarqué (run-if-missing) / online = bootstrapper ; **vérifié en local**
+  (install/désinstall) **+ compile en CI**. `release.yml` = 3 jobs (package-linux / package-windows / release) ;
+  `ci.yml` = dry-runs AppImage-offline (hors-ligne) + Windows-installeur (compile). **Aucun `src/` touché, aucun
+  tag.** **CONSTAT clé : Photino.Blazor 3.2.0 → webkit2gtk-4.0 (PAS 4.1)** → online Linux prereq `libwebkit2gtk-4.0-37`.
+  Retex : `docs/superpowers/retex/2026-06-07-v5-s13-installers.md`. WebView2 fwlinks : offline `linkid=2124701`, online `LinkId=2124703`.
+- ⏭ **#47 S14 — Docs recrue + déploiement** (refléter terminal in-app + résultat riche + packaging/installeurs +
+  **corriger webkit2gtk → 4.0** dans `mise-en-oeuvre.md`/`deploiement.md` + macOS abandonné). **Dernier sprint v5
+  — NON démarré (boucle arrêtée à la demande du proprio avant S14).**
 
 ## v4 — application desktop Photino (S1 → S10 FAITS ✅ — **milestone #2 CLOS**, backlog #22–#31 terminé)
 Objectif : **remplacer l'UX recrue console par une app de bureau Photino.Blazor**, **sans toucher au
