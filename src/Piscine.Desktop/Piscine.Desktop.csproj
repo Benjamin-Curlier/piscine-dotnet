@@ -8,11 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Photino.Blazor 3.x (sur Photino.NET v3) : couche Blazor (PhotinoBlazorAppBuilder). -->
-    <PackageReference Include="Photino.Blazor" Version="3.2.0" />
-    <!-- Aligne Microsoft.AspNetCore.Components.WebView (tiré par Photino.Blazor en 8.0.x) sur le
-         framework partagé net10.0 installé, sinon NU1605 (downgrade) sous TreatWarningsAsErrors. -->
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.8" />
+    <!-- PhotinoX.Blazor 4.x (fork maintenu net10-natif de Photino.Blazor) : couche Blazor
+         (PhotinoBlazorAppBuilder, namespace Photino.Blazor conservé). Aligne nativement
+         Microsoft.AspNetCore.Components.WebView sur 10.0.x → plus d'épingle NU1605 nécessaire. -->
+    <PackageReference Include="PhotinoX.Blazor" Version="4.2.0" />
   </ItemGroup>
 
   <ItemGroup>

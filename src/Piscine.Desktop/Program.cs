@@ -86,6 +86,6 @@ app.MainWindow
    .SetUseOsDefaultSize(true);
 
 AppDomain.CurrentDomain.UnhandledException += (_, e) =>
-    app.MainWindow.ShowMessage("Erreur fatale", e.ExceptionObject.ToString());
+    app.MainWindow.ShowMessage("Erreur fatale", e.ExceptionObject.ToString() ?? "Exception inconnue");
 
 app.Run();
