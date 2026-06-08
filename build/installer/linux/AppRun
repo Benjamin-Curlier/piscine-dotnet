@@ -10,7 +10,7 @@ LIB="$HERE/usr/lib"
 export LD_LIBRARY_PATH="$LIB:$LIB/x86_64-linux-gnu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 # Process auxiliaires WebKit (WebKitNetworkProcess/WebKitWebProcess) + injected bundle (offline).
-# Version-agnostique : 4.0 (Photino 3.2.0) ou 4.1.
+# Version-agnostique : 4.1 (PhotinoX 4.2.0) — la boucle accepte aussi 4.0 (retro-compat).
 for d in "$LIB"/webkit2gtk-4.*; do [ -d "$d" ] && export WEBKIT_EXEC_PATH="$d"; done
 
 # Chargeurs gdk-pixbuf + modules GIO bundlés (cache régénéré au build).
