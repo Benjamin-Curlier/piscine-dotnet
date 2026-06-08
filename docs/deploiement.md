@@ -79,9 +79,9 @@ gh release view v2.0.0
 
 Le workflow a **3 jobs** :
 
-### `package-linux` (ubuntu-22.04)
+### `package-linux` (ubuntu-24.04)
 
-> Ubuntu **22.04** car Photino.Blazor 3.2.0 cible **webkit2gtk-4.0** (la 24.04 ne fournit plus la 4.0).
+> Ubuntu **24.04** car PhotinoX.Blazor 4.2.0 cible **webkit2gtk-4.1** (soup3) ; la 22.04 ne fournit que la 4.0.
 
 1. **`package-content content artifacts/content`** — copie le contenu **sans les `solution/`**
    (les corrigés ne sont jamais distribués).
@@ -90,12 +90,12 @@ Le workflow a **3 jobs** :
    `Piscine.Desktop` dans `desktop/`, **shim git** `Piscine.GitShim` dans `desktop/gitshim/`, et le
    `content/` assemblé. Lanceurs `start-piscine-desktop.{cmd,sh}` ; **Windows uniquement** : MinGit
    portable dans `mingit/` + `start-piscine.cmd`. Zips nommés `piscine-<tag>-<rid>.zip`.
-   - Les **libs natives Photino** sont à la **racine** du dossier `desktop/` (`Photino.Native.dll` +
-     `WebView2Loader.dll` Windows, `Photino.Native.so` Linux) — **pas** sous `runtimes/<rid>/native/`.
+   - Les **libs natives PhotinoX** sont à la **racine** du dossier `desktop/` (`PhotinoX.Native.dll` +
+     `WebView2Loader.dll` Windows, `PhotinoX.Native.so` Linux) — **pas** sous `runtimes/<rid>/native/`.
 3. **AppImage Linux** en deux variantes (`linuxdeploy` + plugin GTK) :
-   - `piscine-<tag>-linux-x86_64-offline.AppImage` — **webkit2gtk-4.0 + gtk + git bundlés** → tourne
+   - `piscine-<tag>-linux-x86_64-offline.AppImage` — **webkit2gtk-4.1 + gtk + git bundlés** → tourne
      **hors-ligne**, sans rien installer sur le poste.
-   - `piscine-<tag>-linux-x86_64-online.AppImage` — léger, s'appuie sur le `libwebkit2gtk-4.0` système.
+   - `piscine-<tag>-linux-x86_64-online.AppImage` — léger, s'appuie sur le `libwebkit2gtk-4.1` système.
 
 ### `package-windows` (windows-latest)
 
@@ -127,8 +127,8 @@ peut falloir l'installer à la main :
 - **Windows** : runtime **WebView2** (Evergreen). Préinstallé sur Windows 11 et les Windows 10
   récents. **Éditions N** / images minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
   (`WebView2Loader.dll` est dans le paquet ; c'est le **runtime** qui peut manquer, pas le loader.)
-- **Linux** : **`libwebkit2gtk-4.0`** (Photino 3.2.0 — **pas** 4.1) — Debian/Ubuntu
-  `sudo apt install libwebkit2gtk-4.0-37`, Fedora `sudo dnf install webkit2gtk4.0`.
+- **Linux** : **`libwebkit2gtk-4.1`** (PhotinoX 4.2.0) — Debian/Ubuntu
+  `sudo apt install libwebkit2gtk-4.1-0`, Fedora `sudo dnf install webkit2gtk4.1`.
   *(L'AppImage **offline** l'embarque → aucun prérequis.)*
 
 ### Notes de release
@@ -153,7 +153,7 @@ dotnet publish src/Piscine.Cli -c Release -r win-x64 --self-contained true -o ar
 
 # App de bureau (même opération que la release) + assertion des libs natives à la racine :
 dotnet publish src/Piscine.Desktop -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o artifacts/pkg/piscine-win-x64/desktop
-Test-Path artifacts/pkg/piscine-win-x64/desktop/Photino.Native.dll   # → True
+Test-Path artifacts/pkg/piscine-win-x64/desktop/PhotinoX.Native.dll   # → True
 Test-Path artifacts/pkg/piscine-win-x64/desktop/WebView2Loader.dll   # → True
 ```
 
@@ -175,9 +175,9 @@ Les *dry-runs* CI prouvent que les paquets se **construisent** (et, pour l'AppIm
       diff/indice) → *Progression* → *Initialiser* → *Terminal* (`git init` puis `git commit` rien stagé
       → **carte de coaching**) → *Résultat* (riche après un `git push`).
 - [ ] **Windows (installeur online)** : idem sur une machine **sans WebView2** → l'installeur télécharge le runtime.
-- [ ] **Linux (AppImage offline)** : `*-offline.AppImage` sur une machine **sans** `libwebkit2gtk-4.0` et
+- [ ] **Linux (AppImage offline)** : `*-offline.AppImage` sur une machine **sans** `libwebkit2gtk-4.1` et
       **hors-ligne** → même flux.
-- [ ] **Linux (AppImage online)** : `*-online.AppImage` (webkit système / `apt install libwebkit2gtk-4.0-37`) → même flux.
+- [ ] **Linux (AppImage online)** : `*-online.AppImage` (webkit système / `apt install libwebkit2gtk-4.1-0`) → même flux.
 - [ ] **Terminal + coaching** confirmés dans la fenêtre native (page *Terminal*) sur Windows et Linux.
 - [ ] **CLI intact** (zips) : `piscine init` puis `piscine status` répondent (le hook de correction
       n'est pas affecté par l'app de bureau ni par les installeurs).
