@@ -32,7 +32,7 @@ jobs:
           PISCINE_CONTENT: ${{ github.workspace }}/content
 
       # Dry-run du packaging desktop (S9) : exerce, a chaque PR, la meme operation que la
-      # release (publish self-contained par RID) AVANT tout tag. Les libs natives Photino
+      # release (publish self-contained par RID) AVANT tout tag. Les libs natives PhotinoX
       # sont posees a la RACINE de sortie (pas runtimes/<rid>/native/) — verifie en T1.
       - name: Dry-run packaging desktop (publish cross-RID + libs natives)
         run: |
@@ -42,17 +42,17 @@ jobs:
             dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
             test -f "$out/Piscine.Desktop" -o -f "$out/Piscine.Desktop.exe"
             case "$rid" in
-              win-x64)   test -f "$out/Photino.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
-              linux-x64) test -f "$out/Photino.Native.so" ;;
+              win-x64)   test -f "$out/PhotinoX.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
+              linux-x64) test -f "$out/PhotinoX.Native.so" ;;
             esac
             echo "OK $rid"
           done
 
   # Dry-run installeur Linux (S13) : construit l'AppImage OFFLINE et prouve qu'elle se lance
   # SANS internet et SANS webkit système (conteneur webkit-less, --network=none, xvfb) → garantit
-  # l'empaquetage hors-ligne avant tout tag. ubuntu-22.04 = libwebkit2gtk-4.0 (Photino 3.2.0).
+  # l'empaquetage hors-ligne avant tout tag. ubuntu-24.04 = libwebkit2gtk-4.1 (PhotinoX 4.2.0).
   appimage-offline-dryrun:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -65,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq imagemagick libwebkit2gtk-4.0-37 libgtk-3-0 libgtk-3-bin \
+          sudo apt-get install -y -qq imagemagick libwebkit2gtk-4.1-0 libgtk-3-0 libgtk-3-bin \
             libnotify4 librsvg2-2 librsvg2-common libfuse2 patchelf desktop-file-utils dpkg-dev \
             pkg-config libglib2.0-bin libgdk-pixbuf2.0-bin
           dotnet run --project src/Piscine.Cli -c Release -- package-content content artifacts/content
@@ -99,7 +99,8 @@ jobs:
             if grep -qi "DllNotFound\|Unhandled exception" /tmp/log; then
               echo "FAIL: dependance bundlée manquante (AppImage non auto-suffisant hors-ligne)"; exit 1
             fi
-            grep -q "Load(app://localhost" /tmp/log || { echo "FAIL: app n a pas chargé app://localhost"; exit 1; }
+            # PhotinoX charge l'app locale via app:// ou http://localhost selon la plateforme/version.
+            grep -qE "Load\((app|http)://localhost" /tmp/log || { echo "FAIL: app n a pas chargé localhost"; exit 1; }
             echo "OFFLINE OK : lancement + chargement webview avec webkit bundlé, sans réseau ni webkit système"
           '
 
