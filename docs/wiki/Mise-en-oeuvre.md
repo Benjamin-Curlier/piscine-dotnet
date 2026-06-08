@@ -8,7 +8,7 @@ le dépôt :
 Elle couvre (**Windows + Linux** ; macOS n'est plus distribué) :
 
 - **Prérequis réels** : aucun SDK .NET (binaire self-contained) ; git fourni (MinGit) sous Windows,
-  système sous Linux ; webview géré par l'installeur (ou WebView2 / `libwebkit2gtk-4.0` en mode zip).
+  système sous Linux ; webview géré par l'installeur (ou WebView2 / `libwebkit2gtk-4.1` en mode zip).
 - **Installation** : **installeur** (recommandé — Windows `.exe` per-utilisateur / Linux `.AppImage`,
   variantes **offline**/online) **ou** zip portable, depuis la
   [dernière release](https://github.com/Benjamin-Curlier/piscine-dotnet/releases/latest).

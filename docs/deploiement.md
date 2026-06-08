@@ -79,9 +79,9 @@ gh release view v2.0.0
 
 Le workflow a **3 jobs** :
 
-### `package-linux` (ubuntu-22.04)
+### `package-linux` (ubuntu-24.04)
 
-> Ubuntu **22.04** car Photino.Blazor 3.2.0 cible **webkit2gtk-4.0** (la 24.04 ne fournit plus la 4.0).
+> Ubuntu **24.04** car PhotinoX.Blazor 4.2.0 cible **webkit2gtk-4.1** (soup3) ; la 22.04 ne fournit que la 4.0.
 
 1. **`package-content content artifacts/content`** — copie le contenu **sans les `solution/`**
    (les corrigés ne sont jamais distribués).
@@ -90,12 +90,16 @@ Le workflow a **3 jobs** :
    `Piscine.Desktop` dans `desktop/`, **shim git** `Piscine.GitShim` dans `desktop/gitshim/`, et le
    `content/` assemblé. Lanceurs `start-piscine-desktop.{cmd,sh}` ; **Windows uniquement** : MinGit
    portable dans `mingit/` + `start-piscine.cmd`. Zips nommés `piscine-<tag>-<rid>.zip`.
-   - Les **libs natives Photino** sont à la **racine** du dossier `desktop/` (`Photino.Native.dll` +
-     `WebView2Loader.dll` Windows, `Photino.Native.so` Linux) — **pas** sous `runtimes/<rid>/native/`.
-3. **AppImage Linux** en deux variantes (`linuxdeploy` + plugin GTK) :
-   - `piscine-<tag>-linux-x86_64-offline.AppImage` — **webkit2gtk-4.0 + gtk + git bundlés** → tourne
-     **hors-ligne**, sans rien installer sur le poste.
-   - `piscine-<tag>-linux-x86_64-online.AppImage` — léger, s'appuie sur le `libwebkit2gtk-4.0` système.
+   - Les **libs natives PhotinoX** sont à la **racine** du dossier `desktop/` (`PhotinoX.Native.dll` +
+     `WebView2Loader.dll` Windows, `PhotinoX.Native.so` Linux) — **pas** sous `runtimes/<rid>/native/`.
+3. **AppImage Linux** — variante **online** uniquement :
+   - `piscine-<tag>-linux-x86_64-online.AppImage` — léger, s'appuie sur le `libwebkit2gtk-4.1` **système**
+     (Ubuntu/Debian `apt install libwebkit2gtk-4.1-0`).
+   - > **AppImage offline abandonnée en v3.1.0.** WebKitGTK en build release (distro) **ignore**
+     > `WEBKIT_EXEC_PATH` (honoré uniquement en `DEVELOPER_MODE`) et localise ses process auxiliaires
+     > (`WebKitNetworkProcess`/`WebKitWebProcess`) via un chemin **absolu compilé** (`PKGLIBEXECDIR`,
+     > p.ex. `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/`). Embarquer un webkit fonctionnel exigerait un
+     > bind-mount privilégié → hors périmètre. Cf. [ADR PhotinoX](superpowers/adr/2026-06-08-photinox-fork.md).
 
 ### `package-windows` (windows-latest)
 
@@ -115,8 +119,8 @@ raccourcis menu Démarrer + Bureau :
 ### `release` (ubuntu-latest)
 
 Agrège les artefacts des deux jobs et crée la **GitHub Release** :
-`gh release create <tag>` attache les **zips** (win + linux), les **AppImages** (offline + online) et
-les **installeurs Windows** (offline + online). Titre `Piscine .NET <tag>`.
+`gh release create <tag>` attache les **zips** (win + linux), l'**AppImage Linux** (online) et
+les **installeurs Windows** (offline + online) — **5 artefacts**. Titre `Piscine .NET <tag>`.
 
 ### Prérequis webview (par OS)
 
@@ -127,9 +131,9 @@ peut falloir l'installer à la main :
 - **Windows** : runtime **WebView2** (Evergreen). Préinstallé sur Windows 11 et les Windows 10
   récents. **Éditions N** / images minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
   (`WebView2Loader.dll` est dans le paquet ; c'est le **runtime** qui peut manquer, pas le loader.)
-- **Linux** : **`libwebkit2gtk-4.0`** (Photino 3.2.0 — **pas** 4.1) — Debian/Ubuntu
-  `sudo apt install libwebkit2gtk-4.0-37`, Fedora `sudo dnf install webkit2gtk4.0`.
-  *(L'AppImage **offline** l'embarque → aucun prérequis.)*
+- **Linux** : **`libwebkit2gtk-4.1`** (PhotinoX 4.2.0) — Debian/Ubuntu
+  `sudo apt install libwebkit2gtk-4.1-0`, Fedora `sudo dnf install webkit2gtk4.1`.
+  *(Requis aussi par l'**AppImage online** — l'offline est abandonnée en v3.1.0, cf. §4 `package-linux`.)*
 
 ### Notes de release
 
@@ -153,21 +157,21 @@ dotnet publish src/Piscine.Cli -c Release -r win-x64 --self-contained true -o ar
 
 # App de bureau (même opération que la release) + assertion des libs natives à la racine :
 dotnet publish src/Piscine.Desktop -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o artifacts/pkg/piscine-win-x64/desktop
-Test-Path artifacts/pkg/piscine-win-x64/desktop/Photino.Native.dll   # → True
+Test-Path artifacts/pkg/piscine-win-x64/desktop/PhotinoX.Native.dll   # → True
 Test-Path artifacts/pkg/piscine-win-x64/desktop/WebView2Loader.dll   # → True
 ```
 
 > La **CI** (`ci.yml`) exécute déjà des *dry-runs* de packaging à chaque PR — une régression
 > d'empaquetage est attrapée **avant** tout tag, sans déclencher de release :
 > - **publish desktop self-contained** (win-x64 + linux-x64) + assertion des **libs natives à la racine** ;
-> - **AppImage offline** bâti puis **lancé hors-ligne** (docker `--network=none`, conteneur sans webkit + xvfb) ;
+> - **AppImage online** bâtie (garde de packaging : l'artefact `.AppImage` est produit) ;
 > - **installeur Windows** compilé par Inno (`ISCC`, offline + online) — garde de compilation.
 
 ### Smoke pré-release par OS (action propriétaire)
 
-Les *dry-runs* CI prouvent que les paquets se **construisent** (et, pour l'AppImage offline, qu'il
-**démarre hors-ligne**) ; ils ne peuvent pas valider une fenêtre native visuellement. Pour ça,
-**taguer une pré-release** (`gh release ... --prerelease`), récupérer chaque artefact et dérouler :
+Les *dry-runs* CI prouvent que les paquets se **construisent** ; ils ne peuvent pas valider une fenêtre
+native visuellement. Pour ça, **taguer une pré-release** (`gh release ... --prerelease`), récupérer
+chaque artefact et dérouler :
 
 - [ ] **Windows (installeur offline)** : `piscine-<v>-win-x64-offline-setup.exe` sur une machine
       **sans internet** → installe (sans admin) → raccourci « Piscine .NET » → la fenêtre **route le flux** :
@@ -175,9 +179,7 @@ Les *dry-runs* CI prouvent que les paquets se **construisent** (et, pour l'AppIm
       diff/indice) → *Progression* → *Initialiser* → *Terminal* (`git init` puis `git commit` rien stagé
       → **carte de coaching**) → *Résultat* (riche après un `git push`).
 - [ ] **Windows (installeur online)** : idem sur une machine **sans WebView2** → l'installeur télécharge le runtime.
-- [ ] **Linux (AppImage offline)** : `*-offline.AppImage` sur une machine **sans** `libwebkit2gtk-4.0` et
-      **hors-ligne** → même flux.
-- [ ] **Linux (AppImage online)** : `*-online.AppImage` (webkit système / `apt install libwebkit2gtk-4.0-37`) → même flux.
+- [ ] **Linux (AppImage online)** : `*-online.AppImage` (webkit système / `apt install libwebkit2gtk-4.1-0`) → même flux.
 - [ ] **Terminal + coaching** confirmés dans la fenêtre native (page *Terminal*) sur Windows et Linux.
 - [ ] **CLI intact** (zips) : `piscine init` puis `piscine status` répondent (le hook de correction
       n'est pas affecté par l'app de bureau ni par les installeurs).

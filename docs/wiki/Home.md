@@ -19,7 +19,7 @@ est dans le dépôt : [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curli
 - **Aucune pression de temps.** Progression modulaire auto-rythmée ; tout reste accessible.
 - **Extensibilité data-driven.** Ajouter un exercice = déposer des fichiers, **sans recompiler**.
 - **Zéro pré-requis.** Roslyn embarqué (compilation C# sans SDK) ; git portable (MinGit) bundlé sous
-  Windows ; webview géré par l'installeur (ou WebView2 / `libwebkit2gtk-4.0` en mode zip).
+  Windows ; webview géré par l'installeur (ou WebView2 / `libwebkit2gtk-4.1` en mode zip).
 - **Les corrigés ne sont jamais distribués.** Les dossiers `solution/` servent la gate `validate-content`
   (CI) mais sont **exclus** du paquet remis à la recrue (`package-content`).
 - **Français** partout (cours, sujets, messages).

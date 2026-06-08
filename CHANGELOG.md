@@ -4,6 +4,39 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v3.1.0] — 2026-06-08
+
+Migration d'infrastructure de l'app de bureau : passage du paquet **`Photino.Blazor 3.2.0`** au fork
+maintenu **`PhotinoX.Blazor 4.2.0`** (net10-natif). **Transparent pour la recrue** (même UX, mêmes
+pages) ; le moteur de notation, le **CLI headless `piscine`** et `grade-received` restent **compatibles
+`v2.0.0`**.
+
+### Changé
+
+- **`Piscine.Desktop`** : `Photino.Blazor 3.2.0` → **`PhotinoX.Blazor 4.2.0`**. Le fork aligne
+  `Microsoft.AspNetCore.Components.WebView` sur **10.0.x** → l'**épingle manuelle `10.0.8`** et le
+  contournement **NU1605** sont supprimés. API (`PhotinoBlazorAppBuilder`, namespace `Photino.Blazor`)
+  inchangée → **aucun changement de code applicatif** (hormis un fallback non-null sur `ShowMessage`).
+- **Libs natives** renommées dans le paquet : `PhotinoX.Native.dll` (Windows) / `PhotinoX.Native.so`
+  (Linux), `WebView2Loader.dll` conservé. Toujours à la **racine** de `desktop/`.
+- **Linux — webkit2gtk-4.0 → 4.1** : le job `package-linux` passe à **`ubuntu-24.04`**. **Prérequis Linux
+  (zip + AppImage)** : `libwebkit2gtk-4.1` (`apt install libwebkit2gtk-4.1-0`), au lieu de `4.0`.
+
+### Retiré
+
+- **AppImage Linux *offline* abandonnée.** WebKitGTK en build release (distribution) **ignore**
+  `WEBKIT_EXEC_PATH` (honoré uniquement en `DEVELOPER_MODE`) et localise ses process auxiliaires
+  (`WebKitNetworkProcess`/`WebKitWebProcess`) via un chemin **absolu compilé** → un AppImage ne peut pas
+  embarquer un webkit fonctionnel sans bind-mount privilégié. Seule l'**AppImage online** (webkit
+  **système**) est désormais publiée. La release v3.1.0 attache donc **5 artefacts** (zips win/linux,
+  installeurs Windows offline/online, AppImage Linux online). *(Constat valable aussi pour webkit 4.0 ;
+  l'ancienne AppImage offline ne rendait en réalité que sur un poste disposant déjà du webkit système.)*
+
+### Notes
+
+- ADR : [docs/superpowers/adr/2026-06-08-photinox-fork.md](docs/superpowers/adr/2026-06-08-photinox-fork.md).
+- Windows : runtime **WebView2** inchangé (Evergreen, géré par les installeurs).
+
 ## [v3.0.0] — 2026-06-07
 
 Release majeure : **nouvelle UX recrue de bureau** (app Photino.Blazor) en plus du CLI, **installeurs**

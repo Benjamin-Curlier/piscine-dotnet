@@ -32,8 +32,8 @@ auto-contenu (runtime .NET + Roslyn embarqués).
   - **Si vous passez par le zip** (mode portable, §2) : installer le runtime à la main si absent —
     - **Windows** : **WebView2** — préinstallé sur Windows 11 / Windows 10 récents. Éditions N ou images
       minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
-    - **Linux** : **`libwebkit2gtk-4.0`** — Debian/Ubuntu `sudo apt install libwebkit2gtk-4.0-37`,
-      Fedora `sudo dnf install webkit2gtk4.0`. *(Photino 3.2.0 cible la série 4.0, pas 4.1.)*
+    - **Linux** : **`libwebkit2gtk-4.1`** — Debian/Ubuntu `sudo apt install libwebkit2gtk-4.1-0`,
+      Fedora `sudo dnf install webkit2gtk4.1`. *(PhotinoX 4.2.0 cible la série 4.1.)*
   Détails côté packaging : [docs/deploiement.md](deploiement.md).
 - **Espace disque** : ~150 Mo une fois installé/dézippé (runtime + Roslyn inclus).
 
@@ -58,13 +58,15 @@ Télécharger depuis la **[dernière release](../../releases/latest)** le fichie
   - Double-cliquer. L'installeur est **par utilisateur** (pas de droits administrateur).
   - SmartScreen peut s'afficher (binaire non signé) → *Informations complémentaires* → *Exécuter quand même*.
   - Crée des raccourcis **menu Démarrer** + **Bureau** ; installe le runtime WebView2 **s'il manque**.
-- **Linux** : `piscine-<version>-linux-x86_64-offline.AppImage` (ou `-online.AppImage`).
+- **Linux** : `piscine-<version>-linux-x86_64-online.AppImage`.
   ```bash
-  chmod +x piscine-<version>-linux-x86_64-offline.AppImage
-  ./piscine-<version>-linux-x86_64-offline.AppImage
+  chmod +x piscine-<version>-linux-x86_64-online.AppImage
+  ./piscine-<version>-linux-x86_64-online.AppImage
   ```
-  - L'**AppImage offline** embarque le webkit → tourne **hors-ligne**, sans rien installer.
-  - L'**AppImage online** s'appuie sur le `libwebkit2gtk-4.0` du système (§1).
+  - L'**AppImage** (online) s'appuie sur le `libwebkit2gtk-4.1` du système (§1) :
+    `sudo apt install libwebkit2gtk-4.1-0` si besoin.
+  - *(L'AppImage **offline**, webkit embarqué, est abandonnée depuis v3.1.0 — WebKitGTK release ne
+    permet pas d'embarquer un webkit fonctionnel. Cf. CHANGELOG v3.1.0.)*
 
 ### Avec le zip portable
 
@@ -164,7 +166,7 @@ git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enr
 - **`git` introuvable (Windows)** : lancer via `start-piscine.cmd` (MinGit n'est sur le PATH
   qu'avec ce lanceur).
 - **La fenêtre de l'app ne s'ouvre pas (mode zip)** : prérequis **webview** manquant (§1) — préférer
-  l'**installeur** (qui le gère), ou installer le runtime à la main (WebView2 / `libwebkit2gtk-4.0`).
+  l'**installeur** (qui le gère), ou installer le runtime à la main (WebView2 / `libwebkit2gtk-4.1`).
 - **Variables d'environnement** (optionnelles) :
   - `PISCINE_HOME` : racine du workspace + de l'état (défaut : `~/piscine`).
   - `PISCINE_CONTENT` : dossier de contenu (défaut : `content/` à côté du binaire).

@@ -44,11 +44,11 @@ rm -f "$APPDIR"/usr/bin/libcoreclrtraceptprovider.so
 
 # ── Bundling ────────────────────────────────────────────────────────────────
 if [ "$MODE" = "offline" ]; then
-  # Photino.Native.so a une dependance ELF DIRECTE vers libwebkit2gtk (4.0 pour Photino.Blazor 3.2.0) :
-  # linuxdeploy la bundle AUTOMATIQUEMENT si le webkit correspondant est installe sur la machine de build
-  # (Ubuntu 22.04 a libwebkit2gtk-4.0-37 ; 24.04 ne l'a plus). On detecte la version presente.
+  # PhotinoX.Native.so charge libwebkit2gtk-4.1 (PhotinoX 4.2.0) : linuxdeploy + le copy des helpers
+  # bundlent le webkit installe sur la machine de build (Ubuntu 24.04 a libwebkit2gtk-4.1-0).
+  # On detecte la version presente (regex 4.[01], retro-compatible).
   WK="$(find /usr/lib -regextype posix-extended -regex '.*/libwebkit2gtk-4\.[01]\.so\.[0-9]+' 2>/dev/null | head -1)"
-  [ -n "$WK" ] || { echo "ERREUR: libwebkit2gtk introuvable (build env). Sur Ubuntu 22.04: apt install libwebkit2gtk-4.0-37"; exit 2; }
+  [ -n "$WK" ] || { echo "ERREUR: libwebkit2gtk introuvable (build env). Sur Ubuntu 24.04: apt install libwebkit2gtk-4.1-0"; exit 2; }
   WKVER="$(echo "$WK" | grep -oE '4\.[01]' | head -1)"
   echo ">> webkit detecte: $WK (4.$(echo "$WKVER" | cut -d. -f2))"
   # linuxdeploy exclut certaines libs « baseline » (fontconfig/freetype…) supposées présentes ; pour un
@@ -69,7 +69,7 @@ if [ "$MODE" = "offline" ]; then
 else
   # ONLINE : AUCUN bundling — l'AppImage s'appuie sur le webkit/gtk SYSTÈME du poste (apt si besoin).
   # On ne lance pas linuxdeploy (qui re-bundlerait webkit, dep directe) : AppImage léger.
-  echo ">> mode online : pas de bundling (webkit2gtk-4.0 + gtk système requis sur le poste)"
+  echo ">> mode online : pas de bundling (webkit2gtk-4.1 + gtk système requis sur le poste)"
 fi
 
 # AppRun maison (env webkit/gtk/gio/git/content) — écrase celui éventuellement généré par linuxdeploy.

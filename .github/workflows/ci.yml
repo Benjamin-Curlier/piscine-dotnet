@@ -32,7 +32,7 @@ jobs:
           PISCINE_CONTENT: ${{ github.workspace }}/content
 
       # Dry-run du packaging desktop (S9) : exerce, a chaque PR, la meme operation que la
-      # release (publish self-contained par RID) AVANT tout tag. Les libs natives Photino
+      # release (publish self-contained par RID) AVANT tout tag. Les libs natives PhotinoX
       # sont posees a la RACINE de sortie (pas runtimes/<rid>/native/) — verifie en T1.
       - name: Dry-run packaging desktop (publish cross-RID + libs natives)
         run: |
@@ -42,17 +42,20 @@ jobs:
             dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out"
             test -f "$out/Piscine.Desktop" -o -f "$out/Piscine.Desktop.exe"
             case "$rid" in
-              win-x64)   test -f "$out/Photino.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
-              linux-x64) test -f "$out/Photino.Native.so" ;;
+              win-x64)   test -f "$out/PhotinoX.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
+              linux-x64) test -f "$out/PhotinoX.Native.so" ;;
             esac
             echo "OK $rid"
           done
 
-  # Dry-run installeur Linux (S13) : construit l'AppImage OFFLINE et prouve qu'elle se lance
-  # SANS internet et SANS webkit système (conteneur webkit-less, --network=none, xvfb) → garantit
-  # l'empaquetage hors-ligne avant tout tag. ubuntu-22.04 = libwebkit2gtk-4.0 (Photino 3.2.0).
-  appimage-offline-dryrun:
-    runs-on: ubuntu-22.04
+  # Dry-run AppImage Linux (online) : garde de packaging a chaque PR — construit l'AppImage online et
+  # verifie qu'elle est bien produite (regression d'empaquetage attrapee avant tout tag).
+  # L'AppImage OFFLINE (webkit bundle) est ABANDONNEE en v3.1.0 : WebKitGTK en build release ignore
+  # WEBKIT_EXEC_PATH (honore seulement en DEVELOPER_MODE) et cherche ses process auxiliaires a un chemin
+  # absolu compile (PKGLIBEXECDIR) -> impossible d'embarquer un webkit fonctionnel sans bind-mount
+  # privilegie. L'online s'appuie sur le webkit systeme (libwebkit2gtk-4.1). Cf. adr/2026-06-08-photinox-fork.md.
+  appimage-online-dryrun:
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
@@ -61,47 +64,23 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Construire l'AppImage offline
+      - name: Construire l'AppImage online (garde de packaging)
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq imagemagick libwebkit2gtk-4.0-37 libgtk-3-0 libgtk-3-bin \
-            libnotify4 librsvg2-2 librsvg2-common libfuse2 patchelf desktop-file-utils dpkg-dev \
-            pkg-config libglib2.0-bin libgdk-pixbuf2.0-bin
+          sudo apt-get install -y -qq imagemagick libfuse2 patchelf desktop-file-utils \
+            librsvg2-2 librsvg2-common libglib2.0-bin libgdk-pixbuf2.0-bin
           dotnet run --project src/Piscine.Cli -c Release -- package-content content artifacts/content
-          appdir="artifacts/appimage-offline/AppDir"
+          appdir="artifacts/appimage-online/AppDir"
           mkdir -p "$appdir/usr/bin/gitshim" "$appdir/usr/share/piscine"
           dotnet publish src/Piscine.Desktop -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin"
           dotnet publish src/Piscine.GitShim  -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin/gitshim"
           cp -r artifacts/content "$appdir/usr/share/piscine/content"
           mkdir -p dist
-          bash build/installer/linux/build-appimage.sh offline "$appdir" dist/piscine-offline.AppImage
-          ls -lh dist/piscine-offline.AppImage
-
-      - name: Vérifier le lancement HORS-LIGNE (sans réseau, sans webkit système)
-        run: |
-          set -euo pipefail
-          # Image de test : xvfb + baseline graphique desktop, SANS webkit → prouve l'usage du webkit bundlé.
-          cat > /tmp/Dockerfile.test <<'DOCKER'
-          FROM ubuntu:24.04
-          ENV DEBIAN_FRONTEND=noninteractive
-          RUN apt-get update -qq && apt-get install -y -qq xvfb libfuse2 libgtk-3-0 libegl1 libgles2 \
-              libgl1-mesa-dri libglx-mesa0 fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
-          DOCKER
-          docker build -t piscine-appimage-test -f /tmp/Dockerfile.test /tmp
-          docker run --rm --network=none -v "$PWD/dist:/in:ro" piscine-appimage-test bash -c '
-            cp /in/piscine-offline.AppImage /app.AppImage && chmod +x /app.AppImage
-            export APPIMAGE_EXTRACT_AND_RUN=1 HOME=/root
-            (timeout 30 xvfb-run -a /app.AppImage > /tmp/log 2>&1 || true)
-            echo "=== app log (tail) ===" ; tail -12 /tmp/log
-            # Fatal = DllNotFound/Unhandled (dep bundlee manquante). Les warnings GL webkit
-            # (GLESv2/EGL, rendu logiciel sous xvfb, libs GPU du systeme) ne sont PAS fatals.
-            if grep -qi "DllNotFound\|Unhandled exception" /tmp/log; then
-              echo "FAIL: dependance bundlée manquante (AppImage non auto-suffisant hors-ligne)"; exit 1
-            fi
-            grep -q "Load(app://localhost" /tmp/log || { echo "FAIL: app n a pas chargé app://localhost"; exit 1; }
-            echo "OFFLINE OK : lancement + chargement webview avec webkit bundlé, sans réseau ni webkit système"
-          '
+          bash build/installer/linux/build-appimage.sh online "$appdir" dist/piscine-online.AppImage
+          test -s dist/piscine-online.AppImage
+          ls -lh dist/piscine-online.AppImage
+          echo "ONLINE OK : AppImage online construite (s'appuie sur le webkit systeme au lancement)"
 
   # Dry-run installeur Windows (S13) : garde de compilation a chaque PR — Inno Setup + ISCC sur un
   # payload stub, les 2 modes (offline/online), assert que les 2 .exe sont produits. (Le vrai payload
