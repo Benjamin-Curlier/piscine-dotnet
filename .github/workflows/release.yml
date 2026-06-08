@@ -14,7 +14,8 @@ env:
 jobs:
   # ── Linux : zips self-contained (win+linux, cross-publiés) + AppImage (offline/online) ──────────
   package-linux:
-    # ubuntu-24.04 : a libwebkit2gtk-4.1 (PhotinoX 4.2.0) requis pour bundler l'AppImage offline.
+    # ubuntu-24.04 : aligné sur PhotinoX 4.2.0 / webkit2gtk-4.1. L'AppImage online ne bundle pas webkit
+    # (s'appuie sur le webkit système au lancement) ; le webkit n'est donc pas requis au build.
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -48,14 +49,18 @@ jobs:
           done
           ls -lh dist
 
-      - name: AppImage Linux (offline + online)
+      # AppImage ONLINE uniquement : s'appuie sur le webkit système (libwebkit2gtk-4.1) du poste.
+      # La variante offline (webkit bundlé) est abandonnée en v3.1.0 : WebKitGTK release ignore
+      # WEBKIT_EXEC_PATH (honoré seulement en DEVELOPER_MODE) et cherche ses process auxiliaires à un
+      # chemin absolu compilé → un AppImage ne peut pas embarquer un webkit fonctionnel sans bind-mount
+      # privilégié. Suivi true-offline : voir le backlog. Imagemagick/appimagetool suffisent ici.
+      - name: AppImage Linux (online)
         run: |
           set -euo pipefail
           sudo apt-get update -qq
-          sudo apt-get install -y -qq imagemagick libwebkit2gtk-4.1-0 libgtk-3-0 libgtk-3-bin \
-            libnotify4 librsvg2-2 librsvg2-common libfuse2 patchelf desktop-file-utils dpkg-dev \
-            pkg-config libglib2.0-bin libgdk-pixbuf2.0-bin
-          for mode in offline online; do
+          sudo apt-get install -y -qq imagemagick libfuse2 patchelf desktop-file-utils \
+            librsvg2-2 librsvg2-common libglib2.0-bin libgdk-pixbuf2.0-bin
+          for mode in online; do
             appdir="artifacts/appimage-$mode/AppDir"
             mkdir -p "$appdir/usr/bin/gitshim" "$appdir/usr/share/piscine"
             dotnet publish src/Piscine.Desktop  --configuration Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin"
@@ -133,4 +138,4 @@ jobs:
             dist-all/dist-linux/* dist-all/dist-windows/* \
             --repo "${{ github.repository }}" \
             --title "Piscine .NET ${{ github.ref_name }}" \
-            --notes "Windows & Linux (macOS abandonné). **Installeurs** : Windows \`.exe\` (offline = runtime WebView2 embarqué / online = télécharge) ; Linux \`.AppImage\` (offline = webkit embarqué, hors-ligne / online = webkit système). **Zips** self-contained aussi fournis (CLI \`piscine\` + app de bureau). Voir docs/mise-en-oeuvre.md."
+            --notes "Windows & Linux (macOS abandonné). **Installeurs Windows** \`.exe\` (offline = runtime WebView2 embarqué / online = télécharge). **Linux AppImage** (online : s'appuie sur le webkit système, \`libwebkit2gtk-4.1\`). **Zips** self-contained aussi fournis (CLI \`piscine\` + app de bureau). Voir docs/mise-en-oeuvre.md."
