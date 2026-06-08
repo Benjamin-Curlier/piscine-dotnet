@@ -12,7 +12,7 @@ env:
   MINGIT_TAG: v2.47.1.windows.1
 
 jobs:
-  # ── Linux : zips self-contained (win+linux, cross-publiés) + AppImage (offline/online) ──────────
+  # ── Linux : zips self-contained (win+linux, cross-publiés) + AppImage online ────────────────────
   package-linux:
     # ubuntu-24.04 : aligné sur PhotinoX 4.2.0 / webkit2gtk-4.1. L'AppImage online ne bundle pas webkit
     # (s'appuie sur le webkit système au lancement) ; le webkit n'est donc pas requis au build.

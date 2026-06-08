@@ -58,13 +58,15 @@ Télécharger depuis la **[dernière release](../../releases/latest)** le fichie
   - Double-cliquer. L'installeur est **par utilisateur** (pas de droits administrateur).
   - SmartScreen peut s'afficher (binaire non signé) → *Informations complémentaires* → *Exécuter quand même*.
   - Crée des raccourcis **menu Démarrer** + **Bureau** ; installe le runtime WebView2 **s'il manque**.
-- **Linux** : `piscine-<version>-linux-x86_64-offline.AppImage` (ou `-online.AppImage`).
+- **Linux** : `piscine-<version>-linux-x86_64-online.AppImage`.
   ```bash
-  chmod +x piscine-<version>-linux-x86_64-offline.AppImage
-  ./piscine-<version>-linux-x86_64-offline.AppImage
+  chmod +x piscine-<version>-linux-x86_64-online.AppImage
+  ./piscine-<version>-linux-x86_64-online.AppImage
   ```
-  - L'**AppImage offline** embarque le webkit → tourne **hors-ligne**, sans rien installer.
-  - L'**AppImage online** s'appuie sur le `libwebkit2gtk-4.1` du système (§1).
+  - L'**AppImage** (online) s'appuie sur le `libwebkit2gtk-4.1` du système (§1) :
+    `sudo apt install libwebkit2gtk-4.1-0` si besoin.
+  - *(L'AppImage **offline**, webkit embarqué, est abandonnée depuis v3.1.0 — WebKitGTK release ne
+    permet pas d'embarquer un webkit fonctionnel. Cf. CHANGELOG v3.1.0.)*
 
 ### Avec le zip portable
 

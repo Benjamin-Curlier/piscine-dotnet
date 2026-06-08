@@ -19,8 +19,14 @@ sur **10.0.x**.
 
 - **+** Suppression de l'épingle WebView et du contournement NU1605.
 - **+** Dépendance net10-native, activement maintenue (vs Photino 3.x).
-- **~** Linux passe à **webkit2gtk-4.1** (soup3) : runner `ubuntu-24.04`, prérequis zip `libwebkit2gtk-4.1`,
-  bundling AppImage offline en 4.1. Aligné sur les distros récentes (la 4.0 est en fin de vie upstream).
+- **~** Linux passe à **webkit2gtk-4.1** (soup3) : runner `ubuntu-24.04`, prérequis `libwebkit2gtk-4.1`.
+  Aligné sur les distros récentes (la 4.0 est en fin de vie upstream).
+- **−** **AppImage *offline* abandonnée.** WebKitGTK en build release (distribution) ignore
+  `WEBKIT_EXEC_PATH` (cf. `findWebKitProcess`, gardé par `ENABLE(DEVELOPER_MODE)`) et résout
+  `WebKitNetworkProcess`/`WebKitWebProcess` via le `PKGLIBEXECDIR` **absolu compilé** — donc impossible
+  d'embarquer un webkit fonctionnel dans un AppImage sans bind-mount privilégié. Seule l'**AppImage online**
+  (webkit système) est publiée (5 artefacts au lieu de 6). Constat déjà vrai en 4.0 : l'ancien dry-run ne
+  vérifiait que la ligne `Load(...)`, pas le rendu réel. **Suivi** : true-offline via AppRun bwrap/bind-mount.
 - **~** Libs natives renommées : `PhotinoX.Native.{dll,so}` (Windows garde `WebView2Loader.dll`) →
   assertions CI et docs mises à jour.
 - **=** **Aucun** changement d'API : namespace `Photino.Blazor` et `PhotinoBlazorAppBuilder` conservés

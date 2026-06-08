@@ -5,6 +5,13 @@
 > changer ni le moteur, ni le rendu git, ni l'UX recrue.
 > À lire avec [HANDOFF](../HANDOFF.md), la spec [v4 Photino Desktop](2026-06-06-v4-photino-desktop-design.md)
 > et [docs/deploiement.md](../../deploiement.md).
+>
+> **⚠️ Écart constaté à l'implémentation (2026-06-08)** : l'**AppImage offline** (webkit bundlé) est
+> **abandonnée** en v3.1.0 — WebKitGTK en build release ignore `WEBKIT_EXEC_PATH` et résout ses process
+> auxiliaires via un chemin absolu compilé, rendant impossible un webkit embarqué fonctionnel sans
+> bind-mount privilégié. Seule l'**AppImage online** est publiée. Détail : [ADR](../adr/2026-06-08-photinox-fork.md)
+> et [retex](../retex/2026-06-08-photinox-migration.md). Les §4b/§7 ci-dessous (qui mentionnent l'offline)
+> reflètent l'intention de départ, pas le résultat livré.
 
 ## 1. Contexte & motivation
 

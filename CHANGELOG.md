@@ -19,10 +19,18 @@ pages) ; le moteur de notation, le **CLI headless `piscine`** et `grade-received
   inchangée → **aucun changement de code applicatif** (hormis un fallback non-null sur `ShowMessage`).
 - **Libs natives** renommées dans le paquet : `PhotinoX.Native.dll` (Windows) / `PhotinoX.Native.so`
   (Linux), `WebView2Loader.dll` conservé. Toujours à la **racine** de `desktop/`.
-- **Linux — webkit2gtk-4.0 → 4.1** : le job `package-linux` (et le dry-run AppImage CI) passent à
-  **`ubuntu-24.04`** + **`libwebkit2gtk-4.1-0`** ; l'AppImage **offline** bundle désormais webkit 4.1.
-  **Prérequis du zip portable Linux** : `libwebkit2gtk-4.1` (au lieu de `4.0`). Les **installeurs**
-  (AppImage offline / online, installeurs Windows) gèrent ce prérequis comme avant.
+- **Linux — webkit2gtk-4.0 → 4.1** : le job `package-linux` passe à **`ubuntu-24.04`**. **Prérequis Linux
+  (zip + AppImage)** : `libwebkit2gtk-4.1` (`apt install libwebkit2gtk-4.1-0`), au lieu de `4.0`.
+
+### Retiré
+
+- **AppImage Linux *offline* abandonnée.** WebKitGTK en build release (distribution) **ignore**
+  `WEBKIT_EXEC_PATH` (honoré uniquement en `DEVELOPER_MODE`) et localise ses process auxiliaires
+  (`WebKitNetworkProcess`/`WebKitWebProcess`) via un chemin **absolu compilé** → un AppImage ne peut pas
+  embarquer un webkit fonctionnel sans bind-mount privilégié. Seule l'**AppImage online** (webkit
+  **système**) est désormais publiée. La release v3.1.0 attache donc **5 artefacts** (zips win/linux,
+  installeurs Windows offline/online, AppImage Linux online). *(Constat valable aussi pour webkit 4.0 ;
+  l'ancienne AppImage offline ne rendait en réalité que sur un poste disposant déjà du webkit système.)*
 
 ### Notes
 
