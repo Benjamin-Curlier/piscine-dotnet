@@ -1,6 +1,6 @@
 # Spec — Isolation de l'exécution du code recrue dans un processus enfant jetable
 
-> Conception du 2026-06-09. Branche `fix/review-grading-integrity-hardening`.
+> Conception du 2026-06-09 (suivi de la revue approfondie ; implémentation à venir dans un sprint dédié).
 > Contexte : rapport de revue approfondie ;
 > [retex migration PhotinoX](../retex/2026-06-08-photinox-migration.md).
 
