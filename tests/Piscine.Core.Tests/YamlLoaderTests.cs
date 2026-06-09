@@ -24,4 +24,17 @@ public class YamlLoaderTests
         Assert.Equal("Afficher un message", manifest.Objective);
         Assert.Equal(new[] { "Hello.cs" }, manifest.Deliverables);
     }
+
+    [Fact]
+    public void DeserializeStrict_RejectsUnknownKey_WhileLenientIgnoresIt()
+    {
+        const string yaml = "id: ex00\nexpext_stdout: oops\n"; // clé inconnue (typo)
+
+        // Lenient (chargement runtime) : la clé inconnue est silencieusement ignorée.
+        var lenient = YamlLoader.Deserialize<ExerciseManifest>(yaml);
+        Assert.Equal("ex00", lenient.Id);
+
+        // Strict (gate validate-content) : la même clé inconnue lève.
+        Assert.NotNull(Record.Exception(() => YamlLoader.DeserializeStrict<ExerciseManifest>(yaml)));
+    }
 }

@@ -2,6 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8" />
+    <!-- Defense-en-profondeur (CSP) : verrouille les origines de chargement. Doit autoriser ce que la
+         page utilise réellement — le bootstrap inline (thème + highlightAll) et le BlazorWebView via
+         'unsafe-inline', et cdnjs pour highlight.js (script + thème CSS). Blazor Hybrid (WebView natif,
+         pas WASM) n'a besoin ni de 'unsafe-eval' ni de 'wasm-unsafe-eval'. frame-ancestors est volontairement
+         omis : il est ignoré dans une CSP <meta> (déclencherait un avertissement console). -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'" />
     <base href="/" />
     <!-- Anti-flash : applique le thème (clair/sombre) avant le premier paint -->
     <script>window.__applyTheme=function(){var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);};window.__applyTheme();</script>

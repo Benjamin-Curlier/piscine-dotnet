@@ -351,6 +351,50 @@ public class ContentValidatorTests
         Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("introuvable pour le module"));
     }
 
+    [Fact]
+    public void Validate_UnknownManifestKey_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        // « expext_stdout » (typo de expect_stdout) : ignorée silencieusement au runtime → mis-grade.
+        // La passe stricte (#58) la signale comme problème de contenu.
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expext_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.False(report.IsValid);
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("clé non reconnue"));
+    }
+
+    [Fact]
+    public void Validate_KnownSolutionKey_NoUnknownKeyIssue()
+    {
+        using var dir = new TempDir();
+        // La clé « solution » est présente dans tout le contenu réel : elle doit être reconnue (pas de
+        // faux positif de la passe stricte).
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            solution: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """, "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.DoesNotContain(report.Issues, i => i.Message.Contains("clé non reconnue"));
+    }
+
     private const string MutationReferenceImpl = """
         public class Compte
         {

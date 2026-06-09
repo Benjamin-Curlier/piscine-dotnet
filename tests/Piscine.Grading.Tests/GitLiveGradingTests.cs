@@ -89,6 +89,50 @@ public class GitLiveGradingTests
         Assert.Contains(result.Messages, m => m.Contains("commit"));
     }
 
+    /// <summary>Assertion de fichier au ref par défaut (<c>HEAD</c>) : doit se résoudre via HeadRef dans un bare.</summary>
+    private static GradingStep FileOnDefaultRefStep() => new()
+    {
+        Type = "git",
+        Git = new GitAssertions
+        {
+            // Pas de Ref explicite → défaut « HEAD ». feature.txt est sur main après la fusion.
+            Files = { new GitFileAssertion { Path = "feature.txt", Contains = "salut" } },
+        },
+    };
+
+    [Fact]
+    public void Grade_BareRepo_FileAssertionDefaultRef_ResolvesViaHeadRef()
+    {
+        using var dir = new TempDir();
+        var bare = BuildBareAfterPush(dir, "main", "feature");
+        // HEAD orphelin déterministe (cf. Grade_BareRepo_WithoutHeadRef_FailsMinCommits).
+        System.IO.File.WriteAllText(System.IO.Path.Combine(bare, "HEAD"), "ref: refs/heads/nonexistent\n");
+
+        // #58 : avant le fix, le ref par défaut « HEAD » se résolvait sur repo.Head (orphelin) → faux
+        // « à revoir ». Avec HeadRef, il se résout sur la pointe de main.
+        var result = new GitGrader().Grade(
+            new GradingContext(new Dictionary<string, string>(), repositoryPath: bare, headRef: "main"),
+            FileOnDefaultRefStep());
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+    }
+
+    [Fact]
+    public void Grade_BareRepo_FileAssertionDefaultRef_WithoutHeadRef_FailsResolvingOrphanHead()
+    {
+        using var dir = new TempDir();
+        var bare = BuildBareAfterPush(dir, "main", "feature");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(bare, "HEAD"), "ref: refs/heads/nonexistent\n");
+
+        // Sans HeadRef : le ref par défaut « HEAD » lit le HEAD orphelin du bare → fichier introuvable.
+        // (Prouve que HeadRef est bien ce qui corrige la résolution.)
+        var result = new GitGrader().Grade(
+            new GradingContext(new Dictionary<string, string>(), repositoryPath: bare),
+            FileOnDefaultRefStep());
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+    }
+
     [Fact]
     public void IsAttempted_NullAttempt_ReturnsFalse()
     {
