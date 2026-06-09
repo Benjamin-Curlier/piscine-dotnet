@@ -43,8 +43,68 @@ public static class SandboxExecutor
         };
     }
 
-    private static SandboxResult RunIo(Assembly assembly, string[] args, string stdin) =>
-        throw new NotImplementedException();
+    private static SandboxResult RunIo(Assembly assembly, string[] args, string stdin)
+    {
+        var entry = assembly.EntryPoint;
+        if (entry is null)
+        {
+            return new SandboxResult
+            {
+                ErrorType = nameof(InvalidOperationException),
+                ErrorMessage = "Aucun point d'entrée (Main).",
+            };
+        }
+
+        var output = new System.IO.StringWriter();
+        var originalOut = Console.Out;
+        var originalIn = Console.In;
+        Console.SetOut(output);
+        Console.SetIn(new System.IO.StringReader(stdin));
+        try
+        {
+            int exitCode = InvokeEntry(entry, args);
+            return new SandboxResult { Stdout = output.ToString(), ExitCode = exitCode };
+        }
+        catch (TargetInvocationException ex)
+        {
+            var inner = ex.InnerException ?? ex;
+            return new SandboxResult { Stdout = output.ToString(), ErrorType = inner.GetType().Name, ErrorMessage = inner.Message };
+        }
+        catch (Exception ex)
+        {
+            return new SandboxResult { Stdout = output.ToString(), ErrorType = ex.GetType().Name, ErrorMessage = ex.Message };
+        }
+        finally
+        {
+            // Restauré car RunIo est aussi appelé en proc dans les tests (exécution synchrone,
+            // aucune tâche orpheline ne survit à ce point ⇒ restauration sûre). Dans le processus
+            // enfant, la restauration est inoffensive (un seul run puis sortie).
+            Console.SetOut(originalOut);
+            Console.SetIn(originalIn);
+        }
+    }
+
+    private static int InvokeEntry(MethodInfo entry, string[] args)
+    {
+        var invokeArgs = entry.GetParameters().Length == 1
+            ? new object[] { args }
+            : Array.Empty<object>();
+
+        var result = entry.Invoke(null, invokeArgs);
+        return result switch
+        {
+            int code => code,
+            Task<int> taskInt => taskInt.GetAwaiter().GetResult(),
+            Task task => Await(task),
+            _ => 0,
+        };
+    }
+
+    private static int Await(Task task)
+    {
+        task.GetAwaiter().GetResult();
+        return 0;
+    }
 
     private static SandboxResult RunXunit(Assembly assembly)
     {

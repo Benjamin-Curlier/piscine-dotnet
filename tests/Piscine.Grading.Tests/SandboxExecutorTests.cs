@@ -61,4 +61,45 @@ public class SandboxExecutorTests
         Assert.Single(result.Failures);
         Assert.Contains("Ko", result.Failures[0]);
     }
+
+    private static byte[] CompileIo(string source) =>
+        CompilationService.Compile(
+            new Dictionary<string, string> { ["P.cs"] = source },
+            OutputKind.ConsoleApplication).AssemblyBytes;
+
+    [Fact]
+    public void RunIo_CapturesStdout_AndExitCode()
+    {
+        var bytes = CompileIo("""
+            System.Console.Write("Hello");
+            return 7;
+            """);
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "io" }, bytes);
+
+        Assert.Equal("Hello", result.Stdout);
+        Assert.Equal(7, result.ExitCode);
+        Assert.Null(result.ErrorType);
+    }
+
+    [Fact]
+    public void RunIo_ReportsUncaughtException()
+    {
+        var bytes = CompileIo("""throw new System.InvalidOperationException("nope");""");
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "io" }, bytes);
+
+        Assert.Equal("InvalidOperationException", result.ErrorType);
+        Assert.Equal("nope", result.ErrorMessage);
+    }
+
+    [Fact]
+    public void RunIo_FeedsStdin()
+    {
+        var bytes = CompileIo("""System.Console.Write(System.Console.ReadLine());""");
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "io", Stdin = "écho" }, bytes);
+
+        Assert.Equal("écho", result.Stdout);
+    }
 }
