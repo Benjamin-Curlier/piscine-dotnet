@@ -25,6 +25,12 @@ public sealed class ReseauGrader : IGrader
             return GraderResult.Failure(Type, $"contenu : mode de serveur de test inconnu « {mode} » (attendu : echo).");
         }
 
+        // Fail-closed : une étape reseau sans cas n'exécute aucune vérification → faux « réussi ».
+        if (step.Cases.Count == 0)
+        {
+            return GraderResult.Failure(Type, "contenu : étape reseau sans cas d'exécution (vérification vide).");
+        }
+
         var compilation = CompilationService.Compile(context.Sources, OutputKind.ConsoleApplication);
         if (!compilation.Success)
         {

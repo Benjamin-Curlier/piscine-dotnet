@@ -18,6 +18,13 @@ public sealed class IoGrader : IGrader
 
     public GraderResult Grade(GradingContext context, GradingStep step)
     {
+        // Fail-closed : une étape io sans cas n'exécute aucune vérification → un rendu qui compile
+        // « réussirait » par défaut. On l'interdit (cf. ProjectGrader, même garde de contenu).
+        if (step.Cases.Count == 0)
+        {
+            return GraderResult.Failure(Type, "contenu : étape io sans cas d'exécution (vérification vide).");
+        }
+
         var compilation = CompilationService.Compile(context.Sources, OutputKind.ConsoleApplication);
         if (!compilation.Success)
         {

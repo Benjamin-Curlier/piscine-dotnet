@@ -26,6 +26,22 @@ public sealed class ExerciseGrader
             {
                 results.Add(grader.Grade(context, step));
             }
+            else
+            {
+                // Fail-closed : un type de notation inconnu (typo manifest, grader retiré, étape non
+                // encore enregistrée) NE DOIT PAS être ignoré silencieusement — sinon l'exercice
+                // « réussit » par défaut pour tout rendu (et validate-content ne l'attrape pas, le
+                // corrigé passant aussi). On émet un échec « contenu » explicite.
+                results.Add(GraderResult.Failure(step.Type,
+                    $"contenu : type de notation inconnu « {step.Type} »."));
+            }
+        }
+
+        // Une étape de notation absente serait elle aussi un faux « réussi » : on l'interdit.
+        if (results.Count == 0)
+        {
+            results.Add(GraderResult.Failure("contenu",
+                "contenu : aucune étape de notation déclarée pour cet exercice."));
         }
 
         return new ExerciseGradingResult(manifest.Id, results);

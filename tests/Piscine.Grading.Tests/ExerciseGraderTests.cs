@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Piscine.Core.Model;
 using Piscine.Grading;
 using Xunit;
@@ -55,18 +56,32 @@ public class ExerciseGraderTests
     }
 
     [Fact]
-    public void Grade_SkipsUnknownGraderTypes()
+    public void Grade_FailsClosed_OnUnknownGraderType()
     {
         var manifest = new ExerciseManifest
         {
             Id = "ex01",
-            Grading = { new GradingStep { Type = "unit", TestFiles = { "grader/Tests.cs" } } }
+            Grading = { new GradingStep { Type = "type-inexistant" } }
         };
 
         var result = Grader().Grade(manifest, new GradingContext(new Dictionary<string, string>()));
 
-        // 'unit' n'est pas encore enregistré (It.3) : aucune étape corrigée → Reussi par défaut.
-        Assert.Empty(result.Results);
-        Assert.Equal(GraderStatus.Reussi, result.Status);
+        // Fail-closed : un type inconnu produit un échec « contenu » explicite (jamais un faux Reussi).
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        var failure = Assert.Single(result.Results);
+        Assert.Equal(GraderStatus.ARevoir, failure.Status);
+        Assert.Contains(failure.Messages, m => m.Contains("type de notation inconnu"));
+    }
+
+    [Fact]
+    public void Grade_FailsClosed_OnEmptyGrading()
+    {
+        var manifest = new ExerciseManifest { Id = "ex02" };
+
+        var result = Grader().Grade(manifest, new GradingContext(new Dictionary<string, string>()));
+
+        // Une étape de notation absente ne doit pas non plus « réussir » par défaut.
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Results, r => r.Messages.Any(m => m.Contains("aucune étape de notation")));
     }
 }

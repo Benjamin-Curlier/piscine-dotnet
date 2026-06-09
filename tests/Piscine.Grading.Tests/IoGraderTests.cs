@@ -92,4 +92,20 @@ public class IoGraderTests
 
         Assert.Equal(FeedbackTriggers.ExitCode, result.Trigger);
     }
+
+    [Fact]
+    public void Grade_ContentError_WhenNoCases()
+    {
+        var sources = new Dictionary<string, string>
+        {
+            ["Hello.cs"] = "System.Console.Write(\"ok\");"
+        };
+        var step = new GradingStep { Type = "io" }; // aucune case
+
+        var result = new IoGrader().Grade(new GradingContext(sources), step);
+
+        // Fail-closed : sans cas, un rendu qui compile ne doit pas « réussir » par défaut.
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
+    }
 }
