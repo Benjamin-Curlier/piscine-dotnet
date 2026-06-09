@@ -24,7 +24,18 @@ public sealed class ExerciseGrader
         {
             if (_graders.TryGetValue(step.Type, out var grader))
             {
-                results.Add(grader.Grade(context, step));
+                try
+                {
+                    results.Add(grader.Grade(context, step));
+                }
+                catch (SandboxUnavailableException ex)
+                {
+                    // Fail-closed : le bac à sable d'exécution est indisponible (packaging cassé,
+                    // binaire absent). On NE retombe PAS en in-process (cela réintroduirait les fuites
+                    // et masquerait la casse) et on NE laisse PAS « réussir » : échec interne explicite.
+                    results.Add(GraderResult.Failure(step.Type,
+                        $"interne : bac à sable d'exécution indisponible — {ex.Message}"));
+                }
             }
             else
             {
