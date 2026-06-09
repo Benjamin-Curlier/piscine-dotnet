@@ -1,6 +1,8 @@
 # Spec — Isolation de l'exécution du code recrue dans un processus enfant jetable
 
-> Conception du 2026-06-09 (suivi de la revue approfondie ; implémentation à venir dans un sprint dédié).
+> Conception du 2026-06-09 (suivi de la revue approfondie). **Implémenté le 2026-06-09** sur
+> `fix/review-hardening-followups` — voir le [plan](../plans/2026-06-09-grading-sandbox-isolation.md)
+> et le [retex](../retex/2026-06-09-grading-sandbox-isolation.md).
 > Contexte : rapport de revue approfondie ;
 > [retex migration PhotinoX](../retex/2026-06-08-photinox-migration.md).
 
