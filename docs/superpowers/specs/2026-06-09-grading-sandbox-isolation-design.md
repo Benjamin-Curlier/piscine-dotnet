@@ -3,6 +3,10 @@
 > Conception du 2026-06-09 (suivi de la revue approfondie). **Implémenté le 2026-06-09** sur
 > `fix/review-hardening-followups` — voir le [plan](../plans/2026-06-09-grading-sandbox-isolation.md)
 > et le [retex](../retex/2026-06-09-grading-sandbox-isolation.md).
+> ⚠️ **Correction d'architecture** : la co-localisation par `ProjectReference` décrite plus bas a été
+> **abandonnée** (incompatible avec le publish self-contained « sans SDK » — NETSDK1152). Modèle retenu :
+> **`Piscine.Sandbox` publié self-contained dans un sous-dossier `sandbox/`** (calqué sur `Piscine.GitShim`),
+> contrat partagé via `Piscine.Sandbox.Contracts`, localisé par `SandboxLocator`. Détails : post-mortem du retex.
 > Contexte : rapport de revue approfondie ;
 > [retex migration PhotinoX](../retex/2026-06-08-photinox-migration.md).
 

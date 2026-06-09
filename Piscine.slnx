@@ -9,6 +9,7 @@
     <Project Path="src/Piscine.GitShim/Piscine.GitShim.csproj" />
     <Project Path="src/Piscine.Grading/Piscine.Grading.csproj" />
     <Project Path="src/Piscine.Sandbox/Piscine.Sandbox.csproj" />
+    <Project Path="src/Piscine.Sandbox.Contracts/Piscine.Sandbox.Contracts.csproj" />
   </Folder>
   <Folder Name="/site/">
     <Project Path="src/Piscine.DevHost/Piscine.DevHost.csproj" />

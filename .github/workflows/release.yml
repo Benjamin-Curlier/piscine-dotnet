@@ -38,6 +38,9 @@ jobs:
             cp -r artifacts/content "$out/content"
             dotnet publish src/Piscine.Desktop --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop"
             dotnet publish src/Piscine.GitShim --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/desktop/gitshim"
+            # Bac à sable d'exécution recrue (self-contained, modèle gitshim) à la racine du bundle :
+            # atteint par la CLI ($out) et par le Desktop ($out/desktop, via remontée du SandboxLocator).
+            dotnet publish src/Piscine.Sandbox --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/sandbox"
             if [ "$rid" = "win-x64" ]; then
               mkdir -p "$out/mingit"; unzip -q mingit.zip -d "$out/mingit"
               cp build/launchers/start-piscine.cmd "$out/start-piscine.cmd"
@@ -65,6 +68,7 @@ jobs:
             mkdir -p "$appdir/usr/bin/gitshim" "$appdir/usr/share/piscine"
             dotnet publish src/Piscine.Desktop  --configuration Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin"
             dotnet publish src/Piscine.GitShim   --configuration Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin/gitshim"
+            dotnet publish src/Piscine.Sandbox   --configuration Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin/sandbox"
             cp -r artifacts/content "$appdir/usr/share/piscine/content"
             bash build/installer/linux/build-appimage.sh "$mode" "$appdir" \
               "dist/piscine-${{ github.ref_name }}-linux-x86_64-$mode.AppImage"
@@ -97,6 +101,7 @@ jobs:
           dotnet publish src/Piscine.Cli      -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o $p
           dotnet publish src/Piscine.Desktop  -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "$p/desktop"
           dotnet publish src/Piscine.GitShim  -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "$p/desktop/gitshim"
+          dotnet publish src/Piscine.Sandbox  -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "$p/sandbox"
           Copy-Item -Recurse artifacts/content "$p/content"
           Copy-Item build/launchers/start-piscine.cmd, build/launchers/start-piscine-desktop.cmd $p
           Invoke-WebRequest "https://github.com/git-for-windows/git/releases/download/$env:MINGIT_TAG/MinGit-$env:MINGIT_VERSION-64-bit.zip" -OutFile mingit.zip

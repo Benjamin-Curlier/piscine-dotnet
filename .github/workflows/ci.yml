@@ -34,7 +34,9 @@ jobs:
       # Dry-run du packaging desktop (S9) : exerce, a chaque PR, la meme operation que la
       # release (publish self-contained par RID) AVANT tout tag. Les libs natives PhotinoX
       # sont posees a la RACINE de sortie (pas runtimes/<rid>/native/) — verifie en T1.
-      - name: Dry-run packaging desktop (publish cross-RID + libs natives)
+      # Inclut le bac a sable d'execution recrue (self-contained, modele gitshim) : garde le publish
+      # du sandbox VERT (la regression NETSDK1152 / framework-dependent doit etre attrapee ici, pas au tag).
+      - name: Dry-run packaging desktop (publish cross-RID + libs natives + sandbox)
         run: |
           set -euo pipefail
           for rid in linux-x64 win-x64; do
@@ -44,6 +46,11 @@ jobs:
             case "$rid" in
               win-x64)   test -f "$out/PhotinoX.Native.dll" && test -f "$out/WebView2Loader.dll" ;;
               linux-x64) test -f "$out/PhotinoX.Native.so" ;;
+            esac
+            dotnet publish src/Piscine.Sandbox --configuration Release -r "$rid" --self-contained true -p:PublishSingleFile=false -o "$out/sandbox"
+            case "$rid" in
+              win-x64)   test -f "$out/sandbox/Piscine.Sandbox.exe" ;;
+              linux-x64) test -f "$out/sandbox/Piscine.Sandbox" ;;
             esac
             echo "OK $rid"
           done
@@ -75,6 +82,8 @@ jobs:
           mkdir -p "$appdir/usr/bin/gitshim" "$appdir/usr/share/piscine"
           dotnet publish src/Piscine.Desktop -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin"
           dotnet publish src/Piscine.GitShim  -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin/gitshim"
+          dotnet publish src/Piscine.Sandbox  -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -o "$appdir/usr/bin/sandbox"
+          test -f "$appdir/usr/bin/sandbox/Piscine.Sandbox"
           cp -r artifacts/content "$appdir/usr/share/piscine/content"
           mkdir -p dist
           bash build/installer/linux/build-appimage.sh online "$appdir" dist/piscine-online.AppImage
@@ -96,8 +105,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $p = "payload"
-          New-Item -ItemType Directory -Force "$p/desktop/gitshim", "$p/content/modules", "$p/mingit" | Out-Null
-          foreach ($f in @("piscine.exe","desktop/Piscine.Desktop.exe","desktop/gitshim/git.exe","webview2-setup.exe","content/modules/.keep")) {
+          New-Item -ItemType Directory -Force "$p/desktop/gitshim", "$p/sandbox", "$p/content/modules", "$p/mingit" | Out-Null
+          foreach ($f in @("piscine.exe","desktop/Piscine.Desktop.exe","desktop/gitshim/git.exe","sandbox/Piscine.Sandbox.exe","webview2-setup.exe","content/modules/.keep")) {
             "stub" | Set-Content "$p/$f"
           }
           Copy-Item build/launchers/start-piscine.cmd, build/launchers/start-piscine-desktop.cmd $p

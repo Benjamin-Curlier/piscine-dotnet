@@ -13,56 +13,37 @@ public sealed class SandboxUnavailableException : Exception
     public SandboxUnavailableException(string message, Exception? inner = null) : base(message, inner) { }
 }
 
-/// <summary>Résout la commande à lancer pour le bac à sable (surcharge env, apphost, ou dotnet+dll).</summary>
+/// <summary>Prépare le lancement du bac à sable depuis le chemin résolu par <see cref="SandboxLocator"/>.</summary>
 internal static class SandboxLauncher
 {
     public static ProcessStartInfo CreateStartInfo(string workDir)
     {
-        var (file, prefixArgs) = ResolveCommand();
+        var path = SandboxLocator.Resolve()
+            ?? throw new SandboxUnavailableException(
+                "Binaire du bac à sable introuvable (ni PISCINE_SANDBOX, ni co-localisé, ni sous-dossier sandbox/, ni build dev).");
+
         var psi = new ProcessStartInfo
         {
-            FileName = file,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true,
         };
-        foreach (var a in prefixArgs)
+
+        // Cas normal : un apphost (Piscine.Sandbox(.exe), self-contained en prod / framework-dependent
+        // en dev+tests) lancé directement. Une surcharge .dll passe par le muxer dotnet.
+        if (path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
         {
-            psi.ArgumentList.Add(a);
+            psi.FileName = DotnetMuxer();
+            psi.ArgumentList.Add(path);
+        }
+        else
+        {
+            psi.FileName = path;
         }
 
         psi.ArgumentList.Add(workDir);
         return psi;
-    }
-
-    private static (string File, string[] PrefixArgs) ResolveCommand()
-    {
-        var overridePath = Environment.GetEnvironmentVariable("PISCINE_SANDBOX");
-        if (!string.IsNullOrEmpty(overridePath))
-        {
-            // Surcharge autoritaire : pas de repli. Un .dll ⇒ via le muxer dotnet ; sinon apphost direct.
-            return overridePath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase)
-                ? (DotnetMuxer(), new[] { overridePath })
-                : (overridePath, Array.Empty<string>());
-        }
-
-        var baseDir = AppContext.BaseDirectory;
-        var exeName = OperatingSystem.IsWindows() ? "Piscine.Sandbox.exe" : "Piscine.Sandbox";
-        var apphost = Path.Combine(baseDir, exeName);
-        if (File.Exists(apphost))
-        {
-            return (apphost, Array.Empty<string>());
-        }
-
-        var dll = Path.Combine(baseDir, "Piscine.Sandbox.dll");
-        if (File.Exists(dll))
-        {
-            return (DotnetMuxer(), new[] { dll });
-        }
-
-        throw new SandboxUnavailableException(
-            $"Binaire du bac à sable introuvable près de « {baseDir} » (ni {exeName} ni Piscine.Sandbox.dll).");
     }
 
     private static string DotnetMuxer()

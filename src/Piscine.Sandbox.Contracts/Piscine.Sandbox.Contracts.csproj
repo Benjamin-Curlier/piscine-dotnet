@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Contrat IPC partagé entre le client de lancement (Piscine.Grading) et le bac à sable
+         (Piscine.Sandbox). Bibliothèque sans dépendances : Piscine.Grading peut s'y lier SANS
+         référencer l'exe (sinon NETSDK1152 sur le publish self-contained des front-ends). -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

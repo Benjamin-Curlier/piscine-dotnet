@@ -2,7 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
-    <ProjectReference Include="..\Piscine.Sandbox\Piscine.Sandbox.csproj" />
+    <!-- Contrat IPC uniquement (DTO). On NE référence PAS l'exe Piscine.Sandbox : un ProjectReference
+         vers un exe casse le publish self-contained des front-ends (NETSDK1152, apphost/deps en double).
+         Le binaire du bac à sable est publié self-contained dans un sous-dossier (cf. SandboxLocator,
+         release.yml) — modèle identique à Piscine.GitShim. -->
+    <ProjectReference Include="..\Piscine.Sandbox.Contracts\Piscine.Sandbox.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

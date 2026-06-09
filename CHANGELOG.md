@@ -43,10 +43,14 @@ code recrue**. **Transparent pour la recrue** (même UX, mêmes verdicts) ; CLI 
 
 ### Notes
 
-- `Piscine.Sandbox` (exe, dépendances minimales : xunit.core/assert) est **co-localisé** dans la
-  sortie de chaque front-end (apphost) ; ses dépendances managées/natives (Microsoft.Extensions.\*,
-  Microsoft.Data.Sqlite + `e_sqlite3`) sont résolues via les chemins runtime du processus de
-  correction. Spec/plan/retex : `superpowers/{specs,plans,retex}/2026-06-09-grading-sandbox-isolation*`.
+- `Piscine.Sandbox` (exe, dépendances minimales : xunit.core/assert) est publié **self-contained dans
+  un sous-dossier `sandbox/`** de chaque bundle — **modèle identique à `Piscine.GitShim`** (indispensable
+  pour la distribution **sans SDK**) — et localisé à l'exécution par `SandboxLocator`. Le contrat IPC
+  (DTO) est partagé via `Piscine.Sandbox.Contracts` : `Piscine.Grading` s'y lie **sans référencer l'exe**
+  (un `ProjectReference` vers un exe casse le publish self-contained, NETSDK1152). Les dépendances
+  managées/natives du code recrue (Microsoft.Extensions.\*, Microsoft.Data.Sqlite + `e_sqlite3`) sont
+  résolues via les chemins runtime du processus de correction.
+  Spec/plan/retex : `superpowers/{specs,plans,retex}/2026-06-09-grading-sandbox-isolation*`.
 - ⚠️ Si `Piscine.Sandbox` était un jour publié **trimmed/AOT**, le code recrue utilisant la
   sérialisation JSON **par réflexion** casserait — à documenter au packaging.
 
