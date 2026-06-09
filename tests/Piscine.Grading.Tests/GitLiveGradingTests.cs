@@ -74,6 +74,12 @@ public class GitLiveGradingTests
         using var dir = new TempDir();
         var bare = BuildBareAfterPush(dir, "main", "feature");
 
+        // On force le HEAD symbolique du bare vers une branche inexistante pour rendre repo.Head
+        // orphelin de façon déterministe. Sinon le HEAD pointe vers init.defaultBranch de la machine :
+        // « master » (orphelin, car non poussé) ou « main » (résolu après le push) — d'où un test
+        // dépendant de l'environnement. Ici la condition « aucun HEAD résoluble » est garantie.
+        System.IO.File.WriteAllText(System.IO.Path.Combine(bare, "HEAD"), "ref: refs/heads/nonexistent\n");
+
         // Sans HeadRef, le grader lit repo.Head — orphelin dans un bare → « aucun commit ».
         var result = new GitGrader().Grade(
             new GradingContext(new Dictionary<string, string>(), repositoryPath: bare),
