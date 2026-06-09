@@ -95,15 +95,28 @@ public static class CompilationService
         return $"ligne {line} : {diagnostic.GetMessage()}";
     }
 
-    private static readonly Lazy<IReadOnlyList<MetadataReference>> References = new(LoadReferences);
+    /// <summary>
+    /// Chemins des assemblies runtime de référence du processus de correction (TPA). Passés au bac à
+    /// sable afin que son ALC résolve les dépendances que le code recrue référence (Microsoft.Extensions.*,
+    /// Microsoft.Data.Sqlite, …) et qui ne sont pas dans le jeu minimal du processus enfant.
+    /// </summary>
+    public static IReadOnlyList<string> ReferenceAssemblyPaths => ReferencePaths.Value;
 
-    private static IReadOnlyList<MetadataReference> LoadReferences()
+    private static readonly Lazy<IReadOnlyList<string>> ReferencePaths = new(LoadReferencePaths);
+
+    private static IReadOnlyList<string> LoadReferencePaths()
     {
         var tpa = (string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") ?? string.Empty;
         return tpa
             .Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Where(p => p.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
-            .Select(p => (MetadataReference)MetadataReference.CreateFromFile(p))
             .ToList();
     }
+
+    private static readonly Lazy<IReadOnlyList<MetadataReference>> References = new(LoadReferences);
+
+    private static IReadOnlyList<MetadataReference> LoadReferences() =>
+        ReferenceAssemblyPaths
+            .Select(p => (MetadataReference)MetadataReference.CreateFromFile(p))
+            .ToList();
 }

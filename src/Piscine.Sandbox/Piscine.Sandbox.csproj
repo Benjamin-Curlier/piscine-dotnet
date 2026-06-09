@@ -9,8 +9,9 @@
     <RootNamespace>Piscine.Sandbox</RootNamespace>
     <!-- Référence xunit.core pour EXÉCUTER les tests recrue, pas pour être un projet de tests. -->
     <IsTestProject>false</IsTestProject>
-    <!-- Sérialisation JSON par source-gen : sûre sous trimming/AOT si un jour publié ainsi. -->
-    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+    <!-- NE PAS désactiver la sérialisation JSON par réflexion : le code recrue s'exécute dans CE
+         processus et certains exercices utilisent System.Text.Json par réflexion. Notre propre
+         contrat passe par source-gen (SandboxJsonContext), indépendant de ce réglage. -->
   </PropertyGroup>
 
   <ItemGroup>

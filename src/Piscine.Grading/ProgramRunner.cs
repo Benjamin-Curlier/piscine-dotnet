@@ -21,7 +21,13 @@ public static class ProgramRunner
 
     public static RunOutcome Run(byte[] assemblyBytes, string[] args, string stdin, TimeSpan? timeout = null)
     {
-        var request = new SandboxRequest { Mode = "io", Args = args, Stdin = stdin };
+        var request = new SandboxRequest
+        {
+            Mode = "io",
+            Args = args,
+            Stdin = stdin,
+            ReferencePaths = System.Linq.Enumerable.ToArray(CompilationService.ReferenceAssemblyPaths),
+        };
         var result = SandboxProcess.Run(request, assemblyBytes, timeout ?? DefaultTimeout, out var timedOut);
         if (timedOut)
         {

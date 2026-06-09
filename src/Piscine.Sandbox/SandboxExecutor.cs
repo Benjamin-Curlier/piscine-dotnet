@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 
@@ -16,12 +18,16 @@ public static class SandboxExecutor
     public static SandboxResult Execute(SandboxRequest request, byte[] assemblyBytes)
     {
         var alc = new AssemblyLoadContext("submission", isCollectible: true);
+
+        // Résolution managée : les dépendances du code recrue (Microsoft.Extensions.*,
+        // Microsoft.Data.Sqlite, …) absentes du jeu minimal du processus enfant sont chargées depuis
+        // les chemins runtime du processus de correction.
         alc.Resolving += (ctx, name) =>
         {
             foreach (var path in request.ReferencePaths)
             {
                 if (string.Equals(
-                        System.IO.Path.GetFileNameWithoutExtension(path),
+                        Path.GetFileNameWithoutExtension(path),
                         name.Name,
                         StringComparison.OrdinalIgnoreCase))
                 {
@@ -32,7 +38,11 @@ public static class SandboxExecutor
             return null;
         };
 
-        using var ms = new System.IO.MemoryStream(assemblyBytes);
+        // Résolution native : ex. e_sqlite3 pour Microsoft.Data.Sqlite. On sonde les dossiers des
+        // assemblies de référence et leurs sous-dossiers runtimes/<rid>/native.
+        alc.ResolvingUnmanagedDll += (_, libName) => ResolveNativeLibrary(libName, request.ReferencePaths);
+
+        using var ms = new MemoryStream(assemblyBytes);
         var assembly = alc.LoadFromStream(ms);
 
         return request.Mode switch
@@ -41,6 +51,65 @@ public static class SandboxExecutor
             "xunit" => RunXunit(assembly),
             _ => new SandboxResult { ErrorType = "ArgumentException", ErrorMessage = $"Mode inconnu : {request.Mode}" },
         };
+    }
+
+    private static IntPtr ResolveNativeLibrary(string libName, string[] referencePaths)
+    {
+        var dirs = referencePaths
+            .Select(Path.GetDirectoryName)
+            .Where(d => !string.IsNullOrEmpty(d))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var rids = NativeRids();
+        var fileNames = NativeFileNames(libName);
+
+        foreach (var dir in dirs)
+        {
+            foreach (var file in fileNames)
+            {
+                var direct = Path.Combine(dir!, file);
+                if (File.Exists(direct) && NativeLibrary.TryLoad(direct, out var h1))
+                {
+                    return h1;
+                }
+
+                foreach (var rid in rids)
+                {
+                    var nativePath = Path.Combine(dir!, "runtimes", rid, "native", file);
+                    if (File.Exists(nativePath) && NativeLibrary.TryLoad(nativePath, out var h2))
+                    {
+                        return h2;
+                    }
+                }
+            }
+        }
+
+        return IntPtr.Zero; // laisser la résolution par défaut tenter sa chance
+    }
+
+    private static string[] NativeRids()
+    {
+        var arch = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant(); // x64, arm64, x86…
+        var os = OperatingSystem.IsWindows() ? "win" : OperatingSystem.IsMacOS() ? "osx" : "linux";
+        var portable = $"{os}-{arch}";
+        var current = RuntimeInformation.RuntimeIdentifier;
+        return current == portable ? new[] { current } : new[] { current, portable };
+    }
+
+    private static string[] NativeFileNames(string libName)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return new[] { libName + ".dll", libName };
+        }
+
+        if (OperatingSystem.IsMacOS())
+        {
+            return new[] { "lib" + libName + ".dylib", libName + ".dylib", libName };
+        }
+
+        return new[] { "lib" + libName + ".so", libName + ".so", libName };
     }
 
     private static SandboxResult RunIo(Assembly assembly, string[] args, string stdin)

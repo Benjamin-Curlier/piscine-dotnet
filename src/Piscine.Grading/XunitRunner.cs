@@ -24,7 +24,11 @@ internal static class XunitRunner
 
     public static RunResult Run(byte[] assemblyBytes, TimeSpan timeout)
     {
-        var request = new SandboxRequest { Mode = "xunit" };
+        var request = new SandboxRequest
+        {
+            Mode = "xunit",
+            ReferencePaths = System.Linq.Enumerable.ToArray(CompilationService.ReferenceAssemblyPaths),
+        };
         var result = SandboxProcess.Run(request, assemblyBytes, timeout, out var timedOut);
         return timedOut
             ? new RunResult(0, Array.Empty<string>(), true)
