@@ -18,6 +18,13 @@ public sealed class ExerciseManifest
 
     public List<string> Starter { get; set; } = new();
 
+    /// <summary>
+    /// Fichiers du corrigé (informatif : reflète le contenu de <c>solution/</c>). Non consommé au
+    /// runtime — le corrigé est lu depuis le dossier <c>solution/</c> — mais déclaré dans le contenu,
+    /// donc reconnu ici pour que la passe stricte de <c>validate-content</c> ne le signale pas.
+    /// </summary>
+    public List<string> Solution { get; set; } = new();
+
     public List<GradingStep> Grading { get; set; } = new();
 
     public FeedbackConfig Feedback { get; set; } = new();
