@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Piscine.Grading\Piscine.Grading.csproj" />
     <ProjectReference Include="..\..\src\Piscine.Core\Piscine.Core.csproj" />
+    <ProjectReference Include="..\..\src\Piscine.Sandbox\Piscine.Sandbox.csproj" />
   </ItemGroup>
 
 </Project>

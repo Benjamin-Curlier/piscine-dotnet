@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Piscine.Sandbox</AssemblyName>
+    <RootNamespace>Piscine.Sandbox</RootNamespace>
+    <!-- Référence xunit.core pour EXÉCUTER les tests recrue, pas pour être un projet de tests. -->
+    <IsTestProject>false</IsTestProject>
+    <!-- Sérialisation JSON par source-gen : sûre sous trimming/AOT si un jour publié ainsi. -->
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.assert" Version="2.9.3" />
+    <PackageReference Include="xunit.core" Version="2.9.3" />
+  </ItemGroup>
+
+</Project>
