@@ -1,6 +1,6 @@
 # HANDOFF — reprise à froid
 
-> Point d'entrée pour reprendre le projet **sans contexte préalable**. Dernière MAJ : 2026-06-08.
+> Point d'entrée pour reprendre le projet **sans contexte préalable**. Dernière MAJ : 2026-06-09.
 > Lis aussi `docs/superpowers/specs/2026-05-29-piscine-dotnet-design.md` (design complet) et
 > `docs/wiki/Curriculum.md` (état du curriculum).
 
@@ -16,6 +16,14 @@ Branche par défaut **`main`**. Commits conventionnels en **français**, termin�
 `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
 
 ## État actuel (résumé)
+- **🔒 Release `v3.1.1` (sprint 2026-06-09, branche `fix/review-hardening-followups`)** : version
+  corrective. **Isolation de l'exécution du code recrue dans un processus enfant jetable** (nouveau
+  projet `Piscine.Sandbox`) — boucle infinie **réellement terminable** (kill de l'arbre au timeout),
+  fin des fuites thread/assembly et de la corruption inter-exécutions, fixtures disposées, **fail-closed**
+  si le bac à sable manque. + **CSP** défense-en-profondeur Desktop. + durcissements de notation (#58 :
+  fail-closed type/cas manquants, progress.json corrompu, traversal git, hook ref vide, XSS markdown ;
+  GitGrader HeadRef ; validation stricte des clés manifest). 305 tests verts, `validate-content` OK
+  (dev + artefact publié). Spec/plan/retex : `2026-06-09-grading-sandbox-isolation*`.
 - **🔧 Migration PhotinoX (sprint 2026-06-08, branche `feat/photinox-migration`)** : `Piscine.Desktop`
   passe de `Photino.Blazor 3.2.0` à **`PhotinoX.Blazor 4.2.0`** (fork net10-natif). Épingle WebView
   NU1605 **supprimée** ; libs natives **`PhotinoX.Native.{dll,so}`** ; Linux **webkit2gtk-4.1**

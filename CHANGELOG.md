@@ -4,6 +4,52 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v3.1.1] — 2026-06-09
+
+Version corrective : **durcissement de l'intégrité de la notation** et **isolation de l'exécution du
+code recrue**. **Transparent pour la recrue** (même UX, mêmes verdicts) ; CLI headless `piscine` et
+`grade-received` **compatibles `v2.0.0`**.
+
+### Sécurité
+
+- **Exécution du code recrue isolée dans un processus enfant jetable** (nouveau projet
+  `Piscine.Sandbox`). Une soumission qui dépasse le délai (boucle infinie) est désormais **réellement
+  terminée** : le parent **tue l'arbre de processus** au timeout, récupérant thread et assembly.
+  Supprime les **fuites de thread/assembly** et la **corruption de sortie inter-exécutions** du modèle
+  in-process (`Task.Run` + `task.Wait` jamais annulé). Les fixtures de test `IDisposable`/
+  `IAsyncDisposable` sont **disposées** ; **fail-closed** si le bac à sable est indisponible (jamais de
+  faux « Réussi », pas de repli in-process).
+- **CSP de défense-en-profondeur** sur le shell Desktop (`index.html`) : verrouille les origines de
+  chargement (inline du bootstrap/BlazorWebView + cdnjs pour highlight.js autorisés), `object-src
+  'none'`, `base-uri 'self'`.
+- **Durcissements de notation** : **fail-closed** sur type/cas de notation manquants (plus de faux
+  « Réussi »), tolérance d'un `progress.json` corrompu, garde anti-traversal git, hook `post-receive`
+  sur ref vide, échappement XSS du markdown de feedback.
+
+### Corrigé
+
+- `GitGrader` honore `HeadRef` (dépôt bare en `grade-received`) ; **validation stricte des clés de
+  manifest** : une clé inconnue (typo, ex. `expext_stdout`) est signalée comme problème de contenu au
+  lieu d'être ignorée silencieusement.
+- Parité `PISCINE_WORKSPACE`, robustesse du watcher de progression et du canal pipe de coaching.
+- Test `Grade_BareRepo_WithoutHeadRef` rendu déterministe (indépendant de `init.defaultBranch`).
+
+### Changé
+
+- `RunOutcome.Error` : `Exception?` → `RunError(TypeName, Message)` (l'erreur recrue traverse la
+  frontière de processus).
+- Maintenance : `.gitattributes` (normalisation LF, source unique de vérité) + bump de l'outillage de
+  test.
+
+### Notes
+
+- `Piscine.Sandbox` (exe, dépendances minimales : xunit.core/assert) est **co-localisé** dans la
+  sortie de chaque front-end (apphost) ; ses dépendances managées/natives (Microsoft.Extensions.\*,
+  Microsoft.Data.Sqlite + `e_sqlite3`) sont résolues via les chemins runtime du processus de
+  correction. Spec/plan/retex : `superpowers/{specs,plans,retex}/2026-06-09-grading-sandbox-isolation*`.
+- ⚠️ Si `Piscine.Sandbox` était un jour publié **trimmed/AOT**, le code recrue utilisant la
+  sérialisation JSON **par réflexion** casserait — à documenter au packaging.
+
 ## [v3.1.0] — 2026-06-08
 
 Migration d'infrastructure de l'app de bureau : passage du paquet **`Photino.Blazor 3.2.0`** au fork
