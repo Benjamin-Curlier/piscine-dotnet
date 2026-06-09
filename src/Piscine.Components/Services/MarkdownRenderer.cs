@@ -10,6 +10,11 @@ public sealed class MarkdownRenderer
         .UseAdvancedExtensions()
         .UseAutoIdentifiers(Markdig.Extensions.AutoIdentifiers.AutoIdentifierOptions.GitHub)
         .UseSoftlineBreakAsHardlineBreak()
+        // Le HTML brut du markdown est ÉCHAPPÉ (rendu en texte), pas réinjecté tel quel : le rendu est
+        // enveloppé dans une MarkupString non encodée et affiché dans le WebView, donc un cours tiers
+        // contenant <script>/<img onerror=…> exécuterait du code sans cette garde. Le contenu officiel
+        // n'utilise aucun HTML brut, donc aucun rendu légitime n'est affecté.
+        .DisableHtml()
         .Build();
 
     public MarkupString Render(string? markdown)

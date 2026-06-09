@@ -50,4 +50,32 @@ public class ProgressStoreTests
 
         Assert.True(File.Exists(path));
     }
+
+    [Fact]
+    public void Load_ReturnsEmptyProgress_WhenJsonCorrupt()
+    {
+        using var dir = new TempDir();
+        var path = dir.Combine("progress.json");
+        // Fichier tronqué/édité à la main : Load() ne doit pas planter (sinon `check` et le hook
+        // post-receive crasheraient), mais repartir d'une progression vide.
+        File.WriteAllText(path, "{ this is not valid json ");
+
+        var progress = new ProgressStore(path).Load();
+
+        Assert.Empty(progress.Exercises);
+    }
+
+    [Fact]
+    public void Save_LeavesNoTempFile_AndOverwritesAtomically()
+    {
+        using var dir = new TempDir();
+        var path = dir.Combine("progress.json");
+        var store = new ProgressStore(path);
+
+        store.Save(new Progress());
+        store.Save(new Progress()); // un second Save (la cible existe déjà) doit réussir via Move overwrite
+
+        Assert.True(File.Exists(path));
+        Assert.False(File.Exists(path + ".tmp"));
+    }
 }
