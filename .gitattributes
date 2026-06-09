@@ -1,0 +1,42 @@
+# Normalisation des fins de ligne — source unique de vérité (indépendante de core.autocrlf
+# de chaque poste). Aligne le dépôt sur .editorconfig (end_of_line = lf) et évite le churn
+# CRLF↔LF (avertissements « LF will be replaced by CRLF ») entre Windows et Linux/CI.
+
+# Par défaut : texte détecté automatiquement, checkout en LF partout.
+* text=auto eol=lf
+
+# Sources et configuration — toujours LF.
+*.cs        text eol=lf
+*.razor     text eol=lf
+*.csproj    text eol=lf
+*.props     text eol=lf
+*.targets   text eol=lf
+*.slnx      text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.css       text eol=lf
+*.js        text eol=lf
+*.html      text eol=lf
+*.sh        text eol=lf
+*.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore  text eol=lf
+AppRun      text eol=lf
+
+# Scripts batch Windows — CRLF (requis par cmd.exe).
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+
+# Binaires — jamais normalisés.
+*.png       binary
+*.ico       binary
+*.jpg       binary
+*.gif       binary
+*.exe       binary
+*.dll       binary
+*.so        binary
+*.dylib     binary
+*.AppImage  binary
+*.zip       binary
