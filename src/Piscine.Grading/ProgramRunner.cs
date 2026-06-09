@@ -1,8 +1,5 @@
 using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Loader;
-using System.Threading.Tasks;
+using Piscine.Sandbox;
 
 namespace Piscine.Grading;
 
@@ -13,9 +10,10 @@ public sealed record RunError(string TypeName, string Message);
 public sealed record RunOutcome(string Stdout, int ExitCode, bool TimedOut, RunError? Error);
 
 /// <summary>
-/// Exécute un assembly console compilé en mémoire dans un contexte isolé
-/// (<see cref="AssemblyLoadContext"/> collectible), en redirigeant stdin/stdout.
-/// Partagé par <see cref="IoGrader"/> (correction) et <c>piscine try</c> (outillage auteur).
+/// Exécute un assembly console compilé dans un PROCESSUS ENFANT jetable (Piscine.Sandbox), tué au
+/// timeout (arbre de processus complet). Partagé par les graders io/projet/reseau et l'outil auteur
+/// <c>piscine try</c>. La mort du processus récupère thread, assembly et capture de sortie ; aucune
+/// mutation du <c>Console</c> global côté parent, donc aucune contamination inter-exécutions.
 /// </summary>
 public static class ProgramRunner
 {
@@ -23,77 +21,16 @@ public static class ProgramRunner
 
     public static RunOutcome Run(byte[] assemblyBytes, string[] args, string stdin, TimeSpan? timeout = null)
     {
-        var deadline = timeout ?? DefaultTimeout;
-        var alc = new AssemblyLoadContext("submission", isCollectible: true);
-        var originalOut = Console.Out;
-        var originalIn = Console.In;
-        var output = new StringWriter();
-        try
+        var request = new SandboxRequest { Mode = "io", Args = args, Stdin = stdin };
+        var result = SandboxProcess.Run(request, assemblyBytes, timeout ?? DefaultTimeout, out var timedOut);
+        if (timedOut)
         {
-            using var ms = new MemoryStream(assemblyBytes);
-            var assembly = alc.LoadFromStream(ms);
-            var entry = assembly.EntryPoint;
-            if (entry is null)
-            {
-                return new RunOutcome(string.Empty, 0, false, new RunError(nameof(InvalidOperationException), "Aucun point d'entrée (Main)."));
-            }
-
-            Console.SetOut(output);
-            Console.SetIn(new StringReader(stdin));
-
-            int exitCode = 0;
-            RunError? error = null;
-            var task = Task.Run(() =>
-            {
-                try
-                {
-                    exitCode = InvokeEntry(entry, args);
-                }
-                catch (TargetInvocationException ex)
-                {
-                    var inner = ex.InnerException ?? ex;
-                    error = new RunError(inner.GetType().Name, inner.Message);
-                }
-                catch (Exception ex)
-                {
-                    error = new RunError(ex.GetType().Name, ex.Message);
-                }
-            });
-
-            if (!task.Wait(deadline))
-            {
-                return new RunOutcome(output.ToString(), 0, true, null);
-            }
-
-            return new RunOutcome(output.ToString(), exitCode, false, error);
+            return new RunOutcome(string.Empty, 0, true, null);
         }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetIn(originalIn);
-            alc.Unload();
-        }
-    }
 
-    private static int InvokeEntry(MethodInfo entry, string[] args)
-    {
-        var invokeArgs = entry.GetParameters().Length == 1
-            ? new object[] { args }
-            : Array.Empty<object>();
-
-        var result = entry.Invoke(null, invokeArgs);
-        return result switch
-        {
-            int code => code,
-            Task<int> taskInt => taskInt.GetAwaiter().GetResult(),
-            Task task => Await(task),
-            _ => 0
-        };
-    }
-
-    private static int Await(Task task)
-    {
-        task.GetAwaiter().GetResult();
-        return 0;
+        var error = result.ErrorType is null
+            ? null
+            : new RunError(result.ErrorType, result.ErrorMessage ?? string.Empty);
+        return new RunOutcome(result.Stdout, result.ExitCode, false, error);
     }
 }
