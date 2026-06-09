@@ -24,10 +24,30 @@ public sealed class GradeReceivedCommand
     private readonly PiscineLayout _layout;
     private readonly ExerciseGrader _grader;
 
+    // Cache (emplacement, manifest) par exercice, vidé à chaque Run : sans lui, chaque exercice était
+    // re-résolu et re-parsé jusqu'à 3× par push (Run + PersistRichResult + FeedbackFor).
+    private readonly Dictionary<string, (ExerciseLocation Location, ExerciseManifest Manifest)?> _resolved =
+        new(StringComparer.Ordinal);
+
     public GradeReceivedCommand(PiscineLayout layout, ExerciseGrader grader)
     {
         _layout = layout;
         _grader = grader;
+    }
+
+    /// <summary>Résout l'emplacement + le manifest d'un exercice, en mémoïsant le résultat (y compris l'absence).</summary>
+    private (ExerciseLocation Location, ExerciseManifest Manifest)? Resolve(string exerciseId)
+    {
+        if (_resolved.TryGetValue(exerciseId, out var cached))
+        {
+            return cached;
+        }
+
+        var location = ContentLocator.FindExercise(_layout.Content, exerciseId);
+        (ExerciseLocation Location, ExerciseManifest Manifest)? entry =
+            location is null ? null : (location, ExerciseManifestLoader.Load(location.ContentDir));
+        _resolved[exerciseId] = entry;
+        return entry;
     }
 
     /// <summary>Vrai pour le SHA « tout-zéro » (suppression de ref), quel que soit l'algo (40 ou 64 chars).</summary>
@@ -56,6 +76,7 @@ public sealed class GradeReceivedCommand
         }
 
         var snapshot = Path.Combine(Path.GetTempPath(), "piscine-recu", Guid.NewGuid().ToString("N"));
+        _resolved.Clear(); // cache (emplacement, manifest) scopé à ce Run.
         try
         {
             CommitExtractor.Extract(_layout.RemoteRepoPath, sha, snapshot);
@@ -70,13 +91,13 @@ public sealed class GradeReceivedCommand
                     var submissions = new List<ExerciseSubmission>();
                     foreach (var exerciseId in group.Exercises)
                     {
-                        var location = ContentLocator.FindExercise(_layout.Content, exerciseId);
-                        if (location is null)
+                        var resolved = Resolve(exerciseId);
+                        if (resolved is null)
                         {
                             continue;
                         }
 
-                        var manifest = ExerciseManifestLoader.Load(location.ContentDir);
+                        var (location, manifest) = resolved.Value;
                         var gitStep = manifest.Grading.FirstOrDefault(s => s.Type == "git");
                         if (gitStep is not null)
                         {
@@ -121,12 +142,13 @@ public sealed class GradeReceivedCommand
             // Rushes : projets autonomes, notés indépendamment (pas de stop-au-1er-KO de groupe).
             foreach (var rush in ContentDiscovery.DiscoverRushes(_layout.Content))
             {
-                var location = ContentLocator.FindExercise(_layout.Content, rush.Id);
-                if (location is null)
+                var resolved = Resolve(rush.Id);
+                if (resolved is null)
                 {
                     continue;
                 }
 
+                var location = resolved.Value.Location;
                 var submittedDir = Path.Combine(snapshot, ContentLocator.RushesModuleId, rush.Id);
                 if (!Directory.Exists(submittedDir))
                 {
@@ -191,10 +213,8 @@ public sealed class GradeReceivedCommand
         var exercises = new List<PushExerciseResult>(results.Count);
         foreach (var result in results)
         {
-            var location = ContentLocator.FindExercise(_layout.Content, result.ExerciseId);
-            var feedback = location is null
-                ? new FeedbackConfig()
-                : ExerciseManifestLoader.Load(location.ContentDir).Feedback;
+            var resolved = Resolve(result.ExerciseId);
+            var feedback = resolved?.Manifest.Feedback ?? new FeedbackConfig();
 
             var cases = result.Results
                 .Select(r => new PushCaseResult(r.GraderType, r.Status == GraderStatus.Reussi, r.Messages))
@@ -217,7 +237,7 @@ public sealed class GradeReceivedCommand
 
             exercises.Add(new PushExerciseResult(
                 result.ExerciseId,
-                location?.ModuleId ?? string.Empty,
+                resolved?.Location.ModuleId ?? string.Empty,
                 result.Status.ToString(),
                 cases,
                 hint,
@@ -229,19 +249,16 @@ public sealed class GradeReceivedCommand
             new LastPushResultStore(_layout.LastPushResultPath)
                 .Save(new PushResultDocument(exercises, DateTimeOffset.Now));
         }
-        catch (IOException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             // Best-effort : l'absence de l'artefact riche fait retomber /resultat sur le statut seul.
+            // UnauthorizedAccessException incluse : LastPushResultStore.Save peut la lever (chemin non
+            // inscriptible) — ne jamais casser le hook après que progress.json a déjà été commité.
         }
     }
 
     private FeedbackConfig FeedbackFor(string exerciseId)
-    {
-        var location = ContentLocator.FindExercise(_layout.Content, exerciseId);
-        return location is null
-            ? new FeedbackConfig()
-            : ExerciseManifestLoader.Load(location.ContentDir).Feedback;
-    }
+        => Resolve(exerciseId)?.Manifest.Feedback ?? new FeedbackConfig();
 
     private static void TryDelete(string dir)
     {

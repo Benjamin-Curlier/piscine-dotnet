@@ -34,4 +34,50 @@ public class PiscineLayoutTests
 
         Assert.Equal(Path.Combine("/home/.state", "remote.git"), layout.RemoteRepoPath);
     }
+
+    // #58 : le résolveur partagé (CLI/hook) ignorait PISCINE_WORKSPACE — que le GUI honore — d'où une
+    // divergence de workspace. Ces tests verrouillent la parité.
+
+    [Fact]
+    public void FromEnvironment_HonorsPiscineWorkspace()
+    {
+        var prevHome = Environment.GetEnvironmentVariable("PISCINE_HOME");
+        var prevWs = Environment.GetEnvironmentVariable("PISCINE_WORKSPACE");
+        try
+        {
+            Environment.SetEnvironmentVariable("PISCINE_HOME", Path.Combine("X:", "home"));
+            Environment.SetEnvironmentVariable("PISCINE_WORKSPACE", Path.Combine("X:", "explicit-ws"));
+
+            var layout = PiscineLayout.FromEnvironment();
+
+            Assert.Equal(Path.Combine("X:", "explicit-ws"), layout.WorkspaceRoot);
+            Assert.Equal(Path.Combine(Path.Combine("X:", "home"), ".state"), layout.StateDir);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("PISCINE_HOME", prevHome);
+            Environment.SetEnvironmentVariable("PISCINE_WORKSPACE", prevWs);
+        }
+    }
+
+    [Fact]
+    public void FromEnvironment_DefaultsWorkspaceUnderHome_WhenWorkspaceUnset()
+    {
+        var prevHome = Environment.GetEnvironmentVariable("PISCINE_HOME");
+        var prevWs = Environment.GetEnvironmentVariable("PISCINE_WORKSPACE");
+        try
+        {
+            Environment.SetEnvironmentVariable("PISCINE_HOME", Path.Combine("X:", "home2"));
+            Environment.SetEnvironmentVariable("PISCINE_WORKSPACE", null);
+
+            var layout = PiscineLayout.FromEnvironment();
+
+            Assert.Equal(Path.Combine(Path.Combine("X:", "home2"), "workspace"), layout.WorkspaceRoot);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("PISCINE_HOME", prevHome);
+            Environment.SetEnvironmentVariable("PISCINE_WORKSPACE", prevWs);
+        }
+    }
 }

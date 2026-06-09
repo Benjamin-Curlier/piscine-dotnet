@@ -165,6 +165,26 @@ public class GradeReceivedCommandTests
         Assert.Equal("Reussi", ex.Status);
     }
 
+    [Fact]
+    public void Run_PersistRichResultWriteFails_DoesNotThrow_AndStillRecordsProgress()
+    {
+        using var dir = new TempDir();
+        var layout = SetupContent(dir);
+        var sha = PushSnapshot(layout, dir, "System.Console.Write(\"ok\");");
+
+        // Force l'échec de l'écriture du verdict riche : last-push-result.json EST un dossier →
+        // File.WriteAllText lève UnauthorizedAccessException (et non IOException). Le hook ne doit pas
+        // planter après que progress.json a déjà été commité (#58 : best-effort élargi).
+        Directory.CreateDirectory(layout.LastPushResultPath);
+
+        var result = new GradeReceivedCommand(layout, Graders.Default()).Run(sha);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Réussi", result.Output);
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.Equal(ExerciseStatus.Reussi, progress.Exercises["ex00"].Status);
+    }
+
     // ── #17 : notation live des exos git contre le dépôt bare, gardée par le signal « tenté » ──────
 
     private static PiscineLayout SetupGitContent(TempDir dir)

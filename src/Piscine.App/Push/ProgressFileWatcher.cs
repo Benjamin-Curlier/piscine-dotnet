@@ -20,10 +20,15 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     // Protège _latest et _last contre les accès concurrents (thread FSW vs thread UI).
     private readonly object _lock = new();
 
+    // Plafond de réessais sur lecture en échec (~2 s à 250 ms) : un progress.json durablement
+    // illisible (verrou persistant) ne doit pas transformer le debounce en boucle 4 Hz infinie.
+    private const int MaxSettleRetries = 8;
+
     private FileSystemWatcher? _watcher;
     private Timer? _debounceTimer;
     private CoreProgress _last = new();
     private PushResult? _latest;
+    private int _settleRetries;
     private bool _started;
     private bool _disposed;
 
@@ -96,6 +101,9 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     {
         lock (_lock)
         {
+            // Nouvel événement FSW : on réarme le budget de réessai de lecture (cf. Settle).
+            _settleRetries = 0;
+
             // (Re)arme le timer à 250 ms ; chaque nouvel événement reporte l'échéance.
             if (_debounceTimer is null)
             {
@@ -114,16 +122,24 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
 
     private void Settle()
     {
-        CoreProgress current;
-        try
+        // LoadSafe() ne lève jamais : null = lecture en échec potentiellement transitoire (verrou /
+        // écriture en cours), à réessayer ; sinon l'état lu (vide si le fichier n'existe pas encore).
+        var current = LoadSafe();
+        if (current is null)
         {
-            current = LoadSafe() ?? new CoreProgress();
-        }
-        catch (Exception ex) when (ex is IOException or JsonException)
-        {
-            // Lecture interrompue (écriture en cours) → réarmer une fois.
             lock (_lock)
             {
+                if (_disposed) return;
+
+                // Réessai borné : au-delà du plafond on abandonne ce cycle (un prochain événement FSW
+                // relancera ArmDebounce, qui réarme le budget) — pas de boucle 4 Hz infinie.
+                if (_settleRetries >= MaxSettleRetries)
+                {
+                    _settleRetries = 0;
+                    return;
+                }
+
+                _settleRetries++;
                 _debounceTimer?.Change(250, Timeout.Infinite);
             }
             return;
@@ -135,6 +151,8 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
             // Un callback de timer déjà déclenché peut courir après DisposeAsync (Timer.Dispose
             // n'attend pas un callback en vol) → ne pas publier si on est disposé.
             if (_disposed) return;
+
+            _settleRetries = 0; // lecture réussie : budget de réessai réarmé.
 
             var delta = ComputeDelta(_last, current);
             if (delta.Count == 0) return;
@@ -149,6 +167,12 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Lit <c>progress.json</c> sans jamais lever : fichier absent → état vide ; verrou ou JSON partiel
+    /// (échec potentiellement transitoire) → <c>null</c> (l'appelant peut réessayer). Élargi à
+    /// IOException/JsonException pour que <see cref="Start"/> (→ PushResultPanel.OnInitialized) ne
+    /// faute pas sur un progress.json verrouillé/corrompu au démarrage.
+    /// </summary>
     private CoreProgress? LoadSafe()
     {
         try
@@ -158,6 +182,10 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         catch (FileNotFoundException)
         {
             return new CoreProgress();
+        }
+        catch (Exception ex) when (ex is IOException or JsonException)
+        {
+            return null;
         }
     }
 

@@ -23,24 +23,13 @@ var builder = PhotinoBlazorAppBuilder.CreateDefault(args);
 builder.Services.AddSingleton<CourseCatalog>();
 builder.Services.AddSingleton<MarkdownRenderer>();
 
-// Layout piscine depuis l'environnement (même résolution que Piscine.DevHost / FromEnvironment) :
-// contenu = PISCINE_CONTENT (sinon racine du catalogue), workspace/état sous PISCINE_HOME.
+// Layout piscine depuis l'environnement (résolveur partagé PiscineLayout.FromEnvironment, identique au
+// CLI/hook) : contenu = PISCINE_CONTENT (sinon racine du catalogue embarqué), workspace = PISCINE_WORKSPACE
+// (sinon home/workspace), état sous PISCINE_HOME.
 builder.Services.AddSingleton(sp =>
 {
     var catalog = sp.GetRequiredService<CourseCatalog>();
-
-    var content = Environment.GetEnvironmentVariable("PISCINE_CONTENT")
-        ?? catalog.ContentRoot;
-
-    var home = Environment.GetEnvironmentVariable("PISCINE_HOME")
-        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "piscine");
-
-    var workspace = Environment.GetEnvironmentVariable("PISCINE_WORKSPACE")
-        ?? Path.Combine(home, "workspace");
-
-    var state = Path.Combine(home, ".state");
-
-    return new PiscineLayout(content, workspace, state);
+    return PiscineLayout.FromEnvironment(defaultContentRoot: catalog.ContentRoot);
 });
 
 // Statut git (LibGit2Sharp, lecture seule) — requis par ProgressService.

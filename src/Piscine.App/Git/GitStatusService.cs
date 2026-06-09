@@ -25,6 +25,8 @@ public sealed class GitStatusService
 
         using var repo = new Repository(workingDirectory);
 
+        // Un seul RetrieveStatus par lecture : il est réutilisé pour les compteurs ET le scan de
+        // marqueurs de conflit (appelé à chaque événement git — éviter de le calculer deux fois).
         var status = repo.RetrieveStatus(new StatusOptions { IncludeUntracked = true });
         var stagedCount = status.Staged.Count() + status.Added.Count() + status.Removed.Count();
         var unstagedCount = status.Modified.Count() + status.Missing.Count();
@@ -39,7 +41,7 @@ public sealed class GitStatusService
         var hasOrigin = repo.Network.Remotes[OriginName] is not null;
         var aheadOfOrigin = ComputeAheadOfOrigin(repo, currentBranch, head);
 
-        var conflicted = CollectConflictedFiles(repo);
+        var conflicted = CollectConflictedFiles(repo, status);
 
         return new RepoState
         {
@@ -86,7 +88,7 @@ public sealed class GitStatusService
     /// un scan textuel des fichiers suivis cherchant les trois marqueurs <b>en debut de ligne</b>
     /// (meme detection que <c>GitGrader</c>, pour eviter les faux positifs : art ASCII, doc, diff).
     /// </summary>
-    private static IReadOnlyList<string> CollectConflictedFiles(Repository repo)
+    private static IReadOnlyList<string> CollectConflictedFiles(Repository repo, RepositoryStatus status)
     {
         var result = new List<string>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -107,7 +109,7 @@ public sealed class GitStatusService
             return result;
         }
 
-        foreach (var entry in repo.RetrieveStatus(new StatusOptions { IncludeUntracked = true }))
+        foreach (var entry in status)
         {
             var path = entry.FilePath;
             if (seen.Contains(path))

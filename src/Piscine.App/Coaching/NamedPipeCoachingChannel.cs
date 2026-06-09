@@ -43,45 +43,56 @@ public sealed class NamedPipeCoachingChannel : ICoachingChannel
     private async Task AcceptLoopAsync(NamedPipeServerStream first, CancellationToken ct)
     {
         var server = first;
-        while (!ct.IsCancellationRequested)
+        try
         {
-            try
+            while (!ct.IsCancellationRequested)
             {
-                await server.WaitForConnectionAsync(ct);
-
-                using (var reader = new StreamReader(server, leaveOpen: false))
+                try
                 {
-                    var line = await reader.ReadLineAsync(ct);
-                    if (!string.IsNullOrWhiteSpace(line))
+                    await server.WaitForConnectionAsync(ct);
+
+                    // leaveOpen: true → le pipe servi appartient à CE scope, pas au StreamReader : on le
+                    // dispose explicitement ci-dessous, sur TOUS les chemins (y compris une erreur de
+                    // WaitForConnectionAsync, qui survient avant la creation du reader — sinon fuite de
+                    // handle de pipe sur une longue session).
+                    using (var reader = new StreamReader(server, leaveOpen: true))
                     {
-                        var payload = JsonSerializer.Deserialize(line, ChannelJsonContext.Default.ChannelPayload);
-                        if (payload is not null)
+                        var line = await reader.ReadLineAsync(ct);
+                        if (!string.IsNullOrWhiteSpace(line))
                         {
-                            var evt = new GitCommandEvent(
-                                payload.Argv ?? [],
-                                payload.ExitCode,
-                                payload.Cwd ?? string.Empty);
-                            CommandReceived?.Invoke(evt);
+                            var payload = JsonSerializer.Deserialize(line, ChannelJsonContext.Default.ChannelPayload);
+                            if (payload is not null)
+                            {
+                                var evt = new GitCommandEvent(
+                                    payload.Argv ?? [],
+                                    payload.ExitCode,
+                                    payload.Cwd ?? string.Empty);
+                                CommandReceived?.Invoke(evt);
+                            }
                         }
                     }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                // Arret demande (Dispose) : on sort proprement.
+                catch (OperationCanceledException)
+                {
+                    // Arret demande (Dispose) : on sort proprement (le finally dispose le serveur courant).
+                    return;
+                }
+                catch (Exception e) when (e is IOException or JsonException)
+                {
+                    // Connexion corrompue / JSON invalide : on re-ecoute sans tuer la boucle.
+                }
+
+                // Fin de connexion (succes OU erreur) : on dispose le pipe servi et on en recree un pour
+                // la connexion suivante.
                 await server.DisposeAsync();
-                return;
+                server = CreateServer();
             }
-            catch (Exception e) when (e is IOException or JsonException)
-            {
-                // Connexion corrompue / JSON invalide : on re-ecoute sans tuer la boucle.
-            }
-
-            // Le StreamReader a dispose le pipe servi ; on en recree un pour la connexion suivante.
-            server = CreateServer();
         }
-
-        await server.DisposeAsync();
+        finally
+        {
+            // Couvre l'annulation entre deux iterations (serveur fraichement recree, jamais servi).
+            await server.DisposeAsync();
+        }
     }
 
     public async ValueTask DisposeAsync()

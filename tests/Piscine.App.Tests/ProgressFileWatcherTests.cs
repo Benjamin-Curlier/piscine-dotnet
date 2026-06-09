@@ -232,6 +232,26 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         // TempDir doit se nettoyer sans IOException.
     }
 
+    // ── Test : Start() résilient à un progress.json verrouillé (#58) ───────────
+
+    [Fact]
+    public async Task Start_WhenProgressFileLocked_DoesNotThrow()
+    {
+        // Arrange — pré-écrire progress.json puis le verrouiller en exclusif (FileShare.None) :
+        // simule un fichier en cours d'écriture / verrouillé par un autre process.
+        var layout = CreateLayout();
+        WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
+        using var locker = new FileStream(
+            layout.ProgressPath, FileMode.Open, FileAccess.Read, FileShare.None);
+
+        await using var watcher = new ProgressFileWatcher(layout);
+
+        // Act + Assert — auparavant l'IOException remontait jusqu'à PushResultPanel.OnInitialized et
+        // faisait planter la page ; LoadSafe l'absorbe désormais.
+        var ex = Record.Exception(() => watcher.Start());
+        Assert.Null(ex);
+    }
+
     // ── Test 7 : Résultat riche absent → null (rétro-compat statut-only) ───────
 
     [Fact]
