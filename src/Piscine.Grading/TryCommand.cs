@@ -95,7 +95,7 @@ public sealed class TryCommand
 
             if (run.Error is not null)
             {
-                output.AppendLine($"  ✗ exception : {run.Error.GetType().Name} — {run.Error.Message}");
+                output.AppendLine($"  ✗ exception : {run.Error.TypeName} — {run.Error.Message}");
                 allMatch = false;
                 allRunnable = false;
                 continue;

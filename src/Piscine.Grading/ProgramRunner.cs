@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace Piscine.Grading;
 
+/// <summary>Erreur recrue rapportée à travers la frontière du bac à sable (type + message).</summary>
+public sealed record RunError(string TypeName, string Message);
+
 /// <summary>Issue d'une exécution isolée d'un assembly compilé.</summary>
-public sealed record RunOutcome(string Stdout, int ExitCode, bool TimedOut, Exception? Error);
+public sealed record RunOutcome(string Stdout, int ExitCode, bool TimedOut, RunError? Error);
 
 /// <summary>
 /// Exécute un assembly console compilé en mémoire dans un contexte isolé
@@ -32,14 +35,14 @@ public static class ProgramRunner
             var entry = assembly.EntryPoint;
             if (entry is null)
             {
-                return new RunOutcome(string.Empty, 0, false, new InvalidOperationException("Aucun point d'entrée (Main)."));
+                return new RunOutcome(string.Empty, 0, false, new RunError(nameof(InvalidOperationException), "Aucun point d'entrée (Main)."));
             }
 
             Console.SetOut(output);
             Console.SetIn(new StringReader(stdin));
 
             int exitCode = 0;
-            Exception? error = null;
+            RunError? error = null;
             var task = Task.Run(() =>
             {
                 try
@@ -48,11 +51,12 @@ public static class ProgramRunner
                 }
                 catch (TargetInvocationException ex)
                 {
-                    error = ex.InnerException ?? ex;
+                    var inner = ex.InnerException ?? ex;
+                    error = new RunError(inner.GetType().Name, inner.Message);
                 }
                 catch (Exception ex)
                 {
-                    error = ex;
+                    error = new RunError(ex.GetType().Name, ex.Message);
                 }
             });
 

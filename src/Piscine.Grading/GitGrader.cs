@@ -36,8 +36,8 @@ public sealed class GitGrader : IGrader
             var head = ResolveHead(repo, context.HeadRef);
             CheckBranches(repo, step.Git, failures);
             CheckCommitCount(repo, step.Git, head, failures);
-            CheckMerges(repo, step.Git, failures);
-            CheckFiles(repo, step.Git, failures);
+            CheckMerges(repo, step.Git, context.HeadRef, failures);
+            CheckFiles(repo, step.Git, context.HeadRef, failures);
             CheckConflictMarkers(repo, step.Git, head, failures);
         }
 
@@ -84,12 +84,12 @@ public sealed class GitGrader : IGrader
         }
     }
 
-    private static void CheckMerges(Repository repo, GitAssertions git, List<string> failures)
+    private static void CheckMerges(Repository repo, GitAssertions git, string? headRef, List<string> failures)
     {
         foreach (var merge in git.Merged)
         {
-            var into = ResolveCommit(repo, merge.Into);
-            var branch = ResolveCommit(repo, merge.Branch);
+            var into = ResolveCommit(repo, merge.Into, headRef);
+            var branch = ResolveCommit(repo, merge.Branch, headRef);
             if (into is null)
             {
                 failures.Add($"fusion : la branche cible « {merge.Into} » est introuvable.");
@@ -111,11 +111,11 @@ public sealed class GitGrader : IGrader
         }
     }
 
-    private static void CheckFiles(Repository repo, GitAssertions git, List<string> failures)
+    private static void CheckFiles(Repository repo, GitAssertions git, string? headRef, List<string> failures)
     {
         foreach (var file in git.Files)
         {
-            var commit = ResolveCommit(repo, file.Ref);
+            var commit = ResolveCommit(repo, file.Ref, headRef);
             if (commit is null)
             {
                 failures.Add($"fichier « {file.Path} » : la ref « {file.Ref} » est introuvable.");
@@ -196,12 +196,17 @@ public sealed class GitGrader : IGrader
     private static Commit? ResolveHead(Repository repo, string? headRef)
         => string.IsNullOrEmpty(headRef) ? repo.Head?.Tip : repo.Branches[headRef]?.Tip;
 
-    /// <summary>Résout une ref (branche, <c>HEAD</c>, ou sha) vers son commit, ou <c>null</c>.</summary>
-    private static Commit? ResolveCommit(Repository repo, string refName)
+    /// <summary>
+    /// Résout une ref (branche, <c>HEAD</c>, ou sha) vers son commit, ou <c>null</c>. Pour le défaut
+    /// <c>HEAD</c>, délègue à <see cref="ResolveHead"/> : sans ça, une <c>GitFileAssertion</c> au ref
+    /// implicite <c>HEAD</c> se résoudrait sur <c>repo.Head</c> orphelin dans un dépôt bare (faux
+    /// « à revoir » côté <c>grade-received</c>, alors que la fixture non-bare passe).
+    /// </summary>
+    private static Commit? ResolveCommit(Repository repo, string refName, string? headRef)
     {
         if (string.IsNullOrEmpty(refName) || refName == "HEAD")
         {
-            return repo.Head?.Tip;
+            return ResolveHead(repo, headRef);
         }
 
         var branch = repo.Branches[refName];

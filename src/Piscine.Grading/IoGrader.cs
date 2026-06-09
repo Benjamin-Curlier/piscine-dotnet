@@ -45,7 +45,7 @@ public sealed class IoGrader : IGrader
 
             if (run.Error is not null)
             {
-                return GraderResult.Failure(Type, $"Votre programme a levé une exception : {run.Error.GetType().Name} — {run.Error.Message}")
+                return GraderResult.Failure(Type, $"Votre programme a levé une exception : {run.Error.TypeName} — {run.Error.Message}")
                     .WithTrigger(FeedbackTriggers.RuntimeError);
             }
 

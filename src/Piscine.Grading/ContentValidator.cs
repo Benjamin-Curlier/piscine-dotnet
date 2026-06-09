@@ -84,6 +84,14 @@ public sealed class ContentValidator
             return;
         }
 
+        // Passe stricte : une clé inconnue (typo, ex. « expext_stdout ») est silencieusement ignorée au
+        // runtime (lenient) mais fausserait la notation — on la signale ici comme problème de contenu.
+        var unknownKey = ExerciseManifestLoader.FindUnknownKey(location.ContentDir);
+        if (unknownKey is not null)
+        {
+            issues.Add(new ContentIssue(exerciseId, $"clé non reconnue dans {unknownKey}"));
+        }
+
         foreach (var testFile in manifest.Grading.SelectMany(s => s.TestFiles))
         {
             if (!File.Exists(Path.Combine(location.ContentDir, testFile)))

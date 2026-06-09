@@ -107,7 +107,7 @@ public sealed class ProjectGrader : IGrader
 
             if (run.Error is not null)
             {
-                return GraderResult.Failure(Type, $"Le projet a levé une exception : {run.Error.GetType().Name} — {run.Error.Message}")
+                return GraderResult.Failure(Type, $"Le projet a levé une exception : {run.Error.TypeName} — {run.Error.Message}")
                     .WithTrigger(FeedbackTriggers.RuntimeError);
             }
 
