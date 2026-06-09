@@ -107,4 +107,16 @@ public class ReseauGraderTests
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void Grade_ContentError_WhenNoCases()
+    {
+        var step = new GradingStep { Type = "reseau", Network = new NetworkConfig { Mode = "echo" } }; // aucune case
+
+        var result = new ReseauGrader().Grade(Context(EchoClient), step);
+
+        // Fail-closed : sans cas, un rendu qui compile ne doit pas « réussir » par défaut.
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
+    }
 }

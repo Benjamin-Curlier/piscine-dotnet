@@ -16,15 +16,19 @@ public static class CommitExtractor
         }
 
         Directory.CreateDirectory(destinationDir);
-        WriteTree(commit.Tree, destinationDir);
+        var root = Path.GetFullPath(destinationDir);
+        WriteTree(commit.Tree, root, root);
     }
 
-    private static void WriteTree(Tree tree, string dir)
+    private static void WriteTree(Tree tree, string dir, string root)
     {
         Directory.CreateDirectory(dir);
         foreach (var entry in tree)
         {
-            var target = Path.Combine(dir, entry.Name);
+            // La recrue contrôle entièrement le dépôt bare lu ici : un nom d'entrée malveillant
+            // (séparateur, « .. », chemin absolu) ferait écrire File.Create HORS du dossier snapshot.
+            // On valide chaque nom et on confirme que la cible reste sous la racine.
+            var target = ResolveSafeChild(root, dir, entry.Name);
             switch (entry.TargetType)
             {
                 case TreeEntryTargetType.Blob:
@@ -35,9 +39,35 @@ public static class CommitExtractor
                     }
                     break;
                 case TreeEntryTargetType.Tree:
-                    WriteTree((Tree)entry.Target, target);
+                    WriteTree((Tree)entry.Target, target, root);
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// Résout un enfant (nom d'entrée d'arbre) sous <paramref name="parentDir"/> en garantissant qu'il
+    /// reste à l'intérieur de <paramref name="root"/>. Rejette les noms non atomiques (séparateur,
+    /// « . »/« .. », chemin enraciné) et toute cible qui échapperait au snapshot.
+    /// </summary>
+    internal static string ResolveSafeChild(string root, string parentDir, string name)
+    {
+        if (string.IsNullOrEmpty(name) || name is "." or ".."
+            || name.IndexOfAny(new[] { '/', '\\' }) >= 0
+            || Path.IsPathRooted(name))
+        {
+            throw new InvalidOperationException($"Nom d'entrée d'arbre git invalide (traversal) : « {name} ».");
+        }
+
+        var rootFull = Path.GetFullPath(root);
+        var target = Path.GetFullPath(Path.Combine(parentDir, name));
+        var relative = Path.GetRelativePath(rootFull, target);
+        if (relative == ".." || relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+            || Path.IsPathRooted(relative))
+        {
+            throw new InvalidOperationException($"Entrée d'arbre git hors du dossier cible : « {name} ».");
+        }
+
+        return target;
     }
 }

@@ -29,8 +29,18 @@ public sealed class ProgressStore
             return new Progress();
         }
 
-        var json = File.ReadAllText(_path);
-        return JsonSerializer.Deserialize<Progress>(json, Options) ?? new Progress();
+        try
+        {
+            var json = File.ReadAllText(_path);
+            return JsonSerializer.Deserialize<Progress>(json, Options) ?? new Progress();
+        }
+        catch (JsonException)
+        {
+            // progress.json corrompu (édité à la main, ou écriture précédente interrompue) : on
+            // repart d'une progression vide plutôt que de planter `check` et, surtout, le hook
+            // `grade-received` (post-receive) qui sinon casserait le `git push` de la recrue.
+            return new Progress();
+        }
     }
 
     public void Save(Progress progress)
@@ -42,6 +52,12 @@ public sealed class ProgressStore
         }
 
         var json = JsonSerializer.Serialize(progress, Options);
-        File.WriteAllText(_path, json);
+
+        // Écriture atomique : on écrit un fichier temporaire voisin puis on le déplace par-dessus la
+        // cible, pour ne jamais laisser un progress.json à moitié écrit (que Load() devrait ensuite
+        // récupérer) si le process est interrompu en plein File.WriteAllText.
+        var temp = _path + ".tmp";
+        File.WriteAllText(temp, json);
+        File.Move(temp, _path, overwrite: true);
     }
 }

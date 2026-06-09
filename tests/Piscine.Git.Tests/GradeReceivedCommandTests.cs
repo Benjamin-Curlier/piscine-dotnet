@@ -276,4 +276,17 @@ public class GradeReceivedCommandTests
         var progress = new ProgressStore(layout.ProgressPath).Load();
         Assert.Equal(ExerciseStatus.ARevoir, progress.Exercises["ex-git"].Status);
     }
+
+    [Fact]
+    public void Run_ZeroSha_ReturnsZero_WithoutThrowing()
+    {
+        using var dir = new TempDir();
+        var layout = SetupContent(dir);
+        var zeroSha = new string('0', 40); // suppression de branche : newrev = SHA tout-zéro
+
+        var result = new GradeReceivedCommand(layout, Graders.Default()).Run(zeroSha);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Rien à corriger", result.Output);
+    }
 }

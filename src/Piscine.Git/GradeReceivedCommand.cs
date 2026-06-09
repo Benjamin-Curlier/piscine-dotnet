@@ -30,8 +30,31 @@ public sealed class GradeReceivedCommand
         _grader = grader;
     }
 
+    /// <summary>Vrai pour le SHA « tout-zéro » (suppression de ref), quel que soit l'algo (40 ou 64 chars).</summary>
+    private static bool IsZeroSha(string sha)
+    {
+        foreach (var c in sha)
+        {
+            if (c != '0')
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public CommandResult Run(string sha)
     {
+        // Le hook post-receive appelle `grade-received <newrev>` pour CHAQUE ref reçue. Une suppression
+        // de branche (ou toute ref dont la nouvelle valeur est le SHA tout-zéro) n'a pas de commit à
+        // corriger : on sort proprement (exit 0) au lieu de laisser CommitExtractor lever une exception
+        // non gérée qui s'afficherait dans la sortie du `git push` de la recrue.
+        if (string.IsNullOrWhiteSpace(sha) || IsZeroSha(sha))
+        {
+            return new CommandResult(0, "Rien à corriger (référence supprimée ou vide).");
+        }
+
         var snapshot = Path.Combine(Path.GetTempPath(), "piscine-recu", Guid.NewGuid().ToString("N"));
         try
         {
