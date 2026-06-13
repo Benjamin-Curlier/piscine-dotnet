@@ -102,4 +102,60 @@ public class SandboxExecutorTests
 
         Assert.Equal("écho", result.Stdout);
     }
+
+    private static byte[] CompileDll(string source) =>
+        CompilationService.Compile(
+            new Dictionary<string, string> { ["Lib.cs"] = source },
+            OutputKind.DynamicallyLinkedLibrary).AssemblyBytes;
+
+    [Fact]
+    public void Execute_UnknownMode_ReturnsArgumentError()
+    {
+        var bytes = CompileIo("""System.Console.Write("x");""");
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "bogus" }, bytes);
+
+        Assert.Equal("ArgumentException", result.ErrorType);
+        Assert.Contains("Mode inconnu", result.ErrorMessage);
+    }
+
+    [Fact]
+    public void RunIo_NoEntryPoint_ReportsMissingMain()
+    {
+        var bytes = CompileDll("public class Lib { public int N => 1; }");
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "io" }, bytes);
+
+        Assert.Equal(nameof(System.InvalidOperationException), result.ErrorType);
+        Assert.Contains("point d'entrée", result.ErrorMessage);
+    }
+
+    [Fact]
+    public void RunIo_AsyncMainReturningInt_PropagatesExitCode()
+    {
+        var bytes = CompileIo("""
+            await System.Threading.Tasks.Task.Delay(1);
+            return 5;
+            """);
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "io" }, bytes);
+
+        Assert.Null(result.ErrorType);
+        Assert.Equal(5, result.ExitCode);
+    }
+
+    [Fact]
+    public void RunIo_AsyncVoidMain_ExitsZero()
+    {
+        var bytes = CompileIo("""
+            await System.Threading.Tasks.Task.Delay(1);
+            System.Console.Write("done");
+            """);
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "io" }, bytes);
+
+        Assert.Null(result.ErrorType);
+        Assert.Equal(0, result.ExitCode);
+        Assert.Equal("done", result.Stdout);
+    }
 }
