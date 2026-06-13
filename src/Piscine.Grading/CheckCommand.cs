@@ -13,11 +13,13 @@ public sealed class CheckCommand
 {
     private readonly PiscineLayout _layout;
     private readonly ExerciseGrader _grader;
+    private readonly TimeProvider _timeProvider;
 
-    public CheckCommand(PiscineLayout layout, ExerciseGrader grader)
+    public CheckCommand(PiscineLayout layout, ExerciseGrader grader, TimeProvider? timeProvider = null)
     {
         _layout = layout;
         _grader = grader;
+        _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     public CommandResult Run(string exerciseId)
@@ -40,7 +42,7 @@ public sealed class CheckCommand
 
         var store = new ProgressStore(_layout.ProgressPath);
         var progress = store.Load();
-        ProgressRecorder.Apply(progress, new[] { result }, DateTimeOffset.Now);
+        ProgressRecorder.Apply(progress, new[] { result }, _timeProvider.GetLocalNow());
         store.Save(progress);
 
         var output = ResultFormatter.Format(result, submission.Manifest.Feedback);

@@ -16,6 +16,7 @@ namespace Piscine.App.Push;
 public sealed class ProgressFileWatcher : IPushResultWatcher
 {
     private readonly PiscineLayout _layout;
+    private readonly TimeProvider _timeProvider;
 
     // Protège _latest et _last contre les accès concurrents (thread FSW vs thread UI).
     private readonly object _lock = new();
@@ -32,9 +33,10 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     private bool _started;
     private bool _disposed;
 
-    public ProgressFileWatcher(PiscineLayout layout)
+    public ProgressFileWatcher(PiscineLayout layout, TimeProvider? timeProvider = null)
     {
         _layout = layout;
+        _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     /// <inheritdoc/>
@@ -157,7 +159,7 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
             var delta = ComputeDelta(_last, current);
             if (delta.Count == 0) return;
 
-            _latest = new PushResult(delta, DateTimeOffset.Now);
+            _latest = new PushResult(delta, _timeProvider.GetLocalNow());
             _last = current;
             published = _latest;
         }

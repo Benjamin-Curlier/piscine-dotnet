@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Piscine.Core;
 using Piscine.Core.Progression;
@@ -81,5 +82,26 @@ public class CheckCommandTests
         var result = new CheckCommand(layout, Graders.Default()).Run("inconnu");
 
         Assert.Equal(2, result.ExitCode);
+    }
+
+    /// <summary>Horloge fixe injectable (LocalTimeZone = UTC) pour vérifier le seam TimeProvider (SK-2).</summary>
+    private sealed class FixedClock(DateTimeOffset utcNow) : TimeProvider
+    {
+        private readonly DateTimeOffset _utcNow = utcNow;
+        public override DateTimeOffset GetUtcNow() => _utcNow;
+        public override TimeZoneInfo LocalTimeZone => TimeZoneInfo.Utc;
+    }
+
+    [Fact]
+    public void Run_RecordsInjectedClock_AsLastAttempt()
+    {
+        using var dir = new TempDir();
+        var layout = Setup(dir, "System.Console.Write(\"ok\");");
+        var fixedTime = new DateTimeOffset(2030, 1, 2, 3, 4, 5, TimeSpan.Zero);
+
+        new CheckCommand(layout, Graders.Default(), new FixedClock(fixedTime)).Run("ex00");
+
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.Equal(fixedTime, progress.Exercises["ex00"].LastAttempt!.Value);
     }
 }
