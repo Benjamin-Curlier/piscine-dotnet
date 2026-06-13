@@ -1,12 +1,32 @@
 using System.Text;
+using System.Threading.Channels;
 using Porta.Pty;
 
 namespace Piscine.App.Terminal;
 
-/// <summary>Lance des sessions PTY (un vrai shell OS). Enregistre en DI, sans etat partage.</summary>
+/// <summary>
+/// Lance des sessions PTY (un vrai shell OS). Enregistre en DI, sans etat partage.
+/// <para>
+/// Si des <see cref="PtyCoalescerOptions"/> sont fournies a <see cref="StartAsync"/>, la sortie brute
+/// est bufferisee et emise par rafales (coalescing) afin d'eviter de saturer le pont JS/interop sur
+/// une sortie tres verbeuse. Sans options, la session est directe (comportement historique S2).
+/// </para>
+/// </summary>
 public sealed class PtyService
 {
-    public async Task<IPtySession> StartAsync(PtyStartInfo info, CancellationToken ct = default)
+    /// <summary>
+    /// Lance une session PTY.
+    /// </summary>
+    /// <param name="info">Parametres de demarrage du shell.</param>
+    /// <param name="coalescer">
+    /// Options de coalescence de la sortie (fenetre temporelle + seuil de taille).
+    /// <c>null</c> = emission directe sans buffer (comportement historique).
+    /// </param>
+    /// <param name="ct">Jeton d'annulation de l'operation de spawn.</param>
+    public async Task<IPtySession> StartAsync(
+        PtyStartInfo info,
+        PtyCoalescerOptions? coalescer = null,
+        CancellationToken ct = default)
     {
         var options = new PtyOptions
         {
@@ -26,7 +46,14 @@ public sealed class PtyService
         }
 
         var connection = await PtyProvider.SpawnAsync(options, ct);
-        return new PtySession(connection);
+        IPtySession raw = new PtySession(connection);
+
+        if (coalescer is null)
+        {
+            return raw;
+        }
+
+        return new CoalescingPtySession(raw, coalescer);
     }
 
     /// <summary>
@@ -52,6 +79,8 @@ public sealed class PtyService
 
         return env;
     }
+
+    // ── Session PTY directe (comportement historique S2) ────────────────────────
 
     private sealed class PtySession : IPtySession
     {
@@ -119,6 +148,187 @@ public sealed class PtyService
 
             _conn.Dispose();
             _cts.Dispose();
+        }
+    }
+
+    // ── Session PTY avec coalescence de la sortie ────────────────────────────────
+
+    /// <summary>
+    /// Enveloppe une <see cref="IPtySession"/> brute et coalesce sa sortie.
+    /// <para>
+    /// Architecture : les chunks entrants (thread PTY) sont enfiles dans un <see cref="Channel{T}"/>.
+    /// Un timer periodique (pilote par <see cref="PtyCoalescerOptions.TimeProvider"/>) declenche les
+    /// flush ; le seuil de taille provoque un flush immediat supplementaire entre deux ticks.
+    /// </para>
+    /// <para>
+    /// Le flush est declenche par l'un ou l'autre des criteres suivants (premier atteint) :
+    /// <list type="bullet">
+    ///   <item>le timer de <see cref="PtyCoalescerOptions.FlushInterval"/> se declenche ;</item>
+    ///   <item>le buffer accumule <see cref="PtyCoalescerOptions.MaxBufferBytes"/> octets.</item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// L'ordre des octets est preserve. Aucun octet n'est perdu (Channel non borne).
+    /// </para>
+    /// </summary>
+    internal sealed class CoalescingPtySession : IPtySession
+    {
+        private readonly IPtySession _inner;
+        private readonly PtyCoalescerOptions _options;
+        private readonly Channel<byte[]> _channel;
+        private readonly CancellationTokenSource _cts = new();
+        private readonly Task _flushLoop;
+        private readonly ITimer _flushTimer;
+
+        // Semaphore utilise comme signal de flush :
+        // - le timer periodique le libere a chaque tick (fenetre temporelle) ;
+        // - OnInnerOutput le libere quand le seuil de taille est atteint (flush immediat).
+        private readonly SemaphoreSlim _flushSignal = new(0);
+
+        // Taille totale accumulee dans le channel depuis le dernier flush : utilisee pour
+        // decider si le seuil de taille est atteint. Acces depuis le thread PTY uniquement
+        // (OnInnerOutput) ; pas besoin de synchronisation supplementaire car Channel est
+        // thread-safe cote write et cet accumulateur n'est lu que depuis le meme thread.
+        private int _pendingBytes;
+
+        public event Action<byte[]>? Output;
+        public event Action<int>? Exited;
+
+        internal CoalescingPtySession(IPtySession inner, PtyCoalescerOptions options)
+        {
+            _inner = inner;
+            _options = options;
+            _channel = Channel.CreateUnbounded<byte[]>(new UnboundedChannelOptions
+            {
+                SingleReader = true,
+                SingleWriter = false,
+                AllowSynchronousContinuations = false,
+            });
+
+            _inner.Output += OnInnerOutput;
+            _inner.Exited += exitCode => Exited?.Invoke(exitCode);
+
+            // Cree un timer periodique via TimeProvider (injectable : production = systeme,
+            // tests = FakeTimeProvider de Microsoft.Extensions.TimeProvider.Testing).
+            // Le timer libere _flushSignal a chaque tick ; la boucle de flush se reveille alors
+            // et vide le channel. On stocke l'ITimer pour eviter qu'il soit GC avant DisposeAsync.
+            var tp = options.TimeProvider ?? TimeProvider.System;
+            _flushTimer = tp.CreateTimer(
+                _ => _flushSignal.Release(),
+                state: null,
+                dueTime: options.FlushInterval,
+                period: options.FlushInterval);
+
+            _flushLoop = RunFlushLoopAsync(_cts.Token);
+        }
+
+        private void OnInnerOutput(byte[] chunk)
+        {
+            _channel.Writer.TryWrite(chunk);
+
+            // Seuil de taille : si le buffer accumule depasse MaxBufferBytes, on signale un flush
+            // immediat sans attendre le prochain tick du timer.
+            _pendingBytes += chunk.Length;
+            if (_pendingBytes >= _options.MaxBufferBytes)
+            {
+                _pendingBytes = 0;
+                _flushSignal.Release();
+            }
+        }
+
+        private async Task RunFlushLoopAsync(CancellationToken ct)
+        {
+            var pending = new List<byte[]>();
+            var pendingSize = 0;
+
+            while (!ct.IsCancellationRequested)
+            {
+                // Attendre le signal de flush (timer periodique ou seuil de taille).
+                try
+                {
+                    await _flushSignal.WaitAsync(ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Arret demande (DisposeAsync) : vider le reste et sortir.
+                    DrainAndFlush(pending, ref pendingSize);
+                    break;
+                }
+
+                // Vider tout ce qui est disponible dans le channel au moment du flush.
+                _pendingBytes = 0; // RAZ avant lecture pour eviter un double-signal parasite.
+                while (_channel.Reader.TryRead(out var chunk))
+                {
+                    pending.Add(chunk);
+                    pendingSize += chunk.Length;
+                }
+
+                Flush(pending, ref pendingSize);
+            }
+        }
+
+        /// <summary>Fusionne <paramref name="pending"/> en un seul tableau et invoque <see cref="Output"/>.</summary>
+        private void Flush(List<byte[]> pending, ref int pendingSize)
+        {
+            if (pending.Count == 0) return;
+
+            byte[] merged;
+            if (pending.Count == 1)
+            {
+                merged = pending[0];
+            }
+            else
+            {
+                merged = new byte[pendingSize];
+                var offset = 0;
+                foreach (var seg in pending)
+                {
+                    Buffer.BlockCopy(seg, 0, merged, offset, seg.Length);
+                    offset += seg.Length;
+                }
+            }
+
+            pending.Clear();
+            pendingSize = 0;
+
+            Output?.Invoke(merged);
+        }
+
+        /// <summary>Vide le channel residuel apres annulation, puis flush une derniere fois.</summary>
+        private void DrainAndFlush(List<byte[]> pending, ref int pendingSize)
+        {
+            while (_channel.Reader.TryRead(out var chunk))
+            {
+                pending.Add(chunk);
+                pendingSize += chunk.Length;
+            }
+            Flush(pending, ref pendingSize);
+        }
+
+        public Task WriteAsync(string data, CancellationToken ct = default) => _inner.WriteAsync(data, ct);
+        public void Resize(int cols, int rows) => _inner.Resize(cols, rows);
+
+        public async ValueTask DisposeAsync()
+        {
+            _inner.Output -= OnInnerOutput;
+
+            // Arreter le timer periodique.
+            await _flushTimer.DisposeAsync();
+
+            // Annuler la boucle de flush.
+            await _cts.CancelAsync();
+            try
+            {
+                await _flushLoop;
+            }
+            catch (OperationCanceledException)
+            {
+                // Attendu lors de l'arret.
+            }
+
+            _cts.Dispose();
+            _flushSignal.Dispose();
+            await _inner.DisposeAsync();
         }
     }
 }
