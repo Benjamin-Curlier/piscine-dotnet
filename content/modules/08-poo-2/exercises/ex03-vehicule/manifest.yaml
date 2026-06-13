@@ -9,21 +9,21 @@ grading:
   - type: io
     cases:
       - stdin: "100\n"
-        expect_stdout: ""
+        expect_stdout: "7\n25\n"
         expect_exit: 0
       - stdin: "200\n"
-        expect_stdout: ""
+        expect_stdout: "14\n50\n"
         expect_exit: 0
       - stdin: "0\n"
-        expect_stdout: ""
+        expect_stdout: "0\n0\n"
         expect_exit: 0
       # distance plus longue (anti-hardcode)
       - stdin: "1000\n"
-        expect_stdout: ""
+        expect_stdout: "70\n250\n"
         expect_exit: 0
       # 300 km
       - stdin: "300\n"
-        expect_stdout: ""
+        expect_stdout: "21\n75\n"
         expect_exit: 0
 feedback:
   hints:

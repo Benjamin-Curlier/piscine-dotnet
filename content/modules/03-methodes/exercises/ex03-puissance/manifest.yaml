@@ -9,25 +9,25 @@ grading:
   - type: io
     cases:
       - stdin: "2\n10\n"
-        expect_stdout: ""
+        expect_stdout: "1024\n"
         expect_exit: 0
       - stdin: "5\n0\n"
-        expect_stdout: ""
+        expect_stdout: "1\n"
         expect_exit: 0
       - stdin: "3\n3\n"
-        expect_stdout: ""
+        expect_stdout: "27\n"
         expect_exit: 0
       # base 1 (toujours 1)
       - stdin: "1\n100\n"
-        expect_stdout: ""
+        expect_stdout: "1\n"
         expect_exit: 0
       # base négative, exposant impair (résultat négatif)
       - stdin: "-2\n3\n"
-        expect_stdout: ""
+        expect_stdout: "-8\n"
         expect_exit: 0
       # exposant 1 (renvoie la base)
       - stdin: "7\n1\n"
-        expect_stdout: ""
+        expect_stdout: "7\n"
         expect_exit: 0
 feedback:
   hints:

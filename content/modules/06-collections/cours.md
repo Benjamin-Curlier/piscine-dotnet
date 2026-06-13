@@ -62,6 +62,7 @@ un module dédié.
 - **[ex00-tri-liste](#tri-liste)** : trier une liste de nombres.
 - **[ex01-frequence](#frequence)** : compter les occurrences d'un mot avec un dictionnaire.
 - **[ex02-somme-pairs](#somme-pairs)** : sommer les nombres pairs avec LINQ.
+- **[ex03-top-k](#top-k)** : *(bonus, difficile)* afficher les K mots les plus fréquents.
 
 #### tri-liste {#tri-liste}
 Lis des nombres séparés par des espaces, affiche-les **triés** par ordre croissant (`List` + `Sort`).
@@ -71,6 +72,12 @@ Lis une ligne de mots, puis un mot cible ; affiche combien de fois la cible appa
 
 #### somme-pairs {#somme-pairs}
 Lis des nombres, affiche la somme des **pairs** (`Where` + `Sum`).
+
+#### top-k {#top-k}
+*(Bonus, difficile)* Lis une ligne de mots, puis un entier `K` ; affiche les `K` mots les plus
+fréquents (un par ligne), du plus fréquent au moins fréquent, **ex-aequo départagés par ordre
+alphabétique**. Indice : compte dans un `Dictionary<string,int>`, puis
+`OrderByDescending(fréquence).ThenBy(mot).Take(K)`. Le `ThenBy` garantit un ordre **déterministe**.
 
 ## Pour aller plus loin
 

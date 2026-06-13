@@ -106,6 +106,7 @@ class EmployeFixe : Employe
 - **[ex00-animal](#animal)** : héritage et redéfinition `virtual`/`override`, polymorphisme.
 - **[ex01-forme](#forme)** : une interface `IForme` implémentée par plusieurs formes.
 - **[ex02-employe](#employe)** : une classe abstraite avec méthode abstraite.
+- **[ex03-vehicule](#vehicule)** : *(bonus, difficile)* classe abstraite + polymorphisme sur une flotte.
 
 #### animal {#animal}
 Lis des types d'animaux, crée le bon objet (`Chien`/`Chat`), affiche le cri de chacun.
@@ -115,6 +116,12 @@ Lis les dimensions d'un carré et d'un rectangle, affiche l'aire de chaque forme
 
 #### employe {#employe}
 Lis un salaire fixe et le couple (base, commission) d'un commercial ; affiche la masse salariale.
+
+#### vehicule {#vehicule}
+*(Bonus, difficile)* Définis une classe **abstraite** `Vehicule` exposant sa consommation
+(litres/100 km) et une méthode `LitresPour(int km) = km * taux / 100`. Crée `Voiture` (7 L/100 km) et
+`Camion` (25 L/100 km). Lis une distance (multiple de 100), parcours une `List<Vehicule>` et affiche
+la consommation de chaque véhicule — c'est le **polymorphisme** qui choisit le bon taux.
 
 ## Pour aller plus loin
 

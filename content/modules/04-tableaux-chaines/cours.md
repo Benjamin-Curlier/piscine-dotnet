@@ -65,6 +65,7 @@ Quelques méthodes utiles : `mot.ToLower()`, `mot.ToUpper()`, `mot.Contains("is"
 - **[ex00-somme-tableau](#somme-tableau)** : additionner une liste de nombres lus sur une ligne.
 - **[ex01-inverser](#inverser)** : afficher une chaîne à l'envers.
 - **[ex02-voyelles](#voyelles)** : compter les voyelles d'un mot.
+- **[ex03-anagramme](#anagramme)** : *(bonus, difficile)* dire si deux mots sont anagrammes.
 
 #### somme-tableau {#somme-tableau}
 Lis une ligne de nombres séparés par des espaces, affiche leur somme (`Split` → tableau → boucle).
@@ -74,6 +75,12 @@ Lis une chaîne, affiche-la à l'envers (`ToCharArray` + `Array.Reverse`).
 
 #### voyelles {#voyelles}
 Lis un mot, affiche combien il contient de voyelles (`a e i o u`), majuscules comprises.
+
+#### anagramme {#anagramme}
+*(Bonus, difficile)* Lis deux mots (un par ligne), affiche `oui` s'ils sont anagrammes (mêmes
+lettres, ordre différent — insensible à la casse), `non` sinon. Deux mots identiques ne sont **pas**
+des anagrammes. Indice : passe en minuscules, trie les caractères (`OrderBy`), compare avec
+`SequenceEqual` (`using System.Linq;`).
 
 ## Bonne pratique git — le `.gitignore`
 

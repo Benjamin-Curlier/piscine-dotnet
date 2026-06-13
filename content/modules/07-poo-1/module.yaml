@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: classes-objets
     title: "Classes & objets"
-    exercises: [ex00-rectangle, ex01-personne, ex02-compte]
+    exercises: [ex00-rectangle, ex01-personne, ex02-compte, ex03-pile]

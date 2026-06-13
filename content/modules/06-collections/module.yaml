@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: listes-dictionnaires
     title: "Listes & dictionnaires"
-    exercises: [ex00-tri-liste, ex01-frequence, ex02-somme-pairs]
+    exercises: [ex00-tri-liste, ex01-frequence, ex02-somme-pairs, ex03-top-k]

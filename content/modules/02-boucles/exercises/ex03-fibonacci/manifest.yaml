@@ -9,20 +9,20 @@ grading:
   - type: io
     cases:
       - stdin: "0\n"
-        expect_stdout: ""
+        expect_stdout: "0\n"
         expect_exit: 0
       - stdin: "1\n"
-        expect_stdout: ""
+        expect_stdout: "1\n"
         expect_exit: 0
       - stdin: "7\n"
-        expect_stdout: ""
+        expect_stdout: "13\n"
         expect_exit: 0
       - stdin: "10\n"
-        expect_stdout: ""
+        expect_stdout: "55\n"
         expect_exit: 0
       # grand terme (anti-hardcode) : F(20) = 6765
       - stdin: "20\n"
-        expect_stdout: ""
+        expect_stdout: "6765\n"
         expect_exit: 0
 feedback:
   hints:

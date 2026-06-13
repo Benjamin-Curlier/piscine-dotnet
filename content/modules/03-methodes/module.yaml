@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: parametres-retour
     title: "Paramètres & retour"
-    exercises: [ex00-carre, ex01-max3, ex02-factorielle]
+    exercises: [ex00-carre, ex01-max3, ex02-factorielle, ex03-puissance]

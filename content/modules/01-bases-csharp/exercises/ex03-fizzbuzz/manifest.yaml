@@ -9,21 +9,21 @@ grading:
   - type: io
     cases:
       - stdin: "5\n"
-        expect_stdout: ""
+        expect_stdout: "1\n2\nFizz\n4\nBuzz\n"
         expect_exit: 0
       - stdin: "15\n"
-        expect_stdout: ""
+        expect_stdout: "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n"
         expect_exit: 0
       - stdin: "1\n"
-        expect_stdout: ""
+        expect_stdout: "1\n"
         expect_exit: 0
       # multiple de 3 seulement
       - stdin: "3\n"
-        expect_stdout: ""
+        expect_stdout: "1\n2\nFizz\n"
         expect_exit: 0
       # multiple de 5 et de 3 dans la plage
       - stdin: "16\n"
-        expect_stdout: ""
+        expect_stdout: "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n16\n"
         expect_exit: 0
 feedback:
   hints:

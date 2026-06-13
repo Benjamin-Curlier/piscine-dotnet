@@ -67,6 +67,7 @@ System.Console.WriteLine(n % 2 == 0 ? "pair" : "impair");
 - **[ex00-somme](#somme)** : additionner deux entiers lus sur l'entrée.
 - **[ex01-parite](#parite)** : dire si un entier est pair ou impair.
 - **[ex02-maximum](#maximum)** : afficher le plus grand de deux entiers.
+- **[ex03-fizzbuzz](#fizzbuzz)** : *(bonus, difficile)* afficher 1 à N avec Fizz/Buzz/FizzBuzz.
 
 #### somme {#somme}
 Lis deux entiers (un par ligne), affiche leur somme.
@@ -76,6 +77,11 @@ Lis un entier, affiche `pair` ou `impair` (indice : `% 2`).
 
 #### maximum {#maximum}
 Lis deux entiers, affiche le plus grand (indice : comparaison `>` ou ternaire).
+
+#### fizzbuzz {#fizzbuzz}
+*(Bonus, difficile)* Lis N, affiche les entiers de 1 à N (un par ligne) : `FizzBuzz` si multiple de
+3 **et** de 5, `Fizz` si multiple de 3, `Buzz` si multiple de 5, sinon le nombre. L'ordre des tests
+est crucial : commence par la condition combinée (`% 15` ou `% 3 && % 5`).
 
 ## Bonne pratique git — commits atomiques
 

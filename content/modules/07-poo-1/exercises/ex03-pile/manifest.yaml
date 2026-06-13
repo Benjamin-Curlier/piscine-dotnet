@@ -9,10 +9,10 @@ grading:
   - type: io
     cases:
       - stdin: "3\n1\n2\n3\n"
-        expect_stdout: ""
+        expect_stdout: "3\n2\n1\n"
         expect_exit: 0
       - stdin: "1\n42\n"
-        expect_stdout: ""
+        expect_stdout: "42\n"
         expect_exit: 0
       # pile vide : rien à dépiler
       - stdin: "0\n"
@@ -20,11 +20,11 @@ grading:
         expect_exit: 0
       # valeurs négatives et doublons (ordre LIFO préservé)
       - stdin: "4\n-5\n-5\n10\n0\n"
-        expect_stdout: ""
+        expect_stdout: "0\n10\n-5\n-5\n"
         expect_exit: 0
       # cinq éléments
       - stdin: "5\n10\n20\n30\n40\n50\n"
-        expect_stdout: ""
+        expect_stdout: "50\n40\n30\n20\n10\n"
         expect_exit: 0
 feedback:
   hints:

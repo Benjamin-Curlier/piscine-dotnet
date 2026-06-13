@@ -73,6 +73,7 @@ On la travaillera vraiment avec les **tableaux**, dans un module suivant.
 - **[ex00-compte-rebours](#compte-rebours)** : afficher un compte à rebours de N à 1.
 - **[ex01-table](#table)** : afficher la table de multiplication d'un nombre.
 - **[ex02-somme-n](#somme-n)** : additionner tous les entiers de 1 à N.
+- **[ex03-fibonacci](#fibonacci)** : *(bonus, difficile)* afficher le N-ième terme de Fibonacci.
 
 #### compte-rebours {#compte-rebours}
 Lis un entier `N`, affiche `N`, `N-1`, … jusqu'à `1` (un par ligne). Indice : `for` décroissant.
@@ -82,6 +83,11 @@ Lis un entier `N`, affiche `1 x N = …` jusqu'à `10 x N = …` (un par ligne).
 
 #### somme-n {#somme-n}
 Lis un entier `N`, affiche la somme `1 + 2 + … + N`. Indice : un **accumulateur**.
+
+#### fibonacci {#fibonacci}
+*(Bonus, difficile)* Lis `N` et affiche le N-ième terme de la suite de Fibonacci (indexée à 0) :
+`F(0)=0`, `F(1)=1`, `F(n)=F(n-1)+F(n-2)`. Indice : deux variables qui « avancent » à chaque tour
+(`tmp = a + b ; a = b ; b = tmp`), pas besoin de récursion.
 
 ## Bonne pratique git — committer souvent
 

@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: variables-conditions
     title: "Variables & conditions"
-    exercises: [ex00-somme, ex01-parite, ex02-maximum]
+    exercises: [ex00-somme, ex01-parite, ex02-maximum, ex03-fizzbuzz]
