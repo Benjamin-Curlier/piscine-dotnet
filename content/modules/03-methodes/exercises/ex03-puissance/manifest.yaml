@@ -1,0 +1,37 @@
+id: ex03-puissance
+title: "Puissance récursive"
+objective: "Calculer base^exposant à l'aide d'une méthode récursive (exposant >= 0)."
+difficulty: difficile
+bonus: true
+deliverables: [Puissance.cs]
+starter: [Puissance.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\n10\n"
+        expect_stdout: ""
+        expect_exit: 0
+      - stdin: "5\n0\n"
+        expect_stdout: ""
+        expect_exit: 0
+      - stdin: "3\n3\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # base 1 (toujours 1)
+      - stdin: "1\n100\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # base négative, exposant impair (résultat négatif)
+      - stdin: "-2\n3\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # exposant 1 (renvoie la base)
+      - stdin: "7\n1\n"
+        expect_stdout: ""
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Cas de base : exposant == 0 renvoie 1. Sinon base * Pow(base, exposant - 1). Utilise long pour éviter le débordement."
+  course_ref: "cours.md#puissance"
+solution: [Puissance.cs]

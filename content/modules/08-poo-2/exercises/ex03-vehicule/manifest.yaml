@@ -1,0 +1,33 @@
+id: ex03-vehicule
+title: "Flotte de véhicules"
+objective: "Modéliser une classe abstraite Vehicule et deux sous-classes pour calculer la consommation de carburant par polymorphisme."
+difficulty: difficile
+bonus: true
+deliverables: [Vehicule.cs]
+starter: [Vehicule.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "100\n"
+        expect_stdout: ""
+        expect_exit: 0
+      - stdin: "200\n"
+        expect_stdout: ""
+        expect_exit: 0
+      - stdin: "0\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # distance plus longue (anti-hardcode)
+      - stdin: "1000\n"
+        expect_stdout: ""
+        expect_exit: 0
+      # 300 km
+      - stdin: "300\n"
+        expect_stdout: ""
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "abstract class Vehicule avec une propriété abstraite (litres/100km) et LitresPour(km) = km * taux / 100. Voiture = 7, Camion = 25. Affiche dans l'ordre Voiture puis Camion."
+  course_ref: "cours.md#vehicule"
+solution: [Vehicule.cs]
