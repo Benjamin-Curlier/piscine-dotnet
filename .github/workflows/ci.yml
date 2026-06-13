@@ -6,8 +6,36 @@ on:
   pull_request:
     branches: [main]
 
+# CI-2 : annule les runs redondants sur une meme ref (un nouveau push remplace l'ancien run en cours).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # CI-1 : detecte si la PR/le push touche au "packaging" (src, build, csproj, workflows…). Les dry-runs
+  # lourds (publish cross-RID, AppImage, installeur Windows) ne tournent QUE si c'est le cas — un commit
+  # purement docs/contenu n'a pas a relancer (ni a faire rougir) tout le packaging. build-test + validate
+  # -content restent inconditionnels.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      packaging: ${{ steps.filter.outputs.packaging }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            packaging:
+              - 'src/**'
+              - 'build/**'
+              - '**/*.csproj'
+              - 'Directory.Build.props'
+              - 'Piscine.slnx'
+              - '.github/workflows/**'
+
   build-test:
+    needs: changes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -17,26 +45,50 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      # CI-3 : cache des paquets NuGet (cle = empreinte des csproj + props centralisees ; pas de
+      # packages.lock.json requis). restore-keys = repli partiel si la cle exacte manque.
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
       - name: Restore
         run: dotnet restore Piscine.slnx
 
       - name: Build
         run: dotnet build Piscine.slnx --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test Piscine.slnx --configuration Release --no-build --verbosity normal
+      # COV-3 : collecte la couverture (coverlet, deja reference par les projets de test) pour la
+      # rendre VISIBLE. Pas de seuil bloquant (coherent avec l'ethos "jamais de note" + les projets
+      # hote/CLI hors instrumentation) : visibilite, pas barriere.
+      - name: Test (avec couverture)
+        run: >-
+          dotnet test Piscine.slnx --configuration Release --no-build --verbosity normal
+          --collect:"XPlat Code Coverage" --results-directory artifacts/coverage
+
+      - name: Résumé de couverture (job summary, sans seuil)
+        if: always()
+        run: |
+          set -euo pipefail
+          dotnet tool install dotnet-reportgenerator-globaltool --tool-path .tools
+          .tools/reportgenerator -reports:"artifacts/coverage/**/coverage.cobertura.xml" \
+            -targetdir:artifacts/coverage/report -reporttypes:MarkdownSummaryGithub
+          cat artifacts/coverage/report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Validate content
         run: dotnet run --project src/Piscine.Cli --configuration Release --no-restore -- validate-content
         env:
           PISCINE_CONTENT: ${{ github.workspace }}/content
 
-      # Dry-run du packaging desktop (S9) : exerce, a chaque PR, la meme operation que la
-      # release (publish self-contained par RID) AVANT tout tag. Les libs natives PhotinoX
-      # sont posees a la RACINE de sortie (pas runtimes/<rid>/native/) — verifie en T1.
-      # Inclut le bac a sable d'execution recrue (self-contained, modele gitshim) : garde le publish
-      # du sandbox VERT (la regression NETSDK1152 / framework-dependent doit etre attrapee ici, pas au tag).
+      # Dry-run du packaging desktop (S9) : exerce, a chaque PR *touchant le packaging*, la meme
+      # operation que la release (publish self-contained par RID) AVANT tout tag. Les libs natives
+      # PhotinoX sont posees a la RACINE de sortie (pas runtimes/<rid>/native/). Inclut le bac a sable
+      # d'execution recrue (self-contained, modele gitshim) : garde le publish du sandbox VERT.
       - name: Dry-run packaging desktop (publish cross-RID + libs natives + sandbox)
+        if: ${{ needs.changes.outputs.packaging == 'true' }}
         run: |
           set -euo pipefail
           for rid in linux-x64 win-x64; do
@@ -55,13 +107,15 @@ jobs:
             echo "OK $rid"
           done
 
-  # Dry-run AppImage Linux (online) : garde de packaging a chaque PR — construit l'AppImage online et
-  # verifie qu'elle est bien produite (regression d'empaquetage attrapee avant tout tag).
-  # L'AppImage OFFLINE (webkit bundle) est ABANDONNEE en v3.1.0 : WebKitGTK en build release ignore
-  # WEBKIT_EXEC_PATH (honore seulement en DEVELOPER_MODE) et cherche ses process auxiliaires a un chemin
-  # absolu compile (PKGLIBEXECDIR) -> impossible d'embarquer un webkit fonctionnel sans bind-mount
-  # privilegie. L'online s'appuie sur le webkit systeme (libwebkit2gtk-4.1). Cf. adr/2026-06-08-photinox-fork.md.
+  # Dry-run AppImage Linux (online) : garde de packaging — construit l'AppImage online et verifie
+  # qu'elle est bien produite. NE TOURNE QUE si le packaging change (CI-1). L'AppImage OFFLINE
+  # (webkit bundle) est ABANDONNEE en v3.1.0 : WebKitGTK release ignore WEBKIT_EXEC_PATH (honore
+  # seulement en DEVELOPER_MODE) et cherche ses process auxiliaires a un chemin absolu compile
+  # (PKGLIBEXECDIR) -> impossible d'embarquer un webkit fonctionnel sans bind-mount privilegie.
+  # L'online s'appuie sur le webkit systeme (libwebkit2gtk-4.1). Cf. adr/2026-06-08-photinox-fork.md.
   appimage-online-dryrun:
+    needs: changes
+    if: ${{ needs.changes.outputs.packaging == 'true' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -91,10 +145,12 @@ jobs:
           ls -lh dist/piscine-online.AppImage
           echo "ONLINE OK : AppImage online construite (s'appuie sur le webkit systeme au lancement)"
 
-  # Dry-run installeur Windows (S13) : garde de compilation a chaque PR — Inno Setup + ISCC sur un
-  # payload stub, les 2 modes (offline/online), assert que les 2 .exe sont produits. (Le vrai payload
-  # + téléchargements WebView2 sont exercés par release.yml au tag.)
+  # Dry-run installeur Windows (S13) : garde de compilation — Inno Setup + ISCC sur un payload stub,
+  # les 2 modes (offline/online), assert que les 2 .exe sont produits. NE TOURNE QUE si le packaging
+  # change (CI-1). (Le vrai payload + telechargements WebView2 sont exerces par release.yml au tag.)
   windows-installer-dryrun:
+    needs: changes
+    if: ${{ needs.changes.outputs.packaging == 'true' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6

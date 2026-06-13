@@ -10,8 +10,9 @@ Deux UX au choix, même moteur : une **app de bureau** (cours, vérification, pr
 coaching git, résultat) ou le **CLI** `piscine`. Récupère le paquet de la
 [dernière release](../../releases/latest) :
 
-- **Installeur** (recommandé) : Windows `.exe` (par utilisateur, sans admin) ou Linux `.AppImage`,
-  en variante **offline** (tout embarqué, hors-ligne) ou **online**.
+- **Installeur** (recommandé) : **Windows `.exe`** (par utilisateur, sans admin) en variante
+  **offline** (tout embarqué, hors-ligne) ou **online** ; **Linux `.AppImage`** (s'appuie sur le
+  webkit système du poste, `libwebkit2gtk-4.1` — *online uniquement*).
 - **Zip portable** : `piscine-<v>-win-x64.zip` / `-linux-x64.zip` (rien n'est installé).
 
 Aucun SDK à installer (runtime .NET + Roslyn embarqués). Guide pas-à-pas (installation, premier
@@ -25,7 +26,7 @@ Pré-requis : SDK .NET 10.
 dotnet build Piscine.slnx
 dotnet test Piscine.slnx
 dotnet run --project src/Piscine.Cli           # le CLI (moteur, grade-received, validate-content…)
-dotnet run --project src/Piscine.Desktop -c Release   # l'app de bureau Photino (fenêtre native)
+dotnet run --project src/Piscine.Desktop -c Release   # l'app de bureau PhotinoX (fenêtre native)
 ```
 
 ## Site du cours / harnais de dev (navigateur)
@@ -52,10 +53,12 @@ Publier une release (mainteneur) : **[docs/deploiement.md](docs/deploiement.md)*
 - `src/` :
   - **moteur & CLI** — `Piscine.Core` (modèles + découverte de contenu), `Piscine.Grading`
     (Roslyn + graders `io`/`unit`/`norme`/`mutation`/`git`/`projet`/`reseau`), `Piscine.Git`
-    (rendu git LibGit2Sharp + `grade-received`), `Piscine.Cli` (binaire `piscine`).
+    (rendu git LibGit2Sharp + `grade-received`), `Piscine.Sandbox` (+ `Piscine.Sandbox.Contracts`,
+    contrat IPC) — exécution du code recrue dans un **processus enfant jetable** (kill au timeout,
+    fail-closed), `Piscine.Cli` (binaire `piscine`).
   - **app de bureau** — `Piscine.Components` (RCL Blazor partagée : pages/composants + rendu Markdig),
     `Piscine.App` (services UI-less : check, statut/coaching git, progression, terminal PTY, init,
-    surveillance du push), `Piscine.Desktop` (hôte Photino.Blazor livré), `Piscine.DevHost`
+    surveillance du push), `Piscine.Desktop` (hôte PhotinoX.Blazor livré), `Piscine.DevHost`
     (site/harnais Blazor de dev, hors release), `Piscine.GitShim` (shim `git` pour le coaching).
 - `tests/` : tests xUnit (+ bUnit pour les composants, Playwright pour l'E2E DevHost).
 - `content/` : cours, exercices et rushes (voir `content/README.md`). Les dossiers `solution/`

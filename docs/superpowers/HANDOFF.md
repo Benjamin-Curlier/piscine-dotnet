@@ -11,7 +11,7 @@ SDK). Rendu via **vrai git** (dépôt bare local + hook `post-receive`). Correct
 séquentielle, stop au 1er KO** ; **retour éducatif, jamais de note**. Exercices **data-driven**
 (`manifest.yaml`) → ajout sans recompiler.
 
-Repo : https://github.com/Benjamin-Curlier/piscine-dotnet (privé). Solution **`Piscine.slnx`** (.NET 10).
+Repo : https://github.com/Benjamin-Curlier/piscine-dotnet (**public** depuis le 7 juin 2026). Solution **`Piscine.slnx`** (.NET 10).
 Branche par défaut **`main`**. Commits conventionnels en **français**, terminés par
 `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
 
