@@ -17,11 +17,55 @@
 
 ## Résumé exécutif
 
-_(complété en synthèse — Tâche 6)_
+**Le projet est en bonne santé.** v3.1.1 publiée, **305 tests verts**, **0 dépendance circulaire**,
+**0 code mort**, cœur logique excellemment couvert (Core 98,8 %, Git 94,6 %), architecture en couches
+propre, frontière de sécurité (bac à sable processus-enfant) **bien écrite** et gestion d'exceptions
+**délibérée** (catches filtrés + commentés). L'audit ne révèle **aucune dette structurelle** ni bug —
+contrairement à ce que suggère le compteur brut de l'analyseur (175 « antipatterns » dont ~95 % de faux
+positifs).
+
+Les opportunités sont surtout de l'**hygiène**, plus **3 priorités réelles (P1)** :
+
+1. **CI-1** — filtrer par chemins les dry-runs de packaging lourds (ils tournent sur chaque commit
+   *docs-only* ; preuve : un commit de doc a fait **rougir** la CI). *Quick win, plus gros gain.*
+2. **COV-1** — couvrir le **code de sécurité `Piscine.Sandbox`** (63,9 % ; `SandboxLauncher` 53,8 %),
+   le moins testé alors qu'il isole le code recrue non fiable.
+3. **DOC-1** — trancher l'**exposition publique des 133 corrigés** (repo public), qui contredit la
+   promesse « la recrue ne voit jamais les corrigés ». *Décision produit.*
+
+Tout le reste est **P2/P3** : rendre la couverture visible en CI (quasi gratuit), cache/concurrency CI,
+2 corrections du README recrue, recréation d'un backlog GitHub (la règle « backlog = issues » a lapsé),
+et hygiène (TimeProvider, commentaires sur catches larges). **Aucun changement n'a été appliqué** : ce
+document est une base de décision (cf. `specs/2026-06-13-consolidation-audit-design.md`).
 
 ## Table d'actions priorisée
 
-_(complété en synthèse — Tâche 6)_
+Triée par sévérité puis effort. Chaque ID renvoie à sa section détaillée (preuve incluse).
+
+| ID | Axe | Constat | Sév. | Effort |
+|----|-----|---------|:----:|:------:|
+| **CI-1** | CI | Dry-runs de packaging lourds sur commits docs-only (un commit doc a fait échouer la CI) → filtre `paths:` | **P1** | **S** |
+| **COV-1** | Couverture | `Piscine.Sandbox` 63,9 % / `SandboxLauncher` 53,8 % : code de sécurité le moins couvert | **P1** | **M** |
+| **DOC-1** | Docs | 133 corrigés `solution/` publics (repo public) ⇄ promesse pédagogique → décision | **P1** | **M** |
+| **CI-2** | CI | Pas de `concurrency:` → runs redondants non annulés | **P2** | **S** |
+| **CI-3** | CI | Pas de cache NuGet (`setup-dotnet cache: true`) | **P2** | **S** |
+| **CI-5** | CI | `release.yml` au tag sans pré-vol « tests verts » | **P2** | **S** |
+| **DOC-2** | Docs | README omet `Piscine.Sandbox(.Contracts)` (9 listés / 11 réels) | **P2** | **S** |
+| **DOC-3** | Docs | README annonce une AppImage Linux *offline* (abandonnée v3.1.0) | **P2** | **S** |
+| **BL-1** | Backlog | « backlog = issues » a lapsé ; ≥8 suites dans la prose → recréer le backlog | **P2** | **S** |
+| **COV-2** | Couverture | `ContentValidator` 69 % (gate de contenu, fort rayon d'impact) | **P2** | **M** |
+| **COV-3** | Couverture | Couverture jamais mesurée en CI (visibilité, pas de seuil) | **P3** | **S** |
+| **SK-2** | SOLID/KISS | `DateTimeOffset.Now` (4 sites) → injecter `TimeProvider` | **P3** | **S** |
+| **SK-3** | SOLID/KISS | ~10 `catch (Exception)` non filtrés à commenter/restreindre | **P3** | **S** |
+| **SK-1** | SOLID/KISS | Analyseur trompeur (175 hits, ~95 % faux positifs) → **ne pas** « fix-all » | **P3** | **S** |
+| **DOC-4** | Docs | HANDOFF dit « privé » (repo public) + très long | **P3** | **S** |
+| **DOC-5** | Docs | « Photino » vs « PhotinoX 4.2.0 » (cosmétique) | **P3** | **S** |
+| **CI-4** | CI | Publish linux-x64 dupliqué entre 2 jobs | **P3** | **M** |
+
+**Ordre de traitement suggéré** : (1) **quick wins** P1/P2 en `S` — CI-1, CI-2, CI-3, COV-3, DOC-2, DOC-3
+(une demi-journée, gros effet visibilité/coût) ; (2) **substantiel** — COV-1 (sécurité), DOC-1 (décision
+proprio), BL-1 (recréer le backlog) ; (3) **hygiène** P3 restante au fil de l'eau. **Rappel** : rien n'est
+encore exécuté ; ces actions valent comme **backlog proposé** (cf. §5).
 
 ---
 
