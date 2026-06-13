@@ -19,4 +19,11 @@
     <PackageReference Include="Porta.Pty" Version="1.0.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Expose les internes (dont CoalescingPtySession) aux tests unitaires de Piscine.App. -->
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Piscine.App.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>
