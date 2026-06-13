@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: design-patterns
     title: "Patrons de conception"
-    exercises: [ex00-strategy, ex01-factory, ex02-observer]
+    exercises: [ex00-strategy, ex01-factory, ex02-observer, ex03-decorator]

@@ -1,0 +1,37 @@
+id: ex03-decorator
+title: "Le pattern Decorator"
+objective: "Composer des décorateurs (maj / crochets / etoiles) qui enveloppent un texte, dans l'ordre donné."
+difficulty: difficile
+bonus: true
+deliverables: [Decorator.cs]
+starter: [Decorator.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "bonjour\nmaj,crochets\n"
+        expect_stdout: "[BONJOUR]\n"
+        expect_exit: 0
+      # l'ordre compte : crochets PUIS maj met en majuscule le tout (crochets inclus, mais ici ASCII)
+      - stdin: "salut\ncrochets,maj\n"
+        expect_stdout: "[SALUT]\n"
+        expect_exit: 0
+      # trois décorateurs enchaînés
+      - stdin: "hello\nmaj,etoiles,crochets\n"
+        expect_stdout: "[*HELLO*]\n"
+        expect_exit: 0
+      # une seule décoration
+      - stdin: "test\netoiles\n"
+        expect_stdout: "*test*\n"
+        expect_exit: 0
+      # option inconnue ignorée (laisse le texte tel quel à cette étape)
+      - stdin: "abc\ninconnu,maj\n"
+        expect_stdout: "ABC\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Pars de TexteBrut(texte), puis pour chaque décoration remplace l'objet courant par new Decorateur(courant). Chaque Rendu() appelle _inner.Rendu() puis applique sa transformation. L'ordre d'enveloppement compte."
+    - when: runtime_error
+      message: "Vérifie que chaque décorateur stocke l'ITexte enveloppé et appelle son Rendu() (sinon NullReference)."
+  course_ref: "cours.md#decorator"
+solution: [Decorator.cs]

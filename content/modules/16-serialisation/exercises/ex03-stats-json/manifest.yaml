@@ -1,0 +1,36 @@
+id: ex03-stats-json
+title: "Statistiques JSON"
+objective: "Désérialiser un tableau JSON d'entiers et re-sérialiser un objet {Min, Max, Somme}."
+difficulty: difficile
+bonus: true
+deliverables: [StatsJson.cs]
+starter: [StatsJson.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "[3,1,4,1,5]\n"
+        expect_stdout: "{\"Min\":1,\"Max\":5,\"Somme\":14}\n"
+        expect_exit: 0
+      # un seul élément : min = max = somme
+      - stdin: "[42]\n"
+        expect_stdout: "{\"Min\":42,\"Max\":42,\"Somme\":42}\n"
+        expect_exit: 0
+      # valeurs négatives
+      - stdin: "[-5,-1,-9]\n"
+        expect_stdout: "{\"Min\":-9,\"Max\":-1,\"Somme\":-15}\n"
+        expect_exit: 0
+      - stdin: "[10,20,30,40]\n"
+        expect_stdout: "{\"Min\":10,\"Max\":40,\"Somme\":100}\n"
+        expect_exit: 0
+      # mélange négatif/positif autour de zéro
+      - stdin: "[0,-3,7,2]\n"
+        expect_stdout: "{\"Min\":-3,\"Max\":7,\"Somme\":6}\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Désérialise en int[], puis sérialise un objet avec Min/Max/Somme. La sortie attendue est compacte (sans espaces), ex. {\"Min\":1,\"Max\":5,\"Somme\":14}."
+    - when: compile_error
+      message: "`using System.Text.Json;` (JsonSerializer) et `using System.Linq;` (Min/Max/Sum)."
+  course_ref: "cours.md#listes"
+solution: [StatsJson.cs]
