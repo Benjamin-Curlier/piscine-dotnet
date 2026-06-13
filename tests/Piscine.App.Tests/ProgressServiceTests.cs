@@ -177,9 +177,11 @@ public sealed class ProgressServiceTests
             var remote = repo.Network.Remotes.Add("origin", originDir.Path);
             repo.Network.Push(remote, "refs/heads/main:refs/heads/main");
 
-            // Ajouter un commit local (non poussé).
-            File.WriteAllText(Path.Combine(layout.WorkspaceRoot, "extra.txt"), "local\n");
-            Commands.Stage(repo, "extra.txt");
+            // Ajouter un commit local (non poussé) DANS l'exercice m00/ex00 → attribué à cet exo.
+            var exoDir = Path.Combine(layout.WorkspaceRoot, ModuleId, ExoId);
+            Directory.CreateDirectory(exoDir);
+            File.WriteAllText(Path.Combine(exoDir, "extra.txt"), "local\n");
+            Commands.Stage(repo, "*");
             repo.Commit("commit local", Author, Author);
         }
 
@@ -214,6 +216,38 @@ public sealed class ProgressServiceTests
         Assert.NotEqual(ExerciseProgressStatus.PousseNote, info.Status);
         Assert.Equal(ExerciseProgressStatus.CommiteNonPousse, info.Status);
         Assert.Equal(StatusSource.GitDerived, info.Source);
+    }
+
+    [Fact]
+    public void StatusFor_CommitOnOneExo_DoesNotContaminateAnotherExo()
+    {
+        // Arrange (#65) : repo poussé, puis 1 commit local non poussé qui ne touche QUE m00/ex00.
+        using var tmp = new TempDir();
+        using var originDir = new TempDir();
+        var layout = Layout(tmp);
+        BuildRepo(layout.WorkspaceRoot);
+        Repository.Init(originDir.Path, isBare: true);
+        using (var repo = new Repository(layout.WorkspaceRoot))
+        {
+            var remote = repo.Network.Remotes.Add("origin", originDir.Path);
+            repo.Network.Push(remote, "refs/heads/main:refs/heads/main");
+
+            var exoDir = Path.Combine(layout.WorkspaceRoot, ModuleId, ExoId);
+            Directory.CreateDirectory(exoDir);
+            File.WriteAllText(Path.Combine(exoDir, "Sol.cs"), "// rendu ex00\n");
+            Commands.Stage(repo, "*");
+            repo.Commit("rendu ex00", Author, Author);
+        }
+
+        var service = new ProgressService(layout, new GitStatusService());
+
+        // Act : ex00 (committé non poussé) vs ex01 (jamais touché).
+        var ex00 = service.StatusFor(ModuleId, ExoId);
+        var ex01 = service.StatusFor(ModuleId, "ex01");
+
+        // Assert : seul ex00 est commité-non-poussé ; ex01 reste NonCommence (pas de contamination).
+        Assert.Equal(ExerciseProgressStatus.CommiteNonPousse, ex00.Status);
+        Assert.Equal(ExerciseProgressStatus.NonCommence, ex01.Status);
     }
 
     [Fact]

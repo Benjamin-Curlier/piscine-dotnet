@@ -39,9 +39,16 @@ public sealed class GitStatusService
         var currentBranch = isDetached || !hasAnyCommit ? null : head.FriendlyName;
 
         var hasOrigin = repo.Network.Remotes[OriginName] is not null;
-        var aheadOfOrigin = ComputeAheadOfOrigin(repo, currentBranch, head);
+        var (aheadOfOrigin, aheadPaths) = ComputeAhead(repo, currentBranch, head);
 
         var conflicted = CollectConflictedFiles(repo, status);
+
+        // Attribution par exercice : chemins (relatifs, séparateur /) ayant du travail non committé.
+        var uncommittedPaths = status
+            .Where(e => !e.State.HasFlag(FileStatus.Ignored))
+            .Select(e => e.FilePath)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
 
         return new RepoState
         {
@@ -55,6 +62,8 @@ public sealed class GitStatusService
             HasOrigin = hasOrigin,
             AheadOfOrigin = aheadOfOrigin,
             ConflictedFiles = conflicted,
+            UncommittedPaths = uncommittedPaths,
+            AheadPaths = aheadPaths,
         };
     }
 
@@ -62,17 +71,18 @@ public sealed class GitStatusService
     /// Commits atteignables depuis HEAD non atteignables depuis <c>origin/&lt;branche&gt;</c>.
     /// 0 si pas de branche courante, pas de commit, ou pas de pendant distant.
     /// </summary>
-    private static int ComputeAheadOfOrigin(Repository repo, string? currentBranch, Branch head)
+    private static (int Count, IReadOnlyList<string> Paths) ComputeAhead(
+        Repository repo, string? currentBranch, Branch head)
     {
         if (currentBranch is null || head.Tip is null)
         {
-            return 0;
+            return (0, []);
         }
 
         var tracked = repo.Branches[$"{OriginName}/{currentBranch}"];
         if (tracked?.Tip is null)
         {
-            return 0;
+            return (0, []);
         }
 
         var filter = new CommitFilter
@@ -80,7 +90,16 @@ public sealed class GitStatusService
             IncludeReachableFrom = head.Tip,
             ExcludeReachableFrom = tracked.Tip,
         };
-        return repo.Commits.QueryBy(filter).Count();
+        var count = repo.Commits.QueryBy(filter).Count();
+        if (count == 0)
+        {
+            return (0, []);
+        }
+
+        // Chemins nets modifiés entre origin et HEAD : attribue « commité-non-poussé » par exercice.
+        var changes = repo.Diff.Compare<TreeChanges>(tracked.Tip.Tree, head.Tip.Tree);
+        var paths = changes.Select(c => c.Path).Distinct(StringComparer.Ordinal).ToList();
+        return (count, paths);
     }
 
     /// <summary>
