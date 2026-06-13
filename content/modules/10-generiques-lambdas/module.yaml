@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: generiques-lambdas
     title: "Génériques & lambdas"
-    exercises: [ex00-applique, ex01-filtre, ex02-boite]
+    exercises: [ex00-applique, ex01-filtre, ex02-boite, ex03-reduce]

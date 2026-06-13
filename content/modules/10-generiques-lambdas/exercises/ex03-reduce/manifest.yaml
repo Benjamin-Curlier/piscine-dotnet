@@ -1,0 +1,36 @@
+id: ex03-reduce
+title: "Réduction générique (fold)"
+objective: "Implémenter une méthode générique Reduce<T, R> (fold) et l'appeler avec deux lambdas pour calculer somme et produit."
+difficulty: difficile
+bonus: true
+deliverables: [Reduce.cs]
+starter: [Reduce.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2\n3\n4\n"
+        expect_stdout: "somme=9\nproduit=24\n"
+        expect_exit: 0
+      # un seul élément
+      - stdin: "5\n"
+        expect_stdout: "somme=5\nproduit=5\n"
+        expect_exit: 0
+      - stdin: "1\n2\n3\n4\n5\n"
+        expect_stdout: "somme=15\nproduit=120\n"
+        expect_exit: 0
+      # valeur négative (le produit devient négatif)
+      - stdin: "10\n-2\n"
+        expect_stdout: "somme=8\nproduit=-20\n"
+        expect_exit: 0
+      # contient un zéro -> produit nul
+      - stdin: "7\n0\n3\n"
+        expect_stdout: "somme=10\nproduit=0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Une seule méthode Reduce<T, R>(source, seed, combiner) : acc = seed, puis acc = combiner(acc, element) pour chaque élément. Appelle-la avec seed 0 et (a,x)=>a+x, puis seed 1 et (a,x)=>a*x."
+    - when: compile_error
+      message: "Pense à `using System;` (pour Func) et `using System.Collections.Generic;` (pour IEnumerable<T>/List<T>)."
+  course_ref: "cours.md#generiques"
+solution: [Reduce.cs]

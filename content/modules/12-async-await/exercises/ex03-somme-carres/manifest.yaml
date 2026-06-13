@@ -1,0 +1,36 @@
+id: ex03-somme-carres
+title: "Somme des carrés en parallèle"
+objective: "Lancer une tâche asynchrone par entier (carré), les agréger avec Task.WhenAll, et sommer — résultat déterministe."
+difficulty: difficile
+bonus: true
+deliverables: [SommeCarres.cs]
+starter: [SommeCarres.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n2\n3\n4\n"
+        expect_stdout: "somme des carres = 29\n"
+        expect_exit: 0
+      # un seul élément
+      - stdin: "1\n5\n"
+        expect_stdout: "somme des carres = 25\n"
+        expect_exit: 0
+      - stdin: "4\n1\n2\n3\n4\n"
+        expect_stdout: "somme des carres = 30\n"
+        expect_exit: 0
+      # valeur négative (le carré reste positif)
+      - stdin: "2\n-3\n10\n"
+        expect_stdout: "somme des carres = 109\n"
+        expect_exit: 0
+      # zéro
+      - stdin: "1\n0\n"
+        expect_stdout: "somme des carres = 0\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Crée une List<Task<int>>, ajoute CarreAsync(x) pour chaque entier, puis await Task.WhenAll(taches) et somme le tableau résultat avec .Sum()."
+    - when: compile_error
+      message: "Il faut `using System.Threading.Tasks;` (Task), `using System.Linq;` (Sum), `using System.Collections.Generic;` (List)."
+  course_ref: "cours.md#whenall"
+solution: [SommeCarres.cs]

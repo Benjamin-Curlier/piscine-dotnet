@@ -1,0 +1,36 @@
+id: ex03-mot-frequent
+title: "Le mot le plus fréquent"
+objective: "Trouver le mot le plus fréquent (égalités départagées par ordre ordinal) avec GroupBy + tri composé LINQ."
+difficulty: difficile
+bonus: true
+deliverables: [MotFrequent.cs]
+starter: [MotFrequent.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "pomme\npoire\npomme\n"
+        expect_stdout: "pomme 2\n"
+        expect_exit: 0
+      # égalité de fréquence -> ordre ordinal (a avant b avant c)
+      - stdin: "c\nb\na\n"
+        expect_stdout: "a 1\n"
+        expect_exit: 0
+      - stdin: "x\nx\ny\ny\ny\n"
+        expect_stdout: "y 3\n"
+        expect_exit: 0
+      # un seul mot
+      - stdin: "seul\n"
+        expect_stdout: "seul 1\n"
+        expect_exit: 0
+      # égalité à 2 occurrences chacun -> 'a' gagne
+      - stdin: "b\na\nb\na\n"
+        expect_stdout: "a 2\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "GroupBy(m => m), puis OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.Ordinal), puis First(). Le ThenBy ordinal rend le départage déterministe."
+    - when: compile_error
+      message: "N'oublie pas `using System.Linq;` (GroupBy/OrderBy/First) et `using System;` (StringComparer)."
+  course_ref: "cours.md#groupby"
+solution: [MotFrequent.cs]

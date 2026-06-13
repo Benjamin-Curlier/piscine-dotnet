@@ -75,6 +75,8 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
 - **Exos bonus du cœur débutant** (non bloquants, `difficulty: difficile`) : **M01** `ex03-fizzbuzz`,
   **M02** `ex03-fibonacci`, **M03** `ex03-puissance`, **M04** `ex03-anagramme`, **M06** `ex03-top-k`,
   **M07** `ex03-pile`, **M08** `ex03-vehicule`. (M05 = module git dédié, pas d'exo `io`.)
+- **Exos bonus intermédiaires** (non bloquants, `difficulty: difficile`) : **M09** `ex03-calculatrice-robuste`,
+  **M10** `ex03-reduce`, **M11** `ex03-mot-frequent`, **M12** `ex03-somme-carres`. *(suite M15–M23 à venir)*
 - **Modules de lecture/pratique guidée** (cours + checklist, sans auto-notation pour l'instant) :
   M14 (git avancé), M22 (réseau). *(M05 est désormais auto-noté via le grader `git` — voir V3.)*
 - **Rushes auto-notés** : Rush 0, Rush 1, Rush 2, **Rush 3** (post-v1.0, worker déterministe),
