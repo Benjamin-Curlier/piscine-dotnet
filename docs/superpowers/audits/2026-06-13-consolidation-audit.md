@@ -1,0 +1,251 @@
+# Audit de consolidation — piscine-dotnet
+
+> **Date** : 2026-06-13 · **Branche** : `consolidation/audit` · **Baseline** : `main` @ `c8171e9`
+> (**v3.1.1**). 11 projets `src/` + 6 projets de test, **305 tests**, arbre propre.
+> **Périmètre** : lecture seule + mesures locales transitoires. **Aucun** changement de code/CI/contenu,
+> **aucune** issue créée, **aucun** tag. Méthode et décisions : `specs/2026-06-13-consolidation-audit-design.md`.
+> Sévérité : **P0** correction/sécurité · **P1** forte valeur · **P2** utile · **P3** cosmétique.
+> Effort : **S** ≤ ½ j · **M** ~1-2 j · **L** > 2 j.
+
+> ⚠️ **Note de re-baseline** : cet audit a d'abord été cadré sur un checkout local **périmé de 23 commits**
+> (HANDOFF/mémoire décrivant v3.0.0 / 267 tests / 9 projets). Après `git fetch`, la vérité = **v3.1.1** :
+> migration **PhotinoX.Blazor 4.2.0** (webkit2gtk-4.1), **isolation processus enfant** (`Piscine.Sandbox` +
+> `Piscine.Sandbox.Contracts`), durcissements sécurité (#58), **305 tests**, **5 artefacts** de release
+> (AppImage *offline* abandonnée). Les chiffres ci-dessous portent sur ce vrai arbre.
+
+---
+
+## Résumé exécutif
+
+**Le projet est en bonne santé.** v3.1.1 publiée, **305 tests verts**, **0 dépendance circulaire**,
+**0 code mort**, cœur logique excellemment couvert (Core 98,8 %, Git 94,6 %), architecture en couches
+propre, frontière de sécurité (bac à sable processus-enfant) **bien écrite** et gestion d'exceptions
+**délibérée** (catches filtrés + commentés). L'audit ne révèle **aucune dette structurelle** ni bug —
+contrairement à ce que suggère le compteur brut de l'analyseur (175 « antipatterns » dont ~95 % de faux
+positifs).
+
+Les opportunités sont surtout de l'**hygiène**, plus **3 priorités réelles (P1)** :
+
+1. **CI-1** — filtrer par chemins les dry-runs de packaging lourds (ils tournent sur chaque commit
+   *docs-only* ; preuve : un commit de doc a fait **rougir** la CI). *Quick win, plus gros gain.*
+2. **COV-1** — couvrir le **code de sécurité `Piscine.Sandbox`** (63,9 % ; `SandboxLauncher` 53,8 %),
+   le moins testé alors qu'il isole le code recrue non fiable.
+3. **DOC-1** — trancher l'**exposition publique des 133 corrigés** (repo public), qui contredit la
+   promesse « la recrue ne voit jamais les corrigés ». *Décision produit.*
+
+Tout le reste est **P2/P3** : rendre la couverture visible en CI (quasi gratuit), cache/concurrency CI,
+2 corrections du README recrue, recréation d'un backlog GitHub (la règle « backlog = issues » a lapsé),
+et hygiène (TimeProvider, commentaires sur catches larges). **Aucun changement n'a été appliqué** : ce
+document est une base de décision (cf. `specs/2026-06-13-consolidation-audit-design.md`).
+
+## Table d'actions priorisée
+
+Triée par sévérité puis effort. Chaque ID renvoie à sa section détaillée (preuve incluse).
+
+| ID | Axe | Constat | Sév. | Effort |
+|----|-----|---------|:----:|:------:|
+| **CI-1** | CI | Dry-runs de packaging lourds sur commits docs-only (un commit doc a fait échouer la CI) → filtre `paths:` | **P1** | **S** |
+| **COV-1** | Couverture | `Piscine.Sandbox` 63,9 % / `SandboxLauncher` 53,8 % : code de sécurité le moins couvert | **P1** | **M** |
+| **DOC-1** | Docs | 133 corrigés `solution/` publics (repo public) ⇄ promesse pédagogique → décision | **P1** | **M** |
+| **CI-2** | CI | Pas de `concurrency:` → runs redondants non annulés | **P2** | **S** |
+| **CI-3** | CI | Pas de cache NuGet (`setup-dotnet cache: true`) | **P2** | **S** |
+| **CI-5** | CI | `release.yml` au tag sans pré-vol « tests verts » | **P2** | **S** |
+| **DOC-2** | Docs | README omet `Piscine.Sandbox(.Contracts)` (9 listés / 11 réels) | **P2** | **S** |
+| **DOC-3** | Docs | README annonce une AppImage Linux *offline* (abandonnée v3.1.0) | **P2** | **S** |
+| **BL-1** | Backlog | « backlog = issues » a lapsé ; ≥8 suites dans la prose → recréer le backlog | **P2** | **S** |
+| **COV-2** | Couverture | `ContentValidator` 69 % (gate de contenu, fort rayon d'impact) | **P2** | **M** |
+| **COV-3** | Couverture | Couverture jamais mesurée en CI (visibilité, pas de seuil) | **P3** | **S** |
+| **SK-2** | SOLID/KISS | `DateTimeOffset.Now` (4 sites) → injecter `TimeProvider` | **P3** | **S** |
+| **SK-3** | SOLID/KISS | ~10 `catch (Exception)` non filtrés à commenter/restreindre | **P3** | **S** |
+| **SK-1** | SOLID/KISS | Analyseur trompeur (175 hits, ~95 % faux positifs) → **ne pas** « fix-all » | **P3** | **S** |
+| **DOC-4** | Docs | HANDOFF dit « privé » (repo public) + très long | **P3** | **S** |
+| **DOC-5** | Docs | « Photino » vs « PhotinoX 4.2.0 » (cosmétique) | **P3** | **S** |
+| **CI-4** | CI | Publish linux-x64 dupliqué entre 2 jobs | **P3** | **M** |
+
+**Ordre de traitement suggéré** : (1) **quick wins** P1/P2 en `S` — CI-1, CI-2, CI-3, COV-3, DOC-2, DOC-3
+(une demi-journée, gros effet visibilité/coût) ; (2) **substantiel** — COV-1 (sécurité), DOC-1 (décision
+proprio), BL-1 (recréer le backlog) ; (3) **hygiène** P3 restante au fil de l'eau. **Rappel** : rien n'est
+encore exécuté ; ces actions valent comme **backlog proposé** (cf. §5).
+
+---
+
+## 1. CI
+
+**Workflows** : `ci.yml` (4 « jobs » : `build-test`, `appimage-online-dryrun`, `windows-installer-dryrun`)
+sur `push`/`pull_request` vers `main` ; `release.yml` (`package-linux`, `package-windows`, `release`) au tag `v*`.
+
+**Durées réelles** (12 derniers runs `ci.yml` sur `main`, wall-time) : **1 à 4 min**. Les jobs tournent en
+parallèle ; `build-test` (~3 min) domine, `appimage-online-dryrun` ~1 min, `windows-installer-dryrun` ~0-1 min.
+Le CI est donc **déjà rapide** — l'optimisation porte surtout sur le **gaspillage** (runs inutiles, doublons),
+pas sur la latence d'un run vert.
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **CI-1** | **Dry-runs lourds sur les commits docs-only.** Les 3 gardes de packaging (publish cross-RID Desktop+Sandbox, AppImage online, installeurs Windows) s'exécutent sur **chaque** push/PR, y compris les nombreux commits purement documentaires de la boucle SCRUM (`docs: consigner …`). **Preuve** : le run `27210660012` sur le commit **`docs(release): consigner v3.1.1`** (diff = docs only) a lancé toute la matrice et a **échoué** aux étapes *« Dry-run packaging desktop »* et *« Construire l'AppImage online »* (régression de packaging entrée plus tôt, réparée au commit suivant `c8171e9`). Un commit de doc n'aurait pas dû exécuter — ni rougir sur — le packaging. | **P1** | **S** |
+| **CI-2** | **Pas de `concurrency:`.** Des pushes successifs rapides (fréquents : impl + « consigner » qui suit) laissent des runs redondants finir au lieu d'être annulés. Ajouter `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }`. | **P2** | **S** |
+| **CI-3** | **Pas de cache NuGet.** `actions/setup-dotnet@v5` est utilisé sans `cache: true` ; chaque job re-`restore` à froid (4 jobs × chaque run). Gain modeste (~20-40 s/job vu les durées actuelles) mais quasi gratuit à activer (`cache: true` + `cache-dependency-path`). NB : sans `packages.lock.json`, la clé de cache est moins fiable — envisager `RestorePackagesWithLockFile`. | **P2** | **S** |
+| **CI-4** | **Publish linux-x64 dupliqué entre jobs.** `Piscine.Desktop` + `Piscine.Sandbox` (linux-x64, self-contained) sont publiés **à la fois** dans `build-test` (dry-run packaging) **et** dans `appimage-online-dryrun`. Isolation des jobs = choix défendable, mais c'est du calcul redondant à chaque run. Faible priorité (les deux jobs sont courts). | **P3** | **M** |
+| **CI-5** | **`release.yml` n'a pas de `concurrency` ni de garde de pré-vol.** Un tag déclenche directement 3 jobs de packaging réels (téléchargements MinGit/WebView2, Inno, AppImage) sans étape « les tests passent ? » en amont (les tests ne tournent qu'au `push` sur `main`, pas au tag). Un tag posé sur un commit non testé publierait quand même. Envisager un job `needs:`-gate qui rejoue `build-test`. | **P2** | **S** |
+
+### Recommandation prioritaire (CI)
+
+**CI-1 d'abord (P1/S, plus gros gain)** : filtrer les 3 gardes de packaging par chemins — ne les déclencher
+que si `src/**`, `build/installer/**`, `**/*.csproj`, `.github/workflows/**`, `Directory.Build.props` changent ;
+laisser `build-test` + `validate-content` sur tous les commits. Sur ce repo (≈ 1 commit « consigner »
+documentaire pour chaque commit d'impl), cela supprime ~la moitié des exécutions de la matrice lourde.
+Puis CI-2 et CI-3 (quick wins). CI-5 si on veut blinder la release. CI-4 optionnel.
+
+---
+
+## 2. Couverture de tests
+
+**Mesure réelle** : `dotnet test Piscine.slnx -c Release --collect:"XPlat Code Coverage"` (305 tests verts,
+E2E inclus) + ReportGenerator 5.5.10. **Global : 78,0 % lignes · 62,8 % branches · 82,3 % méthodes**
+(2607/3341 lignes, 988/1571 branches). 7 assemblies instrumentées.
+
+**Couverture par assembly** :
+
+| Assembly | Lignes | Lecture |
+|----------|:------:|---------|
+| `Piscine.Core` | **98,8 %** | Logique pure (modèles, découverte de contenu, YAML) — excellemment testée. |
+| `Piscine.Git` | **94,6 %** | `GradeReceivedCommand` 98 %, `GitWorkspace` 78 %. Solide. |
+| `Piscine.App` | **86,0 %** | Services UI. Bas : `ShimLocator` 60 %, `PtyService` 73 % (terminal, dur à tester sans tête). |
+| `Piscine.Sandbox.Contracts` | **86,1 %** | Contrat IPC (DTO + source-gen JSON). OK. |
+| `Piscine.Grading` | **85,9 %** | Cœur moteur. **Bas et critique** : `SandboxLauncher` **53,8 %**, `SandboxProcess` 76 %, `ContentValidator` **69,1 %**. |
+| `Piscine.Sandbox` | **63,9 %** | **Le plus bas du moteur.** `SandboxExecutor` 62 %, `Program` 50 % (entrée du processus enfant). |
+| `Piscine.Components` | **29,5 %** | **Trompeur** : pages/layout (`Home`/`Module`/`NavMenu`/`Terminal`/`CourseCatalog`…) à 0 % car couvertes par **DevHost.E2E hors-process** (non instrumenté). Les composants testés en **bUnit** sont hauts (`MarkdownView` 100 %, `CourseToc` 96 %, `PushResultPanel` 94 %, `StatusBadge` 92 %, `InitPanel` 88 %, `CheckFeedback` 86 %). |
+
+**Non instrumentés du tout** : `Piscine.Cli`, `Piscine.Desktop`, `Piscine.DevHost`, `Piscine.GitShim`
+(projets d'entrée/hôte, exécutés hors-process → couverts par E2E/smoke, pas par la couverture unitaire).
+Le « 78 % » porte donc sur le **moteur + services**, où il est réellement fort.
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **COV-1** | **Le code de sécurité le moins couvert.** `Piscine.Sandbox` (63,9 %) + `Grading.SandboxLauncher` (53,8 %) / `SandboxProcess` (76 %) forment la frontière d'isolation **fail-closed** du code recrue non fiable (v3.1.1) — précisément le code dont une régression silencieuse serait grave. Cibler les branches *timeout / kill-tree / fail-closed / bac-à-sable-absent* de `SandboxExecutor` et `SandboxLauncher`. (Caveat : `Sandbox/Program` 50 % tourne hors-process → couverture d'intégration ou acceptée via E2E.) | **P1** | **M** |
+| **COV-2** | **`ContentValidator` 69,1 %** — la **gate de contenu** (plus gros fichier, 367 l.) qui empêche un corrigé cassé de passer. Couverture basse pour un fort rayon d'impact (chaque exo dépend d'elle). Ajouter des cas (manifestes invalides, fixtures git, chemins d'erreur). | **P2** | **M** |
+| **COV-3** | **Aucune mesure de couverture en CI.** `coverlet.collector` est présent (défaut du gabarit xUnit) mais jamais invoqué : rien ne suit le 78 % dans le temps, aucun garde-fou de régression, aucune visibilité PR. Ajouter `--collect:"XPlat Code Coverage"` + résumé ReportGenerator en artefact (ou job summary). **Pas de seuil bloquant** (cohérent avec l'éthos « jamais de note » + projets hôtes hors couverture) — viser la **visibilité**, pas une barrière. | **P3** | **S** |
+
+### Lecture
+
+La couverture est **saine** là où ça compte le plus (Core 98,8 %, Git 94,6 %, moteur de notation 86 %).
+Le point d'attention réel = le **nouveau code sécurité (Sandbox)**, le moins couvert alors qu'il est le plus
+sensible. Le 62,8 % de branches (vs 78 % de lignes) confirme que ce sont les **chemins d'erreur/bord** qui
+manquent, pas le chemin nominal. Priorité : **COV-1** (sécurité), puis **COV-3** (rendre le chiffre visible
+en CI, quasi gratuit), puis **COV-2**.
+
+---
+
+## 3. SOLID / KISS
+
+**Méthode** : MCP Roslyn (`get_project_graph`, `detect_circular_dependencies`, `detect_antipatterns`,
+`find_dead_code`) + lecture manuelle des plus gros fichiers. Build vert avec `WarningsAsErrors` (0 warning
+compilateur). **Conclusion d'ensemble : la base est saine ; ne pas sur-réagir au compteur de l'analyseur.**
+
+### Positifs (l'essentiel)
+
+- **0 dépendance circulaire** (projets). Couches propres : `Piscine.Core`, `Piscine.Sandbox.Contracts`,
+  `Piscine.GitShim` sont des **feuilles sans référence** ; les deps pointent vers l'intérieur (UI → App →
+  moteur → Core). DIP respecté pour l'essentiel.
+- **0 code mort** (types/méthodes/propriétés inutilisés sur toute la solution).
+- **Pas de god-object.** Les 2 plus gros fichiers sont **cohésifs**, pas à découper : `ContentValidator`
+  (367 l.) = **une règle de validation par méthode privée** (`ValidateGitExercise`, `ValidateNoOrphans`,
+  `ValidateNoDuplicateIds`, `ValidateHints`, `ValidateStarterFiles`, `ValidateCourseRef`…) orchestrées par
+  `Validate` ; `Cli/Program.cs` (265 l.) = **`switch` de dispatch + une fonction par commande** — idiomatique.
+- **Frontière de sécurité bien écrite** (`SandboxRunner`/`SandboxLauncher`) : exception **fail-closed**
+  dédiée (`SandboxUnavailableException`), `catch … when (ex is Win32Exception or FileNotFoundException or
+  InvalidOperationException)` (filtré, pas large), `Kill(entireProcessTree:true)` au timeout, nettoyage
+  temp best-effort **commenté** en `finally`.
+- **Gestion d'exceptions délibérée**, pas paresseuse : la quasi-totalité des `catch` portent un filtre
+  `when (…)` **et** un commentaire d'intention (ex. `GradeReceivedCommand:252` :
+  `catch (Exception e) when (e is IOException or UnauthorizedAccessException)` + commentaire « ne jamais
+  casser le hook après que `progress.json` a été commité »).
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **SK-1** | **Compteur d'analyseur trompeur (KISS).** `detect_antipatterns` remonte **175** hits, mais **~95 % sont des faux positifs** : (a) ~60 `AP008` « #pragma … no matching restore » sont **tous dans des `.g.cs` générés** (source-gen `System.Text.Json`) — pas le code du projet ; (b) la plupart des `AP007` « empty catch » sont en réalité des `catch … when (…) { /* commentaire */ }` — l'outil **ignore le filtre `when` et le commentaire**. **Action : ne PAS lancer un « fix all warnings » mécanique.** La poignée de vrais points est ci-dessous. | **P3** | **S** |
+| **SK-2** | **`DateTimeOffset.Now` direct** (4 sites : `ProgressFileWatcher:160`, `GradeReceivedCommand:184,250`, `CheckCommand:43`). Dans un moteur qui valorise le **déterminisme** et la testabilité, injecter `TimeProvider` (→ `FakeTimeProvider` en test, horodatage tz-stable). Faible enjeu : ce sont des horodatages d'artefacts de résultat, **pas** de la logique de verdict. | **P3** | **S** |
+| **SK-3** | **Quelques `catch (Exception)` non filtrés** sans commentaire d'intention (≈10 sites : `Cli/Program.cs:100,203`, `GitStatusService:131`, `InitService:50`, `GitGrader:137,247`, `ContentValidator:81,183`…). La plupart sont des **frontières top-level / fail-closed** légitimes (post-#58). Reco : un commentaire d'une ligne distinguant « fail-closed voulu » de « catch large par défaut », ou restreindre au type pertinent. | **P3** | **S** |
+
+### Non-constats explicites (résister à la sur-ingénierie)
+
+- **`SandboxExecutor.GetAwaiter().GetResult()` (4×)** : approprié dans un **processus enfant single-shot**
+  (pas de contexte de synchro → pas de deadlock ; le process sort juste après). **Ne pas convertir en async.**
+- **`Cli/Program.cs` switch-dispatch** : **garder**. Un framework de commandes (DI, pattern Command) serait
+  de la complexité gratuite pour 10 commandes.
+- **`ContentValidator` 367 l.** : cohésif (1 règle/méthode) → **ne pas scinder**. Le vrai sujet est sa
+  **couverture** (COV-2), pas sa taille.
+
+**Synthèse SOLID/KISS** : peu à faire. Le seul changement « propre » à faible risque est **SK-2**
+(`TimeProvider`). SK-1/SK-3 relèvent de l'hygiène/lisibilité, pas de la dette structurelle.
+
+---
+
+## 4. Documentation GitHub
+
+**Méthode** : lecture `README`, `CHANGELOG`, `docs/*.md`, `docs/wiki/*.md`, HANDOFF + recoupement avec
+l'état réel (`gh release list`, `git ls-files`, `gh repo view`).
+
+### Positifs
+
+- **`CHANGELOG.md` complet et exact** : sections `[v3.1.1]`/`[v3.1.0]`/`[v3.0.0]`/`[v2.0.0]`/`[v1.0.0]`/`[v0.1.0]`,
+  alignées sur les **6 releases publiées** (`gh release list` : v3.1.1 = *Latest*). Les mentions webkit-4.0 /
+  AppImage offline n'apparaissent que dans les entrées **historiques** (v3.0.0) — correct.
+- **`deploiement.md` et `mise-en-oeuvre.md` à jour** pour v3.1.0 (macOS abandonné, AppImage offline
+  abandonnée, webkit-4.1). Le wiki versionné ne contient **aucune** référence de version périmée.
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **DOC-1** | **Corrigés exposés publiquement.** Le dépôt est **PUBLIC** (confirmé `gh repo view`) → **133 fichiers `solution/` dans 120 dossiers** sont lisibles par quiconque trouve le repo. Cela **annule le principe fondateur « la recrue ne voit jamais les corrigés »** pour le repo (le paquet livré les exclut toujours via `package-content`). Décision proprio assumée (pour activer le Wiki GitHub), mais elle **contredit frontalement** la promesse pédagogique → à re-trancher. **Options (sans décider)** : (a) corrigés en **sous-module / dépôt privé séparé** checkouté en CI ; (b) repo **re-privé** + Wiki publié autrement (Pages depuis `docs/wiki/`, ou repo wiki public dédié) ; (c) branche orpheline / injection au build ; (d) **acceptation formelle** documentée. | **P1** | **M** |
+| **DOC-2** | **`README` Structure périmée** : la liste `src/` (l. 52-59) **omet `Piscine.Sandbox` + `Piscine.Sandbox.Contracts`** (9 projets listés / **11 réels**). L'isolation processus-enfant du code recrue (v3.1.1, sécurité) n'est mentionnée nulle part dans le README. | **P2** | **S** |
+| **DOC-3** | **`README` recrue inexact** : « Linux `.AppImage`, en variante **offline** … ou **online** » (l. 13-14) — or l'**AppImage offline Linux est abandonnée en v3.1.0** (seul Windows a l'offline). Induit en erreur une recrue Linux qui chercherait un téléchargement hors-ligne inexistant. | **P2** | **S** |
+| **DOC-4** | **HANDOFF incohérent + volumineux** : l. 14 « Repo … **(privé)** » alors que le repo est **public** (sa propre l. 43 dit l'inverse). Par ailleurs le HANDOFF (~418 l.) mêle état courant et historique complet v1→v5 → moins efficace pour une reprise « à froid ». Envisager d'extraire l'historique et garder un HANDOFF court. | **P3** | **S** |
+| **DOC-5** | **« Photino » vs « PhotinoX »** : README l. 28/58 et quelques docs disent encore « Photino.Blazor » alors que le paquet est **`PhotinoX.Blazor 4.2.0`** (fork). Le namespace `Photino.Blazor` est conservé → impact quasi nul, cosmétique. | **P3** | **S** |
+
+**Synthèse docs** : la doc est globalement **bien tenue** (CHANGELOG + releases + guides à jour). Le sujet
+majeur n'est pas la fraîcheur mais **DOC-1** (exposition des corrigés = décision produit). Puis 2 corrections
+recrue rapides (DOC-2, DOC-3).
+
+---
+
+## 5. Backlog / issues
+
+**État GitHub** : **0 issue ouverte** ; 3 milestones (V3 / v4 / v5) **clos** ; 6 releases publiées. Tout le
+travail planifié a été livré — c'est sain. **Mais** la règle documentée *« backlog = GitHub Issues »*
+(HANDOFF §SCRUM) a **cessé d'être appliquée après la clôture du milestone #3** : les sprints PhotinoX (v3.1.0)
+et Sandbox (v3.1.1) ont été livrés **sans issue de suivi**, et au moins **8 suites connues** ne vivent plus
+que dans la **prose** (HANDOFF, commentaires de code, ADR). « 0 issue ouverte » **masque donc du travail connu**.
+
+### Constat
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **BL-1** | **Dérive du backlog.** Le backlog n'est plus dans GitHub Issues mais dans le HANDOFF/commentaires/ADR → invisible, non priorisable, non assignable. Re-matérialiser les suites vivantes en issues (table ci-dessous), éventuellement sous un nouveau milestone **« v3.2 — durcissement & dette »**. | **P2** | **S** |
+
+### Réconciliation des suites connues (non tracées) → reco
+
+| Suite connue | Source | Tracée ? | Recommandation | Sév. |
+|---|---|:--:|---|:--:|
+| **Couverture sécurité Sandbox** (COV-1) | cet audit | non | **Issue** — cibler `SandboxExecutor`/`SandboxLauncher` (branches fail-closed/timeout/kill) | **P1** |
+| **Filtre de chemins CI** (CI-1) | cet audit | non | **Issue** — `paths:` sur les dry-runs lourds | **P1** |
+| **Exposition des corrigés** (DOC-1) | HANDOFF, repo public | partiel (prose) | **Issue de décision** — submodule privé / repo re-privé / acceptation | **P1** |
+| **Attribution git par exo** dans la progression | HANDOFF:366 (« suivi e ») | non | **Issue** — aujourd'hui `progress.json` = repo-wide best-effort | **P2** |
+| **Smoke pré-release** (fenêtre native + terminal/coaching, Win+Linux) | HANDOFF:231,256 | non (checklist proprio) | **Checklist de release** (gate), pas issue code | **P2** |
+| **Serveur HTTP (`HttpListener`) + exo pilote M22** | HANDOFF:196,210 | non | **Issue** — bascule M22 lecture→auto-noté `reseau` | **P3** |
+| **Enrichissement bonus** M00–M18/M21/M23 | HANDOFF:146 | non | **Issue contenu** (1 exo bonus difficile/module fondamental) | **P3** |
+| **True-offline AppImage Linux** | `release.yml:59`, ADR PhotinoX | non (« voir le backlog » … vide) | **Issue** ou **acceptation** formelle de l'online-only | **P3** |
+| `Error.razor` RCL→DevHost (host-only `HttpContext`) | HANDOFF:381 (« suivi a ») | non | **Issue** — petit nettoyage d'archi | **P3** |
+| Coalescer la sortie PTY si verbeuse | HANDOFF:297 (« suivi d ») | non | **Issue** — perf terminal | **P3** |
+| Rush Clean Architecture (optionnel) | HANDOFF:210 | non | **Issue contenu** optionnelle | **P3** |
+| **#19 harnais web Blazor** | ADR 2026-06-07 | **tranché (différé)** | **Laisser dormant** — l'ADR suffit, ne pas rouvrir | — |
+
+**Synthèse backlog** : rien n'est « en retard », mais le suivi a régressé vers la prose. Action principale
+**BL-1** : recréer un backlog GitHub à partir de cette table (les 3 items **P1** d'abord). **Aucune issue n'a
+été créée dans cette itération d'audit** (hors périmètre — proposition uniquement).
