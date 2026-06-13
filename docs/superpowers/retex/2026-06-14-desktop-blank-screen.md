@@ -1,97 +1,59 @@
-# Constat — l'app de bureau Photino rend un ÉCRAN NOIR (+ harnais de smoke de rendu)
+# RÉSOLU — l'app de bureau Photino rendait un ÉCRAN NOIR (cause : MTA + IConfiguration manquant)
 
-> 2026-06-14. Déclencheur : smoke proprio de S0 → `dotnet run --project src/Piscine.Desktop` affiche
-> une **fenêtre entièrement noire**. Investigation en débogage systématique. **Cause racine isolée,
-> non encore corrigée** (décision proprio requise, cf. §Options). Un **harnais de test du rendu** a
-> été ajouté (ce que la demande visait).
+> 2026-06-14. Déclencheur : smoke proprio de S0 → `dotnet run --project src/Piscine.Desktop` affichait
+> une **fenêtre entièrement noire**. **CORRIGÉ** (2 bugs masqués) + **harnais de smoke de rendu ajouté**.
 
 ## Symptôme
 
-La fenêtre native s'ouvre, reste vivante, **0 exception** — mais la zone de contenu WebView2 est
-**100 % noire** (capture : aucun texte, pas même le « Chargement… » statique d'`index.html`).
+Fenêtre native ouverte, vivante, **0 exception côté hôte** — zone WebView2 **100 % noire** (pas même le
+`#app` « Chargement… »).
 
-## Cause racine (haute confiance)
+## Cause racine RÉELLE (2 bugs, le 1er masquait le 2nd)
 
-**L'hôte PhotinoX.Blazor 4.2.0 ne sert pas le contenu Blazor sur Windows.** La webview navigue vers
-`http://localhost/` (URL correcte sous Windows — PhotinoX intercepte ce host via WebView2
-`WebResourceRequested`, cf. source `PhotinoWebViewManager.AppBaseUri`), **mais rien n'est servi** :
-la page ne se charge pas → pas de JS → **Blazor ne démarre jamais** → écran noir.
+1. **Thread principal MTA.** `Program.cs` utilisait des **top-level statements** → le `Main` synthétisé
+   n'a **pas** `[STAThread]` → thread principal en **MTA**. Or **WebView2 (Blazor Hybrid) repose sur COM
+   et exige un thread STA** : en MTA, la fenêtre Win32 s'ouvre mais la **webview ne rend rien** (noir),
+   et **aucun web message** ne circule (Blazor ne démarre jamais).
+2. **`IConfiguration` non enregistré.** Une fois le rendu débloqué (STA), Blazor a jeté
+   *« Unable to resolve service for type `IConfiguration` while activating `CourseCatalog`. »* :
+   `PhotinoBlazorAppBuilder` **n'enregistre pas** d'`IConfiguration` (contrairement à `WebApplication`
+   du DevHost), alors que `CourseCatalog`/`ContentRootResolver` en dépendent. → render exception →
+   `#app` restait sur « Chargement… ».
 
-Preuves convergentes :
-- **Sonde web-message** (`SmokeProbe`) : `{"received":false}` — **zéro** web message reçu en 12 s, pas
-  même l'IPC interne de Blazor (si Blazor tournait, son canal de rendu émettrait). → la page n'est pas chargée.
-- **Console PhotinoX** : `Load(/)` → `** File "/" could not be found.` → `Load(http://localhost/)`, puis silence.
-- `http://localhost/` ne répond pas hors webview (`curl` → HTTP 000) : c'est bien un host virtuel, pas un serveur.
-- **Capture d'écran** : zone WebView2 noire, sans le `#app` « Chargement… ».
+## Le correctif (`src/Piscine.Desktop/Program.cs`)
 
-## Écarté par test à variable unique
+- **`[STAThread] static void Main`** explicite (fin des top-level statements) — comme tout hôte
+  Photino/WebView2 correct.
+- **Enregistrer une `IConfiguration`** basée sur les variables d'environnement :
+  `builder.Services.AddSingleton<IConfiguration>(new ConfigurationBuilder().AddEnvironmentVariables().Build())`.
 
-- **Pas S0 (fondation nav)** : une page qui ne se charge JAMAIS ne peut pas dépendre du contenu RCL ;
-  le DevHost (même RCL, hôte Blazor Server) rend `/`=board, `/cours`, pastilles — E2E `NavigationSmokeTests` vert.
-- **Pas la CSP** (`index.html`, ajoutée en #58) : désactivée → toujours `received:false`. Restaurée.
+**Prouvé** : `PISCINE_SMOKE=1` → `{"received":true,"h1":"Tableau de bord","dashboard":true,"navTabs":7,"statusDots":170}`
++ confirmation visuelle proprio (« it renders »). Le tableau de bord, les onglets et la sidebar à pastilles s'affichent.
 
-## Pourquoi ça n'a jamais été vu
+## Comment on l'a trouvé (et ce qui était FAUX)
 
-Le smoke historique « la fenêtre se lance + 0 exception » **ne vérifiait pas le rendu** — le retex de la
-migration PhotinoX l'admet déjà (`2026-06-08-photinox-migration.md` : « ne vérifiait que la ligne `Load(...)`,
-pas le rendu »). Le rendu PhotinoX sur Windows n'a, en réalité, jamais été confirmé visuellement.
+- Repro minimal PhotinoX nu → même écran noir → **ni notre code (S0/CSP/Router/RCL), ni le fork**.
+- **Comparaison avec un projet PhotinoX qui marche** (fourni par le proprio) → seule différence
+  significative : **`[STAThread] static void Main`** (vs nos top-level statements). Ajout de `[STAThread]`
+  au repro → **rendu OK**, ce qui a révélé le 2nd bug (`IConfiguration`).
+- **Hypothèses ÉCARTÉES (red herrings)** : la log `Load(/)` → `File "/" could not be found` →
+  `Load(http://localhost/)` est **normale** (présente aussi quand ça marche) ; le service de
+  `http://localhost/` par WebView2 **fonctionnait** ; **WebView2 149 / loopback, Cloudflare WARP,
+  `localhost`→`::1`, Chrome installé ou non** = **sans rapport**. La piste « régression WebView2 » était
+  erronée — corrigée par la comparaison au projet qui marche.
 
-## Harnais ajouté (la demande)
+## Harnais de smoke de RENDU ajouté (la demande initiale)
 
-- `src/Piscine.Desktop/SmokeProbe.cs` + beacon dans `wwwroot/index.html` : en `PISCINE_SMOKE=1`, la page
-  renvoie par web message un **bilan du DOM réellement rendu** (`appTextLen`, `h1`, `dashboard`, `navTabs`,
-  `statusDots`) que la sonde écrit dans `PISCINE_SMOKE_OUT` puis termine le process. **Inerte hors mode smoke.**
+- `src/Piscine.Desktop/SmokeProbe.cs` + beacon `wwwroot/index.html` : en `PISCINE_SMOKE=1`, la page
+  renvoie par web message le **bilan du DOM réellement rendu** ; la sonde l'écrit (`PISCINE_SMOKE_OUT`)
+  puis termine. **Prouve le rendu** (pas juste « process vivant ») — ce qui aurait attrapé ce bug d'emblée.
 - `tests/Piscine.DevHost.E2E/DesktopRenderSmokeTests.cs` : test **opt-in** (`PISCINE_DESKTOP_SMOKE=1`)
-  qui lance l'app en mode sonde et **asserte qu'elle affiche du contenu**. Lancé aujourd'hui, il
-  **échoue** (détecte l'écran noir) — c'est le test rouge qui reproduit le bug. Skip par défaut → CI verte.
-- Lancer à la main : `PISCINE_SMOKE=1 PISCINE_SMOKE_OUT=/tmp/s.json PISCINE_CONTENT="$PWD/content" dotnet run --project src/Piscine.Desktop -c Release` puis lire `/tmp/s.json`.
-- **Limite** : le chemin POSITIF du harnais (assert « contenu présent ») n'est pas encore prouvé tant que
-  le rendu est cassé ; il est prouvé sur le chemin NÉGATIF (détecte le noir).
+  qui lance l'app en mode sonde et **asserte un rendu non vide**. **Vert maintenant** (était le test rouge
+  qui reproduisait le bug). Skip par défaut → CI verte. Lancer à la main :
+  `PISCINE_SMOKE=1 PISCINE_SMOKE_OUT=/tmp/s.json PISCINE_CONTENT="$PWD/content" dotnet run --project src/Piscine.Desktop -c Release` puis lire le JSON.
 
-## Options de correction (décision proprio — touche le choix de lib)
+## Leçon
 
-1. **PhotinoX.Blazor** : 4.2.0 est déjà la dernière (4.1.0 / 4.1.1 / 4.2.0). Pas de bump.
-2. **Photino.Blazor original 4.0.13** (sorti depuis la migration ; la migration avait écarté la 4.x car
-   « plafonne net9 » — à revérifier sur 4.0.13) : la lib d'origine sert `http://localhost/` sur Windows
-   et rend correctement chez les autres.
-3. **Revenir à Photino.Blazor 3.2.0** (pré-migration ; réintroduit l'épingle WebView NU1605).
-4. **Déboguer l'interception WebView2** de PhotinoX (pourquoi `http://localhost/` n'est pas servi :
-   content root du manager ? filtre `WebResourceRequested` ? version WebView2 ?).
-
-## MISE À JOUR — repro minimal (ce n'est NI notre code NI le fork)
-
-Une app **PhotinoX hello-world minimale** (un seul `<h1>`, sans Router, RCL, indirection render modes,
-résolveur de contenu, ni CSP) — `.scratch/photino-hello/` (supprimée après diagnostic) — rend **le même
-écran noir** (`received:false`, même `Load(http://localhost/)` non servi). → **Notre configuration est
-hors de cause.**
-
-Puis, en **changeant uniquement le paquet** dans cette hello-world vers le **Photino.Blazor d'origine
-4.0.13** : **même écran noir, identique** (`received:false`). → **Ce n'est pas non plus spécifique au
-fork PhotinoX** ; les deux variantes de Photino échouent à faire servir `http://localhost/` par WebView2.
-
-**Environnement** : **WebView2 Runtime 149.0.4022.62** (très récent), **aucun proxy** (winhttp direct,
-pas d'`HTTP_PROXY`), **hosts propre** (pas d'entrée localhost custom).
-
-### Cause racine affinée (haute confiance)
-
-**WebView2 149 ne sert pas `http://localhost/` via l'interception `WebResourceRequested` dont Photino.Blazor
-dépend sur Windows.** Les requêtes **loopback (`localhost`)** sont court-circuitées de l'interception — c'est
-exactement la raison pour laquelle le BlazorWebView de Microsoft utilise `https://0.0.0.0/` et **pas**
-`localhost`. Photino (fork comme origine) a gardé `http://localhost/` → cassé sur ce WebView2.
-
-### Options de correction RÉVISÉES (un swap de version ne suffit PAS)
-
-1. ~~Photino.Blazor 4.0.13~~ — **réfuté** : écran noir identique.
-2. **Faire servir Photino par un host non-loopback** (`https://0.0.0.0/` façon BlazorWebView Microsoft) :
-   c'est codé **dans `PhotinoWebViewManager` de la lib** (host Windows = `http://localhost/` en dur) → exige
-   un **patch/PR amont Photino** ou un fork local. Vrai correctif de fond.
-3. **Tester une version WebView2 antérieure** (où l'interception localhost marchait) : non maîtrisable
-   (composant système auto-MAJ) ; utile surtout pour **confirmer** que 149 est la régression. La CI Windows
-   (WebView2 potentiellement plus ancien) pourrait rendre OK → le harnais opt-in le révélerait.
-4. **Abandonner Photino** au profit d'un hôte BlazorWebView qui sert via `0.0.0.0`/virtual-host-mapping
-   (p.ex. WinUI/MAUI BlazorWebView, ou WebView2 `SetVirtualHostNameToFolderMapping`) — décision d'archi.
-
-**Recommandation** : décision proprio. Court terme = ouvrir un **issue amont Photino** (« WebView2 149 :
-loopback non intercepté → écran noir ; passer à `0.0.0.0` ») et **confirmer en CI** si un WebView2 plus
-ancien rend (via le harnais opt-in). Fond = (2) patch host non-loopback ou (4) rethink de l'hôte. Le
-**moteur/CLI/notation ne sont pas affectés** — seule l'UX de bureau Photino l'est.
+Le smoke historique « la fenêtre se lance + 0 exception » **ne prouvait pas le rendu** (le retex migration
+PhotinoX l'admettait déjà). Le harnais de rendu comble ce trou. **Moteur/CLI/notation jamais affectés** —
+seul l'hôte Photino l'était.
