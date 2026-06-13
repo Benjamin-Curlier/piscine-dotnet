@@ -139,3 +139,32 @@ compilateur). **Conclusion d'ensemble : la base est saine ; ne pas sur-réagir a
 
 **Synthèse SOLID/KISS** : peu à faire. Le seul changement « propre » à faible risque est **SK-2**
 (`TimeProvider`). SK-1/SK-3 relèvent de l'hygiène/lisibilité, pas de la dette structurelle.
+
+---
+
+## 4. Documentation GitHub
+
+**Méthode** : lecture `README`, `CHANGELOG`, `docs/*.md`, `docs/wiki/*.md`, HANDOFF + recoupement avec
+l'état réel (`gh release list`, `git ls-files`, `gh repo view`).
+
+### Positifs
+
+- **`CHANGELOG.md` complet et exact** : sections `[v3.1.1]`/`[v3.1.0]`/`[v3.0.0]`/`[v2.0.0]`/`[v1.0.0]`/`[v0.1.0]`,
+  alignées sur les **6 releases publiées** (`gh release list` : v3.1.1 = *Latest*). Les mentions webkit-4.0 /
+  AppImage offline n'apparaissent que dans les entrées **historiques** (v3.0.0) — correct.
+- **`deploiement.md` et `mise-en-oeuvre.md` à jour** pour v3.1.0 (macOS abandonné, AppImage offline
+  abandonnée, webkit-4.1). Le wiki versionné ne contient **aucune** référence de version périmée.
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **DOC-1** | **Corrigés exposés publiquement.** Le dépôt est **PUBLIC** (confirmé `gh repo view`) → **133 fichiers `solution/` dans 120 dossiers** sont lisibles par quiconque trouve le repo. Cela **annule le principe fondateur « la recrue ne voit jamais les corrigés »** pour le repo (le paquet livré les exclut toujours via `package-content`). Décision proprio assumée (pour activer le Wiki GitHub), mais elle **contredit frontalement** la promesse pédagogique → à re-trancher. **Options (sans décider)** : (a) corrigés en **sous-module / dépôt privé séparé** checkouté en CI ; (b) repo **re-privé** + Wiki publié autrement (Pages depuis `docs/wiki/`, ou repo wiki public dédié) ; (c) branche orpheline / injection au build ; (d) **acceptation formelle** documentée. | **P1** | **M** |
+| **DOC-2** | **`README` Structure périmée** : la liste `src/` (l. 52-59) **omet `Piscine.Sandbox` + `Piscine.Sandbox.Contracts`** (9 projets listés / **11 réels**). L'isolation processus-enfant du code recrue (v3.1.1, sécurité) n'est mentionnée nulle part dans le README. | **P2** | **S** |
+| **DOC-3** | **`README` recrue inexact** : « Linux `.AppImage`, en variante **offline** … ou **online** » (l. 13-14) — or l'**AppImage offline Linux est abandonnée en v3.1.0** (seul Windows a l'offline). Induit en erreur une recrue Linux qui chercherait un téléchargement hors-ligne inexistant. | **P2** | **S** |
+| **DOC-4** | **HANDOFF incohérent + volumineux** : l. 14 « Repo … **(privé)** » alors que le repo est **public** (sa propre l. 43 dit l'inverse). Par ailleurs le HANDOFF (~418 l.) mêle état courant et historique complet v1→v5 → moins efficace pour une reprise « à froid ». Envisager d'extraire l'historique et garder un HANDOFF court. | **P3** | **S** |
+| **DOC-5** | **« Photino » vs « PhotinoX »** : README l. 28/58 et quelques docs disent encore « Photino.Blazor » alors que le paquet est **`PhotinoX.Blazor 4.2.0`** (fork). Le namespace `Photino.Blazor` est conservé → impact quasi nul, cosmétique. | **P3** | **S** |
+
+**Synthèse docs** : la doc est globalement **bien tenue** (CHANGELOG + releases + guides à jour). Le sujet
+majeur n'est pas la fraîcheur mais **DOC-1** (exposition des corrigés = décision produit). Puis 2 corrections
+recrue rapides (DOC-2, DOC-3).
