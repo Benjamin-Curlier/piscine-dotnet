@@ -5,4 +5,4 @@ course: cours.md
 groups:
   - id: async-await
     title: "Async/await"
-    exercises: [ex00-attente, ex01-sequentiel, ex02-whenall]
+    exercises: [ex00-attente, ex01-sequentiel, ex02-whenall, ex03-somme-carres]
