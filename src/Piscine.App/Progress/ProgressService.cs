@@ -44,14 +44,17 @@ public sealed class ProgressService(PiscineLayout layout, GitStatusService git)
     }
 
     /// <summary>
-    /// Règle déterministe de dérivation du statut (voir plan §(b)).
+    /// Règle déterministe de dérivation du statut. Les signaux git sont attribués <b>par exercice</b>
+    /// via le préfixe de chemin <c>&lt;moduleId&gt;/&lt;exerciseId&gt;/</c> (#65) : committer un exercice
+    /// ne « contamine » plus le statut des autres.
     ///
     /// Priorité décroissante :
     /// 1. ARevoir  — progress.json dit ARevoir (signal fort, écrit par le moteur).
-    /// 2. Reussi + HasOrigin + AheadOfOrigin==0 → PousseNote (best-effort git).
-    /// 3. Reussi (sans origin OK) → CommiteNonPousse.
-    /// 4. Pas d'entrée + AheadOfOrigin > 0 → CommiteNonPousse (commits non poussés).
-    /// 5. Pas d'entrée + (fichiers workspace || HasUncommittedWork) → EnCours.
+    /// 2. Reussi + HasOrigin + cet exo PAS en avance → PousseNote (best-effort : progress.json ne
+    ///    distingue pas un check local d'un grade-received).
+    /// 3. Reussi (sans origin, ou cet exo en avance sur origin) → CommiteNonPousse.
+    /// 4. Pas d'entrée + cet exo en avance sur origin → CommiteNonPousse.
+    /// 5. Pas d'entrée + (fichiers workspace || cet exo a du non-committé) → EnCours.
     /// 6. Sinon → NonCommence.
     /// </summary>
     private ExerciseStatusInfo Derive(
@@ -62,16 +65,22 @@ public sealed class ProgressService(PiscineLayout layout, GitStatusService git)
     {
         var hasEntry = progress.Exercises.TryGetValue(exerciseId, out var entry);
 
+        // Attribution par exercice : un fichier appartient à l'exo si son chemin (relatif au dépôt,
+        // séparateur /) commence par « <moduleId>/<exerciseId>/ ».
+        var prefix = $"{moduleId}/{exerciseId}/";
+        var aheadHere = repo.AheadPaths.Any(p => p.StartsWith(prefix, StringComparison.Ordinal));
+        var uncommittedHere = repo.UncommittedPaths.Any(p => p.StartsWith(prefix, StringComparison.Ordinal));
+
         // 1. ARevoir : signal persisté explicite.
         if (hasEntry && entry!.Status == ExerciseStatus.ARevoir)
         {
             return new ExerciseStatusInfo(moduleId, exerciseId, ExerciseProgressStatus.ARevoir, StatusSource.Progress);
         }
 
-        // 2 & 3. Reussi : affiner avec l'état git.
+        // 2 & 3. Reussi : affiner avec l'état git DE CET EXERCICE.
         if (hasEntry && entry!.Status == ExerciseStatus.Reussi)
         {
-            if (repo.HasOrigin && repo.AheadOfOrigin == 0)
+            if (repo.HasOrigin && !aheadHere)
             {
                 return new ExerciseStatusInfo(moduleId, exerciseId, ExerciseProgressStatus.PousseNote, StatusSource.GitDerived);
             }
@@ -79,15 +88,15 @@ public sealed class ProgressService(PiscineLayout layout, GitStatusService git)
             return new ExerciseStatusInfo(moduleId, exerciseId, ExerciseProgressStatus.CommiteNonPousse, StatusSource.GitDerived);
         }
 
-        // 4. Pas d'entrée + commits locaux en avance → CommiteNonPousse.
-        if (!hasEntry && repo.AheadOfOrigin > 0)
+        // 4. Pas d'entrée + commits de CET exo en avance → CommiteNonPousse.
+        if (!hasEntry && aheadHere)
         {
             return new ExerciseStatusInfo(moduleId, exerciseId, ExerciseProgressStatus.CommiteNonPousse, StatusSource.GitDerived);
         }
 
-        // 5. Fichiers dans le workspace ou travail non commité → EnCours.
+        // 5. Fichiers dans le workspace ou travail non commité DE CET exo → EnCours.
         var hasFiles = HasWorkspaceFiles(moduleId, exerciseId);
-        if (hasFiles || repo.HasUncommittedWork)
+        if (hasFiles || uncommittedHere)
         {
             return new ExerciseStatusInfo(moduleId, exerciseId, ExerciseProgressStatus.EnCours, StatusSource.GitDerived);
         }
