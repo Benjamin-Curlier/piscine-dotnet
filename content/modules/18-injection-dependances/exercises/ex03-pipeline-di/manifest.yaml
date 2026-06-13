@@ -1,0 +1,32 @@
+id: ex03-pipeline-di
+title: "Pipeline par injection de dépendances"
+objective: "Enregistrer IFormateur + Rapport dans un conteneur DI, injecter par constructeur, résoudre et traiter chaque ligne."
+difficulty: difficile
+bonus: true
+deliverables: [Pipeline.cs]
+starter: [Pipeline.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "bonjour\nle monde\n"
+        expect_stdout: "[BONJOUR]\n[LE MONDE]\n"
+        expect_exit: 0
+      # une seule ligne
+      - stdin: "salut\n"
+        expect_stdout: "[SALUT]\n"
+        expect_exit: 0
+      # déjà en majuscules + chiffres (inchangés)
+      - stdin: "ABC 123\nmix Case\n"
+        expect_stdout: "[ABC 123]\n[MIX CASE]\n"
+        expect_exit: 0
+      - stdin: "a\nb\nc\n"
+        expect_stdout: "[A]\n[B]\n[C]\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "AddSingleton<IFormateur, FormateurMajuscule>() + AddTransient<Rapport>(), puis GetRequiredService<Rapport>(). Produire(t) renvoie \"[\" + MAJUSCULES(t) + \"]\". Utilise ToUpperInvariant."
+    - when: compile_error
+      message: "`using Microsoft.Extensions.DependencyInjection;` (ServiceCollection, AddSingleton, GetRequiredService)."
+  course_ref: "cours.md#dependance"
+solution: [Pipeline.cs]
