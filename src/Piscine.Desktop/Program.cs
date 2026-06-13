@@ -77,4 +77,11 @@ app.MainWindow
 AppDomain.CurrentDomain.UnhandledException += (_, e) =>
     app.MainWindow.ShowMessage("Erreur fatale", e.ExceptionObject.ToString() ?? "Exception inconnue");
 
+// Mode smoke headless (PISCINE_SMOKE=1) : capture le bilan de rendu de la fenêtre puis termine.
+var smokeOut = Environment.GetEnvironmentVariable("PISCINE_SMOKE_OUT");
+if (Environment.GetEnvironmentVariable("PISCINE_SMOKE") == "1" && !string.IsNullOrEmpty(smokeOut))
+{
+    Piscine.Desktop.SmokeProbe.Attach(app, smokeOut);
+}
+
 app.Run();

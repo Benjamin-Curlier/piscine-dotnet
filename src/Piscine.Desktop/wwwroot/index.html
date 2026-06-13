@@ -36,5 +36,30 @@
             highlightAll();
         });
     </script>
+    <!-- Sonde de rendu (mode smoke). Envoie un bilan du DOM réellement rendu à l'hôte par web message.
+         L'hôte ne l'exploite qu'en PISCINE_SMOKE (voir SmokeProbe.cs) ; sans handler côté hôte c'est inerte. -->
+    <script>
+        (function () {
+            if (!window.external || !window.external.sendMessage) return;
+            function summary() {
+                var app = document.getElementById('app');
+                var h1 = document.querySelector('h1');
+                return {
+                    received: true,
+                    url: location.href,
+                    appTextLen: app ? app.innerText.trim().length : -1,
+                    bodyHtmlLen: document.body ? document.body.innerHTML.length : -1,
+                    h1: h1 ? h1.innerText.trim() : null,
+                    dashboard: !!document.querySelector('[data-testid="dashboard"]'),
+                    navTabs: document.querySelectorAll('[data-testid^="nav-"]').length,
+                    statusDots: document.querySelectorAll('[data-testid="status-dot"]').length
+                };
+            }
+            var sent = 0, t = setInterval(function () {
+                try { window.external.sendMessage('PISCINE_SMOKE:' + JSON.stringify(summary())); } catch (e) { }
+                if (++sent >= 8) clearInterval(t);
+            }, 1200);
+        })();
+    </script>
 </body>
 </html>
