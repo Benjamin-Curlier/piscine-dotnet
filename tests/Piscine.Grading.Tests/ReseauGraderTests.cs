@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Piscine.Core.Model;
 using Piscine.Grading;
 using Xunit;
@@ -9,7 +12,9 @@ namespace Piscine.Grading.Tests;
 
 public class ReseauGraderTests
 {
-    // Programme recrue : se connecte au serveur de test (args[0]:args[1]), renvoie chaque ligne de
+    // ── programmes recrue ─────────────────────────────────────────────────────
+
+    // Programme recrue TCP : se connecte au serveur de test (args[0]:args[1]), renvoie chaque ligne de
     // stdin et imprime l'écho reçu. Usings explicites (ImplicitUsings désactivé côté grader).
     private const string EchoClient = """
         using System.IO;
@@ -30,10 +35,36 @@ public class ReseauGraderTests
         }
         """;
 
+    // Programme recrue HTTP : appelle GET /api/message sur le serveur de test (args[0] = baseUrl),
+    // affiche le corps de la réponse.
+    private const string HttpGetClient = """
+        using System.Net.Http;
+
+        var baseUrl = args[0];
+        using var client = new System.Net.Http.HttpClient();
+        var body = client.GetStringAsync(baseUrl + "api/message").GetAwaiter().GetResult();
+        System.Console.Write(body);
+        """;
+
+    // Programme recrue HTTP POST : envoie POST /api/echo?msg=<stdin>, affiche le corps.
+    private const string HttpPostClient = """
+        using System.Net.Http;
+
+        var baseUrl = args[0];
+        var msg = System.Console.ReadLine();
+        using var client = new System.Net.Http.HttpClient();
+        using var content = new System.Net.Http.StringContent(msg ?? string.Empty);
+        var resp = client.PostAsync(baseUrl + "api/echo", content).GetAwaiter().GetResult();
+        var body = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+        System.Console.Write(body);
+        """;
+
+    // ── helpers ───────────────────────────────────────────────────────────────
+
     private static GradingContext Context(string source) =>
         new(new Dictionary<string, string> { ["Program.cs"] = source });
 
-    private static GradingStep Step(params (string Stdin, string Expect)[] cases)
+    private static GradingStep TcpStep(params (string Stdin, string Expect)[] cases)
     {
         var step = new GradingStep { Type = "reseau", Network = new NetworkConfig { Mode = "echo" } };
         foreach (var (stdin, expect) in cases)
@@ -43,6 +74,19 @@ public class ReseauGraderTests
 
         return step;
     }
+
+    private static GradingStep HttpStep(IReadOnlyList<HttpRouteConfig> routes, params (string Stdin, string Expect)[] cases)
+    {
+        var step = new GradingStep { Type = "reseau", Network = new NetworkConfig { Mode = "http", Routes = new List<HttpRouteConfig>(routes) } };
+        foreach (var (stdin, expect) in cases)
+        {
+            step.Cases.Add(new IoCase { Stdin = stdin, ExpectStdout = expect, ExpectExit = 0 });
+        }
+
+        return step;
+    }
+
+    // ── tests TCP echo (inchangés) ─────────────────────────────────────────────
 
     [Fact]
     public void Harness_EchoesLine()
@@ -61,7 +105,7 @@ public class ReseauGraderTests
     [Fact]
     public void Grade_Reussi_WhenEchoMatches()
     {
-        var result = new ReseauGrader().Grade(Context(EchoClient), Step(("bonjour\n", "Reçu : bonjour\n")));
+        var result = new ReseauGrader().Grade(Context(EchoClient), TcpStep(("bonjour\n", "Reçu : bonjour\n")));
 
         Assert.Equal(GraderStatus.Reussi, result.Status);
     }
@@ -71,7 +115,7 @@ public class ReseauGraderTests
     {
         var result = new ReseauGrader().Grade(
             Context(EchoClient),
-            Step(("un\ndeux\ntrois\n", "Reçu : un\nReçu : deux\nReçu : trois\n")));
+            TcpStep(("un\ndeux\ntrois\n", "Reçu : un\nReçu : deux\nReçu : trois\n")));
 
         Assert.Equal(GraderStatus.Reussi, result.Status);
     }
@@ -79,7 +123,7 @@ public class ReseauGraderTests
     [Fact]
     public void Grade_ARevoir_WhenOutputDiffers()
     {
-        var result = new ReseauGrader().Grade(Context(EchoClient), Step(("bonjour\n", "Reçu : autre\n")));
+        var result = new ReseauGrader().Grade(Context(EchoClient), TcpStep(("bonjour\n", "Reçu : autre\n")));
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Equal(FeedbackTriggers.IoMismatch, result.Trigger);
@@ -90,7 +134,7 @@ public class ReseauGraderTests
     {
         var result = new ReseauGrader().Grade(
             Context("var x = ;"),
-            Step(("x\n", "y\n")));
+            TcpStep(("x\n", "y\n")));
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Equal(FeedbackTriggers.CompileError, result.Trigger);
@@ -116,6 +160,115 @@ public class ReseauGraderTests
         var result = new ReseauGrader().Grade(Context(EchoClient), step);
 
         // Fail-closed : sans cas, un rendu qui compile ne doit pas « réussir » par défaut.
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
+    }
+
+    // ── tests HTTP harness direct ──────────────────────────────────────────────
+
+    [Fact]
+    public async Task HttpHarness_ServesConfiguredRoute()
+    {
+        var routes = new List<HttpRouteConfig>
+        {
+            new() { Method = "GET", Path = "/api/message", StatusCode = 200, ResponseBody = "bonjour" },
+        };
+        using var harness = NetworkHarness.StartHttp(routes);
+
+        using var http = new HttpClient();
+        var body = await http.GetStringAsync(harness.BaseUrl + "api/message");
+
+        Assert.Equal("bonjour", body);
+    }
+
+    [Fact]
+    public async Task HttpHarness_Returns404_ForUnknownRoute()
+    {
+        var routes = new List<HttpRouteConfig>
+        {
+            new() { Method = "GET", Path = "/api/message", StatusCode = 200, ResponseBody = "ok" },
+        };
+        using var harness = NetworkHarness.StartHttp(routes);
+
+        using var http = new HttpClient();
+        var response = await http.GetAsync(harness.BaseUrl + "autre");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public void HttpHarness_ExposesBaseUrl()
+    {
+        using var harness = NetworkHarness.StartHttp(new List<HttpRouteConfig>());
+
+        Assert.NotNull(harness.BaseUrl);
+        Assert.StartsWith("http://127.0.0.1:", harness.BaseUrl, System.StringComparison.Ordinal);
+        Assert.EndsWith("/", harness.BaseUrl, System.StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HttpHarness_EchoHarness_HasNullBaseUrl()
+    {
+        using var harness = NetworkHarness.StartEcho();
+
+        Assert.Null(harness.BaseUrl);
+    }
+
+    // ── tests grader HTTP ──────────────────────────────────────────────────────
+
+    [Fact]
+    public void Grade_Http_Reussi_WhenGetMatches()
+    {
+        var routes = new List<HttpRouteConfig>
+        {
+            new() { Method = "GET", Path = "/api/message", StatusCode = 200, ResponseBody = "Bonjour HTTP" },
+        };
+        var step = HttpStep(routes, (string.Empty, "Bonjour HTTP"));
+
+        var result = new ReseauGrader().Grade(Context(HttpGetClient), step);
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+    }
+
+    [Fact]
+    public void Grade_Http_ARevoir_WhenOutputDiffers()
+    {
+        var routes = new List<HttpRouteConfig>
+        {
+            new() { Method = "GET", Path = "/api/message", StatusCode = 200, ResponseBody = "Bonjour HTTP" },
+        };
+        var step = HttpStep(routes, (string.Empty, "Autre réponse attendue"));
+
+        var result = new ReseauGrader().Grade(Context(HttpGetClient), step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Equal(FeedbackTriggers.IoMismatch, result.Trigger);
+    }
+
+    [Fact]
+    public void Grade_Http_ARevoir_WhenProgramDoesNotCompile()
+    {
+        var routes = new List<HttpRouteConfig>
+        {
+            new() { Method = "GET", Path = "/api/message", StatusCode = 200, ResponseBody = "ok" },
+        };
+        var step = HttpStep(routes, (string.Empty, "ok"));
+        step.Network!.Mode = "http"; // déjà http mais on réassure
+
+        var result = new ReseauGrader().Grade(Context("var x = ;"), step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Equal(FeedbackTriggers.CompileError, result.Trigger);
+    }
+
+    [Fact]
+    public void Grade_ContentError_WhenHttpModeHasNoRoutes()
+    {
+        var step = new GradingStep { Type = "reseau", Network = new NetworkConfig { Mode = "http" } };
+        step.Cases.Add(new IoCase { Stdin = string.Empty, ExpectStdout = "ok", ExpectExit = 0 });
+
+        var result = new ReseauGrader().Grade(Context(HttpGetClient), step);
+
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
     }
