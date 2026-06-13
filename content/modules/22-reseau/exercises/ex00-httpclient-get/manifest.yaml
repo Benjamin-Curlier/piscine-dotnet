@@ -1,0 +1,37 @@
+id: ex00-httpclient-get
+title: "Premier appel HTTP avec HttpClient"
+objective: "Appeler une route HTTP GET via HttpClient et afficher le corps de la réponse."
+deliverables: [HttpGet.cs]
+starter: [HttpGet.cs]
+grading:
+  - type: reseau
+    network:
+      mode: http
+      routes:
+        - method: GET
+          path: /api/bonjour
+          status_code: 200
+          response_body: "Bonjour !"
+          content_type: "text/plain; charset=utf-8"
+        - method: GET
+          path: /api/salut
+          status_code: 200
+          response_body: "Salut le monde !"
+          content_type: "text/plain; charset=utf-8"
+    cases:
+      - args: [api/bonjour]
+        expect_stdout: "Bonjour !"
+        expect_exit: 0
+      - args: [api/salut]
+        expect_stdout: "Salut le monde !"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: compile_error
+      message: "Assure-toi d'ajouter `using System.Net.Http;` en haut du fichier."
+    - when: io_mismatch
+      message: "Utilise `GetStringAsync` et affiche le résultat avec `System.Console.Write`."
+    - when: timeout
+      message: "Ton programme ne se termine pas. Vérifie que tu attends bien la réponse HTTP (`await`)."
+  course_ref: "cours.md#httpclient-get"
+solution: [HttpGet.cs]

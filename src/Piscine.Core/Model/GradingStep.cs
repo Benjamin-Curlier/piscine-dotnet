@@ -35,8 +35,39 @@ public sealed class GradingStep
 /// <summary>Configuration du serveur de test embarqué (grader <c>reseau</c>).</summary>
 public sealed class NetworkConfig
 {
-    /// <summary>Type de serveur de test : <c>echo</c> (écho TCP, défaut). Extensible (ex. <c>http</c>).</summary>
+    /// <summary>
+    /// Type de serveur de test : <c>echo</c> (écho TCP, défaut) ou <c>http</c> (serveur HTTP via
+    /// <c>HttpListener</c>). Mode inconnu → erreur de contenu (fail-closed).
+    /// </summary>
     public string Mode { get; set; } = "echo";
+
+    /// <summary>
+    /// Routes HTTP (mode <c>http</c> uniquement). Le programme recrue reçoit l'URL de base comme
+    /// premier argument (<c>http://127.0.0.1:{port}/</c>) ; il doit appeler ces routes et afficher
+    /// les corps de réponse sur la sortie standard.
+    /// </summary>
+    public List<HttpRouteConfig> Routes { get; set; } = new();
+}
+
+/// <summary>
+/// Configuration d'une route du serveur HTTP de test (grader <c>reseau</c>, mode <c>http</c>).
+/// </summary>
+public sealed class HttpRouteConfig
+{
+    /// <summary>Méthode HTTP attendue (ex. <c>GET</c>, <c>POST</c>). Comparaison insensible à la casse.</summary>
+    public string Method { get; set; } = "GET";
+
+    /// <summary>Chemin absolu de la route (ex. <c>/api/message</c>, <c>/</c>).</summary>
+    public string Path { get; set; } = "/";
+
+    /// <summary>Code de statut HTTP renvoyé par le serveur de test (défaut 200).</summary>
+    public int StatusCode { get; set; } = 200;
+
+    /// <summary>Corps de la réponse (texte brut ou JSON selon <see cref="ContentType"/>).</summary>
+    public string ResponseBody { get; set; } = string.Empty;
+
+    /// <summary>Type MIME de la réponse (défaut <c>text/plain; charset=utf-8</c>).</summary>
+    public string ContentType { get; set; } = "text/plain; charset=utf-8";
 }
 
 /// <summary>Assertions d'architecture d'une solution multi-fichiers (grader <c>projet</c>).</summary>
