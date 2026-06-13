@@ -1,0 +1,36 @@
+id: ex03-compter-mot
+title: "Compter un mot entier"
+objective: "Compter les occurrences d'un mot entier (limites \\b) et sans casse via Regex."
+difficulty: difficile
+bonus: true
+deliverables: [CompterMot.cs]
+starter: [CompterMot.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "le\nle chat et LE chien sur le toit\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      # le mot entier : « le » ne doit pas compter dans « vélo »
+      - stdin: "le\nle velo et le scooter\n"
+        expect_stdout: "2\n"
+        expect_exit: 0
+      # aucune occurrence
+      - stdin: "chat\nun chien passe\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      # casse mélangée
+      - stdin: "Chat\nCHAT chat ChAt\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+      - stdin: "et\net puis et encore et\n"
+        expect_stdout: "3\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Motif `\\bmot\\b` (limites de mot) + RegexOptions.IgnoreCase, puis Regex.Matches(...).Count. Échappe le mot avec Regex.Escape."
+    - when: compile_error
+      message: "`using System.Text.RegularExpressions;` est nécessaire pour Regex."
+  course_ref: "cours.md#extraire"
+solution: [CompterMot.cs]
