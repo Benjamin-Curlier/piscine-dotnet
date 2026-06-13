@@ -52,3 +52,43 @@ que si `src/**`, `build/installer/**`, `**/*.csproj`, `.github/workflows/**`, `D
 laisser `build-test` + `validate-content` sur tous les commits. Sur ce repo (≈ 1 commit « consigner »
 documentaire pour chaque commit d'impl), cela supprime ~la moitié des exécutions de la matrice lourde.
 Puis CI-2 et CI-3 (quick wins). CI-5 si on veut blinder la release. CI-4 optionnel.
+
+---
+
+## 2. Couverture de tests
+
+**Mesure réelle** : `dotnet test Piscine.slnx -c Release --collect:"XPlat Code Coverage"` (305 tests verts,
+E2E inclus) + ReportGenerator 5.5.10. **Global : 78,0 % lignes · 62,8 % branches · 82,3 % méthodes**
+(2607/3341 lignes, 988/1571 branches). 7 assemblies instrumentées.
+
+**Couverture par assembly** :
+
+| Assembly | Lignes | Lecture |
+|----------|:------:|---------|
+| `Piscine.Core` | **98,8 %** | Logique pure (modèles, découverte de contenu, YAML) — excellemment testée. |
+| `Piscine.Git` | **94,6 %** | `GradeReceivedCommand` 98 %, `GitWorkspace` 78 %. Solide. |
+| `Piscine.App` | **86,0 %** | Services UI. Bas : `ShimLocator` 60 %, `PtyService` 73 % (terminal, dur à tester sans tête). |
+| `Piscine.Sandbox.Contracts` | **86,1 %** | Contrat IPC (DTO + source-gen JSON). OK. |
+| `Piscine.Grading` | **85,9 %** | Cœur moteur. **Bas et critique** : `SandboxLauncher` **53,8 %**, `SandboxProcess` 76 %, `ContentValidator` **69,1 %**. |
+| `Piscine.Sandbox` | **63,9 %** | **Le plus bas du moteur.** `SandboxExecutor` 62 %, `Program` 50 % (entrée du processus enfant). |
+| `Piscine.Components` | **29,5 %** | **Trompeur** : pages/layout (`Home`/`Module`/`NavMenu`/`Terminal`/`CourseCatalog`…) à 0 % car couvertes par **DevHost.E2E hors-process** (non instrumenté). Les composants testés en **bUnit** sont hauts (`MarkdownView` 100 %, `CourseToc` 96 %, `PushResultPanel` 94 %, `StatusBadge` 92 %, `InitPanel` 88 %, `CheckFeedback` 86 %). |
+
+**Non instrumentés du tout** : `Piscine.Cli`, `Piscine.Desktop`, `Piscine.DevHost`, `Piscine.GitShim`
+(projets d'entrée/hôte, exécutés hors-process → couverts par E2E/smoke, pas par la couverture unitaire).
+Le « 78 % » porte donc sur le **moteur + services**, où il est réellement fort.
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **COV-1** | **Le code de sécurité le moins couvert.** `Piscine.Sandbox` (63,9 %) + `Grading.SandboxLauncher` (53,8 %) / `SandboxProcess` (76 %) forment la frontière d'isolation **fail-closed** du code recrue non fiable (v3.1.1) — précisément le code dont une régression silencieuse serait grave. Cibler les branches *timeout / kill-tree / fail-closed / bac-à-sable-absent* de `SandboxExecutor` et `SandboxLauncher`. (Caveat : `Sandbox/Program` 50 % tourne hors-process → couverture d'intégration ou acceptée via E2E.) | **P1** | **M** |
+| **COV-2** | **`ContentValidator` 69,1 %** — la **gate de contenu** (plus gros fichier, 367 l.) qui empêche un corrigé cassé de passer. Couverture basse pour un fort rayon d'impact (chaque exo dépend d'elle). Ajouter des cas (manifestes invalides, fixtures git, chemins d'erreur). | **P2** | **M** |
+| **COV-3** | **Aucune mesure de couverture en CI.** `coverlet.collector` est présent (défaut du gabarit xUnit) mais jamais invoqué : rien ne suit le 78 % dans le temps, aucun garde-fou de régression, aucune visibilité PR. Ajouter `--collect:"XPlat Code Coverage"` + résumé ReportGenerator en artefact (ou job summary). **Pas de seuil bloquant** (cohérent avec l'éthos « jamais de note » + projets hôtes hors couverture) — viser la **visibilité**, pas une barrière. | **P3** | **S** |
+
+### Lecture
+
+La couverture est **saine** là où ça compte le plus (Core 98,8 %, Git 94,6 %, moteur de notation 86 %).
+Le point d'attention réel = le **nouveau code sécurité (Sandbox)**, le moins couvert alors qu'il est le plus
+sensible. Le 62,8 % de branches (vs 78 % de lignes) confirme que ce sont les **chemins d'erreur/bord** qui
+manquent, pas le chemin nominal. Priorité : **COV-1** (sécurité), puis **COV-3** (rendre le chiffre visible
+en CI, quasi gratuit), puis **COV-2**.
