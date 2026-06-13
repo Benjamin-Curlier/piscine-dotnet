@@ -168,3 +168,40 @@ l'état réel (`gh release list`, `git ls-files`, `gh repo view`).
 **Synthèse docs** : la doc est globalement **bien tenue** (CHANGELOG + releases + guides à jour). Le sujet
 majeur n'est pas la fraîcheur mais **DOC-1** (exposition des corrigés = décision produit). Puis 2 corrections
 recrue rapides (DOC-2, DOC-3).
+
+---
+
+## 5. Backlog / issues
+
+**État GitHub** : **0 issue ouverte** ; 3 milestones (V3 / v4 / v5) **clos** ; 6 releases publiées. Tout le
+travail planifié a été livré — c'est sain. **Mais** la règle documentée *« backlog = GitHub Issues »*
+(HANDOFF §SCRUM) a **cessé d'être appliquée après la clôture du milestone #3** : les sprints PhotinoX (v3.1.0)
+et Sandbox (v3.1.1) ont été livrés **sans issue de suivi**, et au moins **8 suites connues** ne vivent plus
+que dans la **prose** (HANDOFF, commentaires de code, ADR). « 0 issue ouverte » **masque donc du travail connu**.
+
+### Constat
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **BL-1** | **Dérive du backlog.** Le backlog n'est plus dans GitHub Issues mais dans le HANDOFF/commentaires/ADR → invisible, non priorisable, non assignable. Re-matérialiser les suites vivantes en issues (table ci-dessous), éventuellement sous un nouveau milestone **« v3.2 — durcissement & dette »**. | **P2** | **S** |
+
+### Réconciliation des suites connues (non tracées) → reco
+
+| Suite connue | Source | Tracée ? | Recommandation | Sév. |
+|---|---|:--:|---|:--:|
+| **Couverture sécurité Sandbox** (COV-1) | cet audit | non | **Issue** — cibler `SandboxExecutor`/`SandboxLauncher` (branches fail-closed/timeout/kill) | **P1** |
+| **Filtre de chemins CI** (CI-1) | cet audit | non | **Issue** — `paths:` sur les dry-runs lourds | **P1** |
+| **Exposition des corrigés** (DOC-1) | HANDOFF, repo public | partiel (prose) | **Issue de décision** — submodule privé / repo re-privé / acceptation | **P1** |
+| **Attribution git par exo** dans la progression | HANDOFF:366 (« suivi e ») | non | **Issue** — aujourd'hui `progress.json` = repo-wide best-effort | **P2** |
+| **Smoke pré-release** (fenêtre native + terminal/coaching, Win+Linux) | HANDOFF:231,256 | non (checklist proprio) | **Checklist de release** (gate), pas issue code | **P2** |
+| **Serveur HTTP (`HttpListener`) + exo pilote M22** | HANDOFF:196,210 | non | **Issue** — bascule M22 lecture→auto-noté `reseau` | **P3** |
+| **Enrichissement bonus** M00–M18/M21/M23 | HANDOFF:146 | non | **Issue contenu** (1 exo bonus difficile/module fondamental) | **P3** |
+| **True-offline AppImage Linux** | `release.yml:59`, ADR PhotinoX | non (« voir le backlog » … vide) | **Issue** ou **acceptation** formelle de l'online-only | **P3** |
+| `Error.razor` RCL→DevHost (host-only `HttpContext`) | HANDOFF:381 (« suivi a ») | non | **Issue** — petit nettoyage d'archi | **P3** |
+| Coalescer la sortie PTY si verbeuse | HANDOFF:297 (« suivi d ») | non | **Issue** — perf terminal | **P3** |
+| Rush Clean Architecture (optionnel) | HANDOFF:210 | non | **Issue contenu** optionnelle | **P3** |
+| **#19 harnais web Blazor** | ADR 2026-06-07 | **tranché (différé)** | **Laisser dormant** — l'ADR suffit, ne pas rouvrir | — |
+
+**Synthèse backlog** : rien n'est « en retard », mais le suivi a régressé vers la prose. Action principale
+**BL-1** : recréer un backlog GitHub à partir de cette table (les 3 items **P1** d'abord). **Aucune issue n'a
+été créée dans cette itération d'audit** (hors périmètre — proposition uniquement).
