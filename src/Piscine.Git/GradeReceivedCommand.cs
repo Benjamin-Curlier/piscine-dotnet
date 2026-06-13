@@ -23,16 +23,18 @@ public sealed class GradeReceivedCommand
 
     private readonly PiscineLayout _layout;
     private readonly ExerciseGrader _grader;
+    private readonly TimeProvider _timeProvider;
 
     // Cache (emplacement, manifest) par exercice, vidé à chaque Run : sans lui, chaque exercice était
     // re-résolu et re-parsé jusqu'à 3× par push (Run + PersistRichResult + FeedbackFor).
     private readonly Dictionary<string, (ExerciseLocation Location, ExerciseManifest Manifest)?> _resolved =
         new(StringComparer.Ordinal);
 
-    public GradeReceivedCommand(PiscineLayout layout, ExerciseGrader grader)
+    public GradeReceivedCommand(PiscineLayout layout, ExerciseGrader grader, TimeProvider? timeProvider = null)
     {
         _layout = layout;
         _grader = grader;
+        _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
     /// <summary>Résout l'emplacement + le manifest d'un exercice, en mémoïsant le résultat (y compris l'absence).</summary>
@@ -181,7 +183,7 @@ public sealed class GradeReceivedCommand
 
         var store = new ProgressStore(_layout.ProgressPath);
         var progress = store.Load();
-        ProgressRecorder.Apply(progress, results, DateTimeOffset.Now);
+        ProgressRecorder.Apply(progress, results, _timeProvider.GetLocalNow());
         store.Save(progress);
 
         // En plus du statut (progress.json), persiste le verdict RICHE (diff/indice/cours) du push
@@ -247,7 +249,7 @@ public sealed class GradeReceivedCommand
         try
         {
             new LastPushResultStore(_layout.LastPushResultPath)
-                .Save(new PushResultDocument(exercises, DateTimeOffset.Now));
+                .Save(new PushResultDocument(exercises, _timeProvider.GetLocalNow()));
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
