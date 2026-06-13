@@ -174,3 +174,35 @@ jobs:
           $exes | Select-Object Name, Length
           if ($exes.Count -lt 2) { Write-Error "Attendu 2 installeurs (.exe), trouve $($exes.Count)" }
           Write-Host "OK : 2 installeurs Inno compiles (offline + online)"
+
+  # Smoke de RENDU de l'app de bureau Photino : lance Piscine.Desktop en mode sonde (PISCINE_SMOKE) ;
+  # la page renvoie le bilan du DOM REELLEMENT rendu dans la webview -> on asserte un rendu non vide.
+  # Attrape les regressions de rendu (ecran noir : Main non-[STAThread], IConfiguration manquant, etc.)
+  # qu'un smoke "le process reste vivant" ne voit pas. NE TOURNE QUE si le packaging change (CI-1).
+  # windows-latest fournit le runtime WebView2 ; test opt-in via PISCINE_DESKTOP_SMOKE=1.
+  desktop-render-smoke:
+    needs: changes
+    if: ${{ needs.changes.outputs.packaging == 'true' }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Smoke de rendu Photino (bilan DOM reel rendu dans la webview)
+        env:
+          PISCINE_DESKTOP_SMOKE: '1'
+        run: >-
+          dotnet test tests/Piscine.DevHost.E2E --configuration Release
+          --filter "FullyQualifiedName~DesktopRenderSmokeTests"
