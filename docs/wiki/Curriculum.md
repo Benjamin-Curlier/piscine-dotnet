@@ -57,6 +57,10 @@ dédiés. Le contenu est généré **progressivement** au fil des itérations.
   un `BackgroundService` single-shot consomme une file `Channel<Commande>` (réseau *simulé* en
   mémoire) injectée par DI, journalise via `LogCapture`, dresse un bilan, puis `StopApplication()`.
   La partie réseau réelle reste une pratique locale non notée.
+- **Rush 4** (`r4-clean-arch`, après M36) : **Clean Architecture auto-notée `projet`** — un catalogue
+  de produits découpé en couches `Domain` / `Application` / `Infrastructure` + composition root.
+  La moulinette compile tous les fichiers, compare la sortie **et** vérifie la **règle de dépendance**
+  par assertions Roslyn (`requires_types` + `forbidden_dependencies` namespace→namespace).
 
 ## Cours & références externes
 
@@ -70,7 +74,8 @@ Chaque `cours.md` : explications progressives en français + exemples + **réfé
   M15, M16, M17, M18, **M19 (Logging), M20 (Generic Host)**, M21, M23.
 - **Modules de lecture/pratique guidée** (cours + checklist, sans auto-notation pour l'instant) :
   M14 (git avancé), M22 (réseau). *(M05 est désormais auto-noté via le grader `git` — voir V3.)*
-- **Rushes auto-notés** : Rush 0, Rush 1, Rush 2, **Rush 3** (post-v1.0, worker déterministe).
+- **Rushes auto-notés** : Rush 0, Rush 1, Rush 2, **Rush 3** (post-v1.0, worker déterministe),
+  **Rush 4** (`r4-clean-arch`, Clean Architecture, grader `projet` : io + assertions d'architecture).
 - **Module V3 (grader `git`)** : **M05 Git intermédiaire** — exo `ex00-branche-merge` (branches +
   fusion) auto-noté : la moulinette inspecte l'état du dépôt (corrigé décrit par une *fixture*).
 - **Modules V3 (grader `projet`)** : **M36 Clean Architecture** (`ex00-couches` : couches
