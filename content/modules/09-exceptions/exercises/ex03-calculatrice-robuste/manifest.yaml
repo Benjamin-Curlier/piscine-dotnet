@@ -1,0 +1,35 @@
+id: ex03-calculatrice-robuste
+title: "Calculatrice tolérante aux erreurs"
+objective: "Évaluer N opérations « a op b » en traitant par ligne les erreurs (format, division par zéro, opérateur inconnu) sans interrompre le reste."
+difficulty: difficile
+bonus: true
+deliverables: [Calculatrice.cs]
+starter: [Calculatrice.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n10 + 5\n8 / 0\n4 x 2\n"
+        expect_stdout: "1: 15\n2: division par zero\n3: operateur inconnu\n"
+        expect_exit: 0
+      - stdin: "1\n7 - 9\n"
+        expect_stdout: "1: -2\n"
+        expect_exit: 0
+      # erreur de format sur la 1re ligne, calcul valide sur la 2e
+      - stdin: "2\nabc + 1\n6 / 2\n"
+        expect_stdout: "1: erreur de format\n2: 3\n"
+        expect_exit: 0
+      # division entière (troncature) puis division par zéro
+      - stdin: "2\n5 / 2\n9 / 0\n"
+        expect_stdout: "1: 2\n2: division par zero\n"
+        expect_exit: 0
+      - stdin: "1\n100 * 3\n"
+        expect_stdout: "1: 300\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Mets le calcul d'une ligne dans un try, avec un catch par type : FormatException (format), DivideByZeroException (division par zéro), et lève toi-même pour un opérateur inconnu. N'interromps pas la boucle."
+    - when: runtime_error
+      message: "Une exception non attrapée a interrompu le programme : vérifie que CHAQUE type d'erreur possible est bien capturé dans la boucle."
+  course_ref: "cours.md#division"
+solution: [Calculatrice.cs]
