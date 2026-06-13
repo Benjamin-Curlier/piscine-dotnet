@@ -51,6 +51,10 @@ Fenêtre native ouverte, vivante, **0 exception côté hôte** — zone WebView2
   qui lance l'app en mode sonde et **asserte un rendu non vide**. **Vert maintenant** (était le test rouge
   qui reproduisait le bug). Skip par défaut → CI verte. Lancer à la main :
   `PISCINE_SMOKE=1 PISCINE_SMOKE_OUT=/tmp/s.json PISCINE_CONTENT="$PWD/content" dotnet run --project src/Piscine.Desktop -c Release` puis lire le JSON.
+- **⚠️ Ne tourne PAS en CI GitHub-hosted** : WebView2 (pas de mode headless) exige un **bureau interactif**
+  que les runners `windows-latest` n'offrent pas → `received:false` (prouvé, job `desktop-render-smoke`
+  rouge, tentative abandonnée). → c'est un **gate LOCAL / pré-release** (poste avec affichage réel, ex.
+  poste proprio). Pour une vraie CI automatique : **runner self-hosted** Windows (décision proprio).
 
 ## Leçon
 
