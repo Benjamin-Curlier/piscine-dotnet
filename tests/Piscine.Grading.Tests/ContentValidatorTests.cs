@@ -477,4 +477,118 @@ public class ContentValidatorTests
         Assert.False(report.IsValid);
         Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("corrigé"));
     }
+
+    // ── Exercices `git` (validés par fixture, pas de dossier solution/) — COV-2 ──────────────────
+
+    private const string GitValidManifest = """
+        id: ex00
+        deliverables: []
+        grading:
+          - type: git
+            git:
+              branches: [main, feature]
+              min_commits: 2
+              merged:
+                - { into: main, branch: feature }
+              fixture:
+                - { branch: main, message: "init", files: { "README.md": "Projet\n" } }
+                - { branch: feature, base: main }
+                - { branch: feature, message: "ajout", files: { "feature.txt": "salut\n" } }
+                - { merge_into: main, merge_from: feature }
+        """;
+
+    [Fact]
+    public void Validate_GitExercise_WellFormedFixture_IsValid()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, GitValidManifest, solutionHello: null);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.True(report.IsValid, string.Join(" | ", report.Issues.Select(i => i.Message)));
+    }
+
+    [Fact]
+    public void Validate_GitExercise_CombinedWithOtherType_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: []
+            grading:
+              - type: git
+                git:
+                  branches: [main]
+                  fixture:
+                    - { branch: main, message: "init", files: { "README.md": "x\n" } }
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+            """, solutionHello: null);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.False(report.IsValid);
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("combiner"));
+    }
+
+    [Fact]
+    public void Validate_GitExercise_NoFixture_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: []
+            grading:
+              - type: git
+                git:
+                  branches: [main]
+            """, solutionHello: null);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.False(report.IsValid);
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("sans fixture"));
+    }
+
+    [Fact]
+    public void Validate_GitExercise_FixtureFailsAssertions_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        // La fixture ne crée que `main` ; l'assertion exige `feature` → le corrigé ne passe pas.
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: []
+            grading:
+              - type: git
+                git:
+                  branches: [main, feature]
+                  fixture:
+                    - { branch: main, message: "init", files: { "README.md": "x\n" } }
+            """, solutionHello: null);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.False(report.IsValid);
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex00" && i.Message.Contains("assertions"));
+    }
+
+    [Fact]
+    public void Validate_ReferencedExerciseMissing_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        // Module qui référence ex99, mais aucun exercice ex99 sur le disque.
+        dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"), """
+            id: 00-setup
+            order: 0
+            groups:
+              - id: g1
+                exercises: [ex99]
+            """);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.False(report.IsValid);
+        Assert.Contains(report.Issues, i => i.ExerciseId == "ex99" && i.Message.Contains("introuvable"));
+    }
 }
