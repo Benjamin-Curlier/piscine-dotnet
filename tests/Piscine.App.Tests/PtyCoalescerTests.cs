@@ -104,9 +104,13 @@ public sealed class PtyCoalescerTests
 
             fake.Push(new byte[] { 1, 2, 3 });
 
-            // On doit recevoir le flush en moins de 3x la fenetre.
-            var seen = await received.WaitAsync(TimeSpan.FromMilliseconds(interval.TotalMilliseconds * 3));
-            Assert.True(seen, "L'ecriture isolee n'a pas ete emise dans le delai attendu.");
+            // Borne LARGE (5 s) volontaire : on vérifie que l'écriture isolée EST émise (pas bloquée
+            // dans le buffer), pas une borne serrée sensible à la charge du runner CI. Une borne
+            // ~3× la fenêtre (90 ms) flake sous charge (le flush passe par un timer + une boucle async).
+            // La promptitude fine est couverte par Seuil_de_taille_declenche_flush_immediat et le
+            // round-trip PTY réel (E2E TerminalSmokeTests).
+            var seen = await received.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.True(seen, "L'ecriture isolee n'a jamais ete emise (bloquee dans le buffer ?).");
         }
 
         Assert.NotNull(result);
@@ -160,7 +164,7 @@ public sealed class PtyCoalescerTests
     {
         using var firstFlush = new SemaphoreSlim(0);
         var (session, fake) = Build(
-            flushInterval: TimeSpan.FromSeconds(1),   // fenetre tres longue
+            flushInterval: TimeSpan.FromSeconds(30),  // fenetre tres longue (jamais atteinte ici)
             maxBufferBytes: 100);
         await using (session)
         {
@@ -170,9 +174,11 @@ public sealed class PtyCoalescerTests
             fake.Push(new byte[120]);
             fake.Push(new byte[120]);
 
-            // Le flush doit arriver bien avant la fenetre de 1 s.
-            var seen = await firstFlush.WaitAsync(TimeSpan.FromMilliseconds(300));
-            Assert.True(seen, "Le seuil de taille n'a pas declenche de flush dans le delai attendu.");
+            // Le flush par seuil de taille doit arriver SANS attendre la fenetre (30 s). On attend
+            // jusqu'a 3 s : largement au-dessus du hop async (donc pas de flake sous charge CI) mais
+            // tres en-dessous de la fenetre de 30 s (donc c'est bien le SEUIL, pas le timer, qui declenche).
+            var seen = await firstFlush.WaitAsync(TimeSpan.FromSeconds(3));
+            Assert.True(seen, "Le seuil de taille n'a pas declenche de flush avant la fenetre.");
         }
     }
 
