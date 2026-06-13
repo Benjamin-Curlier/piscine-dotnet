@@ -92,3 +92,50 @@ Le point d'attention réel = le **nouveau code sécurité (Sandbox)**, le moins 
 sensible. Le 62,8 % de branches (vs 78 % de lignes) confirme que ce sont les **chemins d'erreur/bord** qui
 manquent, pas le chemin nominal. Priorité : **COV-1** (sécurité), puis **COV-3** (rendre le chiffre visible
 en CI, quasi gratuit), puis **COV-2**.
+
+---
+
+## 3. SOLID / KISS
+
+**Méthode** : MCP Roslyn (`get_project_graph`, `detect_circular_dependencies`, `detect_antipatterns`,
+`find_dead_code`) + lecture manuelle des plus gros fichiers. Build vert avec `WarningsAsErrors` (0 warning
+compilateur). **Conclusion d'ensemble : la base est saine ; ne pas sur-réagir au compteur de l'analyseur.**
+
+### Positifs (l'essentiel)
+
+- **0 dépendance circulaire** (projets). Couches propres : `Piscine.Core`, `Piscine.Sandbox.Contracts`,
+  `Piscine.GitShim` sont des **feuilles sans référence** ; les deps pointent vers l'intérieur (UI → App →
+  moteur → Core). DIP respecté pour l'essentiel.
+- **0 code mort** (types/méthodes/propriétés inutilisés sur toute la solution).
+- **Pas de god-object.** Les 2 plus gros fichiers sont **cohésifs**, pas à découper : `ContentValidator`
+  (367 l.) = **une règle de validation par méthode privée** (`ValidateGitExercise`, `ValidateNoOrphans`,
+  `ValidateNoDuplicateIds`, `ValidateHints`, `ValidateStarterFiles`, `ValidateCourseRef`…) orchestrées par
+  `Validate` ; `Cli/Program.cs` (265 l.) = **`switch` de dispatch + une fonction par commande** — idiomatique.
+- **Frontière de sécurité bien écrite** (`SandboxRunner`/`SandboxLauncher`) : exception **fail-closed**
+  dédiée (`SandboxUnavailableException`), `catch … when (ex is Win32Exception or FileNotFoundException or
+  InvalidOperationException)` (filtré, pas large), `Kill(entireProcessTree:true)` au timeout, nettoyage
+  temp best-effort **commenté** en `finally`.
+- **Gestion d'exceptions délibérée**, pas paresseuse : la quasi-totalité des `catch` portent un filtre
+  `when (…)` **et** un commentaire d'intention (ex. `GradeReceivedCommand:252` :
+  `catch (Exception e) when (e is IOException or UnauthorizedAccessException)` + commentaire « ne jamais
+  casser le hook après que `progress.json` a été commité »).
+
+### Constats
+
+| ID | Constat | Sév. | Effort |
+|----|---------|------|--------|
+| **SK-1** | **Compteur d'analyseur trompeur (KISS).** `detect_antipatterns` remonte **175** hits, mais **~95 % sont des faux positifs** : (a) ~60 `AP008` « #pragma … no matching restore » sont **tous dans des `.g.cs` générés** (source-gen `System.Text.Json`) — pas le code du projet ; (b) la plupart des `AP007` « empty catch » sont en réalité des `catch … when (…) { /* commentaire */ }` — l'outil **ignore le filtre `when` et le commentaire**. **Action : ne PAS lancer un « fix all warnings » mécanique.** La poignée de vrais points est ci-dessous. | **P3** | **S** |
+| **SK-2** | **`DateTimeOffset.Now` direct** (4 sites : `ProgressFileWatcher:160`, `GradeReceivedCommand:184,250`, `CheckCommand:43`). Dans un moteur qui valorise le **déterminisme** et la testabilité, injecter `TimeProvider` (→ `FakeTimeProvider` en test, horodatage tz-stable). Faible enjeu : ce sont des horodatages d'artefacts de résultat, **pas** de la logique de verdict. | **P3** | **S** |
+| **SK-3** | **Quelques `catch (Exception)` non filtrés** sans commentaire d'intention (≈10 sites : `Cli/Program.cs:100,203`, `GitStatusService:131`, `InitService:50`, `GitGrader:137,247`, `ContentValidator:81,183`…). La plupart sont des **frontières top-level / fail-closed** légitimes (post-#58). Reco : un commentaire d'une ligne distinguant « fail-closed voulu » de « catch large par défaut », ou restreindre au type pertinent. | **P3** | **S** |
+
+### Non-constats explicites (résister à la sur-ingénierie)
+
+- **`SandboxExecutor.GetAwaiter().GetResult()` (4×)** : approprié dans un **processus enfant single-shot**
+  (pas de contexte de synchro → pas de deadlock ; le process sort juste après). **Ne pas convertir en async.**
+- **`Cli/Program.cs` switch-dispatch** : **garder**. Un framework de commandes (DI, pattern Command) serait
+  de la complexité gratuite pour 10 commandes.
+- **`ContentValidator` 367 l.** : cohésif (1 règle/méthode) → **ne pas scinder**. Le vrai sujet est sa
+  **couverture** (COV-2), pas sa taille.
+
+**Synthèse SOLID/KISS** : peu à faire. Le seul changement « propre » à faible risque est **SK-2**
+(`TimeProvider`). SK-1/SK-3 relèvent de l'hygiène/lisibilité, pas de la dette structurelle.
