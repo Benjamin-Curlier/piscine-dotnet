@@ -150,7 +150,7 @@ le modifier. (En C#, les `event` du langage reposent sur cette même idée.)
 
 > Rappel (module 06) : `List<>` exige `using System.Collections.Generic;`.
 
-## 4. Un mot sur Decorator
+## 4. Un mot sur Decorator {#decorator}
 
 Le patron **Decorator** (structure) **enveloppe** un objet dans un autre qui partage la même
 interface, pour lui **ajouter un comportement** sans modifier sa classe. Exemple typique : un flux
