@@ -58,5 +58,40 @@ pas le rendu »). Le rendu PhotinoX sur Windows n'a, en réalité, jamais été 
 4. **Déboguer l'interception WebView2** de PhotinoX (pourquoi `http://localhost/` n'est pas servi :
    content root du manager ? filtre `WebResourceRequested` ? version WebView2 ?).
 
-Recommandation : tester (2) d'abord (changement de version le plus propre, garde net10), avec le harnais
-ci-dessus comme juge de rendu.
+## MISE À JOUR — repro minimal (ce n'est NI notre code NI le fork)
+
+Une app **PhotinoX hello-world minimale** (un seul `<h1>`, sans Router, RCL, indirection render modes,
+résolveur de contenu, ni CSP) — `.scratch/photino-hello/` (supprimée après diagnostic) — rend **le même
+écran noir** (`received:false`, même `Load(http://localhost/)` non servi). → **Notre configuration est
+hors de cause.**
+
+Puis, en **changeant uniquement le paquet** dans cette hello-world vers le **Photino.Blazor d'origine
+4.0.13** : **même écran noir, identique** (`received:false`). → **Ce n'est pas non plus spécifique au
+fork PhotinoX** ; les deux variantes de Photino échouent à faire servir `http://localhost/` par WebView2.
+
+**Environnement** : **WebView2 Runtime 149.0.4022.62** (très récent), **aucun proxy** (winhttp direct,
+pas d'`HTTP_PROXY`), **hosts propre** (pas d'entrée localhost custom).
+
+### Cause racine affinée (haute confiance)
+
+**WebView2 149 ne sert pas `http://localhost/` via l'interception `WebResourceRequested` dont Photino.Blazor
+dépend sur Windows.** Les requêtes **loopback (`localhost`)** sont court-circuitées de l'interception — c'est
+exactement la raison pour laquelle le BlazorWebView de Microsoft utilise `https://0.0.0.0/` et **pas**
+`localhost`. Photino (fork comme origine) a gardé `http://localhost/` → cassé sur ce WebView2.
+
+### Options de correction RÉVISÉES (un swap de version ne suffit PAS)
+
+1. ~~Photino.Blazor 4.0.13~~ — **réfuté** : écran noir identique.
+2. **Faire servir Photino par un host non-loopback** (`https://0.0.0.0/` façon BlazorWebView Microsoft) :
+   c'est codé **dans `PhotinoWebViewManager` de la lib** (host Windows = `http://localhost/` en dur) → exige
+   un **patch/PR amont Photino** ou un fork local. Vrai correctif de fond.
+3. **Tester une version WebView2 antérieure** (où l'interception localhost marchait) : non maîtrisable
+   (composant système auto-MAJ) ; utile surtout pour **confirmer** que 149 est la régression. La CI Windows
+   (WebView2 potentiellement plus ancien) pourrait rendre OK → le harnais opt-in le révélerait.
+4. **Abandonner Photino** au profit d'un hôte BlazorWebView qui sert via `0.0.0.0`/virtual-host-mapping
+   (p.ex. WinUI/MAUI BlazorWebView, ou WebView2 `SetVirtualHostNameToFolderMapping`) — décision d'archi.
+
+**Recommandation** : décision proprio. Court terme = ouvrir un **issue amont Photino** (« WebView2 149 :
+loopback non intercepté → écran noir ; passer à `0.0.0.0` ») et **confirmer en CI** si un WebView2 plus
+ancien rend (via le harnais opt-in). Fond = (2) patch host non-loopback ou (4) rethink de l'hôte. Le
+**moteur/CLI/notation ne sont pas affectés** — seule l'UX de bureau Photino l'est.
