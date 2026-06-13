@@ -67,10 +67,10 @@ public sealed class SmokeTests : IAsyncLifetime
         await using (browser)
         {
             var page = await browser.NewPageAsync();
-            await page.GotoAsync(BaseUrl, new PageGotoOptions { Timeout = 30_000 });
+            await page.GotoAsync($"{BaseUrl}/cours", new PageGotoOptions { Timeout = 30_000 });
 
-            // Un cours rendu expose au moins un titre.
-            await page.WaitForSelectorAsync("h1", new PageWaitForSelectorOptions { Timeout = 30_000 });
+            // Le catalogue de cours expose la grille de modules + un titre.
+            await page.WaitForSelectorAsync("[data-testid='module-grid']", new PageWaitForSelectorOptions { Timeout = 30_000 });
 
             Assert.Contains("Piscine", await page.TitleAsync());
         }
