@@ -80,6 +80,7 @@ De l'extérieur, impossible de mettre `_solde` à n'importe quoi : on passe par 
 - **[ex00-rectangle](#rectangle)** : une classe avec propriétés et une méthode `Aire()`.
 - **[ex01-personne](#personne)** : une classe qui se présente via une méthode.
 - **[ex02-compte](#compte)** : encapsuler un solde derrière des opérations sûres.
+- **[ex03-pile](#pile)** : *(bonus, difficile)* concevoir une pile (LIFO) avec Empiler/Depiler.
 
 #### rectangle {#rectangle}
 Lis largeur et hauteur, crée un `Rectangle`, affiche son aire.
@@ -89,6 +90,11 @@ Lis un nom et un âge, crée une `Personne`, affiche sa présentation.
 
 #### compte {#compte}
 Lis un solde initial, un dépôt et un retrait ; affiche le solde final (retrait refusé si insuffisant).
+
+#### pile {#pile}
+*(Bonus, difficile)* Conçois ta propre classe **pile** (LIFO) avec `Empiler`, `Depiler`, `EstVide`
+(encapsule une `List<int>`). Lis `N`, puis `N` entiers que tu empiles ; dépile tout et affiche chaque
+valeur (un par ligne) — l'ordre de sortie est l'**inverse** de l'ordre d'entrée.
 
 ## Pour aller plus loin
 

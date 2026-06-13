@@ -1,0 +1,38 @@
+id: ex03-top-k
+title: "Top K des mots fréquents"
+objective: "Afficher les K mots les plus fréquents d'une ligne, triés par fréquence décroissante puis ordre alphabétique."
+difficulty: difficile
+bonus: true
+deliverables: [TopK.cs]
+starter: [TopK.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "a b a c a b\n2\n"
+        expect_stdout: "a\nb\n"
+        expect_exit: 0
+      - stdin: "chat chien chat oiseau chien chat\n1\n"
+        expect_stdout: "chat\n"
+        expect_exit: 0
+      # ex-aequo départagés par ordre alphabétique
+      - stdin: "banane pomme cerise\n3\n"
+        expect_stdout: "banane\ncerise\npomme\n"
+        expect_exit: 0
+      # K plus grand que le nombre de mots distincts
+      - stdin: "x y x\n5\n"
+        expect_stdout: "x\ny\n"
+        expect_exit: 0
+      # un seul mot répété
+      - stdin: "lo lo lo lo\n1\n"
+        expect_stdout: "lo\n"
+        expect_exit: 0
+      # ex-aequo partiel : 'a'(3) > 'b'(2)=='c'(2), K=2 garde a puis b
+      - stdin: "a a a b b c c\n2\n"
+        expect_stdout: "a\nb\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Compte chaque mot dans un Dictionary<string,int>, puis OrderByDescending(fréquence).ThenBy(mot).Take(K). Le ThenBy garantit un ordre déterministe en cas d'égalité."
+  course_ref: "cours.md#top-k"
+solution: [TopK.cs]

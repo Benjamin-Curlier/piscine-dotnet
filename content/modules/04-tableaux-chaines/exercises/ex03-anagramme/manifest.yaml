@@ -1,0 +1,38 @@
+id: ex03-anagramme
+title: "Anagrammes"
+objective: "Déterminer si deux mots sont anagrammes l'un de l'autre (mêmes lettres, ordre différent), insensible à la casse."
+difficulty: difficile
+bonus: true
+deliverables: [Anagramme.cs]
+starter: [Anagramme.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "chien\nniche\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
+      - stdin: "bonjour\nsalut\n"
+        expect_stdout: "non\n"
+        expect_exit: 0
+      # même mot : PAS un anagramme
+      - stdin: "kayak\nkayak\n"
+        expect_stdout: "non\n"
+        expect_exit: 0
+      # casse différente du même réarrangement
+      - stdin: "Marie\naimer\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
+      # mêmes lettres mais longueurs différentes
+      - stdin: "aa\naaa\n"
+        expect_stdout: "non\n"
+        expect_exit: 0
+      # anagramme classique
+      - stdin: "chiens\nniches\n"
+        expect_stdout: "oui\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Passe les deux mots en minuscules (ToLower), trie leurs caractères (OrderBy), compare avec SequenceEqual. Deux mots identiques ne comptent pas comme anagrammes."
+  course_ref: "cours.md#anagramme"
+solution: [Anagramme.cs]

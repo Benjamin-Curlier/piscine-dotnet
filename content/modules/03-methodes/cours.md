@@ -78,6 +78,7 @@ static long Factorielle(int n)
 - **[ex00-carre](#carre)** : écrire une méthode qui renvoie le carré d'un entier.
 - **[ex01-max3](#max3)** : écrire une méthode qui renvoie le plus grand de trois entiers.
 - **[ex02-factorielle](#factorielle)** : calculer une factorielle par récursion.
+- **[ex03-puissance](#puissance)** : *(bonus, difficile)* calculer base^exposant par récursion.
 
 #### carre {#carre}
 Lis un entier, affiche son carré — via une méthode `Carre(int)`.
@@ -87,6 +88,11 @@ Lis trois entiers, affiche le plus grand — via une méthode `Max(int, int)` r�
 
 #### factorielle {#factorielle}
 Lis un entier `n`, affiche `n!` — par **récursion** (cas de base `n <= 1`).
+
+#### puissance {#puissance}
+*(Bonus, difficile)* Lis une base puis un exposant `>= 0`, affiche `base^exposant` calculé par une
+méthode **récursive**. Cas de base : exposant `0` renvoie `1` ; cas récursif : `base * Pow(base,
+exposant - 1)`. Utilise `long` pour la base afin d'éviter les débordements.
 
 ## Pour aller plus loin
 

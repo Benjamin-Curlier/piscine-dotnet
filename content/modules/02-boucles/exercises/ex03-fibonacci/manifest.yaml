@@ -1,0 +1,32 @@
+id: ex03-fibonacci
+title: "Suite de Fibonacci"
+objective: "Calculer et afficher le N-ième terme de la suite de Fibonacci (indexée à 0) avec une boucle."
+difficulty: difficile
+bonus: true
+deliverables: [Fibonacci.cs]
+starter: [Fibonacci.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "0\n"
+        expect_stdout: "0\n"
+        expect_exit: 0
+      - stdin: "1\n"
+        expect_stdout: "1\n"
+        expect_exit: 0
+      - stdin: "7\n"
+        expect_stdout: "13\n"
+        expect_exit: 0
+      - stdin: "10\n"
+        expect_stdout: "55\n"
+        expect_exit: 0
+      # grand terme (anti-hardcode) : F(20) = 6765
+      - stdin: "20\n"
+        expect_stdout: "6765\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Deux variables a=0 et b=1 ; à chaque tour tmp = a + b, a = b, b = tmp. Après N tours, a contient F(N). Vérifie F(0)=0 et F(1)=1."
+  course_ref: "cours.md#fibonacci"
+solution: [Fibonacci.cs]
