@@ -1,0 +1,31 @@
+id: ex03-decrire-objet
+title: "Décrire un objet par réflexion"
+objective: "Énumérer les propriétés d'un objet par réflexion et afficher nom=valeur, triées."
+difficulty: difficile
+bonus: true
+deliverables: [DecrireObjet.cs]
+starter: [DecrireObjet.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "Alice\n30\ntrue\n"
+        expect_stdout: "Actif=True\nAge=30\nNom=Alice\n"
+        expect_exit: 0
+      - stdin: "Bob\n0\nfalse\n"
+        expect_stdout: "Actif=False\nAge=0\nNom=Bob\n"
+        expect_exit: 0
+      # nom composé + actif true
+      - stdin: "Jean Dupont\n45\ntrue\n"
+        expect_stdout: "Actif=True\nAge=45\nNom=Jean Dupont\n"
+        expect_exit: 0
+      - stdin: "Z\n7\nfalse\n"
+        expect_stdout: "Actif=False\nAge=7\nNom=Z\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "GetType().GetProperties() puis OrderBy(p => p.Name, StringComparer.Ordinal) ; pour chacune, $\"{prop.Name}={prop.GetValue(obj)}\". Un bool s'affiche True/False."
+    - when: compile_error
+      message: "`using System.Reflection;` (PropertyInfo), `using System.Linq;` (OrderBy), `using System;` (StringComparer)."
+  course_ref: "cours.md#lister"
+solution: [DecrireObjet.cs]
