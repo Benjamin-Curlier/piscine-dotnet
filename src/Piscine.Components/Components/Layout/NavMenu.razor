@@ -1,23 +1,10 @@
 @inject CourseCatalog Catalog
 @inject NavigationManager Nav
+@inject Piscine.App.Progress.ProgressService Progress
+@using Piscine.App.Progress
+@using Piscine.Components.Components.Progress
 
 <div class="sidebar-inner">
-    <a class="side-home @(Segments.Length == 0 ? "active" : "")" href="/">Accueil</a>
-    <a class="side-home @(Segments.Length > 0 && Segments[0] == "progress" ? "active" : "")"
-       href="/progress"
-       data-testid="nav-progress">Progression</a>
-    <a class="side-home @(Segments.Length > 0 && Segments[0] == "check" ? "active" : "")"
-       href="/check">Vérifier</a>
-    <a class="side-home @(Segments.Length > 0 && Segments[0] == "init" ? "active" : "")"
-       href="/init"
-       data-testid="nav-init">Initialiser</a>
-    <a class="side-home @(Segments.Length > 0 && Segments[0] == "resultat" ? "active" : "")"
-       href="/resultat"
-       data-testid="nav-resultat">Résultat</a>
-    <a class="side-home @(Segments.Length > 0 && Segments[0] == "terminal" ? "active" : "")"
-       href="/terminal"
-       data-testid="nav-terminal">Terminal</a>
-
     <div class="side-section-title">Modules</div>
     <ul class="module-list">
         @foreach (var m in Catalog.Modules)
@@ -27,6 +14,10 @@
                 <details open="@active">
                     <summary>
                         <a class="module-link @(active ? "active" : "")" href="/module/@m.Id">
+                            @if (m.HasExercises)
+                            {
+                                <StatusDot Status="ModuleStatus(m)" />
+                            }
                             <span class="mod-num">@m.Number</span>
                             <span class="mod-title">@m.Title</span>
                         </a>
@@ -39,6 +30,7 @@
                                 <li>
                                     <a class="exercise-link @(IsActiveExercise(m.Id, ex.Id) ? "active" : "")"
                                        href="/module/@m.Id/@ex.Id">
+                                        <StatusDot Status="ExoStatus(m.Id, ex.Id)" />
                                         @ex.Title
                                         @if (ex.Bonus)
                                         {
@@ -56,6 +48,29 @@
 </div>
 
 @code {
+    private readonly Dictionary<(string Module, string Exercise), ExerciseProgressStatus> _status = new();
+
+    protected override void OnInitialized()
+    {
+        var exos = Catalog.Modules
+            .SelectMany(m => m.Groups.SelectMany(g => g.Exercises))
+            .Select(ex => (ex.ModuleId, ex.Id));
+
+        foreach (var info in Progress.SnapshotFor(exos))
+        {
+            _status[(info.ModuleId, info.ExerciseId)] = info.Status;
+        }
+    }
+
+    private ExerciseProgressStatus ExoStatus(string moduleId, string exerciseId)
+        => _status.GetValueOrDefault((moduleId, exerciseId), ExerciseProgressStatus.NonCommence);
+
+    private ExerciseProgressStatus ModuleStatus(CourseModule m)
+        => ProgressRollup.ForModule(
+            m.Groups.SelectMany(g => g.Exercises)
+                .Select(ex => ExoStatus(m.Id, ex.Id))
+                .ToList());
+
     private string[] Segments => Nav
         .ToBaseRelativePath(Nav.Uri)
         .Split('?', '#')[0]

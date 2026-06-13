@@ -1,0 +1,16 @@
+@namespace Piscine.Components.Components.Progress
+@using Piscine.App.Progress
+
+<span class="status-dot status-@Suffix"
+      data-testid="status-dot"
+      data-status="@Status"
+      aria-label="@Label"
+      title="@Label"></span>
+
+@code {
+    [Parameter] public ExerciseProgressStatus Status { get; set; }
+
+    private string Suffix => ExerciseProgressStatusText.CssSuffix(Status);
+
+    private string Label => ExerciseProgressStatusText.Label(Status);
+}

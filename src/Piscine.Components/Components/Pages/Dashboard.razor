@@ -1,0 +1,24 @@
+@page "/"
+@inject CourseCatalog Catalog
+
+<PageTitle>Piscine .NET — Tableau de bord</PageTitle>
+
+<section class="hero" data-testid="dashboard">
+    <h1>Tableau de bord</h1>
+    <p class="hero-sub">
+        Bienvenue. @Catalog.Modules.Count modules t'attendent.
+        Le tableau de bord détaillé (reprise, progression globale, résultats récents) arrive au sprint S1.
+    </p>
+</section>
+
+<section class="module-grid">
+    <a class="module-card" href="/cours">
+        <div class="module-card-body"><h3>Cours</h3><p>Parcourir les modules</p></div>
+    </a>
+    <a class="module-card" href="/progress">
+        <div class="module-card-body"><h3>Progression</h3><p>Voir où tu en es</p></div>
+    </a>
+    <a class="module-card" href="/terminal">
+        <div class="module-card-body"><h3>Terminal</h3><p>Rendre ton travail (git push)</p></div>
+    </a>
+</section>

@@ -1,0 +1,15 @@
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    flex: none;
+    background-color: var(--badge-neutral-bg, #e5e7eb);
+}
+
+.status-dot.status-en-cours { background-color: var(--badge-info-bg, #3b82f6); }
+.status-dot.status-commite-non-pousse { background-color: var(--badge-warn-bg, #f59e0b); }
+.status-dot.status-pousse-note { background-color: var(--badge-success-bg, #10b981); }
+.status-dot.status-a-revoir { background-color: var(--badge-error-bg, #ef4444); }
