@@ -1,0 +1,14 @@
+@namespace Piscine.Components.Components.Layout
+@using Piscine.Components.Navigation
+@inject NavigationManager Nav
+
+@foreach (var d in NavDestinations.Primary)
+{
+    <a class="nav-tab @(NavDestinations.IsActive(d, Relative) ? "active" : "")"
+       href="@d.Route"
+       data-testid="@d.TestId">@d.Label</a>
+}
+
+@code {
+    private string Relative => Nav.ToBaseRelativePath(Nav.Uri);
+}

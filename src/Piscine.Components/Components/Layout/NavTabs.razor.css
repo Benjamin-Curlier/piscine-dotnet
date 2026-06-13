@@ -1,0 +1,16 @@
+.nav-tab {
+    color: var(--nav-fg, inherit);
+    text-decoration: none;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.nav-tab:hover {
+    background: var(--nav-hover-bg, rgba(127, 127, 127, 0.12));
+}
+
+.nav-tab.active {
+    color: var(--accent, #2563eb);
+    font-weight: 500;
+}
