@@ -1,0 +1,45 @@
+id: r4-clean-arch
+title: "Rush 4 — Catalogue de produits (Clean Architecture)"
+objective: "Synthèse Clean Architecture : implémenter un catalogue de produits en respectant la règle de dépendance (Domain / Application / Infrastructure / composition root), noté par assertions Roslyn."
+difficulty: difficile
+deliverables: [Domain/Produit.cs, Domain/ICatalogueProduits.cs, Application/GestionCatalogue.cs, Infrastructure/CatalogueMemoire.cs, Program.cs]
+starter: [Domain/Produit.cs, Domain/ICatalogueProduits.cs, Application/GestionCatalogue.cs, Infrastructure/CatalogueMemoire.cs, Program.cs]
+grading:
+  - type: projet
+    cases:
+      # ajout + listing
+      - stdin: "3\nadd Pain 1.50\nadd Lait 0.99\nlist\n"
+        expect_stdout: "Ajouté : #1 Pain (1.50)\nAjouté : #2 Lait (0.99)\n#1 Pain (1.50)\n#2 Lait (0.99)\nCatalogue : 2 produit(s)\n"
+        expect_exit: 0
+      # ajout + mise à jour prix + get
+      - stdin: "4\nadd Beurre 2.00\nprice 1 2.50\nget 1\nget 9\n"
+        expect_stdout: "Ajouté : #1 Beurre (2.00)\nMis à jour : #1\n#1 Beurre (2.50)\nInconnu : #9\nCatalogue : 1 produit(s)\n"
+        expect_exit: 0
+      # catalogue vide
+      - stdin: "1\nlist\n"
+        expect_stdout: "Catalogue : 0 produit(s)\n"
+        expect_exit: 0
+      # plusieurs opérations
+      - stdin: "5\nadd Fromage 3.20\nadd Yaourt 0.45\nprice 2 0.55\nget 2\nlist\n"
+        expect_stdout: "Ajouté : #1 Fromage (3.20)\nAjouté : #2 Yaourt (0.45)\nMis à jour : #2\n#2 Yaourt (0.55)\n#1 Fromage (3.20)\n#2 Yaourt (0.55)\nCatalogue : 2 produit(s)\n"
+        expect_exit: 0
+    project:
+      requires_types:
+        - Domain.Produit
+        - Domain.ICatalogueProduits
+        - Application.GestionCatalogue
+        - Infrastructure.CatalogueMemoire
+      forbidden_dependencies:
+        - { from: Domain, to: Application }
+        - { from: Domain, to: Infrastructure }
+        - { from: Application, to: Infrastructure }
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Respecte le format exact : « Ajouté : #<id> <nom> (<prix:.2f>) », « Mis à jour : #<id> » / « Inconnu : #<id> », « #<id> <nom> (<prix>) » pour get/list, et « Catalogue : N produit(s) » à la fin. Le prix est toujours affiché avec 2 décimales (ex. 1.50, 0.99)."
+    - when: project_structure
+      message: "Règle de dépendance : Domain ne référence ni Application ni Infrastructure ; Application ne dépend que du PORT ICatalogueProduits (Domain), pas de CatalogueMemoire. Seul Program (composition root) connaît l'implémentation concrète CatalogueMemoire."
+    - when: compile_error
+      message: "Chaque couche est dans son namespace (Domain / Application / Infrastructure) et son sous-dossier. Ajoute les `using` explicites vers Domain dans Application et Infrastructure."
+  course_ref: "subject.md"
+solution: [Domain/Produit.cs, Domain/ICatalogueProduits.cs, Application/GestionCatalogue.cs, Infrastructure/CatalogueMemoire.cs, Program.cs]

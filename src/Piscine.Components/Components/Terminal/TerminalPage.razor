@@ -87,6 +87,15 @@ else
     private string? _tempDir;
     private bool _channelStarted;
 
+    // Coalescing de la sortie PTY : actif par defaut au terminal livre (#71). Une sortie verbeuse
+    // (dir /s, ls -R) est bufferisee et emise par rafales pour ne pas saturer le pont JS/interop vers
+    // xterm.js. Fenetre ~16 ms (~60 fps, latence imperceptible) ; flush immediat au-dela de 32 Ko.
+    private static readonly PtyCoalescerOptions CoalescerOptions = new()
+    {
+        FlushInterval = TimeSpan.FromMilliseconds(16),
+        MaxBufferBytes = 32 * 1024,
+    };
+
     // Activation deleguee a TerminalPolicy (injectee par l'hote) : Photino (bureau local) = actif ;
     // DevHost (harnais Blazor Server) = actif seulement en Development. Un shell OS sans auth ne doit
     // jamais etre expose hors loopback ni livre cote harnais ; cote Photino il est in-process et local.
@@ -142,7 +151,7 @@ else
             startInfo = startInfo with { Environment = overrides };
         }
 
-        _session = await Pty.StartAsync(startInfo);
+        _session = await Pty.StartAsync(startInfo, CoalescerOptions);
         _session.Output += OnPtyOutput;
         _session.Exited += OnPtyExited;
     }
