@@ -3,6 +3,7 @@ title: "Réseau"
 order: 22
 course: cours.md
 groups:
-  - id: lecture
-    title: "À lire et pratiquer"
-    exercises: []
+  - id: httpclient
+    title: "HttpClient — appels HTTP"
+    exercises:
+      - ex00-httpclient-get

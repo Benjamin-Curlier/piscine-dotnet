@@ -8,10 +8,9 @@ Dans ce module, tu vas découvrir **comment un programme C# communique avec un a
 soit sur la même machine ou à l'autre bout du monde. On commencera par les fondations (les
 **sockets**), puis on montera vers des outils plus simples et plus courants (**`HttpClient`**).
 
-> **Module de lecture et de pratique guidée.** Ce module n'a **pas d'exercices auto-notés** : la
-> notation déterministe des entrées/sorties réseau viendra plus tard, via un harnais dédié. Ici, on
-> **lit**, on **comprend**, et on **pratique en local** sur sa propre machine. Les extraits de code
-> sont là pour être recopiés, lancés et bidouillés — pas pour passer la moulinette.
+> **Module mixte.** On **lit**, on **comprend**, et on pratique : la checklist de fin de cours
+> s'explore en local. L'exercice auto-noté (`ex00-httpclient-get`) porte sur la section 4 —
+> `HttpClient` — et est corrigé par le harnais HTTP du moteur.
 
 ## 1. Le modèle réseau en deux minutes
 
@@ -235,7 +234,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 ```
 
-### Une requête GET
+### Une requête GET {#httpclient-get}
 
 `GET` sert à **récupérer** une ressource (une page, des données JSON…).
 
