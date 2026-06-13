@@ -12,25 +12,9 @@
     [Parameter] public ExerciseProgressStatus Status { get; set; }
     [Parameter] public StatusSource Source { get; set; }
 
-    private string Label => Status switch
-    {
-        ExerciseProgressStatus.NonCommence     => "Non commencé",
-        ExerciseProgressStatus.EnCours         => "En cours",
-        ExerciseProgressStatus.CommiteNonPousse => "Commité, non poussé",
-        ExerciseProgressStatus.PousseNote      => "Poussé → noté",
-        ExerciseProgressStatus.ARevoir         => "À revoir",
-        _                                      => Status.ToString(),
-    };
+    private string Label => ExerciseProgressStatusText.Label(Status);
 
-    private string CssClass => Status switch
-    {
-        ExerciseProgressStatus.NonCommence      => "non-commence",
-        ExerciseProgressStatus.EnCours          => "en-cours",
-        ExerciseProgressStatus.CommiteNonPousse => "commite-non-pousse",
-        ExerciseProgressStatus.PousseNote       => "pousse-note",
-        ExerciseProgressStatus.ARevoir          => "a-revoir",
-        _                                       => "unknown",
-    };
+    private string CssClass => ExerciseProgressStatusText.CssSuffix(Status);
 
     private string Title => Source == StatusSource.GitDerived
         ? "Statut déduit de l'état git (best-effort)"
