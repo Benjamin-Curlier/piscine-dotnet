@@ -1,0 +1,206 @@
+@page "/reglages"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Pages
+@using System.Globalization
+@using Piscine.App.Settings
+@implements IAsyncDisposable
+@inject SettingsService Store
+@inject IJSRuntime JS
+
+<PageTitle>Réglages — Piscine .NET</PageTitle>
+
+<section class="settings" data-testid="settings">
+    <h1>Réglages</h1>
+    <p class="settings-intro">
+        Préférences de confort, conservées d'une session à l'autre. Le thème et l'échelle de police
+        s'appliquent immédiatement&nbsp;; les autres réglages prennent effet à la prochaine ouverture.
+    </p>
+
+    <fieldset class="settings-group">
+        <legend>Apparence</legend>
+
+        <div class="settings-field" data-testid="settings-theme">
+            <label>Thème</label>
+            <div class="settings-segment">
+                @foreach (var option in ThemeOptions)
+                {
+                    <label data-testid="@($"settings-theme-{option.Value.ToString().ToLowerInvariant()}")">
+                        <input type="radio" name="theme" value="@option.Value"
+                               checked="@(_theme == option.Value)"
+                               @onchange="@(() => OnThemeChanged(option.Value))" />
+                        <span>@option.Label</span>
+                    </label>
+                }
+            </div>
+            <p class="settings-help">« Système » suit la préférence clair/sombre de votre OS.</p>
+        </div>
+
+        <div class="settings-field" data-testid="settings-fontscale">
+            <label for="font-scale">Échelle de police</label>
+            <div class="settings-scale">
+                <input type="range" id="font-scale"
+                       min="@Min" max="@Max" step="0.05"
+                       value="@Fmt(_fontScale)"
+                       @oninput="OnFontScaleInput" />
+                <span class="settings-scale-value" data-testid="settings-fontscale-value">@PercentLabel</span>
+            </div>
+            <p class="settings-preview" style="font-size:@(Fmt(_fontScale))rem" data-testid="settings-fontscale-preview">
+                Aperçu de lisibilité — le texte du cours s'affichera à cette taille.
+            </p>
+        </div>
+    </fieldset>
+
+    <fieldset class="settings-group">
+        <legend>Ouverture d'un exercice</legend>
+
+        <div class="settings-field">
+            <label for="editor-command">Commande de l'éditeur (surcharge)</label>
+            <input type="text" id="editor-command" class="settings-input"
+                   placeholder="auto-détection (code, rider, devenv…)"
+                   data-testid="settings-editor"
+                   value="@_editorCommand" @oninput="OnEditorChanged" />
+            <p class="settings-help">Laisser vide pour détecter automatiquement l'éditeur installé.</p>
+        </div>
+
+        <div class="settings-field" data-testid="settings-terminal">
+            <label>Terminal par défaut</label>
+            <div class="settings-segment">
+                @foreach (var option in TerminalOptions)
+                {
+                    <label data-testid="@($"settings-terminal-{option.Value.ToString().ToLowerInvariant()}")">
+                        <input type="radio" name="terminal" value="@option.Value"
+                               checked="@(_terminal == option.Value)"
+                               @onchange="@(() => _terminal = option.Value)" />
+                        <span>@option.Label</span>
+                    </label>
+                }
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="settings-actions">
+        <button type="button" class="settings-btn" data-testid="settings-save" @onclick="SaveAsync">
+            Enregistrer
+        </button>
+        @if (_saved)
+        {
+            <span class="settings-saved" data-testid="settings-saved">Réglages enregistrés ✓</span>
+        }
+    </div>
+</section>
+
+@code {
+    private static readonly (AppTheme Value, string Label)[] ThemeOptions =
+    [
+        (AppTheme.System, "Système"),
+        (AppTheme.Light, "Clair"),
+        (AppTheme.Dark, "Sombre"),
+    ];
+
+    private static readonly (TerminalTarget Value, string Label)[] TerminalOptions =
+    [
+        (TerminalTarget.Embedded, "Terminal intégré"),
+        (TerminalTarget.System, "Terminal système"),
+    ];
+
+    private static string Min => Fmt(AppSettings.MinFontScale);
+    private static string Max => Fmt(AppSettings.MaxFontScale);
+
+    private AppTheme _theme = AppTheme.System;
+    private double _fontScale = AppSettings.DefaultFontScale;
+    private string _editorCommand = string.Empty;
+    private TerminalTarget _terminal = TerminalTarget.Embedded;
+    private bool _saved;
+
+    private IJSObjectReference? _module;
+
+    private string PercentLabel => $"{Math.Round(_fontScale * 100)} %";
+
+    protected override void OnInitialized()
+    {
+        var settings = Store.Load();
+        _theme = settings.Theme;
+        _fontScale = settings.FontScale;
+        _editorCommand = settings.EditorCommand ?? string.Empty;
+        _terminal = settings.DefaultTerminal;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Marqueur de disponibilité interactive (déterministe pour l'E2E) : posé une fois le circuit
+        // monté et les gestionnaires @onclick/@onchange câblés. Cf. modèle window.__cmdkReady (S3).
+        if (firstRender)
+        {
+            var module = await ModuleAsync();
+            await module.InvokeVoidAsync("markReady");
+        }
+    }
+
+    private async Task OnThemeChanged(AppTheme value)
+    {
+        _theme = value;
+        _saved = false;
+        // Aperçu immédiat (le bouton de barre + le miroir localStorage restent cohérents).
+        var module = await ModuleAsync();
+        await module.InvokeVoidAsync("applyTheme", value.ToString().ToLowerInvariant());
+    }
+
+    private async Task OnFontScaleInput(ChangeEventArgs e)
+    {
+        _fontScale = AppSettings.ClampFontScale(ParseScale(e.Value));
+        _saved = false;
+        var module = await ModuleAsync();
+        await module.InvokeVoidAsync("applyFontScale", Fmt(_fontScale));
+    }
+
+    private void OnEditorChanged(ChangeEventArgs e)
+    {
+        _editorCommand = e.Value?.ToString() ?? string.Empty;
+        _saved = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        var settings = new AppSettings
+        {
+            Theme = _theme,
+            FontScale = _fontScale,
+            EditorCommand = string.IsNullOrWhiteSpace(_editorCommand) ? null : _editorCommand.Trim(),
+            DefaultTerminal = _terminal,
+        };
+        Store.Save(settings);
+
+        // Miroir client (anti-flash au prochain démarrage) + application immédiate.
+        var module = await ModuleAsync();
+        await module.InvokeVoidAsync("applyTheme", _theme.ToString().ToLowerInvariant());
+        await module.InvokeVoidAsync("applyFontScale", Fmt(_fontScale));
+
+        _saved = true;
+    }
+
+    private async Task<IJSObjectReference> ModuleAsync()
+        => _module ??= await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/Piscine.Components/Components/Pages/Settings.razor.js");
+
+    private static double ParseScale(object? value)
+        => double.TryParse(value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var s)
+            ? s
+            : AppSettings.DefaultFontScale;
+
+    private static string Fmt(double value) => value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit fermé (navigation/reload) : rien à nettoyer côté JS.
+            }
+        }
+    }
+}

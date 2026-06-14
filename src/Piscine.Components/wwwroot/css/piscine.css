@@ -20,6 +20,13 @@
     --mono: "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", Menlo, monospace;
     --warn-bg: #fff3d6;
     --warn-line: #9a6700;
+
+    /* ---------- S6 : échelle de police (lisibilité) ----------
+       Multiplicateur appliqué à la taille de base du document. 1 = standard ; piloté par les Réglages
+       (/reglages) via theme.js → localStorage, et borné côté C# (AppSettings 0.8–1.5) et JS. Tout le
+       reste de la feuille étant exprimé en rem/em, cette seule variable met à l'échelle l'UI entière.
+       (S7 s'appuiera sur ce point d'ancrage pour la passe lisibilité/a11y — ne pas remplacer.) */
+    --font-scale: 1;
 }
 
 :root[data-theme="dark"] {
@@ -38,13 +45,17 @@
 
 * { box-sizing: border-box; }
 
-html, body {
+html {
+    /* S6 : la taille racine porte l'échelle de police → tout le rem/em de la feuille suit. */
+    font-size: calc(16px * var(--font-scale));
+}
+
+body {
     margin: 0;
     padding: 0;
     font-family: var(--font);
     color: var(--ink);
     background: var(--bg);
-    font-size: 16px;
     line-height: 1.65;
     transition: background-color .2s ease, color .2s ease;
 }
@@ -384,6 +395,101 @@ code { font-family: var(--mono); }
     .content { padding: 1.5rem 1.2rem 4rem; }
     .pager a { max-width: 100%; }
 }
+
+/* ============================================================
+   S6 — Page Réglages (/reglages)
+   Bloc localisé et autonome : formulaire de préférences (thème, échelle de police, éditeur, terminal).
+   Utilise les variables de thème existantes ; aucune surcharge globale. (S7 pourra l'affiner.)
+   ============================================================ */
+.settings { max-width: 640px; }
+.settings h1 { margin: 0 0 .4rem; }
+.settings-intro { color: var(--ink-soft); margin: 0 0 2rem; }
+
+.settings-group {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg);
+    padding: 1.1rem 1.3rem 1.3rem;
+    margin-bottom: 1.4rem;
+}
+.settings-group > legend,
+.settings-group > .settings-group-title {
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0 .35rem;
+    margin-left: -.35rem;
+}
+.settings-help { color: var(--ink-soft); font-size: .88rem; margin: .3rem 0 1rem; }
+
+.settings-field { margin-top: 1rem; }
+.settings-field > label { display: block; font-weight: 600; margin-bottom: .4rem; font-size: .92rem; }
+
+/* Groupe de boutons radio (thème, cible terminal) façon segments. */
+.settings-segment { display: inline-flex; flex-wrap: wrap; gap: .5rem; }
+.settings-segment label {
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: .4rem .85rem;
+    font-size: .9rem;
+    font-weight: 500;
+}
+.settings-segment input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.settings-segment input[type="radio"]:checked + span { color: var(--accent); font-weight: 700; }
+.settings-segment label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+/* État de focus visible (a11y) — clavier. */
+.settings-segment label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Curseur d'échelle de police + aperçu. */
+.settings-scale { display: flex; align-items: center; gap: 1rem; }
+.settings-scale input[type="range"] { flex: 1; accent-color: var(--accent); }
+.settings-scale-value {
+    font-family: var(--mono);
+    font-size: .9rem;
+    color: var(--ink-soft);
+    min-width: 3.5rem;
+    text-align: right;
+}
+.settings-preview {
+    margin-top: .7rem;
+    padding: .7rem .9rem;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+}
+
+.settings-input {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    border-radius: 8px;
+    padding: .5rem .7rem;
+    font-size: .95rem;
+    font-family: var(--mono);
+}
+.settings-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+.settings-actions { display: flex; align-items: center; gap: 1rem; margin-top: 1.6rem; }
+.settings-saved { color: #1a7f37; font-weight: 600; font-size: .9rem; }
+
+.settings-btn {
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    padding: .55rem 1.2rem;
+    font-size: .95rem;
+    font-weight: 600;
+}
+.settings-btn:hover { background: var(--accent-dark); }
+.settings-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.settings-btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.settings-btn-ghost:hover { background: var(--bg-soft); }
 
 /* ---------- Impression / PDF (page de rapport S5) ----------
    Sortie papier propre : on masque toute la chrome de navigation (barre, sidebar, bouton thème,

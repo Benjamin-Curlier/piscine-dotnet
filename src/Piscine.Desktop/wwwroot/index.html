@@ -9,8 +9,9 @@
          omis : il est ignoré dans une CSP <meta> (déclencherait un avertissement console). -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'" />
     <base href="/" />
-    <!-- Anti-flash : applique le thème (clair/sombre) avant le premier paint -->
-    <script>window.__applyTheme=function(){var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);};window.__applyTheme();</script>
+    <!-- Anti-flash : applique le thème (clair/sombre/système) + l'échelle de police avant le premier
+         paint. Même logique que theme.js (qui redéfinit ensuite __applyTheme avec les helpers complets). -->
+    <script>window.__applyTheme=function(){var p=localStorage.getItem('theme')||'system';var t=(p==='light'||p==='dark')?p:(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.setAttribute('data-theme',t);var s=parseFloat(localStorage.getItem('fontScale'));if(isNaN(s)){s=1;}s=Math.min(1.5,Math.max(0.8,s));document.documentElement.style.setProperty('--font-scale',s);};window.__applyTheme();</script>
     <!-- CSS thème partagé (variables CSS + [data-theme], layout) depuis la RCL -->
     <link rel="stylesheet" href="_content/Piscine.Components/css/piscine.css" />
     <!-- Coloration syntaxique highlight.js (thème sombre github-dark) -->

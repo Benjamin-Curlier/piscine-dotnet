@@ -5,8 +5,8 @@ namespace Piscine.Components.Navigation;
 
 /// <summary>
 /// Catalogue des destinations primaires (en données) + règle d'activation par premier segment d'URL.
-/// Pur et sans état → testable sans rendu. Rapport (/rapport) et Réglages (/reglages) s'ajouteront
-/// à leurs sprints respectifs (S5/S6) ; Vérifier/Initialiser/Résultat seront absorbés par S2/S4/S7.
+/// Pur et sans état → testable sans rendu. Rapport (/rapport, S5) et Réglages (/reglages, S6) sont
+/// désormais présents ; Vérifier/Initialiser/Résultat seront affinés par S2/S4/S7.
 /// </summary>
 public static class NavDestinations
 {
@@ -16,6 +16,7 @@ public static class NavDestinations
         new NavDestination("Cours", "/cours", "nav-cours"),
         new NavDestination("Progression", "/progress", "nav-progress"),
         new NavDestination("Rapport", "/rapport", "nav-rapport"),
+        new NavDestination("Réglages", "/reglages", "nav-reglages"),
         new NavDestination("Vérifier", "/check", "nav-check"),
         new NavDestination("Initialiser", "/init", "nav-init"),
         new NavDestination("Résultat", "/resultat", "nav-resultat"),
