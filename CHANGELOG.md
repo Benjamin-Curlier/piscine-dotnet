@@ -4,6 +4,55 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [Non publié]
+
+Épic **QoL recrue de bureau** (S0–S7) : amélioration du confort d'usage de l'app de bureau
+Photino sans toucher au moteur, au CLI `piscine` ni à `grade-received`.
+
+### Ajouté
+
+- **Tableau de bord** (`/`) : carte « Reprendre » (exercice courant / prochain non démarré),
+  progression globale (% + compteurs Fait/En cours/À revoir par module) et résultats récents des
+  derniers push — dérivés des services existants (`ProgressService`, `PushResultWatcher`).
+- **Plan de travail de l'exercice** : barre d'action inline sur chaque page d'exercice — bouton
+  **Ouvrir** (éditeur auto-détecté VS Code/Rider/VS, dossier, terminal intégré, terminal système ;
+  scaffolding implicite du starter à la première ouverture), bouton **Vérifier** (check in-process),
+  pastille de statut.
+- **`WorkspaceLauncher` + `EditorResolver`** : auto-détection des éditeurs installés, surcharge via
+  `SettingsService`, repli garanti sur l'ouverture du dossier. Lancement via `IProcessLauncher`
+  (args en tableau, dossier de workspace résolu — cohérent avec le durcissement sandbox v3.1.1).
+- **Palette de commande** (`Ctrl+K` / `⌘K`) : overlay de recherche flou vers tout module, exercice,
+  destination et action ; **recherche plein-texte** sur le markdown cours + sujets (index léger en
+  mémoire, `SearchService` testable xUnit) ; raccourcis clavier globaux (exo suivant/précédent,
+  focus recherche, aller au board).
+- **Diff structuré coloré** : `CheckFeedback` rend les cas attendu/obtenu en **diff ligne à ligne
+  coloré** (plus de texte verbatim) ; calculé dans `Piscine.App` sans toucher au grader moteur.
+- **Toast de push global** : un `ToastHost` dans `MainLayout` s'abonne à `IPushResultWatcher` →
+  le verdict s'affiche dans toute l'app dès que le résultat du push arrive (pas seulement sur
+  `/résultat`).
+- **Page de rapport** (`/rapport`) : recrue + encadrant, lecture seule ; identité git, avancement
+  global, tableau par module et historique des push. **Export** : `@media print` → PDF/papier +
+  bouton « Copier en Markdown » (rapport git-friendly).
+- **Page Réglages** (`/réglages`) : commande éditeur, **thème persistant** (clair/sombre, survit
+  au redémarrage de l'app), **échelle de police** — persistés dans `SettingsService` (JSON dans le
+  répertoire d'état `PISCINE_HOME`).
+- **Onboarding premier lancement** : workspace non initialisé → guide pas-à-pas enrobant
+  `InitService` → 1er exercice.
+- **Passe lisibilité/accessibilité** sur `piscine.css` : contraste AA, états de focus visibles,
+  échelle de police responsive, shell ajusté pour les petits écrans.
+- **Navigation enrichie** : pastilles de statut dans l'arbre des modules (sidebar) et dans
+  l'onglet *Cours* ; destinations en données (`NavDestinations`) — arbre et onglets sont
+  maintenant découplés (migration vers un rail d'icônes type IDE possible sans changer les pages).
+
+### Changé
+
+- **Routage** : `/` → tableau de bord (avant : liste des modules) ; la grille des modules est
+  déplacée dans `/cours`.
+- **Navigation** : fusion des liens redondants « Curriculum » (barre du haut) et « Accueil »
+  (sidebar) dans l'onglet *Tableau de bord*.
+
+---
+
 ## [v3.1.1] — 2026-06-09
 
 Version corrective : **durcissement de l'intégrité de la notation** et **isolation de l'exécution du

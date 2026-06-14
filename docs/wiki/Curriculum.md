@@ -10,8 +10,9 @@ dédiés. Le contenu est généré **progressivement** au fil des itérations.
 > [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
 >
 > **UX recrue** : le **contenu ci-dessous est inchangé**, accessible via une **app de bureau**
-> (cours, vérification, progression, **terminal + coaching git**, résultat **riche**) **ou** le **CLI**
-> `piscine`. Le rendu reste un `git push` (cf.
+> (**tableau de bord** · cours · **plan de travail + bouton Ouvrir** · vérification avec diff coloré ·
+> progression · **rapport exportable** · **réglages** · **terminal + coaching git** · résultat **riche**)
+> **ou** le **CLI** `piscine`. Le rendu reste un `git push` (cf.
 > [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/mise-en-oeuvre.md)).
 
 ## Tronc commun

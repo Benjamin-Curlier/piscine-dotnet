@@ -12,10 +12,16 @@ Elle couvre (**Windows + Linux** ; macOS n'est plus distribué) :
 - **Installation** : **installeur** (recommandé — Windows `.exe` per-utilisateur / Linux `.AppImage`,
   variantes **offline**/online) **ou** zip portable, depuis la
   [dernière release](https://github.com/Benjamin-Curlier/piscine-dotnet/releases/latest).
-- **Premier lancement** : app de bureau (cours, *Vérifier*, *Progression*, *Terminal* + coaching git,
-  *Résultat* riche) **ou** CLI `piscine init` ; Windows : `start-piscine.cmd`.
-- **Boucle de travail** : `piscine start <exo>` → `piscine check` → `git add/commit/push origin main`
-  (au **terminal de l'app** avec coaching, ou au terminal système).
+- **Premier lancement** : app de bureau (onboarding guidé au 1er démarrage, puis **tableau de bord** →
+  cours → **plan de travail** + bouton *Ouvrir* + *Vérifier* inline → *Progression* → *Rapport* →
+  *Réglages* → *Terminal* + coaching git → *Résultat* riche) **ou** CLI `piscine init` ;
+  Windows : `start-piscine.cmd`.
+- **Boucle de travail** : tableau de bord → *Reprendre* → **Ouvrir** l'exercice (éditeur/dossier/terminal)
+  → **Vérifier** (diff coloré inline) → `git add/commit/push origin main` (au **terminal de l'app**
+  avec coaching, ou au terminal système) → toast de résultat + page *Résultat* riche.
+- **Raccourcis** : `Ctrl+K` / `⌘K` → palette de commande (recherche plein-texte + navigation rapide).
+- **Rapport** : page */rapport* — avancement par module, exportable en PDF ou Markdown (recrue + encadrant).
+- **Réglages** : page */réglages* — thème (clair/sombre), échelle de police, commande éditeur.
 - **Dépannage** : antivirus/SmartScreen, PATH, `PISCINE_HOME` / `PISCINE_CONTENT`, réinitialisation.
 - **Côté encadrant** : check-list de préparation poste + remise du paquet.
 
