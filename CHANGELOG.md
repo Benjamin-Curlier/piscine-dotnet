@@ -10,6 +10,10 @@ Correctifs post-v4.0.0 (sur `main`, à publier en v4.0.1).
 
 ### Corrigé
 
+- **CSS des composants ignoré dans l'app de bureau** (régression v4.0.x) : l'`index.html` de l'hôte
+  Photino ne liait pas le bundle CSS *scopé* (`Piscine.Desktop.styles.css`) que l'hôte ASP.NET injecte
+  automatiquement → cartes du tableau de bord, barres de progression, table du rapport, contrôles de
+  fenêtre, page Vérifier et panneau Terminal s'affichaient **bruts** (non stylés). `<link>` ajouté.
 - **Défilement de la fenêtre Photino** (régression v4.0.0) : le chrome chromeless posait
   `body { overflow: hidden }` (pour arrondir les coins), ce qui empêchait tout défilement → les pages
   longues (`/cours`, etc.) étaient tronquées dans la fenêtre. La fenêtre est désormais un shell fixe
