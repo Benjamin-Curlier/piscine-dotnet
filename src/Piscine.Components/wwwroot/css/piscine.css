@@ -764,3 +764,16 @@ textarea:focus-visible {
     .onboarding-actions { flex-direction: column; align-items: stretch; }
     .onboarding-btn { justify-content: center; }
 }
+
+/* ── Chrome de fenêtre custom (chromeless Photino) ────────────────────────── */
+/* Zone de drag : seulement sous hôte Photino (sinon clics normaux navigateur). */
+html[data-host="photino"] .titlebar-drag { -webkit-app-region: drag; app-region: drag; }
+html[data-host="photino"] .titlebar-drag .no-drag,
+html[data-host="photino"] .titlebar-drag button,
+html[data-host="photino"] .titlebar-drag a { -webkit-app-region: no-drag; app-region: no-drag; }
+/* Contrôles de fenêtre : masqués hors Photino (le navigateur / l'OS fournissent le chrome). */
+.window-controls { margin-left: 8px; }
+html:not([data-host="photino"]) .window-controls { display: none; }
+/* Fenêtre chromeless : coins arrondis + ombre, retirés une fois agrandie. */
+html[data-host="photino"] body { border-radius: 8px; overflow: hidden; }
+html[data-host="photino"].is-maximized body { border-radius: 0; }

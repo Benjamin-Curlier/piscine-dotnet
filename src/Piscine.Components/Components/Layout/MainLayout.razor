@@ -5,17 +5,18 @@
        navigation répétée pour atterrir sur le contenu principal (#main-content). *@
     <a class="skip-link" href="#main-content">Aller au contenu</a>
     <CommandPalette />
-    <header class="navbar">
-        <a class="brand" href="/">
+    <header class="navbar titlebar-drag">
+        <a class="brand no-drag" href="/">
             <span class="brand-mark">{ }</span>
             <span class="brand-text">Piscine <strong>.NET</strong></span>
         </a>
-        <nav class="navbar-links" aria-label="Navigation principale">
+        <nav class="navbar-links no-drag" aria-label="Navigation principale">
             <NavTabs />
             <a href="https://github.com/Benjamin-Curlier/piscine-dotnet" target="_blank" rel="noopener">GitHub</a>
             <button id="theme-toggle" type="button" class="theme-toggle"
                     aria-label="Basculer le thème clair/sombre" onclick="toggleTheme()">☾</button>
         </nav>
+        <WindowControls />
     </header>
 
     <div class="body">
