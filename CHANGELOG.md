@@ -4,6 +4,16 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v4.0.2] — 2026-06-14
+
+### Amélioré
+
+- **Terminal pleine largeur** : le panneau de coaching (Statut git / Indices) passe désormais **sous**
+  le terminal au lieu d'une colonne à droite — le terminal occupe toute la largeur disponible. Sous le
+  terminal, les deux sections du coaching se placent côte à côte sur écran large.
+
+---
+
 ## [v4.0.1] — 2026-06-14
 
 Correctifs et finitions de l'app de bureau après v4.0.0 (chrome de fenêtre, défilement, terminal,
