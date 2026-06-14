@@ -72,6 +72,51 @@
     color: #c62828;
 }
 
+/* Diff structuré (couche App) : bloc coloré ligne à ligne, style diff unifié */
+.diff-block {
+    font-family: monospace;
+    font-size: 0.85rem;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow-x: auto;
+    background: #fcfcfc;
+}
+
+.diff-row {
+    display: block;
+    white-space: pre-wrap;
+    word-break: break-all;
+    padding: 0.1rem 0.5rem;
+    border-left: 3px solid transparent;
+}
+
+.diff-gutter {
+    display: inline-block;
+    width: 1ch;
+    margin-right: 0.5rem;
+    color: var(--color-muted, #888);
+    user-select: none;
+}
+
+/* Convention du codebase : attendu = vert (ce qu'on veut), obtenu = rouge (ce qui diffère). */
+.diff-row--expected {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-left-color: #28a745;
+}
+
+.diff-row--actual {
+    background: #ffebee;
+    color: #c62828;
+    border-left-color: #dc3545;
+}
+
+.diff-row--unchanged {
+    color: var(--color-text, #333);
+}
+
 /* Lien cours */
 .check-course-link {
     display: inline-block;

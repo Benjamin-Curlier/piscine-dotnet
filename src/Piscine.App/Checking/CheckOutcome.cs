@@ -13,13 +13,19 @@ public enum CheckVerdict
 
 /// <summary>
 /// Résultat d'un grader pour un exercice : type, réussite et messages verbatim du moteur.
-/// Le diff attendu/obtenu est déjà présent dans <see cref="Messages"/> (ligne « Attendu : … »
-/// / « Obtenu  : … ») tel que produit par <c>IoGrader</c>, retours à la ligne échappés en <c>\n</c>.
+/// Le diff attendu/obtenu brut est dans <see cref="Messages"/> (ligne « Attendu : … » /
+/// « Obtenu  : … ») tel que produit par <c>IoGrader</c>, retours à la ligne échappés en <c>\n</c>.
+/// <para>
+/// <see cref="Diff"/> est sa version <b>structurée</b> (ligne à ligne, déséchappée), dérivée dans la
+/// couche App par <see cref="StructuredDiffBuilder"/> — <c>null</c> si le cas n'expose pas
+/// d'attendu/obtenu (compilation, exception, code de sortie, git, mutation…).
+/// </para>
 /// </summary>
 public sealed record CheckCaseResult(
     string GraderType,
     bool Passed,
-    IReadOnlyList<string> Messages);
+    IReadOnlyList<string> Messages,
+    StructuredDiff? Diff = null);
 
 /// <summary>
 /// Résultat structuré d'un <see cref="CheckService.Check"/> : verdict + cas + indice + cours.

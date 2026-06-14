@@ -24,6 +24,10 @@
             </article>
         </main>
     </div>
+
+    @* S4 — toast de push global (ancre bas-de-shell, après la fermeture de .body). Île interactive :
+       le layout est statiquement rendu, ce composant s'abonne au watcher et se met à jour seul. *@
+    <ToastHost @rendermode="InteractiveServer" />
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>

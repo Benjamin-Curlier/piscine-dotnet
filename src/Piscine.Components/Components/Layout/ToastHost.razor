@@ -1,0 +1,74 @@
+@namespace Piscine.Components.Components.Layout
+@using Piscine.App.Progress
+@using Piscine.App.Push
+@using Piscine.Components.Components.Progress
+@inject IPushResultWatcher Watcher
+@implements IAsyncDisposable
+
+@* Toast de push global : abonné à IPushResultWatcher.ResultReceived, il s'affiche sur N'IMPORTE
+   quelle page (monté dans MainLayout) à l'arrivée d'un verdict de push, puis s'auto-efface. *@
+@if (_toast is { } toast)
+{
+    <div class="toast-host" data-testid="toast-host">
+        <div class="toast" role="status" aria-live="polite" data-testid="push-toast">
+            <div class="toast-head">
+                <span class="toast-title">Résultat du push</span>
+                <button type="button" class="toast-close" aria-label="Fermer"
+                        data-testid="toast-close" @onclick="Dismiss">×</button>
+            </div>
+            <ul class="toast-entries">
+                @foreach (var e in toast.Changed)
+                {
+                    <li class="toast-entry" data-testid="toast-entry">
+                        <StatusBadge Status="Map(e.Verdict)" Source="StatusSource.Progress" />
+                        <span class="toast-exo">@e.ExerciseId</span>
+                    </li>
+                }
+            </ul>
+            <a class="toast-link" data-testid="toast-link" href="/resultat">Voir le détail →</a>
+        </div>
+    </div>
+}
+
+@code {
+    private PushResult? _toast;
+
+    protected override void OnInitialized()
+    {
+        Watcher.Start();
+        Watcher.ResultReceived += OnResult;
+    }
+
+    // Handler appelé sur le thread de fond du watcher (FSW) : on repasse sur le circuit Blazor.
+    private async void OnResult(PushResult r)
+    {
+        try
+        {
+            await InvokeAsync(() =>
+            {
+                _toast = r;
+                StateHasChanged();
+            });
+        }
+        catch (Exception)
+        {
+            // Circuit fermé (navigation/reload) : ignore.
+        }
+    }
+
+    private void Dismiss() => _toast = null;
+
+    private static ExerciseProgressStatus Map(PushVerdict v) => v switch
+    {
+        PushVerdict.Reussi => ExerciseProgressStatus.PousseNote,
+        PushVerdict.ARevoir => ExerciseProgressStatus.ARevoir,
+        _ => ExerciseProgressStatus.NonCommence,
+    };
+
+    public ValueTask DisposeAsync()
+    {
+        // Désabonnement uniquement — ne pas disposer le watcher singleton de l'hôte.
+        Watcher.ResultReceived -= OnResult;
+        return ValueTask.CompletedTask;
+    }
+}

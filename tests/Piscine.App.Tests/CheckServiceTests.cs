@@ -97,6 +97,12 @@ public sealed class CheckServiceTests
         Assert.NotNull(outcome.Hint);
         Assert.False(string.IsNullOrWhiteSpace(outcome.Hint));
         Assert.Equal("cours.md#hello-world", outcome.CourseRef);
+
+        // Assert — diff STRUCTURÉ dérivé côté App (S4) : le cas io échoué porte un diff non vide.
+        Assert.NotNull(ioCase.Diff);
+        Assert.NotEmpty(ioCase.Diff.Lines);
+        Assert.Contains(ioCase.Diff.Lines, static l => l.Kind == DiffLineKind.Expected);
+        Assert.Contains(ioCase.Diff.Lines, static l => l.Kind == DiffLineKind.Actual);
     }
 
     // --- Introuvable : exercice inexistant -------------------------------------------------------

@@ -53,12 +53,14 @@ public sealed class CheckService
             result = _grader.Grade(submission.Manifest, submission.Context);
         }
 
-        // 5. Mapper les résultats grader → CheckCaseResult
+        // 5. Mapper les résultats grader → CheckCaseResult, en dérivant le diff structuré
+        //    (couche App, sans toucher au grader) depuis les messages « Attendu/Obtenu ».
         var cases = result.Results
             .Select(static r => new CheckCaseResult(
                 r.GraderType,
                 r.Status == GraderStatus.Reussi,
-                r.Messages))
+                r.Messages,
+                StructuredDiffBuilder.TryBuild(r.Messages)))
             .ToList();
 
         // 6. Résoudre l'indice + course_ref exactement comme ResultFormatter.MatchHint
