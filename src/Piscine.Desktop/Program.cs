@@ -71,6 +71,9 @@ internal static class Program
             sp.GetRequiredService<PiscineLayout>(),
             sp.GetRequiredService<GitStatusService>()));
 
+        // Réinitialisation de la progression (tout / par module) — page Initialiser.
+        builder.Services.AddSingleton(sp => new ProgressResetService(sp.GetRequiredService<PiscineLayout>()));
+
         // Initialisation du workspace (enrobe GitWorkspace.Initialize) ; chemin de l'exe surclassable
         // par PISCINE_EXE (le hook post-receive doit pointer le binaire piscine du zip).
         builder.Services.AddSingleton(sp =>

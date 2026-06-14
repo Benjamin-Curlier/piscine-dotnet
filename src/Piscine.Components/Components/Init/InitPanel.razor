@@ -2,7 +2,11 @@
 @rendermode InteractiveServer
 @namespace Piscine.Components.Components.Init
 @using Piscine.App.Init
+@using Piscine.App.Progress
+@using Piscine.Components.Services
 @inject InitService Init
+@inject ProgressResetService Reset
+@inject CourseCatalog Catalog
 
 <h1 class="init-title">Initialisation de l'environnement</h1>
 
@@ -35,10 +39,51 @@
     }
 }
 
+<section class="init-reset" data-testid="init-reset">
+    <h2 class="init-reset-title">Réinitialiser la progression</h2>
+    <p class="init-reset-hint">
+        Repart de zéro : efface les statuts (Fait / En cours / À revoir). Le code de ton workspace n'est
+        pas touché. Action irréversible.
+    </p>
+    <div class="init-reset-controls">
+        <select class="init-reset-scope" data-testid="reset-scope" @bind="_resetScope">
+            <option value="">Toute la progression</option>
+            @foreach (var module in Catalog.Modules)
+            {
+                <option value="@module.Id">@module.Id · @module.Title</option>
+            }
+        </select>
+        @if (!_resetArmed)
+        {
+            <button class="init-btn init-btn-danger" data-testid="reset-arm" @onclick="() => _resetArmed = true">
+                Réinitialiser…
+            </button>
+        }
+        else
+        {
+            <span class="init-reset-confirm">Confirmer ?</span>
+            <button class="init-btn init-btn-danger" data-testid="reset-confirm" @onclick="DoReset">
+                Oui, réinitialiser
+            </button>
+            <button class="init-btn init-btn-ghost" data-testid="reset-cancel" @onclick="() => _resetArmed = false">
+                Annuler
+            </button>
+        }
+    </div>
+    @if (_resetMessage is not null)
+    {
+        <p class="init-reset-result" data-testid="reset-result">@_resetMessage</p>
+    }
+</section>
+
 @code {
     private InitStatus? _status;
     private InitOutcome? _outcome;
     private bool _running;
+
+    private string _resetScope = string.Empty;
+    private bool _resetArmed;
+    private string? _resetMessage;
 
     protected override void OnInitialized()
     {
@@ -65,5 +110,25 @@
             _running = false;
             StateHasChanged();
         }
+    }
+
+    private void DoReset()
+    {
+        if (string.IsNullOrEmpty(_resetScope))
+        {
+            Reset.ResetAll();
+            _resetMessage = "Progression entièrement réinitialisée.";
+        }
+        else
+        {
+            var module = Catalog.GetModule(_resetScope);
+            var ids = module is null
+                ? Enumerable.Empty<string>()
+                : module.Groups.SelectMany(g => g.Exercises).Select(e => e.Id);
+            var removed = Reset.ResetExercises(ids);
+            _resetMessage = $"Module « {module?.Title ?? _resetScope} » réinitialisé ({removed} exercice(s) effacé(s)).";
+        }
+
+        _resetArmed = false;
     }
 }
