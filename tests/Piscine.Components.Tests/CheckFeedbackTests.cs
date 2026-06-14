@@ -86,6 +86,48 @@ public sealed class CheckFeedbackTests : BunitContext
         Assert.Contains("hello-world", href, System.StringComparison.Ordinal);
     }
 
+    // --- Cas FAIL avec diff STRUCTURÉ (S4) : rendu coloré ligne à ligne -----------------------
+
+    [Fact]
+    public void Render_FailOutcome_WithStructuredDiff_RendersColoredRows()
+    {
+        // Arrange — diff structuré dérivé côté App (ligne contexte + ligne attendue + ligne obtenue).
+        var diff = new StructuredDiff(
+        [
+            new DiffLine(DiffLineKind.Unchanged, "ligne commune"),
+            new DiffLine(DiffLineKind.Expected, "Hello, Piscine!"),
+            new DiffLine(DiffLineKind.Actual, "Bonjour"),
+        ]);
+
+        var outcome = new CheckOutcome(
+            ExerciseId: "ex00-hello",
+            ModuleId: "00-setup-git",
+            Verdict: CheckVerdict.ARevoir,
+            Cases: [new CheckCaseResult("io", false, ["La sortie ne correspond pas."], diff)],
+            Hint: null,
+            CourseRef: null);
+
+        // Act
+        var cut = Render<CheckFeedback>(p => p.Add(c => c.Outcome, outcome));
+
+        // Assert — bloc diff structuré présent
+        cut.Find("[data-testid='diff-block']");
+
+        // Assert — lignes attendue (rouge/vert) et obtenue rendues avec leurs testid stables
+        var expected = cut.Find("[data-testid='diff-expected']");
+        Assert.Contains("Hello, Piscine!", expected.TextContent, System.StringComparison.Ordinal);
+
+        var actual = cut.Find("[data-testid='diff-actual']");
+        Assert.Contains("Bonjour", actual.TextContent, System.StringComparison.Ordinal);
+
+        // Assert — ligne de contexte présente
+        var context = cut.Find("[data-testid='diff-context']");
+        Assert.Contains("ligne commune", context.TextContent, System.StringComparison.Ordinal);
+
+        // Assert — le message non-diff reste affiché
+        Assert.Contains("La sortie ne correspond pas.", cut.Markup, System.StringComparison.Ordinal);
+    }
+
     // --- Outcome null : placeholder affiché ---------------------------------------------------
 
     [Fact]

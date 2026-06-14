@@ -16,19 +16,36 @@ else
         @foreach (var cas in Outcome.Cases.Where(static c => !c.Passed))
         {
             <div class="check-case" data-testid="check-case">
-                @foreach (var message in cas.Messages)
+                @if (cas.Diff is { } diff)
                 {
-                    @if (message.StartsWith("Attendu", StringComparison.Ordinal))
-                    {
-                        <pre class="diff-line diff-expected" data-testid="diff-expected">@message</pre>
-                    }
-                    else if (message.StartsWith("Obtenu", StringComparison.Ordinal))
-                    {
-                        <pre class="diff-line diff-actual" data-testid="diff-actual">@message</pre>
-                    }
-                    else
+                    @* Diff structuré (couche App) : rendu coloré ligne à ligne. Les messages
+                       non-diff (« La sortie ne correspond pas. ») restent affichés au-dessus. *@
+                    @foreach (var message in cas.Messages.Where(IsNotDiffLine))
                     {
                         <p class="check-message">@message</p>
+                    }
+                    <pre class="diff-block" data-testid="diff-block">@foreach (var line in diff.Lines)
+{
+    <span class="diff-row @DiffRowCss(line.Kind)"
+          data-testid="@DiffRowTestId(line.Kind)"><span class="diff-gutter" aria-hidden="true">@DiffGutter(line.Kind)</span>@line.Text
+</span>}</pre>
+                }
+                else
+                {
+                    @foreach (var message in cas.Messages)
+                    {
+                        @if (message.StartsWith("Attendu", StringComparison.Ordinal))
+                        {
+                            <pre class="diff-line diff-expected" data-testid="diff-expected">@message</pre>
+                        }
+                        else if (message.StartsWith("Obtenu", StringComparison.Ordinal))
+                        {
+                            <pre class="diff-line diff-actual" data-testid="diff-actual">@message</pre>
+                        }
+                        else
+                        {
+                            <p class="check-message">@message</p>
+                        }
                     }
                 }
             </div>
@@ -54,6 +71,34 @@ else
 
 @code {
     [Parameter] public CheckOutcome? Outcome { get; set; }
+
+    /// <summary>Vrai si le message n'est PAS une ligne brute « Attendu/Obtenu » (déjà rendue par le diff structuré).</summary>
+    private static bool IsNotDiffLine(string message)
+        => !message.StartsWith("Attendu", StringComparison.Ordinal)
+        && !message.StartsWith("Obtenu", StringComparison.Ordinal);
+
+    private static string DiffRowCss(DiffLineKind kind) => kind switch
+    {
+        DiffLineKind.Expected => "diff-row--expected",
+        DiffLineKind.Actual => "diff-row--actual",
+        _ => "diff-row--unchanged",
+    };
+
+    /// <summary>data-testid stable par nature de ligne (compat E2E/bUnit : diff-expected / diff-actual).</summary>
+    private static string DiffRowTestId(DiffLineKind kind) => kind switch
+    {
+        DiffLineKind.Expected => "diff-expected",
+        DiffLineKind.Actual => "diff-actual",
+        _ => "diff-context",
+    };
+
+    /// <summary>Marqueur de gouttière (style diff unifié) : - manquant, + en trop, espace = contexte.</summary>
+    private static string DiffGutter(DiffLineKind kind) => kind switch
+    {
+        DiffLineKind.Expected => "-",
+        DiffLineKind.Actual => "+",
+        _ => " ",
+    };
 
     private static string VerdictLabel(CheckVerdict verdict) => verdict switch
     {
