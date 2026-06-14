@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Photino.Blazor;
 
@@ -39,6 +40,10 @@ internal static class SmokeProbe
 
         // Chien de garde : termine le process à l'échéance, que la page ait répondu ou non. Si aucun
         // bilan n'est arrivé, écrit un marqueur explicite (la page ne s'est jamais chargée/exécutée).
+        // Le test (DesktopRenderSmokeTests) ne dépend PAS de cet auto-arrêt — il sonde le bilan JSON puis
+        // tue l'arbre de process — mais on s'efforce quand même de terminer proprement (lancement manuel,
+        // pas de process fantôme). Sur Windows, Environment.Exit(0) NE suffit PAS : la boucle de messages
+        // native de WebView2 maintient le process vivant. On tente donc un arrêt propre, puis on force.
         _ = new Timer(
             _ =>
             {
@@ -56,10 +61,42 @@ internal static class SmokeProbe
                     }
                 }
 
-                Environment.Exit(0);
+                Terminate(app);
             },
             state: null,
             dueTime: TimeSpan.FromSeconds(timeoutSeconds),
             period: Timeout.InfiniteTimeSpan);
+    }
+
+    /// <summary>
+    /// Termine le process de façon robuste sur toutes les plateformes. Programme d'abord un force-kill
+    /// différé en <b>dernier recours</b> (sur un autre thread, pour ne pas dépendre du retour de
+    /// <c>Environment.Exit</c>), tente une fermeture propre de la fenêtre Photino (libère la boucle de
+    /// messages native), puis demande l'arrêt CLR. Sous Windows, la boucle WebView2 ignore
+    /// <c>Environment.Exit(0)</c> et garderait le process vivant : le force-kill différé prend alors le
+    /// relais. Tout est best-effort.
+    /// </summary>
+    private static void Terminate(PhotinoBlazorApp app)
+    {
+        // 1) Filet de sécurité programmé EN PREMIER, sur un thread de pool indépendant : si l'arrêt propre
+        //    ci-dessous bloque (cas Windows/WebView2 où Environment.Exit(0) ne termine pas le process), ce
+        //    timer force-kill le process courant. Inoffensif si l'arrêt propre a déjà réussi.
+        _ = new Timer(
+            _ =>
+            {
+                try { Process.GetCurrentProcess().Kill(); }
+                catch { /* best-effort */ }
+            },
+            state: null,
+            dueTime: TimeSpan.FromMilliseconds(750),
+            period: Timeout.InfiniteTimeSpan);
+
+        // 2) Fermeture propre de la fenêtre : tente de débloquer la boucle de messages native.
+        try { app.MainWindow.Close(); }
+        catch { /* best-effort */ }
+
+        // 3) Demande d'arrêt CLR « propre » (flush, finalizers de fin de process).
+        try { Environment.Exit(0); }
+        catch { /* best-effort */ }
     }
 }
