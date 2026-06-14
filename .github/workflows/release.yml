@@ -75,7 +75,7 @@ jobs:
           done
           ls -lh dist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-linux
           path: dist/*
@@ -120,7 +120,7 @@ jobs:
           Copy-Item build\installer\windows\dist\*.exe dist\
           Get-ChildItem dist | Select-Object Name, Length
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist-windows
           path: dist/*.exe
@@ -130,7 +130,7 @@ jobs:
     needs: [package-linux, package-windows]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: dist-all
       - name: Créer la GitHub Release
