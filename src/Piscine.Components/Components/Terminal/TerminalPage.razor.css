@@ -1,8 +1,6 @@
-/* Layout 2 colonnes : terminal a gauche, panneau de coaching a droite. CSS scopé RCL — il est
-   auto-bundlé dans Piscine.Components.styles.css (PAS de clé @Assets manuelle, piège S1). */
-/* Empilé par défaut (étroit) : le terminal garde toute la largeur, le panneau passe dessous.
-   À partir de 900px de viewport, 2 colonnes — le terminal garde un minimum réel (jamais écrasé
-   par le panneau, contrairement à minmax(0,1fr) qui le laissait tomber à ~0). */
+/* Empilé : le terminal occupe TOUTE la largeur, le panneau de coaching passe DESSOUS (plus de
+   place pour le terminal — demande proprio). CSS scopé RCL, auto-bundlé dans
+   Piscine.Components.styles.css (PAS de clé @Assets manuelle, piège S1). */
 .terminal-layout {
     display: grid;
     grid-template-columns: 1fr;
@@ -10,14 +8,18 @@
     align-items: start;
 }
 
-@media (min-width: 900px) {
-    .terminal-layout {
-        grid-template-columns: minmax(420px, 1fr) minmax(280px, 340px);
-    }
-}
-
 .terminal-pane {
     min-width: 0;
+}
+
+/* Sous le terminal (pleine largeur) : les deux sections du coaching côte à côte si la place le
+   permet, plutôt qu'une colonne étirée et vide. */
+@media (min-width: 720px) {
+    .coaching-pane {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
 }
 
 .coaching-pane {
