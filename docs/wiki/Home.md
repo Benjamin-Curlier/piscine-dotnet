@@ -4,8 +4,9 @@ Bootcamp d'onboarding façon « piscine » Epitech/42, ciblant les fondamentaux 
 avec une **moulinette auto-correctrice locale**, l'apprentissage du **vrai git**, et une
 **distribution autonome** (installeurs ou zips self-contained, zéro SDK). **Windows et Linux.**
 
-La recrue a deux UX au choix (même moteur) : une **app de bureau** (cours, vérification, progression,
-**terminal + coaching git**, résultat riche) ou le **CLI** `piscine`.
+La recrue a deux UX au choix (même moteur) : une **app de bureau** (tableau de bord, cours,
+**plan de travail + bouton Ouvrir**, vérification avec diff coloré, progression, rapport exportable,
+réglages, **terminal + coaching git**, résultat riche) ou le **CLI** `piscine`.
 
 Ce wiki s'adresse aux **encadrants** et **contributeurs**. La doc de prise en main de la recrue
 est dans le dépôt : [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/mise-en-oeuvre.md).
@@ -26,10 +27,12 @@ est dans le dépôt : [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curli
 
 ## Comment ça marche, en une phrase
 
-La recrue installe le bootcamp, lance l'**Initialiser** de l'app (ou `piscine init` — qui crée un dépôt
-git « GitLab » local), code les exercices dans son workspace, itère avec **Vérifier** (ou `piscine check`),
-puis **rend officiellement par `git push`** — au terminal de l'app (avec coaching) ou système — ce qui
-déclenche la moulinette sur le commit reçu, dont le verdict riche s'affiche dans **Résultat**.
+La recrue installe le bootcamp ; au premier lancement l'app l'**guide via un onboarding** (ou
+`piscine init` en CLI — crée un dépôt git « GitLab » local). Elle consulte le **tableau de bord**
+pour reprendre là où elle en est, ouvre l'exercice en un clic (**bouton Ouvrir** → IDE/dossier/terminal),
+itère avec **Vérifier** (diff structuré coloré, ne compte pas), puis **rend officiellement par
+`git push`** — au terminal de l'app (avec coaching) ou système — ce qui déclenche la moulinette sur
+le commit reçu, dont le verdict riche s'affiche dans **Résultat** (+ toast global dans l'app).
 
 ## Sommaire
 

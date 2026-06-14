@@ -7,9 +7,9 @@ auto-contenu (runtime .NET + Roslyn embarqués).
 > **Ce que contient le paquet** : un parcours complet **C# / .NET 10** — modules **M00 à M39**
 > (fondamentaux → palier avancé → approfondissement → plateformes & architecture) et **4 Rushes**
 > de synthèse. Correction locale par la moulinette (graders `io` / `unit` / `norme` / `mutation` /
-> `git` / `projet` / `reseau`), rendu par **vrai git**. **UX recrue** : une **app de bureau** (cours,
-> vérification, progression, résultat, **terminal embarqué + coaching git**) **ou** le **CLI**
-> `piscine` — même moteur. Carte détaillée :
+> `git` / `projet` / `reseau`), rendu par **vrai git**. **UX recrue** : une **app de bureau**
+> (tableau de bord, cours, vérification, progression, rapport, réglages, **terminal embarqué +
+> coaching git**) **ou** le **CLI** `piscine` — même moteur. Carte détaillée :
 > [Curriculum](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/wiki/Curriculum.md).
 > Mainteneur qui prépare une release : voir [docs/deploiement.md](deploiement.md).
 
@@ -93,15 +93,21 @@ bureau** (recommandée — cours, vérification, progression, résultat **et ter
 
 1. Lancer l'app : raccourci **menu Démarrer / Bureau** (installeur), ou `start-piscine-desktop`
    (`.cmd` Windows / `.sh` Linux) dans le dossier du zip. *(Mode zip : vérifier les prérequis webview, §1.)*
-2. Dans la fenêtre, ouvrir **Initialiser** et cliquer le bouton : cela met en place le **workspace**,
-   le **dépôt bare local** (`origin`) et le **hook** qui lance la moulinette à chaque `git push`.
-   *(Équivalent en ligne de commande : `piscine init`.)*
-3. Parcourir les **cours** et les **sujets** via le sommaire de gauche ; la suite de la boucle (Vérifier,
-   Progression, Terminal, Résultat) est décrite au §4.
+2. Si c'est le **premier lancement**, l'app affiche un **guide d'onboarding** : suivre les étapes pour
+   mettre en place le **workspace**, le **dépôt bare local** (`origin`) et le **hook** de moulinette.
+   *(Équivalent en ligne de commande : `piscine init`. Accessible aussi via l'onglet *Initialiser*.)*
+3. Le **tableau de bord** (`/`) oriente d'un coup d'œil : **carte « Reprendre »** vers l'exercice en
+   cours, **progression globale** (pourcentages + compteurs par module) et **résultats récents** des
+   derniers push.
+4. Parcourir les **cours** et les **sujets** via le sommaire de gauche ou l'onglet *Cours* ; la suite
+   de la boucle (Vérifier, Progression, Terminal, Résultat) est décrite au §4.
 
 > L'app **embarque un terminal + un coaching git** (page *Terminal*) mais **pas d'éditeur** : on code
 > dans son IDE habituel, et on peut faire ses commandes git (`git add/commit/push`) **dans le terminal
 > de l'app** — qui affiche un **coaching éducatif** — ou dans un terminal système (§4).
+>
+> **Astuce** : `Ctrl+K` (ou `⌘K` sur macOS) ouvre la **palette de commande** — recherche plein-texte
+> parmi les modules, exercices, pages et actions (Vérifier, Initialiser, Ouvrir…).
 
 ### Avec le CLI
 
@@ -124,14 +130,21 @@ On code dans l'**éditeur/IDE de son choix**. La vérification locale et le suiv
 
 ### Dans l'app de bureau
 
-1. Choisir un exercice (sommaire → module → exercice) : le sujet et le cours s'affichent.
-2. Coder dans son IDE (récupérer le squelette via `piscine start <exo>` au terminal).
-3. **Vérifier** : page *Vérifier* → choisir l'exercice → feedback éducatif instantané, avec le **diff
-   attendu/obtenu**, l'**indice** et le **lien vers le cours** (**ne compte pas**, autant de fois qu'on veut).
-4. Suivre l'avancement : page *Progression*.
-5. **Rendre** (ci-dessous), puis regarder la page *Résultat* : elle **s'actualise** automatiquement
+1. Depuis le **tableau de bord**, cliquer **« Reprendre »** pour accéder directement au plan de
+   travail de l'exercice en cours — ou naviguer manuellement : sommaire → module → exercice.
+2. Sur la **page d'exercice**, une barre d'action remplace la consigne CLI :
+   - **Ouvrir** : ouvre le dossier de l'exercice dans l'**éditeur détecté** (VS Code, Rider…),
+     dans le **Dossier** du système, dans le **terminal intégré** ou dans un **terminal système**.
+     Le starter est copié automatiquement si l'exercice n'a pas encore été démarré.
+   - **Vérifier** : lance le check in-process → feedback éducatif instantané, avec le **diff
+     structuré coloré** attendu/obtenu, l'**indice** et le **lien vers le cours**
+     (**ne compte pas**, autant de fois qu'on veut).
+   - **Pastille de statut** : indique l'état courant (Réussi / À revoir / Non corrigé).
+3. Suivre l'avancement : onglet *Progression* (pastilles de statut dans la navigation) ou
+   page *Rapport* (`/rapport`) — vue complète par module, exportable en PDF (impression) ou Markdown.
+4. **Rendre** (ci-dessous), puis regarder la page *Résultat* : elle **s'actualise** automatiquement
    après la correction du push et affiche le **résultat riche** — verdict, diff attendu/obtenu, indice
-   et lien cours, par exercice.
+   et lien cours, par exercice. Un **toast** s'affiche aussi partout dans l'app dès que le résultat arrive.
 
 ### Le rendu : `git push`
 
@@ -184,7 +197,12 @@ git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enr
 - [ ] S'assurer que la recrue sait faire son `git push` : **terminal de l'app** (avec coaching) ou
       terminal système (`start-piscine.cmd` sous Windows).
 - [ ] (App de bureau) `start-piscine-desktop` (ou le raccourci de l'installeur) ouvre une fenêtre qui
-      **route le flux** : cours (titre + bloc de code colorisé), *Vérifier*, *Progression*, *Initialiser*,
-      *Terminal* (git + coaching), *Résultat* (riche). Webview géré par l'installeur, ou présent (§1) en mode zip.
+      **route le flux** : **tableau de bord** (reprendre l'exercice courant / progression / résultats
+      récents) → cours (titre + bloc de code colorisé) → **plan de travail** (bouton *Ouvrir* +
+      *Vérifier* inline + diff coloré) → *Progression* → *Rapport* (exportable PDF/Markdown) →
+      *Réglages* (thème, échelle police, éditeur) → *Initialiser* → *Terminal* (git + coaching) →
+      *Résultat* (riche). Webview géré par l'installeur, ou présent (§1) en mode zip.
+- [ ] (Facultatif) Configurer l'**éditeur** via la page *Réglages* (icône ⚙ dans la navigation) si
+      l'auto-détection (VS Code / Rider / Visual Studio) ne correspond pas au poste.
 - [ ] Remettre le paquet (clé USB / partage interne) et ce guide.
 - [ ] Rappeler la philosophie : **retour éducatif, pas de note** ; progression auto-rythmée.

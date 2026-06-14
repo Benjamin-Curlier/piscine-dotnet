@@ -19,10 +19,12 @@ Au premier lancement, `piscine init` crée :
 | `piscine check [exo]` | Itération rapide, sans commit | Feedback éducatif instantané. **Ne compte pas** comme rendu. |
 | `git push origin main` | **Rendu officiel** (vrai geste GitLab) | Le hook lance la moulinette sur le commit reçu, affiche le feedback **et enregistre la progression**. |
 
-> **Dans l'app de bureau**, ces deux boucles existent sans la ligne de commande : la page *Vérifier*
-> rejoue `check` (diff/indice/lien cours), et le `git push` du rendu se fait au **terminal embarqué**
-> (avec **coaching git**) ou à un terminal système. Le verdict riche du push (verdict + diff + indice +
-> cours, par exercice) s'affiche dans *Résultat*, qui **s'auto-rafraîchit**.
+> **Dans l'app de bureau**, ces deux boucles existent sans la ligne de commande : le **plan de
+> travail de l'exercice** embarque un bouton *Vérifier* inline (diff **structuré coloré** /
+> indice / lien cours), et le `git push` du rendu se fait au **terminal embarqué** (avec
+> **coaching git**) ou à un terminal système. Le verdict riche du push (verdict + diff + indice +
+> cours, par exercice) s'affiche dans *Résultat*, qui **s'auto-rafraîchit**, et un **toast global**
+> prévient partout dans l'app dès que le résultat arrive.
 
 ## Déroulé d'un `git push`
 
