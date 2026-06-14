@@ -1,6 +1,11 @@
 @inherits LayoutComponentBase
 
 <div class="layout">
+    @* Poignées de redimensionnement (chromeless Photino : l'OS retire la bordure de resize).
+       Masquées hors hôte Photino via CSS — inertes en navigateur. *@
+    <div class="resize-handles" aria-hidden="true">
+        <div class="rh rh-e"></div><div class="rh rh-s"></div><div class="rh rh-se"></div>
+    </div>
     @* S7 — lien d'évitement (a11y clavier) : 1ᵉʳ élément focalisable, masqué hors focus ; saute la
        navigation répétée pour atterrir sur le contenu principal (#main-content). *@
     <a class="skip-link" href="#main-content">Aller au contenu</a>

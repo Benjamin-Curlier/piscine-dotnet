@@ -36,6 +36,18 @@
   document.addEventListener('pointerup', function () { dragging = false; });
   document.addEventListener('dblclick', function (e) { if (isDragZone(e.target)) send('PISCINE_WIN:togglemax'); });
 
+  // Redimensionnement par poignées (chromeless : pas de bordure de resize OS). Envoie des deltas
+  // à l'hôte (resizeby:edge:dx,dy). Poignées masquées/no-op en navigateur.
+  ['e', 's', 'se'].forEach(function (edge) {
+    document.addEventListener('pointerdown', function (e) {
+      var h = e.target.closest && e.target.closest('.rh-' + edge); if (!h) return;
+      var lx = e.screenX, ly = e.screenY; e.preventDefault();
+      function mv(ev) { var dx = ev.screenX - lx, dy = ev.screenY - ly; if (dx || dy) { send('PISCINE_WIN:resizeby:' + edge + ':' + dx + ',' + dy); lx = ev.screenX; ly = ev.screenY; } }
+      function up() { document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); }
+      document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up);
+    });
+  });
+
   // L'hôte annonce l'état agrandi → bascule une classe pour le style (coins/ombre).
   window.__winState = function (state) {
     document.documentElement.classList.toggle('is-maximized', state === 'maximized');
