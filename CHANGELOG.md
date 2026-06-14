@@ -22,14 +22,24 @@ Correctifs post-v4.0.0 (sur `main`, à publier en v4.0.1).
 - **Contrôles de fenêtre (réduire/agrandir/fermer)** : s'appuyaient sur des variables CSS inexistantes
   → quasi invisibles en thème clair et visuellement détachés. Restylés avec les jetons réels du thème,
   pleine hauteur de la barre de titre, collés au coin (intégration façon Discord), cohérents clair/sombre.
+- **Barres de défilement en thème sombre** : la scrollbar système claire (criarde sur fond sombre) est
+  remplacée par une scrollbar fine thémée (jeton `--scrollbar-thumb`), cohérente clair/sombre.
+
+### Ajouté
+
+- **Réinitialiser la progression** (page *Initialiser*) : remettre à zéro **toute la progression** ou
+  **un module** au choix (confirmation en deux temps). Le code du workspace n'est pas touché.
 
 ### Amélioré
 
 - **Page Vérifier** (`/check`) : le menu d'exercice et le bouton étaient des contrôles HTML bruts →
   menu déroulant et bouton primaire stylés sur les jetons de l'app.
 - **Page Terminal** : titre « Terminal embarqué » (retrait du libellé de dev « (spike) »), accents
-  corrigés, et panneau de coaching migré sur les jetons du thème (lisible en mode sombre — il était
-  codé en couleurs claires).
+  corrigés, panneau de coaching migré sur les jetons (lisible en mode sombre) ; **terminal agrandi**,
+  coins arrondis, et **dossier de travail persistant à côté de l'exécutable** (au lieu d'un dossier
+  temporaire jetable) — les expériences git survivent d'une session à l'autre.
+- **Page Initialiser** : bouton et blocs migrés sur les jetons du thème (accent au lieu du bleu
+  générique, lisibles en mode sombre).
 
 ---
 
