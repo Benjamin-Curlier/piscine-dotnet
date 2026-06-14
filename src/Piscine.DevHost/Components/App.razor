@@ -7,11 +7,19 @@
     <meta name="description" content="Piscine .NET — bootcamp C# / .NET 10, cours et exercices auto-corrigés." />
     <base href="/" />
     <script>
-        // Anti-flash : appliqué avant le premier paint, avant le chargement de theme.js.
+        // Anti-flash : appliqué avant le premier paint, avant le chargement de theme.js. Reflète la
+        // même logique que theme.js (préférence 'system'/'light'/'dark' + échelle de police), puis
+        // theme.js redéfinit __applyTheme avec les helpers complets (setThemePreference, setFontScale…).
         window.__applyTheme = function () {
-            var t = localStorage.getItem('theme')
-                || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            var pref = localStorage.getItem('theme') || 'system';
+            var t = (pref === 'light' || pref === 'dark')
+                ? pref
+                : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', t);
+            var s = parseFloat(localStorage.getItem('fontScale'));
+            if (isNaN(s)) { s = 1; }
+            s = Math.min(1.5, Math.max(0.8, s));
+            document.documentElement.style.setProperty('--font-scale', s);
         };
         window.__applyTheme();
     </script>

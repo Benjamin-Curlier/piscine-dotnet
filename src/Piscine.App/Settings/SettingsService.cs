@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Piscine.Core;
 
 namespace Piscine.App.Settings;
@@ -16,6 +17,9 @@ public sealed class SettingsService(PiscineLayout layout)
         WriteIndented = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
+        // Énumérations (thème, cible terminal) sérialisées en chaînes camelCase → JSON lisible et
+        // git-friendly (« system »/« light »/« dark »), aligné sur les valeurs lues côté JS (theme.js).
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
     };
 
     private string FilePath => Path.Combine(layout.StateDir, "settings.json");
@@ -29,7 +33,11 @@ public sealed class SettingsService(PiscineLayout layout)
                 return new AppSettings();
             }
 
-            return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonOpts) ?? new AppSettings();
+            var loaded = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath), JsonOpts)
+                ?? new AppSettings();
+
+            // Assainir les valeurs (l'échelle de police peut avoir été éditée à la main hors plage).
+            return loaded.Normalized();
         }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException)
         {
@@ -40,6 +48,6 @@ public sealed class SettingsService(PiscineLayout layout)
     public void Save(AppSettings settings)
     {
         Directory.CreateDirectory(layout.StateDir);
-        File.WriteAllText(FilePath, JsonSerializer.Serialize(settings, JsonOpts));
+        File.WriteAllText(FilePath, JsonSerializer.Serialize(settings.Normalized(), JsonOpts));
     }
 }
