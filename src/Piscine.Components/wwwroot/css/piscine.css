@@ -384,3 +384,30 @@ code { font-family: var(--mono); }
     .content { padding: 1.5rem 1.2rem 4rem; }
     .pager a { max-width: 100%; }
 }
+
+/* ---------- Impression / PDF (page de rapport S5) ----------
+   Sortie papier propre : on masque toute la chrome de navigation (barre, sidebar, bouton thème,
+   bandeau d'erreur) et les actions de la page (impossible de cliquer sur du papier). Le contenu
+   passe en pleine largeur, en noir sur blanc, pour un PDF lisible via window.print(). */
+@media print {
+    .navbar,
+    .sidebar,
+    .theme-toggle,
+    #blazor-error-ui,
+    .report-no-print {
+        display: none !important;
+    }
+
+    html, body {
+        background: #fff;
+        color: #000;
+    }
+
+    .layout, .body, .main { display: block; }
+
+    .content {
+        max-width: none;
+        width: 100%;
+        padding: 0;
+    }
+}

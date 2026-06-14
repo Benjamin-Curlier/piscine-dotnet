@@ -11,7 +11,7 @@ public sealed class NavDestinationsTests
     {
         var routes = NavDestinations.Primary.Select(d => d.Route).ToArray();
         Assert.Equal(
-            new[] { "/", "/cours", "/progress", "/check", "/init", "/resultat", "/terminal" },
+            new[] { "/", "/cours", "/progress", "/rapport", "/check", "/init", "/resultat", "/terminal" },
             routes);
     }
 

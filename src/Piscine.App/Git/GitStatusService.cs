@@ -41,6 +41,10 @@ public sealed class GitStatusService
         var hasOrigin = repo.Network.Remotes[OriginName] is not null;
         var (aheadOfOrigin, aheadPaths) = ComputeAhead(repo, currentBranch, head);
 
+        // Identite git effective (lecture seule) : sert d'en-tete a la page de rapport.
+        var userName = repo.Config.Get<string>("user.name")?.Value;
+        var userEmail = repo.Config.Get<string>("user.email")?.Value;
+
         var conflicted = CollectConflictedFiles(repo, status);
 
         // Attribution par exercice : chemins (relatifs, séparateur /) ayant du travail non committé.
@@ -54,6 +58,8 @@ public sealed class GitStatusService
         {
             IsRepository = true,
             CurrentBranch = currentBranch,
+            UserName = userName,
+            UserEmail = userEmail,
             IsDetachedHead = isDetached,
             HasAnyCommit = hasAnyCommit,
             StagedCount = stagedCount,
