@@ -1,7 +1,10 @@
 using Bunit;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Piscine.App.Init;
+using Piscine.App.Progress;
 using Piscine.Components.Components.Init;
+using Piscine.Components.Services;
 using Piscine.Core;
 using Piscine.Git;
 
@@ -58,6 +61,18 @@ public sealed class InitPanelTests : BunitContext, IDisposable
         return new PiscineLayout(content, workspace, state);
     }
 
+    // InitPanel injecte aussi ProgressResetService (réinitialisation) et CourseCatalog (liste des
+    // modules du menu de réinitialisation) : on les enregistre tous sur le layout temporaire.
+    private void RegisterInitServices(PiscineLayout layout)
+    {
+        Services.AddSingleton(new InitService(layout, "/x/piscine"));
+        Services.AddSingleton(new ProgressResetService(layout));
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["PISCINE_CONTENT"] = layout.ContentRoot })
+            .Build();
+        Services.AddSingleton(new CourseCatalog(config));
+    }
+
     // ── Layout vierge → data-initialized="False" ─────────────────────────────
 
     [Fact]
@@ -65,7 +80,7 @@ public sealed class InitPanelTests : BunitContext, IDisposable
     {
         // Arrange
         var layout = CreateLayout();
-        Services.AddSingleton(new InitService(layout, "/x/piscine"));
+        RegisterInitServices(layout);
 
         // Act
         var cut = Render<InitPanel>();
@@ -89,7 +104,7 @@ public sealed class InitPanelTests : BunitContext, IDisposable
         // Arrange — initialiser avant le rendu
         var layout = CreateLayout();
         GitWorkspace.Initialize(layout, "/x/piscine");
-        Services.AddSingleton(new InitService(layout, "/x/piscine"));
+        RegisterInitServices(layout);
 
         // Act
         var cut = Render<InitPanel>();
@@ -106,7 +121,7 @@ public sealed class InitPanelTests : BunitContext, IDisposable
     {
         // Arrange
         var layout = CreateLayout();
-        Services.AddSingleton(new InitService(layout, "/x/piscine"));
+        RegisterInitServices(layout);
         var cut = Render<InitPanel>();
 
         // Act

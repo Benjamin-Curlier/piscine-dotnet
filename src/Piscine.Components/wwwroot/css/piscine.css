@@ -12,6 +12,7 @@
     --bg: #ffffff;
     --bg-soft: #f7f7f9;
     --code-bg: #0d1117;
+    --scrollbar-thumb: rgba(0, 0, 0, 0.28);
     --radius: 10px;
     --sidebar-w: 300px;
     --navbar-h: 60px;
@@ -41,7 +42,22 @@
     --code-bg: #0d1117;
     --warn-bg: #3a3320;
     --warn-line: #d6b656;
+    --scrollbar-thumb: rgba(255, 255, 255, 0.24);
 }
+
+/* ---------- Barres de défilement thémées (clair/sombre) ----------
+   Sans ça, WebView2/Chromium rendait des scrollbars système claires, criardes en thème sombre. */
+* { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--ink-soft); }
+::-webkit-scrollbar-corner { background: transparent; }
 
 * { box-sizing: border-box; }
 
@@ -798,3 +814,11 @@ html[data-host="photino"]:not(.is-maximized) .resize-handles { display: block; }
 .rh-e { top: 0; right: 0; width: 5px; height: 100%; cursor: ew-resize; }
 .rh-s { left: 0; bottom: 0; height: 5px; width: 100%; cursor: ns-resize; }
 .rh-se { right: 0; bottom: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+
+/* ---------- Terminal embarqué ----------
+   xterm.js gère son propre curseur ; on neutralise l'anneau de focus parasite (S7) sur le textarea
+   d'aide xterm et le conteneur — sinon une pastille apparaissait en haut-gauche du terminal. */
+.piscine-terminal :focus,
+.piscine-terminal :focus-visible,
+.piscine-terminal:focus-visible { outline: none; }
+.xterm-helper-textarea { opacity: 0 !important; }

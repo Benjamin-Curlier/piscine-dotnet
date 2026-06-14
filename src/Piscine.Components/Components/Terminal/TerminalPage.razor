@@ -81,10 +81,11 @@ else
     private IReadOnlyList<HintCard> _cards = [];
     private readonly ExerciseExpectation _expectation = new();
 
-    // Dossier de travail TEMPORAIRE et isole par session : le terminal NE DOIT PAS operer sur le
-    // vrai depot piscine-dotnet (cwd de l'app), sinon `git init`/`git commit` muteraient le repo reel
-    // et rendraient l'etat non deterministe. On le supprime au Dispose.
-    private string? _tempDir;
+    // Dossier de travail du terminal : un sous-dossier « terminal » À CÔTÉ DE L'EXÉCUTABLE
+    // (AppContext.BaseDirectory), PERSISTANT entre sessions (les expériences git de la recrue
+    // survivent et sont découvrables). Hors du dépôt source de l'app, donc `git init` ici ne mute
+    // rien d'important. (Avant : dossier temp jetable par session — perdu au Dispose, peu trouvable.)
+    private string? _workDir;
     private bool _channelStarted;
 
     // Coalescing de la sortie PTY : actif par defaut au terminal livre (#71). Une sortie verbeuse
@@ -108,9 +109,9 @@ else
             return;
         }
 
-        // Dossier de travail jetable, propre a cette session de terminal.
-        _tempDir = Path.Combine(Path.GetTempPath(), "piscine-term-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(_tempDir);
+        // Dossier de travail persistant, à côté de l'exécutable (découvrable, survit aux sessions).
+        _workDir = Path.Combine(AppContext.BaseDirectory, "terminal");
+        Directory.CreateDirectory(_workDir);
 
         // Le dossier du shim git (notre faux `git` en tete de PATH) : emplacement packagé
         // (<exe>/gitshim) en priorite, sinon la sortie de build dev. null => terminal nu (S2).
@@ -125,7 +126,7 @@ else
             _channelStarted = true;
         }
 
-        var startInfo = new PtyStartInfo { WorkingDirectory = _tempDir };
+        var startInfo = new PtyStartInfo { WorkingDirectory = _workDir };
 
         // Si le shim est introuvable (build absent), on degrade proprement : terminal nu, sans coaching
         // de commande (comportement S2). Sinon on prefixe PATH du dossier shim et on passe le vrai git
@@ -245,16 +246,7 @@ else
             await _session.DisposeAsync();
         }
 
-        if (_tempDir is not null)
-        {
-            try
-            {
-                Directory.Delete(_tempDir, recursive: true);
-            }
-            catch (Exception e) when (e is IOException or UnauthorizedAccessException or DirectoryNotFoundException)
-            {
-                // Best-effort : le shell peut encore tenir un handle, ou le dossier a deja disparu.
-            }
-        }
+        // Dossier de travail PERSISTANT (à côté de l'exe) : on ne le supprime PAS — les expériences
+        // git de la recrue doivent survivre d'une session à l'autre.
     }
 }
