@@ -106,9 +106,30 @@ internal static class Program
 
         var app = builder.Build();
 
-        app.MainWindow
-           .SetTitle("Piscine .NET")
-           .SetUseOsDefaultSize(true);
+        app.MainWindow.SetTitle("Piscine .NET");
+
+        // Chrome custom (barre de titre = navbar). Chromeless sous Windows ; sous Linux (WebKitGTK) le
+        // drag piloté JS peut être instable → on garde le chrome OS par défaut (repli, cf. spec §5.2).
+        // Le smoke de rendu prouve que le chromeless ne casse pas le rendu (pas d'écran noir).
+        if (OperatingSystem.IsLinux())
+        {
+            // Repli Linux : chrome OS conservé, taille gérée par l'OS.
+            app.MainWindow.SetUseOsDefaultSize(true);
+        }
+        else
+        {
+            // PhotinoX 4.2.0 : « Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize
+            // on Windows. Size and location must be specified. » → on fixe une taille/position explicites
+            // (et on N'appelle PAS SetUseOsDefaultSize). Centrage approximatif au démarrage.
+            const int width = 1200, height = 800;
+            app.MainWindow
+               .SetChromeless(true)
+               .SetWidth(width)
+               .SetHeight(height)
+               .SetLeft(120)
+               .SetTop(80);
+            WindowChromeHost.Attach(app);
+        }
 
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             app.MainWindow.ShowMessage("Erreur fatale", e.ExceptionObject.ToString() ?? "Exception inconnue");
