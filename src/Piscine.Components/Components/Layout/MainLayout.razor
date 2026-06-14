@@ -1,13 +1,16 @@
 @inherits LayoutComponentBase
 
 <div class="layout">
+    @* S7 — lien d'évitement (a11y clavier) : 1ᵉʳ élément focalisable, masqué hors focus ; saute la
+       navigation répétée pour atterrir sur le contenu principal (#main-content). *@
+    <a class="skip-link" href="#main-content">Aller au contenu</a>
     <CommandPalette />
     <header class="navbar">
         <a class="brand" href="/">
             <span class="brand-mark">{ }</span>
             <span class="brand-text">Piscine <strong>.NET</strong></span>
         </a>
-        <nav class="navbar-links">
+        <nav class="navbar-links" aria-label="Navigation principale">
             <NavTabs />
             <a href="https://github.com/Benjamin-Curlier/piscine-dotnet" target="_blank" rel="noopener">GitHub</a>
             <button id="theme-toggle" type="button" class="theme-toggle"
@@ -16,10 +19,10 @@
     </header>
 
     <div class="body">
-        <aside class="sidebar">
+        <aside class="sidebar" aria-label="Plan des cours">
             <NavMenu />
         </aside>
-        <main class="main">
+        <main class="main" id="main-content" tabindex="-1">
             <article class="content">
                 @Body
             </article>
@@ -29,6 +32,10 @@
     @* S4 — toast de push global (ancre bas-de-shell, après la fermeture de .body). Île interactive :
        le layout est statiquement rendu, ce composant s'abonne au watcher et se met à jour seul. *@
     <ToastHost @rendermode="InteractiveServer" />
+
+    @* S7 — onboarding du 1ᵉʳ lancement (overlay modal). Île interactive : ne s'affiche que si le
+       workspace n'est pas encore initialisé (OnboardingState), enrobe InitService, mène au 1ᵉʳ exo. *@
+    <OnboardingFlow @rendermode="InteractiveServer" />
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>

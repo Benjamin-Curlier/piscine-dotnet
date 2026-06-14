@@ -260,10 +260,14 @@ a:hover { text-decoration: underline; }
     border-radius: 999px;
     line-height: 1.4;
 }
-.badge-facile { background: #e3f6e8; color: #1a7f37; }
+/* S7 — contraste AA : « facile » assombri (#1a7f37 → #15692e) pour atteindre ≥ 4.5:1 sur son fond
+   pâle (texte petit en gras) ; les autres badges passaient déjà le seuil AA. */
+.badge-facile { background: #e3f6e8; color: #15692e; }
 .badge-moyen { background: #fff3d6; color: #9a6700; }
 .badge-difficile { background: #fbe2e2; color: #c01c1c; }
 .badge-bonus { background: var(--accent-soft); color: var(--accent); }
+/* S7 — variantes badges en thème sombre : les fonds clairs ci-dessus restent lisibles (texte foncé
+   sur pastille pâle), donc on conserve les mêmes paires — contraste vérifié dans les deux thèmes. */
 
 /* ---------- Exercices (page module) ---------- */
 .exercises { margin-top: 2.5rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
@@ -516,4 +520,247 @@ code { font-family: var(--mono); }
         width: 100%;
         padding: 0;
     }
+}
+
+/* ============================================================
+   S7 — Passe lisibilité / accessibilité (a11y)
+   Bloc autonome, ajouté APRÈS S6 (qui a posé --font-scale + le thème persistant) — ne remplace rien.
+   Couvre l'« À faire en S7 » de l'audit UX (audits/2026-06-13-ux-audit.md) :
+   états de focus visibles, contraste, et responsive du shell (barre + sidebar + contenu).
+   Tout est exprimé en variables de thème → fonctionne en clair ET en sombre.
+   ============================================================ */
+
+/* ---------- États de focus visibles (clavier) ----------
+   :focus-visible ne s'active qu'au clavier (pas au clic souris) → anneau net sans gêner la souris.
+   On cible TOUS les éléments interactifs du shell qui n'avaient pas d'anneau explicite : liens,
+   boutons, cartes-liens, onglets de nav, arbre de modules, pager. Couleur = --accent (contraste OK
+   sur fond clair comme sombre), décalé pour ne pas être rogné par les bords arrondis. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Anneau adapté aux éléments déjà arrondis / encadrés du shell (suit leur rayon). */
+.module-card:focus-visible,
+.exercise-card:focus-visible,
+.pager a:focus-visible,
+.module-link:focus-visible,
+.board-resume:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+}
+
+/* Onglets de nav + liens de sidebar : fond doux en plus de l'anneau (repère secondaire). */
+.nav-tab:focus-visible,
+.side-home:focus-visible,
+.exercise-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    background: var(--accent-soft);
+    text-decoration: none;
+}
+
+/* Le bouton de thème porte déjà un cadre : on renforce au focus clavier. */
+.theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ---------- Lien d'évitement (skip link) ----------
+   Accessibilité clavier : un 1ᵉʳ TAB révèle un lien « Aller au contenu » qui saute la navigation
+   répétée (barre + sidebar) pour atterrir sur le contenu principal. Masqué hors focus. */
+.skip-link {
+    position: absolute;
+    left: .75rem;
+    top: -3rem;
+    z-index: 200;
+    background: var(--accent);
+    color: #fff;
+    padding: .5rem .9rem;
+    border-radius: 0 0 8px 8px;
+    font-weight: 600;
+    transition: top .15s ease;
+}
+.skip-link:focus {
+    top: 0;
+    text-decoration: none;
+}
+
+/* ---------- Respect des préférences de mouvement ----------
+   Les recrues sensibles au mouvement (prefers-reduced-motion) ne subissent plus les transitions
+   décoratives (survol de carte qui se soulève, fondus de thème, glissement du skip link). */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .module-card:hover { transform: none; }
+}
+
+/* ---------- Responsive du shell (barre + sidebar + contenu) ----------
+   L'audit demande que le shell « se replie proprement aux largeurs étroites ». S6 ne touchait pas au
+   responsive ; on l'étend ici sur deux paliers, au-dessus du palier 768px existant (sidebar empilée).
+
+   Palier intermédiaire (≤ 1024px) : les onglets de nav peuvent défiler horizontalement plutôt que
+   déborder ou écraser la marque/GitHub. */
+@media (max-width: 1024px) {
+    .navbar { padding: 0 1rem; gap: .75rem; }
+    .navbar-links { gap: .9rem; }
+    .navbar-links .nav-tabs,
+    .navbar-links nav { min-width: 0; }
+}
+
+/* Palier étroit (≤ 768px) : la barre passe sur deux lignes (marque + actions, puis onglets qui
+   défilent) ; complète le bloc 768px d'origine (qui empile déjà la sidebar). */
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+        height: auto;
+        padding: .5rem 1rem;
+        gap: .5rem;
+    }
+    .navbar-links {
+        flex-wrap: wrap;
+        gap: .6rem 1rem;
+        width: 100%;
+    }
+    /* Onglets primaires : rangée défilante (évite le débordement aux 6+ destinations). */
+    .navbar-links :is(.nav-tabs, nav) { max-width: 100%; }
+    /* La sidebar empilée (bloc d'origine) ne doit pas voler toute la hauteur sur mobile. */
+    .sidebar { top: 0; }
+    .hero h1 { font-size: 2.1rem; }
+}
+
+/* Palier très étroit (≤ 480px) : padding resserré, cartes en pleine largeur. */
+@media (max-width: 480px) {
+    .content { padding: 1.2rem 1rem 3.5rem; }
+    .module-grid { grid-template-columns: 1fr; }
+    .navbar-links { font-size: .92rem; }
+}
+
+/* ============================================================
+   S7 — Onboarding du 1ᵉʳ lancement (overlay modal)
+   Composant Components/Onboarding/OnboardingFlow.razor, monté dans MainLayout. N'apparaît que tant que
+   le workspace n'est pas initialisé. Variables de thème → clair/sombre cohérents ; focus visibles.
+   ============================================================ */
+.onboarding-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, .45);
+    backdrop-filter: blur(2px);
+}
+
+.onboarding-card {
+    width: 100%;
+    max-width: 520px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+    padding: 1.6rem 1.8rem 1.8rem;
+}
+
+/* Indicateur d'étapes (1-2-3). */
+.onboarding-steps {
+    display: flex;
+    gap: .6rem;
+    list-style: none;
+    margin: 0 0 1.4rem;
+    padding: 0;
+}
+.onboarding-step {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: .85rem;
+    font-weight: 700;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+}
+.onboarding-step-current {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+.onboarding-step-done {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.onboarding-body h1 { font-size: 1.6rem; margin: 0 0 .8rem; }
+.onboarding-body p { margin: .6rem 0; color: var(--ink); }
+.onboarding-body p a { font-weight: 600; }
+
+.onboarding-error {
+    margin: 1rem 0 0;
+    padding: .8rem 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--warn-line);
+    background: var(--warn-bg);
+    font-size: .92rem;
+}
+.onboarding-error p { margin: .3rem 0; color: var(--ink); }
+
+.onboarding-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.6rem;
+}
+
+.onboarding-btn {
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 8px;
+    padding: .6rem 1.3rem;
+    font-size: .98rem;
+    font-weight: 600;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+.onboarding-btn:hover { background: var(--accent-dark); text-decoration: none; color: #fff; }
+.onboarding-btn:disabled { opacity: .6; cursor: default; }
+.onboarding-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.onboarding-btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+}
+.onboarding-btn-ghost:hover { background: var(--bg-soft); color: var(--ink); }
+
+@media (max-width: 480px) {
+    .onboarding-card { padding: 1.3rem 1.2rem 1.4rem; }
+    .onboarding-actions { flex-direction: column; align-items: stretch; }
+    .onboarding-btn { justify-content: center; }
 }
