@@ -15,6 +15,7 @@ public static class NavDestinations
         new NavDestination("Tableau de bord", "/", "nav-dashboard"),
         new NavDestination("Cours", "/cours", "nav-cours"),
         new NavDestination("Progression", "/progress", "nav-progress"),
+        new NavDestination("Rapport", "/rapport", "nav-rapport"),
         new NavDestination("Vérifier", "/check", "nav-check"),
         new NavDestination("Initialiser", "/init", "nav-init"),
         new NavDestination("Résultat", "/resultat", "nav-resultat"),

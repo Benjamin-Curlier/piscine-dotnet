@@ -16,6 +16,12 @@ public sealed record RepoState
     /// <summary>Nom convivial de la branche courante, ou <c>null</c> si HEAD detache / depot sans commit.</summary>
     public string? CurrentBranch { get; init; }
 
+    /// <summary>Identite git <c>user.name</c> (config effective), ou <c>null</c> si non configuree.</summary>
+    public string? UserName { get; init; }
+
+    /// <summary>Identite git <c>user.email</c> (config effective), ou <c>null</c> si non configuree.</summary>
+    public string? UserEmail { get; init; }
+
     /// <summary>HEAD pointe sur un commit nu (pas sur une branche).</summary>
     public bool IsDetachedHead { get; init; }
 

@@ -1,0 +1,217 @@
+@page "/rapport"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Pages
+@using System.Linq
+@using Piscine.App.Git
+@using Piscine.App.Progress
+@using Piscine.App.Push
+@using Piscine.App.Report
+@using Piscine.Components.Components.Progress
+@using Piscine.Components.Services
+@using Piscine.Core
+@implements IAsyncDisposable
+@inject CourseCatalog Catalog
+@inject ProgressService Progress
+@inject GitStatusService Git
+@inject IPushResultWatcher Pushes
+@inject PiscineLayout Layout
+@inject IJSRuntime JS
+
+<PageTitle>Rapport — Piscine .NET</PageTitle>
+
+<section class="report" data-testid="report">
+    <div class="report-actions report-no-print">
+        <h1>Rapport de progression</h1>
+        <div class="report-buttons">
+            <button type="button" class="btn btn-primary" data-testid="report-print" @onclick="PrintAsync">
+                Imprimer / PDF
+            </button>
+            <button type="button" class="btn" data-testid="report-copy-md" @onclick="CopyMarkdownAsync">
+                @(_copied ? "Copié ✓" : "Copier en Markdown")
+            </button>
+            <button type="button" class="btn" data-testid="report-save-md" @onclick="SaveMarkdownAsync">
+                Enregistrer en Markdown
+            </button>
+        </div>
+    </div>
+
+    <header class="report-header">
+        <p class="report-line">
+            <span class="report-key">Recrue&nbsp;:</span>
+            <span class="report-val" data-testid="report-identity">@Identity</span>
+        </p>
+        @if (!string.IsNullOrWhiteSpace(_model.Branch))
+        {
+            <p class="report-line">
+                <span class="report-key">Branche&nbsp;:</span>
+                <span class="report-val" data-testid="report-branch">@_model.Branch</span>
+            </p>
+        }
+        <p class="report-line">
+            <span class="report-key">Généré le&nbsp;:</span>
+            <span class="report-val" data-testid="report-date">@_model.GeneratedAt.ToLocalTime().ToString("g")</span>
+        </p>
+    </header>
+
+    <section class="report-overview">
+        <h2>Vue d'ensemble</h2>
+        <div class="board-metrics">
+            <div class="metric metric-accent" data-testid="report-percent">
+                <span class="metric-label">Avancement</span>
+                <span class="metric-value">@_model.PercentFait&nbsp;%</span>
+                <div class="bar"><div class="bar-fill" style="width:@(_model.PercentFait)%"></div></div>
+            </div>
+            <div class="metric" data-testid="report-fait"><span class="metric-label">Fait</span><span class="metric-value">@_model.Fait</span></div>
+            <div class="metric" data-testid="report-encours"><span class="metric-label">En cours</span><span class="metric-value">@_model.EnCours</span></div>
+            <div class="metric" data-testid="report-arevoir"><span class="metric-label">À revoir</span><span class="metric-value">@_model.ARevoir</span></div>
+            <div class="metric" data-testid="report-restant"><span class="metric-label">Restant</span><span class="metric-value">@_model.Restant</span></div>
+        </div>
+    </section>
+
+    <section class="report-modules">
+        <h2>Par module</h2>
+        @if (_model.Modules.Count == 0)
+        {
+            <p class="report-empty" data-testid="report-modules-empty">Aucun module avec exercices.</p>
+        }
+        else
+        {
+            <table class="report-table" data-testid="report-module-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Module</th>
+                        <th scope="col">Fait</th>
+                        <th scope="col">En cours</th>
+                        <th scope="col">À revoir</th>
+                        <th scope="col">Restant</th>
+                        <th scope="col">Bonus</th>
+                        <th scope="col">Avancement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in _model.Modules)
+                    {
+                        <tr data-testid="report-module-row">
+                            <th scope="row">@m.Number · @m.Title</th>
+                            <td>@m.Fait</td>
+                            <td>@m.EnCours</td>
+                            <td>@m.ARevoir</td>
+                            <td>@m.Restant</td>
+                            <td>@m.BonusFaits/@m.BonusTotal</td>
+                            <td>@m.PercentFait&nbsp;%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    <section class="report-pushes">
+        <h2>Push récents</h2>
+        @if (_model.RecentPushes.Count == 0)
+        {
+            <p class="report-empty" data-testid="report-pushes-empty">Aucun push récent.</p>
+        }
+        else
+        {
+            <ul class="report-push-list">
+                @foreach (var p in _model.RecentPushes)
+                {
+                    <li class="report-push-item" data-testid="report-push-item">
+                        <span class="rp-id">@p.ExerciseId</span>
+                        <span class="rp-verdict">@p.Verdict</span>
+                        <span class="rp-attempts">Tentatives : @p.Attempts</span>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</section>
+
+@code {
+    private ReportModel _model = Empty();
+    private IJSObjectReference? _module;
+    private bool _copied;
+
+    protected override void OnInitialized()
+    {
+        Pushes.Start();
+        _model = BuildModel();
+    }
+
+    private string Identity
+    {
+        get
+        {
+            var hasName = !string.IsNullOrWhiteSpace(_model.UserName);
+            var hasEmail = !string.IsNullOrWhiteSpace(_model.UserEmail);
+            if (hasName && hasEmail) return $"{_model.UserName} <{_model.UserEmail}>";
+            if (hasName) return _model.UserName!;
+            if (hasEmail) return _model.UserEmail!;
+            return "Identité git non configurée";
+        }
+    }
+
+    private ReportModel BuildModel()
+    {
+        var exercises = Catalog.Modules
+            .SelectMany(m => m.Groups.SelectMany(g => g.Exercises))
+            .Select(ex => new ReportExercise(ex.ModuleId, ex.Id, ex.Bonus))
+            .ToList();
+
+        var status = new Dictionary<(string, string), ExerciseProgressStatus>();
+        foreach (var info in Progress.SnapshotFor(exercises.Select(e => (e.ModuleId, e.ExerciseId))))
+        {
+            status[(info.ModuleId, info.ExerciseId)] = info.Status;
+        }
+
+        var headers = Catalog.Modules
+            .Where(m => m.HasExercises)
+            .Select(m => new ReportModuleHeader(m.Id, m.Number, m.Title))
+            .ToList();
+
+        var repo = Git.Read(Layout.WorkspaceRoot);
+
+        return ReportBuilder.Build(repo, DateTimeOffset.Now, headers, exercises, status, Pushes.LatestResult());
+    }
+
+    private async Task<IJSObjectReference> ModuleAsync()
+        => _module ??= await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./_content/Piscine.Components/Components/Pages/Report.razor.js");
+
+    private async Task PrintAsync()
+    {
+        var module = await ModuleAsync();
+        await module.InvokeVoidAsync("print");
+    }
+
+    private async Task CopyMarkdownAsync()
+    {
+        var module = await ModuleAsync();
+        _copied = await module.InvokeAsync<bool>("copy", ReportMarkdown.Render(_model));
+    }
+
+    private async Task SaveMarkdownAsync()
+    {
+        var module = await ModuleAsync();
+        await module.InvokeVoidAsync("download", "rapport-piscine.md", ReportMarkdown.Render(_model));
+    }
+
+    private static ReportModel Empty() => new(
+        null, null, null, DateTimeOffset.Now, 0, 0, 0, 0, 0, 0, [], []);
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit déjà fermé (navigation/reload) : rien à nettoyer côté JS.
+            }
+        }
+    }
+}
