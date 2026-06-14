@@ -8,6 +8,7 @@ using Piscine.App.Init;
 using Piscine.App.Launch;
 using Piscine.App.Progress;
 using Piscine.App.Push;
+using Piscine.App.Search;
 using Piscine.App.Settings;
 using Piscine.App.Terminal;
 using Piscine.Components;
@@ -42,6 +43,11 @@ internal static class Program
         // Contenu pédagogique (chargé une fois) + rendu Markdown, partagés par toutes les pages.
         builder.Services.AddSingleton<CourseCatalog>();
         builder.Services.AddSingleton<MarkdownRenderer>();
+
+        // Palette de commande ⌘K (S3) : index bâti une fois depuis le catalogue (destinations + actions
+        // + modules/exercices + plein-texte), tri/scoring délégués au SearchService pur de Piscine.App.
+        builder.Services.AddSingleton(sp =>
+            new SearchService(SearchIndexBuilder.Build(sp.GetRequiredService<CourseCatalog>())));
 
         // Layout piscine depuis l'environnement (résolveur partagé PiscineLayout.FromEnvironment, identique au
         // CLI/hook) : contenu = PISCINE_CONTENT (sinon racine du catalogue embarqué), workspace = PISCINE_WORKSPACE
