@@ -1,0 +1,219 @@
+@namespace Piscine.Components.Components.Onboarding
+@using Piscine.App.Init
+@using Piscine.App.Onboarding
+@using Piscine.Components.Services
+@inject OnboardingState State
+@inject InitService Init
+@inject CourseCatalog Catalog
+@inject IJSRuntime JS
+
+@* ============================================================================================
+   Onboarding du 1ᵉʳ lancement (S7, spec §5.8) — enrobe InitService (réutilisé, non dupliqué).
+   Affiché UNIQUEMENT tant que le workspace n'est pas initialisé (OnboardingState.ShouldShow) ;
+   il disparaît dès que l'init réussit → pas de harcèlement une fois la recrue prête.
+   Trois étapes : Bienvenue → Initialisation guidée → Premier exercice.
+   Île interactive (overlay modal) montée dans MainLayout ; @onclick câblés via render mode RCL.
+   ============================================================================================ *@
+@if (_visible)
+{
+    <div class="onboarding-overlay" data-testid="onboarding" role="dialog" aria-modal="true"
+         aria-labelledby="onboarding-title" data-step="@_step.ToString()">
+        <div class="onboarding-card">
+            <ol class="onboarding-steps" aria-hidden="true">
+                <li class="@StepClass(Step.Welcome)">1</li>
+                <li class="@StepClass(Step.Init)">2</li>
+                <li class="@StepClass(Step.Done)">3</li>
+            </ol>
+
+            @switch (_step)
+            {
+                case Step.Welcome:
+                    <div class="onboarding-body" data-testid="onboarding-welcome">
+                        <h1 id="onboarding-title">Bienvenue à la piscine .NET&nbsp;👋</h1>
+                        <p>
+                            Cette application est ton poste de travail&nbsp;: tu y lis le cours, tu démarres
+                            et tu vérifies chaque exercice, et tu suis ta progression — sans quitter la fenêtre.
+                        </p>
+                        <p>
+                            Avant de plonger, préparons ton environnement de travail (un dépôt git local où
+                            ton travail sera corrigé). C'est rapide et automatique.
+                        </p>
+                        <div class="onboarding-actions">
+                            <button type="button" class="onboarding-btn" data-testid="onboarding-start"
+                                    @onclick="GoToInit">
+                                Commencer
+                            </button>
+                            <button type="button" class="onboarding-btn onboarding-btn-ghost"
+                                    data-testid="onboarding-skip" @onclick="Dismiss">
+                                Plus tard
+                            </button>
+                        </div>
+                    </div>
+                    break;
+
+                case Step.Init:
+                    <div class="onboarding-body" data-testid="onboarding-init">
+                        <h1 id="onboarding-title">Préparation de l'environnement</h1>
+                        <p>
+                            On crée ton dépôt de travail et on installe le mécanisme de correction.
+                            Une seule fois&nbsp;: c'est idempotent.
+                        </p>
+
+                        @if (_outcome?.Error is { } error)
+                        {
+                            <div class="onboarding-error" role="alert" data-testid="onboarding-error">
+                                <p>L'initialisation a échoué&nbsp;: @error</p>
+                                <p>Tu peux réessayer, ou ouvrir la page <a href="/init">Initialiser</a>.</p>
+                            </div>
+                        }
+
+                        <div class="onboarding-actions">
+                            <button type="button" class="onboarding-btn" data-testid="onboarding-run-init"
+                                    @onclick="RunInit" disabled="@_running">
+                                @(_running ? "Initialisation…" : (_outcome?.Error is not null ? "Réessayer" : "Initialiser maintenant"))
+                            </button>
+                            <button type="button" class="onboarding-btn onboarding-btn-ghost"
+                                    data-testid="onboarding-skip" @onclick="Dismiss" disabled="@_running">
+                                Plus tard
+                            </button>
+                        </div>
+                    </div>
+                    break;
+
+                case Step.Done:
+                    <div class="onboarding-body" data-testid="onboarding-done">
+                        <h1 id="onboarding-title">Tout est prêt&nbsp;🎉</h1>
+                        <p>
+                            Ton environnement est initialisé. Direction ton premier exercice&nbsp;: lis le sujet,
+                            ouvre-le dans ton éditeur, puis vérifie ton travail — tout depuis l'app.
+                        </p>
+                        <div class="onboarding-actions">
+                            @if (_firstExerciseRoute is { } route)
+                            {
+                                <a class="onboarding-btn" data-testid="onboarding-first-exercise" href="@route"
+                                   @onclick="Dismiss" @onclick:preventDefault="false">
+                                    Commencer le premier exercice →
+                                </a>
+                            }
+                            else
+                            {
+                                <a class="onboarding-btn" data-testid="onboarding-first-exercise" href="/cours"
+                                   @onclick="Dismiss" @onclick:preventDefault="false">
+                                    Parcourir les cours →
+                                </a>
+                            }
+                            <button type="button" class="onboarding-btn onboarding-btn-ghost"
+                                    data-testid="onboarding-close" @onclick="Dismiss">
+                                Fermer
+                            </button>
+                        </div>
+                    </div>
+                    break;
+            }
+        </div>
+    </div>
+}
+
+@code {
+    /// <summary>Étapes du parcours de 1ᵉʳ lancement.</summary>
+    private enum Step
+    {
+        Welcome,
+        Init,
+        Done,
+    }
+
+    private bool _visible;
+    private Step _step = Step.Welcome;
+    private bool _running;
+    private InitOutcome? _outcome;
+    private string? _firstExerciseRoute;
+
+    protected override void OnInitialized()
+    {
+        // Source de vérité unique : on affiche tant que le workspace n'est pas initialisé.
+        _visible = State.ShouldShow();
+        _firstExerciseRoute = FirstExerciseRoute();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Marqueur de disponibilité interactive (déterministe pour l'E2E) : une fois le circuit monté,
+        // les gestionnaires @onclick sont câblés. Cf. modèle window.__settingsReady (S6). Best-effort :
+        // en rendu statique (bUnit loose) l'import est un no-op et ne doit jamais faire échouer le rendu.
+        if (firstRender)
+        {
+            try
+            {
+                var module = await JS.InvokeAsync<IJSObjectReference>(
+                    "import", "./_content/Piscine.Components/Components/Onboarding/OnboardingFlow.razor.js");
+                await module.InvokeVoidAsync("markReady");
+                await module.DisposeAsync();
+            }
+            catch (Exception ex) when (ex is JSException or InvalidOperationException or JSDisconnectedException or System.Threading.Tasks.TaskCanceledException)
+            {
+                // Pas de runtime JS (prérendu / test / circuit fermé) : sans incidence.
+            }
+        }
+    }
+
+    private void GoToInit() => _step = Step.Init;
+
+    private async Task RunInit()
+    {
+        if (_running)
+        {
+            return;
+        }
+
+        _running = true;
+        _outcome = null;
+        StateHasChanged();
+
+        try
+        {
+            _outcome = await Task.Run(() => Init.Initialize());
+        }
+        finally
+        {
+            _running = false;
+        }
+
+        if (_outcome.Success)
+        {
+            _step = Step.Done;
+        }
+
+        StateHasChanged();
+    }
+
+    // Ferme l'overlay pour la session courante. On ne persiste aucun drapeau « déjà vu » : si l'init
+    // n'a pas été faite, l'onboarding réapparaîtra au prochain lancement (l'état d'init fait foi).
+    private void Dismiss() => _visible = false;
+
+    private string StepClass(Step step)
+    {
+        if (step == _step)
+        {
+            return "onboarding-step onboarding-step-current";
+        }
+
+        return (int)step < (int)_step
+            ? "onboarding-step onboarding-step-done"
+            : "onboarding-step";
+    }
+
+    /// <summary>
+    /// Route du tout premier exercice du curriculum (1ᵉʳ module ayant des exercices, 1ᵉʳ groupe, 1ᵉʳ exo).
+    /// null si le catalogue est vide → repli sur /cours dans l'UI.
+    /// </summary>
+    private string? FirstExerciseRoute()
+    {
+        var first = Catalog.Modules
+            .Where(m => m.HasExercises)
+            .SelectMany(m => m.Groups.SelectMany(g => g.Exercises))
+            .FirstOrDefault();
+
+        return first is null ? null : $"/module/{first.ModuleId}/{first.Id}";
+    }
+}

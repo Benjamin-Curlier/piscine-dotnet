@@ -6,6 +6,7 @@ using Piscine.App.Coaching;
 using Piscine.App.Git;
 using Piscine.App.Init;
 using Piscine.App.Launch;
+using Piscine.App.Onboarding;
 using Piscine.App.Progress;
 using Piscine.App.Push;
 using Piscine.App.Search;
@@ -96,6 +97,10 @@ internal static class Program
         builder.Services.AddSingleton<IProcessLauncher, ProcessLauncher>();
         builder.Services.AddSingleton<WorkspaceLauncher>();
         builder.Services.AddSingleton<SettingsService>();
+
+        // Onboarding 1ᵉʳ lancement (S7) : décide d'afficher le parcours guidé tant que le workspace
+        // n'est pas initialisé (dérive de InitService, lecture seule, sans nouvelle persistance).
+        builder.Services.AddSingleton<OnboardingState>();
 
         builder.RootComponents.Add<App>("#app");
 

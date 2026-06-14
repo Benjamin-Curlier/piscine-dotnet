@@ -84,6 +84,10 @@ builder.Services.AddSingleton<IProcessLauncher, ProcessLauncher>();
 builder.Services.AddSingleton<WorkspaceLauncher>();
 builder.Services.AddSingleton<SettingsService>();
 
+// Onboarding 1ᵉʳ lancement (S7) : décide d'afficher le parcours guidé tant que le workspace
+// n'est pas initialisé (dérive de InitService, lecture seule, sans nouvelle persistance).
+builder.Services.AddSingleton<Piscine.App.Onboarding.OnboardingState>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
