@@ -1,0 +1,7 @@
+.board-recent { margin: 1.25rem 0; }
+.board-section-title { font-size: 0.8rem; color: var(--color-text-tertiary, #888); margin: 0 0 0.5rem; }
+.board-recent-empty { color: var(--color-text-tertiary, #888); font-size: 0.88rem; }
+.board-recent-list { list-style: none; padding: 0; margin: 0; }
+.board-recent-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0; border-top: 0.5px solid rgba(127,127,127,0.15); font-size: 0.85rem; }
+.bri-exo { flex: 1; }
+.bri-link { color: var(--accent, #2563eb); text-decoration: none; }

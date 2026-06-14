@@ -1,0 +1,13 @@
+.board-overview { margin: 1.25rem 0; }
+.board-section-title { font-size: 0.8rem; color: var(--color-text-tertiary, #888); margin: 0 0 0.5rem; }
+.board-metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+.metric { background: rgba(127,127,127,0.08); border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.metric-label { font-size: 0.72rem; color: var(--color-text-tertiary, #888); }
+.metric-value { font-size: 1.3rem; font-weight: 500; }
+.bar { height: 7px; border-radius: 999px; background: rgba(127,127,127,0.18); overflow: hidden; margin-top: 0.4rem; }
+.bar-fill { height: 100%; border-radius: 999px; background: var(--accent, #2563eb); }
+.board-modules { list-style: none; padding: 0; margin: 0; }
+.board-module { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; padding: 0.25rem 0; }
+.bm-title { width: 150px; flex: none; color: var(--color-text-secondary, #aaa); }
+.board-module .bar { flex: 1; margin-top: 0; }
+.bm-count { width: 42px; text-align: right; flex: none; }

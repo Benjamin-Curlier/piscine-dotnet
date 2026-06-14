@@ -1,0 +1,32 @@
+@namespace Piscine.Components.Components.Board
+@using Piscine.App.Board
+
+<section class="board-overview">
+    <p class="board-section-title">Progression globale</p>
+    <div class="board-metrics">
+        <div class="metric metric-accent" data-testid="board-percent">
+            <span class="metric-label">Avancement</span>
+            <span class="metric-value">@Counts.PercentFait&nbsp;%</span>
+            <div class="bar"><div class="bar-fill" style="width:@(Counts.PercentFait)%"></div></div>
+        </div>
+        <div class="metric" data-testid="board-count-fait"><span class="metric-label">Fait</span><span class="metric-value">@Counts.Fait</span></div>
+        <div class="metric" data-testid="board-count-encours"><span class="metric-label">En cours</span><span class="metric-value">@Counts.EnCours</span></div>
+        <div class="metric" data-testid="board-count-arevoir"><span class="metric-label">À revoir</span><span class="metric-value">@Counts.ARevoir</span></div>
+        <div class="metric" data-testid="board-count-restant"><span class="metric-label">Restant</span><span class="metric-value">@Counts.Restant</span></div>
+    </div>
+    <ul class="board-modules">
+        @foreach (var m in Modules)
+        {
+            <li class="board-module" data-testid="board-module">
+                <span class="bm-title">@m.Number · @m.Title</span>
+                <div class="bar"><div class="bar-fill" style="width:@(m.Percent)%"></div></div>
+                <span class="bm-count">@m.Done/@m.Total</span>
+            </li>
+        }
+    </ul>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public BoardCounts Counts { get; set; } = default!;
+    [Parameter, EditorRequired] public IReadOnlyList<ModuleProgress> Modules { get; set; } = [];
+}

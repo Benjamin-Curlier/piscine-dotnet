@@ -1,0 +1,38 @@
+@namespace Piscine.Components.Components.Board
+@using Piscine.App.Progress
+@using Piscine.App.Push
+@using Piscine.Components.Components.Progress
+
+<section class="board-recent">
+    <p class="board-section-title">Résultats récents</p>
+    @if (Recent is null || Recent.Changed.Count == 0)
+    {
+        <p class="board-recent-empty" data-testid="board-recent-empty">
+            Pousse ton travail pour voir tes derniers résultats ici.
+        </p>
+    }
+    else
+    {
+        <ul class="board-recent-list">
+            @foreach (var e in Recent.Changed)
+            {
+                <li class="board-recent-item" data-testid="board-recent-item">
+                    <StatusBadge Status="Map(e.Verdict)" />
+                    <span class="bri-exo">@e.ExerciseId</span>
+                    <a class="bri-link" href="/check">Vérifier</a>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+@code {
+    [Parameter] public PushResult? Recent { get; set; }
+
+    private static ExerciseProgressStatus Map(PushVerdict v) => v switch
+    {
+        PushVerdict.Reussi => ExerciseProgressStatus.PousseNote,
+        PushVerdict.ARevoir => ExerciseProgressStatus.ARevoir,
+        _ => ExerciseProgressStatus.NonCommence,
+    };
+}
