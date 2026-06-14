@@ -1,0 +1,28 @@
+# Mises à jour de dépendances automatiques (gratuit). Dependabot ouvre des PR groupées chaque semaine.
+version: 2
+updates:
+  # Paquets NuGet (.csproj de la solution Piscine.slnx).
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(deps)"
+    groups:
+      nuget:
+        patterns: ["*"]
+
+  # Actions GitHub utilisées par les workflows (.github/workflows).
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build(ci)"
+    groups:
+      actions:
+        patterns: ["*"]
