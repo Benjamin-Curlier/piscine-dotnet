@@ -1,0 +1,52 @@
+/* Page /check (Vérifier) : les contrôles étaient des <select>/<button> bruts (look OS par défaut,
+   détonnant avec le reste de l'app). On les style avec les jetons du thème — menu déroulant cohérent
+   + bouton primaire façon « Enregistrer » des Réglages. */
+.check-page-title { margin: 0 0 1.25rem; }
+
+.check-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+.check-label { color: var(--ink-soft); font-weight: 600; }
+
+.check-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    min-width: 16rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background-color: var(--bg-soft);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+    /* Chevron en SVG inline (currentColor via --ink-soft) — pas de flèche OS. */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    transition: border-color .15s;
+}
+.check-select:hover { border-color: var(--accent); }
+.check-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+.check-btn {
+    padding: 0.5rem 1.1rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter .15s;
+}
+.check-btn:hover { filter: brightness(1.08); text-decoration: none; }
+.check-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check-btn:disabled { opacity: .6; cursor: default; }
+
+.check-error { color: var(--danger, #cf222e); font-weight: 500; }
+.check-running { color: var(--ink-soft); font-style: italic; }

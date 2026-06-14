@@ -774,9 +774,22 @@ html[data-host="photino"] .titlebar-drag a { -webkit-app-region: no-drag; app-re
 /* Contrôles de fenêtre : masqués hors Photino (le navigateur / l'OS fournissent le chrome). */
 .window-controls { margin-left: 8px; }
 html:not([data-host="photino"]) .window-controls { display: none; }
-/* Fenêtre chromeless : coins arrondis + ombre, retirés une fois agrandie. */
+/* Fenêtre chromeless : shell FIXE à coins arrondis ; le CONTENU défile à l'intérieur (.main).
+   AVANT : body{overflow:hidden} (pour arrondir les coins) empêchait TOUT défilement → /cours et les
+   pages longues étaient tronquées dans la fenêtre Photino. Le DevHost navigateur (data-host≠photino)
+   n'était pas concerné, d'où le bug passé inaperçu en QA navigateur. */
+html[data-host="photino"], html[data-host="photino"] body { height: 100vh; }
 html[data-host="photino"] body { border-radius: 8px; overflow: hidden; }
 html[data-host="photino"].is-maximized body { border-radius: 0; }
+html[data-host="photino"] .layout { height: 100vh; }
+html[data-host="photino"] .body { flex: 1; min-height: 0; }
+html[data-host="photino"] .main { height: 100%; overflow-y: auto; }
+/* À l'étroit (sidebar empilée ≤768px) : la fenêtre défile en entier plutôt que .main seul. */
+@media (max-width: 768px) {
+    html[data-host="photino"] body { overflow-y: auto; }
+    html[data-host="photino"] .layout { height: auto; min-height: 100vh; }
+    html[data-host="photino"] .main { height: auto; overflow: visible; }
+}
 /* Poignées de redimensionnement : actives sous Photino (l'OS retire la bordure de resize en
    chromeless), masquées hors Photino et une fois la fenêtre agrandie. */
 .resize-handles { display: none; }

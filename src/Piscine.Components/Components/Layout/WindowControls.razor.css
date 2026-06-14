@@ -1,9 +1,32 @@
-.window-controls { display: inline-flex; align-items: center; gap: 2px; -webkit-app-region: no-drag; app-region: no-drag; }
-.win-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 34px; height: 28px; border: 0; background: transparent;
-    color: var(--text, #c9d1d9); cursor: pointer; border-radius: 6px;
+/* Contrôles de fenêtre (barre de titre custom, façon Discord). Intégrés à la navbar : pleine hauteur,
+   collés au coin haut-droit, et stylés avec les JETONS RÉELS du thème (--ink/--ink-soft/--bg-soft/
+   --accent) pour être visibles et cohérents en clair ET en sombre. (Avant : var(--text)/var(--surface-hover)
+   n'existaient pas → repli gris clair quasi invisible en clair = boutons « détachés ».) */
+.window-controls {
+    display: inline-flex;
+    align-items: stretch;
+    align-self: stretch;            /* occupe toute la hauteur de la navbar */
+    gap: 0;
+    margin: 0 -1.5rem 0 0.75rem;    /* annule le padding droit (1.5rem) de la navbar → boutons au bord */
+    -webkit-app-region: no-drag; app-region: no-drag;
 }
-.win-btn:hover { background: var(--surface-hover, rgba(255,255,255,.08)); }
-.win-btn:focus-visible { outline: 2px solid var(--accent, #8957e5); outline-offset: -2px; }
+
+.win-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    border: 0;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.win-btn svg { display: block; }
+
+.win-btn:hover { background: var(--bg-soft); color: var(--ink); }
+.win-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* Fermer : rouge au survol (convention OS), texte/icône en blanc. */
 .win-close:hover { background: #e81123; color: #fff; }
