@@ -15,13 +15,13 @@ namespace Piscine.DevHost.E2E;
 /// (5) la bascule clair/sombre modifie <c>data-theme</c> sur <c>&lt;html&gt;</c> et persiste dans
 ///     <c>localStorage.theme</c>.
 /// Si Chromium n'est pas installé (CI sans <c>playwright install</c>), le test se SAUTE proprement.
-/// Port dédié 5257, racine résolue via Piscine.slnx, PISCINE_CONTENT pointé sur content/.
+/// Port dédié 5273, racine résolue via Piscine.slnx, PISCINE_CONTENT pointé sur content/.
 /// </summary>
 public sealed class ReaderSmokeTests : IAsyncLifetime
 {
     // Port dédié, distinct de SmokeTests (5247), TerminalSmokeTests (5249), CoachingSmokeTests (5251),
-    // CheckSmokeTests (5253), ProgressSmokeTests (5255).
-    private const int Port = 5257;
+    // CheckSmokeTests (5253), ProgressSmokeTests (5255), NavigationSmokeTests (5257).
+    private const int Port = 5273;
     private static readonly string BaseUrl = $"http://localhost:{Port}";
 
     // Module avec titres ## accentués + blocs de code bash → idéal pour les assertions sommaire + hljs.

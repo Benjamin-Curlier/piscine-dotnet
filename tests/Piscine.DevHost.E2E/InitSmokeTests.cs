@@ -12,13 +12,14 @@ namespace Piscine.DevHost.E2E;
 /// l'idempotence (message « Déjà initialisé », aucun <c>init-error</c>).
 /// Prouve aussi sur le FS que <c>post-receive</c> existe dans le home temporaire isolé.
 /// Si Chromium n'est pas installé (CI sans <c>playwright install</c>), le test se SAUTE proprement.
-/// Port dédié 5259, racine résolue via Piscine.slnx, répertoires temporaires nettoyés en DisposeAsync.
+/// Port dédié 5275, racine résolue via Piscine.slnx, répertoires temporaires nettoyés en DisposeAsync.
 /// </summary>
 public sealed class InitSmokeTests : IAsyncLifetime
 {
     // Port dédié, distinct de SmokeTests (5247), TerminalSmokeTests (5249), CoachingSmokeTests (5251),
-    // CheckSmokeTests (5253), ProgressSmokeTests (5255), ReaderSmokeTests (5257).
-    private const int Port = 5259;
+    // CheckSmokeTests (5253), ProgressSmokeTests (5255), NavigationSmokeTests (5257), BoardSmokeTests (5259),
+    // ReaderSmokeTests (5273).
+    private const int Port = 5275;
     private static readonly string BaseUrl = $"http://localhost:{Port}";
 
     private Process? _host;
