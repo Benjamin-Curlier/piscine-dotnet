@@ -19,6 +19,11 @@ builder.Services.AddRazorComponents()
 builder.Services.AddSingleton<CourseCatalog>();
 builder.Services.AddSingleton<MarkdownRenderer>();
 
+// Palette de commande ⌘K (S3) : index bâti une fois depuis le catalogue (destinations + actions
+// + modules/exercices + plein-texte), tri/scoring délégués au SearchService pur de Piscine.App.
+builder.Services.AddSingleton(sp =>
+    new Piscine.App.Search.SearchService(SearchIndexBuilder.Build(sp.GetRequiredService<CourseCatalog>())));
+
 // Layout piscine : contenu depuis PISCINE_CONTENT (ou l'appsettings), workspace depuis
 // PISCINE_WORKSPACE (pour permettre à l'E2E de pointer vers un workspace isolé), état depuis
 // PISCINE_HOME (comme FromEnvironment).  Construit explicitement pour être controlable par env.
