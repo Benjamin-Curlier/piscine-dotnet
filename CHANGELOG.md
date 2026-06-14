@@ -4,10 +4,11 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
-## [Non publié]
+## [v4.0.0] — 2026-06-14
 
-Épic **QoL recrue de bureau** (S0–S7) : amélioration du confort d'usage de l'app de bureau
-Photino sans toucher au moteur, au CLI `piscine` ni à `grade-received`.
+Épic **QoL recrue de bureau** (S0–S8) + **chrome de fenêtre personnalisé** : refonte majeure du
+confort d'usage de l'app de bureau Photino, sans toucher au moteur, au CLI `piscine` ni à
+`grade-received` (headless `v2.0.0`-compatibles). Le tag git reste l'unique source de vérité de version.
 
 ### Ajouté
 
@@ -43,6 +44,11 @@ Photino sans toucher au moteur, au CLI `piscine` ni à `grade-received`.
 - **Navigation enrichie** : pastilles de statut dans l'arbre des modules (sidebar) et dans
   l'onglet *Cours* ; destinations en données (`NavDestinations`) — arbre et onglets sont
   maintenant découplés (migration vers un rail d'icônes type IDE possible sans changer les pages).
+- **Chrome de fenêtre personnalisé** (façon Discord) : la barre de titre OS par défaut est retirée
+  (fenêtre Photino *chromeless*) et fondue dans la barre de navigation — zone draggable, double-clic
+  pour agrandir/restaurer, contrôles **réduire / agrandir / fermer** intégrés à droite. Pilotage natif
+  côté hôte `Piscine.Desktop` via messages web ; dans le navigateur (DevHost) les contrôles sont
+  masqués. Repli automatique sur le chrome OS sous Linux (WebKitGTK).
 
 ### Changé
 
