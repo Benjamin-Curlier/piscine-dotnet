@@ -15,7 +15,7 @@ public sealed class QaCapture
 {
     private static readonly string[] Routes =
     {
-        "/", "/cours", "/rapport", "/reglages",
+        "/", "/cours", "/rapport", "/reglages", "/check", "/terminal",
     };
 
     private static readonly (string Theme, int Width)[] Variants =
@@ -35,6 +35,9 @@ public sealed class QaCapture
         var outDir = Environment.GetEnvironmentVariable("PISCINE_QA_OUT")
             ?? Path.Combine(Path.GetTempPath(), "piscine-qa-shots");
         var tag = Environment.GetEnvironmentVariable("PISCINE_QA_TAG") ?? "mixed";
+        // Force le mode chromeless (data-host=photino) dans le navigateur pour vérifier le CSS propre à
+        // Photino (chrome de fenêtre + défilement du shell) sans la fenêtre native.
+        var forcePhotino = Environment.GetEnvironmentVariable("PISCINE_QA_FORCE_PHOTINO") == "1";
         Directory.CreateDirectory(outDir);
 
         using var pw = await Playwright.CreateAsync();
@@ -59,10 +62,22 @@ public sealed class QaCapture
                     await page.GotoAsync(baseUrl + route, new() { Timeout = 30_000, WaitUntil = WaitUntilState.NetworkIdle });
                     await page.WaitForTimeoutAsync(400); // laisser l'îlot interactif se stabiliser
 
+                    var scroll = "";
+                    if (forcePhotino)
+                    {
+                        await page.EvaluateAsync("document.documentElement.setAttribute('data-host','photino')");
+                        await page.WaitForTimeoutAsync(250);
+                        // Confirme que .main est bien devenu le conteneur de défilement (sinon clipping).
+                        scroll = " " + await page.EvaluateAsync<string>(
+                            "() => { const m=document.querySelector('.main'); if(!m) return 'no-main';" +
+                            " const scrollable = m.scrollHeight > m.clientHeight + 1;" +
+                            " return (scrollable?'main-scrollable':'main-fits')+` sh=${m.scrollHeight} ch=${m.clientHeight}`; }");
+                    }
+
                     var slug = route == "/" ? "root" : route.Trim('/').Replace('/', '-');
                     var name = $"{tag}-{slug}-{theme}-{width}";
-                    await page.ScreenshotAsync(new() { Path = Path.Combine(outDir, name + ".png"), FullPage = true });
-                    log.Add($"{name}: {(errors.Count == 0 ? "no-console-errors" : "ERRORS=" + string.Join(" | ", errors))}");
+                    await page.ScreenshotAsync(new() { Path = Path.Combine(outDir, name + ".png"), FullPage = !forcePhotino });
+                    log.Add($"{name}: {(errors.Count == 0 ? "no-console-errors" : "ERRORS=" + string.Join(" | ", errors))}{scroll}");
                     await page.CloseAsync();
                 }
             }

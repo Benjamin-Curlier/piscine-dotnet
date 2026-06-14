@@ -14,7 +14,7 @@
 @implements IAsyncDisposable
 
 <PageTitle>Terminal — Piscine .NET</PageTitle>
-<h1>Terminal embarque (spike)</h1>
+<h1>Terminal embarqué</h1>
 
 @if (_enabled)
 {
@@ -27,16 +27,16 @@
                 <h2>Statut git</h2>
                 @if (_state is null || !_state.IsRepository)
                 {
-                    <p class="coaching-status-empty">Pas encore de depot (lance <code>git init</code>).</p>
+                    <p class="coaching-status-empty">Pas encore de dépôt (lance <code>git init</code>).</p>
                 }
                 else
                 {
                     <dl class="coaching-status-grid">
                         <dt>Branche</dt>
-                        <dd data-testid="status-branch">@(_state.CurrentBranch ?? (_state.IsDetachedHead ? "(HEAD detache)" : "(sans commit)"))</dd>
-                        <dt>Indexes</dt>
+                        <dd data-testid="status-branch">@(_state.CurrentBranch ?? (_state.IsDetachedHead ? "(HEAD détaché)" : "(sans commit)"))</dd>
+                        <dt>Indexés</dt>
                         <dd data-testid="status-staged">@_state.StagedCount</dd>
-                        <dt>Non pousses</dt>
+                        <dt>Non poussés</dt>
                         <dd data-testid="status-ahead">@_state.AheadOfOrigin</dd>
                     </dl>
                 }
@@ -45,7 +45,7 @@
                 <h2>Indices</h2>
                 @if (_cards.Count == 0)
                 {
-                    <p class="coaching-hints-empty">Rien a signaler pour le moment.</p>
+                    <p class="coaching-hints-empty">Rien à signaler pour le moment.</p>
                 }
                 else
                 {
@@ -65,7 +65,7 @@
 else
 {
     <div class="notice notice-warn">
-        Le terminal embarque n'est actif qu'en environnement de developpement
+        Le terminal embarqué n'est actif qu'en environnement de développement
         (<code>Piscine.DevHost</code> est un harnais hors release). Il lance un shell OS sans
         authentification : ne jamais l'exposer hors loopback ni le livrer.
     </div>
