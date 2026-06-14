@@ -4,9 +4,10 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
-## [Non publié]
+## [v4.0.1] — 2026-06-14
 
-Correctifs post-v4.0.0 (sur `main`, à publier en v4.0.1).
+Correctifs et finitions de l'app de bureau après v4.0.0 (chrome de fenêtre, défilement, terminal,
+réglages), suite aux retours sur l'app réelle. Moteur / CLI / `grade-received` inchangés.
 
 ### Corrigé
 
@@ -35,9 +36,10 @@ Correctifs post-v4.0.0 (sur `main`, à publier en v4.0.1).
 - **Page Vérifier** (`/check`) : le menu d'exercice et le bouton étaient des contrôles HTML bruts →
   menu déroulant et bouton primaire stylés sur les jetons de l'app.
 - **Page Terminal** : titre « Terminal embarqué » (retrait du libellé de dev « (spike) »), accents
-  corrigés, panneau de coaching migré sur les jetons (lisible en mode sombre) ; **terminal agrandi**,
-  coins arrondis, et **dossier de travail persistant à côté de l'exécutable** (au lieu d'un dossier
-  temporaire jetable) — les expériences git survivent d'une session à l'autre.
+  corrigés, panneau de coaching migré sur les jetons (lisible en mode sombre) ; **terminal nettement
+  agrandi**, coins arrondis ; **invite courte « ~\> »** au lieu du chemin absolu complet ; et **dossier
+  de travail persistant à côté de l'exécutable** (au lieu d'un dossier temporaire jetable) — les
+  expériences git survivent d'une session à l'autre.
 - **Page Initialiser** : bouton et blocs migrés sur les jetons du thème (accent au lieu du bleu
   générique, lisibles en mode sombre).
 
