@@ -1,24 +1,78 @@
 @page "/"
+@rendermode InteractiveServer
+@namespace Piscine.Components.Components.Pages
+@using Piscine.App.Board
+@using Piscine.App.Progress
+@using Piscine.App.Push
+@using Piscine.Components.Components.Board
+@using Piscine.Components.Components.Progress
 @inject CourseCatalog Catalog
+@inject ProgressService Progress
+@inject IPushResultWatcher Pushes
 
 <PageTitle>Piscine .NET — Tableau de bord</PageTitle>
 
 <section class="hero" data-testid="dashboard">
     <h1>Tableau de bord</h1>
-    <p class="hero-sub">
-        Bienvenue. @Catalog.Modules.Count modules t'attendent.
-        Le tableau de bord détaillé (reprise, progression globale, résultats récents) arrive au sprint S1.
-    </p>
 </section>
 
-<section class="module-grid">
-    <a class="module-card" href="/cours">
-        <div class="module-card-body"><h3>Cours</h3><p>Parcourir les modules</p></div>
+@if (_resume is { } r)
+{
+    <a class="board-resume" data-testid="board-resume" href="/module/@r.ModuleId/@r.ExerciseId">
+        <div class="br-text">
+            <span class="br-label">Reprendre où tu en étais</span>
+            <span class="br-exo">@r.ModuleNumber · @r.Title</span>
+        </div>
+        <StatusBadge Status="r.Status" />
     </a>
-    <a class="module-card" href="/progress">
-        <div class="module-card-body"><h3>Progression</h3><p>Voir où tu en es</p></div>
-    </a>
-    <a class="module-card" href="/terminal">
-        <div class="module-card-body"><h3>Terminal</h3><p>Rendre ton travail (git push)</p></div>
-    </a>
-</section>
+}
+else
+{
+    <p class="board-alldone" data-testid="board-alldone">Tout est à jour. Beau travail&nbsp;✅</p>
+}
+
+<BoardOverview Counts="_counts" Modules="_modules" />
+<BoardRecent Recent="_recent" />
+
+@code {
+    private (string ModuleId, string ExerciseId, string ModuleNumber, string Title, ExerciseProgressStatus Status)? _resume;
+    private BoardCounts _counts = BoardCounts.From([]);
+    private IReadOnlyList<ModuleProgress> _modules = [];
+    private PushResult? _recent;
+
+    protected override void OnInitialized()
+    {
+        var exos = Catalog.Modules
+            .SelectMany(m => m.Groups.SelectMany(g => g.Exercises))
+            .Select(ex => (ex.ModuleId, ex.Id))
+            .ToList();
+
+        var status = new Dictionary<(string, string), ExerciseProgressStatus>();
+        foreach (var info in Progress.SnapshotFor(exos))
+        {
+            status[(info.ModuleId, info.ExerciseId)] = info.Status;
+        }
+
+        _counts = BoardCounts.From(status.Values.ToList());
+
+        _modules = Catalog.Modules
+            .Where(m => m.HasExercises)
+            .Select(m =>
+            {
+                var ids = m.Groups.SelectMany(g => g.Exercises).Select(e => e.Id).ToList();
+                var done = ids.Count(id => status.GetValueOrDefault((m.Id, id)) == ExerciseProgressStatus.PousseNote);
+                return new ModuleProgress(m.Number, m.Title, done, ids.Count);
+            })
+            .ToList();
+
+        if (ResumeSelector.Pick(exos, status) is { } p)
+        {
+            var module = Catalog.GetModule(p.ModuleId);
+            var exo = Catalog.GetExercise(p.ModuleId, p.ExerciseId);
+            _resume = (p.ModuleId, p.ExerciseId, module?.Number ?? string.Empty, exo?.Title ?? p.ExerciseId,
+                status.GetValueOrDefault((p.ModuleId, p.ExerciseId), ExerciseProgressStatus.NonCommence));
+        }
+
+        _recent = Pushes.LatestResult();
+    }
+}
