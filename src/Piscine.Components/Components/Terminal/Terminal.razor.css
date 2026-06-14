@@ -1,9 +1,9 @@
 .piscine-terminal {
     width: 100%;
-    /* Plus grand : occupe l'essentiel de la hauteur dispo (le shell Photino défile dans .main),
-       avec un plancher confortable. Coins arrondis + bordure pour s'accorder aux cartes de l'app. */
-    height: min(72vh, 760px);
-    min-height: 460px;
+    /* Grand : occupe l'essentiel de la hauteur dispo (le shell Photino défile dans .main), avec un
+       plancher généreux. Coins arrondis + bordure pour s'accorder aux cartes de l'app. */
+    height: min(84vh, 1040px);
+    min-height: 600px;
     padding: 10px;
     background: #000;
     border: 1px solid var(--line);

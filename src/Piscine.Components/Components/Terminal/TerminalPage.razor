@@ -126,7 +126,14 @@ else
             _channelStarted = true;
         }
 
-        var startInfo = new PtyStartInfo { WorkingDirectory = _workDir };
+        // Invite courte « ~\> » au lieu du chemin absolu complet (peu lisible) : cmd lit %PROMPT%
+        // ($G = '>'), bash lit PS1 (best-effort, parfois écrasé par .bashrc). Purement cosmétique :
+        // sans effet sur le shim git ni le coaching. Toujours posée (même sans shim).
+        var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["PROMPT"] = "~\\$G ",
+            ["PS1"] = "~> ",
+        };
 
         // Si le shim est introuvable (build absent), on degrade proprement : terminal nu, sans coaching
         // de commande (comportement S2). Sinon on prefixe PATH du dossier shim et on passe le vrai git
@@ -135,22 +142,18 @@ else
         {
             var currentPath = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
             var realGit = GitPathResolver.Resolve(currentPath, shimDir);
-            var newPath = shimDir + Path.PathSeparator + currentPath;
 
-            var overrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                // Sous Windows la variable est "Path" ; PtyService fusionne en casse-insensible, donc
-                // une seule cle "PATH" ecrase l'existante sans la dupliquer.
-                ["PATH"] = newPath,
-                ["PISCINE_COACH_PIPE"] = Channel.Endpoint,
-            };
+            // Sous Windows la variable est "Path" ; PtyService fusionne en casse-insensible, donc
+            // une seule cle "PATH" ecrase l'existante sans la dupliquer.
+            overrides["PATH"] = shimDir + Path.PathSeparator + currentPath;
+            overrides["PISCINE_COACH_PIPE"] = Channel.Endpoint;
             if (realGit is not null)
             {
                 overrides["PISCINE_REAL_GIT"] = realGit;
             }
-
-            startInfo = startInfo with { Environment = overrides };
         }
+
+        var startInfo = new PtyStartInfo { WorkingDirectory = _workDir, Environment = overrides };
 
         _session = await Pty.StartAsync(startInfo, CoalescerOptions);
         _session.Output += OnPtyOutput;
