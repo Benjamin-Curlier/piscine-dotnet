@@ -8,11 +8,11 @@ namespace Piscine.DevHost.E2E;
 /// Smoke E2E de la barre d'action S2 : démarre le DevHost, navigue vers un exercice, et vérifie
 /// que la barre d'action (exercise-actions) est présente avec les boutons Ouvrir et le lien Vérifier,
 /// et que l'ancienne notice « piscine start » a disparu.
-/// Port dédié 5261 (distinct de 5247/5249/5251/5253/5255/5257/5259).
+/// Port dédié 5277 (distinct de 5247/5249/5251/5253/5255/5257/5259/5261/5263/5265/5267/5269/5271/5273/5275).
 /// </summary>
 public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
 {
-    private const int Port = 5261;
+    private const int Port = 5277;
     private static readonly string BaseUrl = $"http://localhost:{Port}";
 
     private Process? _host;
