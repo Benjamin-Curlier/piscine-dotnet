@@ -90,6 +90,18 @@ builder.Services.AddSingleton<Piscine.App.Onboarding.OnboardingState>();
 
 var app = builder.Build();
 
+// QA agentique (dev/test uniquement) : seede un état déterministe selon PISCINE_QA_PROFILE.
+// Le DevHost n'est jamais livré ; ce hook reste inerte tant que la variable d'environnement est absente.
+var qaProfile = Piscine.DevHost.Qa.QaProfiles.Parse(
+    Environment.GetEnvironmentVariable("PISCINE_QA_PROFILE"));
+if (qaProfile is { } profile)
+{
+    Piscine.DevHost.Qa.QaSeeder.Seed(
+        profile,
+        app.Services.GetRequiredService<PiscineLayout>(),
+        app.Services.GetRequiredService<CourseCatalog>());
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
