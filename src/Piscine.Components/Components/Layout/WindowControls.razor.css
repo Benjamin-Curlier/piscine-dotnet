@@ -1,0 +1,9 @@
+.window-controls { display: inline-flex; align-items: center; gap: 2px; -webkit-app-region: no-drag; app-region: no-drag; }
+.win-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 28px; border: 0; background: transparent;
+    color: var(--text, #c9d1d9); cursor: pointer; border-radius: 6px;
+}
+.win-btn:hover { background: var(--surface-hover, rgba(255,255,255,.08)); }
+.win-btn:focus-visible { outline: 2px solid var(--accent, #8957e5); outline-offset: -2px; }
+.win-close:hover { background: #e81123; color: #fff; }
