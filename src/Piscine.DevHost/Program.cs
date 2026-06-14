@@ -1,11 +1,13 @@
 using Piscine.App.Checking;
+using Piscine.App.Init;
+using Piscine.App.Launch;
 using Piscine.App.Progress;
 using Piscine.App.Push;
+using Piscine.App.Settings;
 using Piscine.Components.Services;
 using Piscine.Core;
 using Piscine.DevHost.Components;
 using Piscine.Grading;
-using Piscine.App.Init;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +73,11 @@ builder.Services.AddSingleton(sp => new ProgressService(
 // Surveillant push : observe progress.json et publie les delta vers /resultat.
 builder.Services.AddSingleton<IPushResultWatcher>(sp =>
     new ProgressFileWatcher(sp.GetRequiredService<PiscineLayout>()));
+
+// « Ouvrir » l'exercice (S2) : dossier / éditeur / terminal système via un launcher réel.
+builder.Services.AddSingleton<IProcessLauncher, ProcessLauncher>();
+builder.Services.AddSingleton<WorkspaceLauncher>();
+builder.Services.AddSingleton<SettingsService>();
 
 var app = builder.Build();
 

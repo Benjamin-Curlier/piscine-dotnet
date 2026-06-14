@@ -5,8 +5,10 @@ using Piscine.App.Checking;
 using Piscine.App.Coaching;
 using Piscine.App.Git;
 using Piscine.App.Init;
+using Piscine.App.Launch;
 using Piscine.App.Progress;
 using Piscine.App.Push;
+using Piscine.App.Settings;
 using Piscine.App.Terminal;
 using Piscine.Components;
 using Piscine.Components.Services;
@@ -83,6 +85,11 @@ internal static class Program
         builder.Services.AddSingleton<CoachingService>();
         builder.Services.AddSingleton<ICoachingChannel, NamedPipeCoachingChannel>();
         builder.Services.AddSingleton(new TerminalPolicy(enabled: true));
+
+        // « Ouvrir » l'exercice (S2) : dossier / éditeur / terminal système via un launcher réel.
+        builder.Services.AddSingleton<IProcessLauncher, ProcessLauncher>();
+        builder.Services.AddSingleton<WorkspaceLauncher>();
+        builder.Services.AddSingleton<SettingsService>();
 
         builder.RootComponents.Add<App>("#app");
 
