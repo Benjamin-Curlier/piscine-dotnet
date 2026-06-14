@@ -4,6 +4,31 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [Non publié]
+
+Correctifs post-v4.0.0 (sur `main`, à publier en v4.0.1).
+
+### Corrigé
+
+- **Défilement de la fenêtre Photino** (régression v4.0.0) : le chrome chromeless posait
+  `body { overflow: hidden }` (pour arrondir les coins), ce qui empêchait tout défilement → les pages
+  longues (`/cours`, etc.) étaient tronquées dans la fenêtre. La fenêtre est désormais un shell fixe
+  dont le contenu défile dans `.main` (repli défilement-fenêtre sous 768px). Le DevHost navigateur
+  n'était pas concerné, d'où le passage inaperçu.
+- **Contrôles de fenêtre (réduire/agrandir/fermer)** : s'appuyaient sur des variables CSS inexistantes
+  → quasi invisibles en thème clair et visuellement détachés. Restylés avec les jetons réels du thème,
+  pleine hauteur de la barre de titre, collés au coin (intégration façon Discord), cohérents clair/sombre.
+
+### Amélioré
+
+- **Page Vérifier** (`/check`) : le menu d'exercice et le bouton étaient des contrôles HTML bruts →
+  menu déroulant et bouton primaire stylés sur les jetons de l'app.
+- **Page Terminal** : titre « Terminal embarqué » (retrait du libellé de dev « (spike) »), accents
+  corrigés, et panneau de coaching migré sur les jetons du thème (lisible en mode sombre — il était
+  codé en couleurs claires).
+
+---
+
 ## [v4.0.0] — 2026-06-14
 
 Épic **QoL recrue de bureau** (S0–S8) + **chrome de fenêtre personnalisé** : refonte majeure du
