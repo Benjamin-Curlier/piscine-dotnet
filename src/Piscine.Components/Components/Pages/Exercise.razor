@@ -1,5 +1,11 @@
 @page "/module/{ModuleId}/{ExerciseId}"
+@rendermode InteractiveServer
+@using Piscine.App.Launch
+@using Piscine.App.Settings
 @inject CourseCatalog Catalog
+@inject WorkspaceLauncher Launcher
+@inject SettingsService Settings
+@inject NavigationManager Nav
 
 @if (_module is null || _exercise is null)
 {
@@ -39,9 +45,15 @@ else
         </div>
     }
 
-    <div class="notice notice-info">
-        Pour démarrer&nbsp;: <code>piscine start @_exercise.Id</code> — puis
-        <code>piscine check @_exercise.Id</code> pour t'auto-corriger.
+    <div class="exercise-actions" data-testid="exercise-actions">
+        <button class="ex-action ex-action-primary" data-testid="ex-open-folder" @onclick="OpenFolder">Ouvrir le dossier</button>
+        @if (_editor is not null)
+        {
+            <button class="ex-action" data-testid="ex-open-editor" @onclick="OpenEditor">Ouvrir dans @_editor.Label</button>
+        }
+        <button class="ex-action" data-testid="ex-open-terminal-embedded" @onclick="OpenEmbeddedTerminal">Terminal intégré</button>
+        <button class="ex-action" data-testid="ex-open-terminal-system" @onclick="OpenSystemTerminal">Terminal système</button>
+        <a class="ex-action" data-testid="ex-check" href="/check">Vérifier</a>
     </div>
 
     <CourseToc Markdown="@_exercise.SubjectMarkdown" />
@@ -84,21 +96,30 @@ else
     private CourseExercise? _exercise;
     private CourseExercise? _prev;
     private CourseExercise? _next;
+    private EditorOption? _editor;
 
     protected override void OnParametersSet()
     {
         _module = Catalog.GetModule(ModuleId);
         _exercise = _module is null ? null : Catalog.GetExercise(ModuleId, ExerciseId);
         _prev = _next = null;
+        _editor = null;
 
         if (_module is null || _exercise is null)
         {
             return;
         }
 
+        _editor = EditorResolver.Resolve(Settings.Load().EditorCommand, ExecutableProbe.OnPath);
+
         var flat = _module.Groups.SelectMany(g => g.Exercises).ToList();
         var index = flat.FindIndex(e => string.Equals(e.Id, _exercise.Id, StringComparison.OrdinalIgnoreCase));
         _prev = index > 0 ? flat[index - 1] : null;
         _next = index >= 0 && index < flat.Count - 1 ? flat[index + 1] : null;
     }
+
+    private void OpenFolder() => Launcher.OpenFolder(ExerciseId);
+    private void OpenEditor() { if (_editor is not null) Launcher.OpenEditor(ExerciseId, _editor); }
+    private void OpenSystemTerminal() => Launcher.OpenSystemTerminal(ExerciseId);
+    private void OpenEmbeddedTerminal() => Nav.NavigateTo("/terminal");
 }
