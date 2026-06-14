@@ -1,6 +1,9 @@
 .board-overview { margin: 1.25rem 0; }
 .board-section-title { font-size: 0.8rem; color: var(--color-text-tertiary, #888); margin: 0 0 0.5rem; }
 .board-metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+/* Passe QA : à l'étroit, les 5 cartes de stats s'empilent en 2 colonnes pour ne plus tronquer
+   les libellés (« En cours » / « À revoir » se coupaient à 420 px). Desktop inchangé. */
+@media (max-width: 520px) { .board-metrics { grid-template-columns: 1fr 1fr; } }
 .metric { background: rgba(127,127,127,0.08); border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }
 .metric-label { font-size: 0.72rem; color: var(--color-text-tertiary, #888); }
 .metric-value { font-size: 1.3rem; font-weight: 500; }
