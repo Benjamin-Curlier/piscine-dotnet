@@ -15,7 +15,7 @@ public sealed class QaCapture
 {
     private static readonly string[] Routes =
     {
-        "/", "/cours", "/rapport", "/reglages", "/check", "/terminal",
+        "/", "/cours", "/rapport", "/reglages", "/check", "/terminal", "/init",
     };
 
     private static readonly (string Theme, int Width)[] Variants =
