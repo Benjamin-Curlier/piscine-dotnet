@@ -1,0 +1,18 @@
+@namespace Piscine.Components.Components.Layout
+@* Contrôles de fenêtre (barre de titre custom). Boutons HTML simples appelant le module
+   global windowChrome.js (winControl) — même motif que le bouton thème (onclick="toggleTheme()").
+   Masqué hors hôte Photino via CSS (html:not([data-host="photino"]) .window-controls). *@
+<div class="window-controls" aria-label="Contrôles de la fenêtre">
+    <button type="button" class="win-btn win-min" aria-label="Réduire la fenêtre"
+            title="Réduire" onclick="winControl('minimize')">
+        <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><rect x="1" y="4.5" width="8" height="1"/></svg>
+    </button>
+    <button type="button" class="win-btn win-max" aria-label="Agrandir ou restaurer la fenêtre"
+            title="Agrandir / Restaurer" onclick="winControl('togglemax')">
+        <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+    </button>
+    <button type="button" class="win-btn win-close" aria-label="Fermer la fenêtre"
+            title="Fermer" onclick="winControl('close')">
+        <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M1 1 L9 9 M9 1 L1 9" stroke="currentColor" stroke-width="1.2"/></svg>
+    </button>
+</div>
