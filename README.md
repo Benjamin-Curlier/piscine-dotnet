@@ -64,9 +64,9 @@ Publier une release (mainteneur) : **[docs/deploiement.md](docs/deploiement.md)*
 - `content/` : cours, exercices et rushes (voir `content/README.md`). Les dossiers `solution/`
   (corrigés) sont **exclus du paquet distribué** (`package-content`).
 - `docs/` : doc recrue/mainteneur (`mise-en-oeuvre.md`, `deploiement.md`), wiki (`docs/wiki/`),
-  specs/plans/retex/ADR (`docs/superpowers/`), guide contributeur (`docs/contributing/`).
+  guide contributeur (`docs/contributing/`).
 
-Design complet : `docs/superpowers/specs/2026-05-29-piscine-dotnet-design.md`.
-
-**Reprendre le développement à froid** : `docs/superpowers/HANDOFF.md` (état du projet, méthode,
-prochaines étapes, pièges).
+**Démarrer comme contributeur** : le [wiki](docs/wiki/Home.md) (fonctionnement de la moulinette,
+workflow de rendu, curriculum, mise en œuvre) et le guide
+[ajouter un exercice](docs/contributing/ajouter-un-exercice.md). Publier une release :
+[docs/deploiement.md](docs/deploiement.md).
