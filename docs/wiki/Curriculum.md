@@ -4,9 +4,10 @@ Le parcours va des fondamentaux C# débutant jusqu'à un palier avancé proche d
 production. **Git est tissé dans tout le parcours** (pratiqué à chaque rendu) + deux modules git
 dédiés. Le contenu est généré **progressivement** au fil des itérations.
 
-> **Release `v3.0.0`** : la piscine couvre **M00–M39 + Rushes 0/1/2/3** (contenu cumulé depuis v1.0 :
+> **Release `v4.0.2`** : la piscine couvre **M00–M39 + Rushes 0/1/2/3** (contenu cumulé depuis v1.0 :
 > tronc commun + palier avancé, **approfondissement C#/.NET** M24–M35, **plateformes & architecture**
-> M36–M39) et ajoute l'**app de bureau** + les **installeurs** Windows/Linux. Voir
+> M36–M39). L'**app de bureau** + les **installeurs** Windows/Linux (livrés en v3.0.0) ont été enrichis
+> jusqu'à la v4 (QoL recrue, chrome de fenêtre, isolation de l'exécution en processus enfant jetable). Voir
 > [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
 >
 > **UX recrue** : le **contenu ci-dessous est inchangé**, accessible via une **app de bureau**
@@ -138,8 +139,4 @@ Graders introduits au palier v3 : **`git`** (état attendu du dépôt rendu, via
 **`projet`** (compilation multi-fichiers + assertions d'architecture Roslyn), **`reseau`** (harnais
 d'écho TCP loopback), **`mutation`** (l'élève écrit des tests qui doivent tuer des mutants — pilote M13).
 
-Roadmap v2/v3 complète (dont v3 : Blazor, Docker, Silk.NET, clean architecture, graders projet) :
-[docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/superpowers/plans/2026-05-31-roadmap-v2-v3.md).
-
-> Historique d'avancement : voir les itérations dans
-> [docs/superpowers/plans/](https://github.com/Benjamin-Curlier/piscine-dotnet/tree/main/docs/superpowers/plans).
+> Historique d'avancement : voir le [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).

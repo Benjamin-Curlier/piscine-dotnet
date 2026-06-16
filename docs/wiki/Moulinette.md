@@ -1,8 +1,8 @@
 # Fonctionnement de la moulinette
 
-La moulinette est le moteur d'auto-correction. Elle est **100 % locale et in-process** : pas de
-serveur, pas de SDK requis. Elle compile le code de la recrue avec **Roslyn embarqué** et exécute
-les graders dans un contexte isolé.
+La moulinette est le moteur d'auto-correction. Elle est **100 % locale** : pas de serveur, pas de
+SDK requis. Elle compile le code de la recrue avec **Roslyn embarqué** et exécute le code recrue
+**isolé dans un processus enfant jetable** (`Piscine.Sandbox`), tué au timeout (**fail-closed**).
 
 ## Compilation Roslyn (zéro SDK)
 
@@ -20,16 +20,18 @@ Un exercice combine un ou plusieurs graders, déclarés dans son `manifest.yaml`
 
 | Type | Ce qu'il fait | Bloquant ? |
 |---|---|---|
-| **`io`** | Compile en exécutable, lance dans un `AssemblyLoadContext` isolé (args/stdin injectés, timeout), **compare stdout/exit** au résultat attendu → diff éducatif. | Oui |
-| **`unit`** | Compile le code recrue **+ des tests xUnit cachés** (`grader/`), exécute les `[Fact]` par réflexion dans un contexte isolé, récupère les messages d'assertion. | Oui |
+| **`io`** | Compile en exécutable, lance dans un **processus enfant jetable** `Piscine.Sandbox` (args/stdin injectés, timeout), **compare stdout/exit** au résultat attendu → diff éducatif. | Oui |
+| **`unit`** | Compile le code recrue **+ des tests xUnit cachés** (`grader/`), exécute les `[Fact]` par réflexion dans le **processus enfant jetable** `Piscine.Sandbox`, récupère les messages d'assertion. | Oui |
 | **`norme`** | Diagnostics de style **Roslyn** (Formatter + `.editorconfig`). Souple. | **Non** (avertissement) |
 | **`mutation`** | La recrue **écrit ses propres tests** xUnit, confrontés à une impl. de référence cachée + des **mutants** nommés ; verdict binaire (tous les mutants tués). | Oui |
 | **`git`** | Verdict sur l'**état attendu du dépôt rendu** (branches, `min_commits`, fusions, contenu de fichiers, absence de marqueurs de conflit), via LibGit2Sharp. Au push, noté contre le **dépôt bare** si l'exo est « tenté ». | Oui |
 | **`projet`** | Compilation **multi-fichiers** + cas `io` optionnels + **assertions d'architecture** Roslyn (`requires_types`, `forbidden_dependencies` namespace→namespace). | Oui |
 | **`reseau`** | Lance un **harnais d'écho TCP** loopback, injecte host/port en arguments, compare `io`. | Oui |
 
-Chaque exécution C# se fait dans un `AssemblyLoadContext` **collectible** avec redirection de la
-Console et un **timeout** — un programme qui boucle ou plante n'affecte pas la moulinette.
+Chaque exécution C# se fait dans un **processus enfant jetable** (`Piscine.Sandbox`) avec
+redirection de la Console et un **timeout** — un programme qui boucle ou plante n'affecte pas la
+moulinette : au timeout, le parent **tue l'arbre de processus** (récupération thread et assembly),
+et le résultat est **fail-closed** si le bac à sable est indisponible (jamais de faux « Réussi »).
 
 > Tous les modules ne sont pas auto-notés : ceux dont la sortie n'est pas déterministe en console
 > (Docker, Silk.NET, Blazor, interop, git avancé, réseau brut) sont livrés en **lecture guidée**.
