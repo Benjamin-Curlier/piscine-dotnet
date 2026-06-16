@@ -22,7 +22,7 @@ jobs:
       packaging: ${{ steps.filter.outputs.packaging }}
     steps:
       - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -48,7 +48,7 @@ jobs:
       # CI-3 : cache des paquets NuGet (cle = empreinte des csproj + props centralisees ; pas de
       # packages.lock.json requis). restore-keys = repli partiel si la cle exacte manque.
       - name: Cache NuGet
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
