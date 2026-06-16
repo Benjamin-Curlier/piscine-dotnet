@@ -294,6 +294,11 @@ C#/.NET et plateformes & architecture), et déblocage de modules restés en atte
 
 - Amorçage du moteur et de la structure de contenu.
 
+[v4.0.2]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v4.0.2
+[v4.0.1]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v4.0.1
+[v4.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v4.0.0
+[v3.1.1]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v3.1.1
+[v3.1.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v3.1.0
 [v3.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v3.0.0
 [v2.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v2.0.0
 [v1.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v1.0.0

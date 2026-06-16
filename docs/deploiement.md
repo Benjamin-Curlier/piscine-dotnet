@@ -23,8 +23,7 @@ et crée la **GitHub Release** avec les zips attachés.
   contenu ou de CLI susceptible de casser un workspace existant.
 - Historique des versions : [CHANGELOG.md](../CHANGELOG.md).
 
-> Note de nommage : la *roadmap* parle de « paliers » v1 / v2 / v3 (cf.
-> [roadmap-v2-v3](superpowers/plans/2026-05-31-roadmap-v2-v3.md)). Ce sont des **phases de contenu**,
+> Note de nommage : la *roadmap* parle de « paliers » v1 / v2 / v3. Ce sont des **phases de contenu**,
 > pas des numéros de release. Exemple : la release **`v2.0.0`** embarque à la fois le palier de
 > contenu v2 (M24–M35) **et** le palier v3 (M36–M39). Documenter ce mapping dans le CHANGELOG.
 
@@ -74,7 +73,7 @@ gh release view v2.0.0
 
 ## 4. Ce que produit `release.yml`
 
-> **Plateformes : Windows + Linux.** macOS (`osx-arm64`) est **abandonné** depuis v5 (pas de runner
+> **Plateformes : Windows + Linux.** macOS (`osx-arm64`) est **abandonné** depuis v3.0.0 (pas de runner
 > macOS pour prouver la fenêtre native ; webview WKWebView non automatisable en CI).
 
 Le workflow a **3 jobs** :
@@ -99,7 +98,7 @@ Le workflow a **3 jobs** :
      > `WEBKIT_EXEC_PATH` (honoré uniquement en `DEVELOPER_MODE`) et localise ses process auxiliaires
      > (`WebKitNetworkProcess`/`WebKitWebProcess`) via un chemin **absolu compilé** (`PKGLIBEXECDIR`,
      > p.ex. `/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1/`). Embarquer un webkit fonctionnel exigerait un
-     > bind-mount privilégié → hors périmètre. Cf. [ADR PhotinoX](superpowers/adr/2026-06-08-photinox-fork.md).
+     > bind-mount privilégié → hors périmètre. Cf. CHANGELOG `v3.1.0` (passage PhotinoX 4.2.0).
 
 ### `package-windows` (windows-latest)
 
