@@ -70,3 +70,12 @@ Publier une release (mainteneur) : **[docs/deploiement.md](docs/deploiement.md)*
 workflow de rendu, curriculum, mise en œuvre) et le guide
 [ajouter un exercice](docs/contributing/ajouter-un-exercice.md). Publier une release :
 [docs/deploiement.md](docs/deploiement.md).
+
+## Contribuer
+
+Les contributions sont les bienvenues : voir **[CONTRIBUTING.md](CONTRIBUTING.md)** pour le flux
+(fork → branche → PR), les Conventional Commits et les exigences de revue/CI.
+
+## Licence
+
+Sous licence MIT — voir [LICENSE](LICENSE).
