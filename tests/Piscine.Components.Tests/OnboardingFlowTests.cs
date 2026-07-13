@@ -131,6 +131,20 @@ public sealed class OnboardingFlowTests : BunitContext, IDisposable
         Assert.Empty(cut.FindAll("[data-testid='onboarding']"));
     }
 
+    // ── Accessibilité : Escape (relayé par le module JS) ferme la modale ──────
+
+    [Fact]
+    public async Task Escape_entrypoint_dismisses_overlay()
+    {
+        var cut = Render<OnboardingFlow>();
+        cut.Find("[data-testid='onboarding']"); // visible au départ
+
+        // Point d'entrée invoqué par le module JS quand la recrue presse Échap dans la modale.
+        await cut.InvokeAsync(() => cut.Instance.DismissFromJs());
+
+        Assert.Empty(cut.FindAll("[data-testid='onboarding']"));
+    }
+
     public new void Dispose()
     {
         base.Dispose();

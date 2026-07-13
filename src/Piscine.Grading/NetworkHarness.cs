@@ -79,13 +79,37 @@ public sealed class NetworkHarness : IDisposable
     /// </summary>
     public static NetworkHarness StartHttp(IReadOnlyList<HttpRouteConfig> routes)
     {
-        // HttpListener n'accepte pas le port 0 : on réserve un port libre via TcpListener.
-        var port = GetFreePort();
-        var prefix = $"http://127.0.0.1:{port}/";
-        var listener = new HttpListener();
-        listener.Prefixes.Add(prefix);
-        listener.Start();
-        return new NetworkHarness(listener, port, routes);
+        // HttpListener n'accepte pas le port 0 : on réserve un port libre via TcpListener. Entre la
+        // fermeture de la sonde (GetFreePort) et HttpListener.Start(), un autre processus peut reprendre
+        // le port (TOCTOU) → Start() lève alors HttpListenerException. On retente avec un nouveau port
+        // libre plutôt que de laisser échouer la correction sur une course transitoire.
+        const int maxAttempts = 5;
+        Exception? lastError = null;
+        for (var attempt = 0; attempt < maxAttempts; attempt++)
+        {
+            var port = GetFreePort();
+            var prefix = $"http://127.0.0.1:{port}/";
+            var listener = new HttpListener();
+            listener.Prefixes.Add(prefix);
+            try
+            {
+                listener.Start();
+            }
+            catch (Exception ex) when (ex is HttpListenerException or SocketException)
+            {
+                // Port repris entre-temps : on ferme le listener non démarré et on retente.
+                lastError = ex;
+                listener.Close();
+                continue;
+            }
+
+            return new NetworkHarness(listener, port, routes);
+        }
+
+        // Ports de loopback durablement indisponibles : on remonte (fail-closed). ExerciseGrader
+        // convertit toute exception d'un grader en échec interne affiché mais non persisté (M-10).
+        throw new InvalidOperationException(
+            $"Impossible d'ouvrir un port HTTP de loopback après {maxAttempts} tentatives.", lastError);
     }
 
     private static int GetFreePort()

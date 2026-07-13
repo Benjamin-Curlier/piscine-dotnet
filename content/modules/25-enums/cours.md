@@ -24,7 +24,7 @@ var c = Couleur.Vert;
 Le type sous-jacent est `int` par défaut. On peut aussi fixer les valeurs à la main (voir la
 section `[Flags]`).
 
-## 2. Cast enum ↔ int {#valeur}
+## 2. Cast enum ↔ int
 
 Un membre d'enum **n'est pas** un `int` : la conversion est explicite dans les deux sens.
 
@@ -56,7 +56,7 @@ System.Console.WriteLine(Couleur.Vert);            // Vert
 System.Console.WriteLine(Couleur.Vert.ToString()); // Vert
 ```
 
-## 4. `switch` sur un enum {#hex}
+## 4. `switch` sur un enum
 
 Un enum se prête bien à une **switch expression** : on associe une valeur de sortie à chaque
 membre. Le motif `_` couvre les cas restants.
@@ -74,7 +74,7 @@ var hex = couleur switch
 > Rappel (module 24) : une switch expression renvoie une valeur ; chaque bras a la forme
 > `motif => résultat`.
 
-## 5. `[Flags]` : combiner des valeurs {#flags}
+## 5. `[Flags]` : combiner des valeurs
 
 Certains enums représentent un **ensemble d'options** qu'on veut cumuler (des permissions, par
 exemple). On marque alors l'enum `[Flags]` et on choisit des valeurs **puissances de 2**, pour que
@@ -106,7 +106,7 @@ resultat |= Permissions.Execution;       // ajoute Execution
 System.Console.WriteLine((int)resultat); // 5  (1 + 4)
 ```
 
-## 6. Tester un drapeau : `HasFlag` et `&` {#hasflag}
+## 6. Tester un drapeau : `HasFlag` et `&`
 
 Pour savoir si une option est **présente** dans une valeur combinée, on appelle `HasFlag` :
 

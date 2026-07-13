@@ -2,6 +2,19 @@
 
 > Exercice **bonus** — difficulté **difficile**.
 
+> 🎓 **Exercice bonus d'ouverture.** Il utilise une **boucle `for`**, que tu approfondiras au
+> **module 02**. Voici la syntaxe pour ne pas rester bloqué :
+>
+> ```csharp
+> for (var i = 1; i <= n; i++)
+> {
+>     // ce bloc s'exécute pour i = 1, 2, 3, … jusqu'à n
+> }
+> ```
+>
+> `i = 1` initialise le compteur, `i <= n` est la condition de poursuite, `i++` incrémente à
+> chaque tour. On assume ici ce prérequis : découvre-le, tu le maîtriseras au module suivant.
+
 ## Objectif
 
 Lis un entier `N`, puis affiche les entiers de `1` à `N` (un par ligne) en appliquant ces règles :

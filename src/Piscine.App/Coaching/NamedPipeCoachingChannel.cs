@@ -1,4 +1,5 @@
 using System.IO.Pipes;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -7,10 +8,17 @@ namespace Piscine.App.Coaching;
 /// <summary>
 /// Recepteur named pipe : ecoute les evenements du shim <c>git</c> (une ligne JSON par commande) et
 /// les republie via <see cref="CommandReceived"/>. Une connexion = une commande ; on re-ecoute apres
-/// chaque message. Robuste : une connexion corrompue (IO/JSON) n'arrete pas la boucle.
+/// chaque message. Robuste : une connexion corrompue (IO/JSON) n'arrete pas la boucle. La lecture est
+/// <b>bornee</b> (<see cref="MaxMessageChars"/>) : un client local hostile (la recrue connait le nom du
+/// pipe via son env) ne peut pas faire croitre le buffer sans borne (OOM) en envoyant une ligne geante
+/// sans <c>\n</c> ; au-dela du plafond, la connexion est abandonnee sans deserialisation.
 /// </summary>
 public sealed class NamedPipeCoachingChannel : ICoachingChannel
 {
+    // Plafond de lecture d'une ligne (en caracteres). Un evenement du shim (argv + code + cwd) tient
+    // tres largement en deca ; on borne pour ne jamais accumuler sans limite face a un client hostile.
+    private const int MaxMessageChars = 64 * 1024;
+
     private readonly CancellationTokenSource _cts = new();
     private Task? _loop;
 
@@ -57,7 +65,7 @@ public sealed class NamedPipeCoachingChannel : ICoachingChannel
                     // handle de pipe sur une longue session).
                     using (var reader = new StreamReader(server, leaveOpen: true))
                     {
-                        var line = await reader.ReadLineAsync(ct);
+                        var line = await ReadBoundedLineAsync(reader, ct);
                         if (!string.IsNullOrWhiteSpace(line))
                         {
                             var payload = JsonSerializer.Deserialize(line, ChannelJsonContext.Default.ChannelPayload);
@@ -92,6 +100,52 @@ public sealed class NamedPipeCoachingChannel : ICoachingChannel
         {
             // Couvre l'annulation entre deux iterations (serveur fraichement recree, jamais servi).
             await server.DisposeAsync();
+        }
+    }
+
+    /// <summary>
+    /// Lit une ligne (jusqu'au premier <c>\n</c>) en <b>bornant</b> la taille accumulee a
+    /// <see cref="MaxMessageChars"/>. Renvoie la ligne sans son terminateur, ou <c>null</c> si le flux
+    /// se termine sans contenu OU si le plafond est franchi avant tout <c>\n</c> (client hostile) — dans
+    /// ce dernier cas on abandonne la lecture immediatement, sans accumuler le reste ni deserialiser.
+    /// </summary>
+    private static async Task<string?> ReadBoundedLineAsync(StreamReader reader, CancellationToken ct)
+    {
+        var builder = new StringBuilder();
+        var buffer = new char[4096];
+
+        while (true)
+        {
+            var read = await reader.ReadAsync(buffer.AsMemory(), ct);
+            if (read == 0)
+            {
+                // Fin de flux sans '\n' final : on renvoie ce qu'on a (peut etre vide → null).
+                return builder.Length == 0 ? null : builder.ToString();
+            }
+
+            for (var i = 0; i < read; i++)
+            {
+                var c = buffer[i];
+                if (c == '\n')
+                {
+                    // Fin de ligne (une connexion = une commande) : on ignore un eventuel reste.
+                    if (builder.Length > 0 && builder[^1] == '\r')
+                    {
+                        builder.Length--;
+                    }
+
+                    return builder.ToString();
+                }
+
+                builder.Append(c);
+                if (builder.Length > MaxMessageChars)
+                {
+                    // Ligne geante sans '\n' (client local hostile) : on abandonne cette connexion sans
+                    // deserialiser, plutot que de laisser le buffer croitre sans borne (OOM). La boucle
+                    // appelante disposera le pipe et re-ecoutera.
+                    return null;
+                }
+            }
         }
     }
 

@@ -5,19 +5,24 @@ Un service hébergé a deux temps : **`StartAsync`** (au démarrage de l'hôte) 
 
 ## Objectif
 
+L'entrée standard contient **une ligne** : le **nom du service**. Il est lu, enregistré dans le
+conteneur DI et **injecté** dans le service (déjà câblé dans le starter).
+
 Écris une classe `Cycle : IHostedService` enregistrée dans l'hôte :
 
-- `StartAsync` : journalise `Démarrage` (catégorie `Cycle`), puis demande l'arrêt
+- `StartAsync` : journalise `Démarrage {Nom}` (catégorie `Cycle`), puis demande l'arrêt
   (`_lifetime.StopApplication()`) ;
-- `StopAsync` : journalise `Arrêt`.
+- `StopAsync` : journalise `Arrêt {Nom}`.
 
 `LogCapture.cs` et la configuration du logging te sont fournis.
 
 ## Sortie attendue
 
+Pour l'entrée `Indexeur` :
+
 ```
-Cycle [Information] Démarrage
-Cycle [Information] Arrêt
+Cycle [Information] Démarrage Indexeur
+Cycle [Information] Arrêt Indexeur
 ```
 
 L'hôte appelle `StartAsync` au démarrage puis `StopAsync` à l'arrêt : l'ordre est garanti.

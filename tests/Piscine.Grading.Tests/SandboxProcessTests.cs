@@ -85,4 +85,26 @@ public class SandboxProcessTests
         Assert.NotNull(outcome.Error);
         Assert.Equal("ArrêtAnormal", outcome.Error!.TypeName);
     }
+
+    [Fact]
+    public void Run_RecruitFloodsStdout_FailsClosed_NotSuccess()
+    {
+        // La moulinette est de confiance : une recrue qui inonde stdout (ici ~20 Mo, au-delà du
+        // plafond d'accumulation du parent) doit fermer en « SortieTropVolumineuse » — jamais un OOM
+        // du parent, ni un faux succès. La sortie recrue est capturée dans la trame io (une seule
+        // ligne JSON) → le parent la reçoit d'un bloc et déclenche le plafond.
+        var bytes = CompileIo("""
+            var chunk = new string('X', 1024 * 1024);
+            for (var i = 0; i < 20; i++) { System.Console.Write(chunk); }
+            return 0;
+            """);
+
+        // Timeout large : le chemin visé est le dépassement de sortie, pas l'expiration du temps.
+        var outcome = ProgramRunner.Run(
+            bytes, Array.Empty<string>(), stdin: "", timeout: TimeSpan.FromSeconds(30));
+
+        Assert.False(outcome.TimedOut);
+        Assert.NotNull(outcome.Error);
+        Assert.Equal("SortieTropVolumineuse", outcome.Error!.TypeName);
+    }
 }

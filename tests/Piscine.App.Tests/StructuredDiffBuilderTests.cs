@@ -133,4 +133,33 @@ public sealed class StructuredDiffBuilderTests
         Assert.Equal(new[] { "x", "y", "z", "" }, rebuiltExpected);
         Assert.Equal(new[] { "x", "W", "z", "" }, rebuiltActual);
     }
+
+    [Fact]
+    public void TryBuild_TooManyLines_ReturnsNull()
+    {
+        // Anti-OOM : au-delà du plafond de lignes, la table LCS O(n*m) exploserait l'hôte App.
+        // On renonce au diff éducatif (retour null) ; le verdict io reste calculé hors de ce chemin.
+        var manyLines = string.Join("\\n", Enumerable.Range(0, 5000).Select(i => "l" + i));
+        var diff = StructuredDiffBuilder.TryBuild(
+        [
+            "Attendu : \"" + manyLines + "\"",
+            "Obtenu  : \"" + manyLines + "\"",
+        ]);
+
+        Assert.Null(diff);
+    }
+
+    [Fact]
+    public void TryBuild_SingleHugeLine_ReturnsNull()
+    {
+        // Peu de lignes mais une taille totale démesurée (> 1 Mo) : même garde-fou, retour null.
+        var huge = new string('x', 2 * 1024 * 1024);
+        var diff = StructuredDiffBuilder.TryBuild(
+        [
+            "Attendu : \"" + huge + "\"",
+            "Obtenu  : \"différent\"",
+        ]);
+
+        Assert.Null(diff);
+    }
 }

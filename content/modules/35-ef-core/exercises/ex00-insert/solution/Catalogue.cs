@@ -23,7 +23,14 @@ foreach (var nom in noms)
 }
 db.SaveChanges();
 
+// Nombre réellement enregistré, relu depuis la base (pas depuis N).
 System.Console.WriteLine(db.Produits.Count());
+
+// Noms triés, obtenus par une requête EF Core (ORDER BY exécuté par SQLite).
+foreach (var nom in db.Produits.OrderBy(p => p.Nom).Select(p => p.Nom))
+{
+    System.Console.WriteLine(nom);
+}
 
 class Produit
 {

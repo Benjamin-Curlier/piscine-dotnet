@@ -2,12 +2,17 @@
 
 ## Objectif
 
-Affiche le **nom de toutes les propriétés** de la classe `Produit`, **triés par ordre
-alphabétique** (pour un résultat déterministe), un par ligne.
+Lis sur l'entrée standard le **nom d'une classe** (`Produit`, `Client` ou `Commande`),
+sélectionne le **type** correspondant, puis affiche le **nom de toutes ses propriétés**, **triés
+par ordre alphabétique** (pour un résultat déterministe), un par ligne.
 
-Il n'y a **rien à lire** sur l'entrée.
+Définis les trois classes (avec des propriétés **différentes**), par exemple :
 
-Exemple de sortie : `Nom`, puis `Prix`, puis `Quantite`.
+- `Produit` → `Nom`, `Prix`, `Quantite` ;
+- `Client` → `Adresse`, `Email`, `Nom` ;
+- `Commande` → `Date`, `Numero`, `Total`.
+
+Exemple : pour l'entrée `Client`, la sortie est `Adresse`, puis `Email`, puis `Nom`.
 
 ## Livrable
 
@@ -15,7 +20,9 @@ Exemple de sortie : `Nom`, puis `Prix`, puis `Quantite`.
 
 ## Indices
 
-- `typeof(Produit).GetProperties()` renvoie un tableau de `PropertyInfo`.
+- Lis le nom sur `System.Console.ReadLine()`, puis choisis le type avec un `switch` renvoyant
+  `typeof(...)` (`"Client" => typeof(Client)`, etc.).
+- `type.GetProperties()` renvoie un tableau de `PropertyInfo`.
 - Chaque `PropertyInfo` a une propriété `Name`.
 - L'ordre renvoyé par la réflexion n'est pas garanti : trie avec `OrderBy(n => n)` pour un
   résultat stable.

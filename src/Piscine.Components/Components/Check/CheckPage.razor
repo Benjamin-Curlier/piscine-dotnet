@@ -1,4 +1,5 @@
 @page "/check"
+@page "/check/{ModuleId}/{ExerciseId}"
 @rendermode InteractiveServer
 @namespace Piscine.Components.Components.Check
 @using Piscine.App.Checking
@@ -33,19 +34,64 @@
 }
 
 @code {
+    // Exercice ciblé par l'URL (/check/{ModuleId}/{ExerciseId}) : optionnels, null sur /check nu.
+    [Parameter] public string? ModuleId { get; set; }
+    [Parameter] public string? ExerciseId { get; set; }
+
     private string _selectedId = string.Empty;
     private CheckOutcome? _outcome;
     private bool _running;
     private string? _error;
+    private string? _autoRunTarget; // exo dont l'auto-correction est programmée (consommée au rendu interactif)
+    private string? _lastAutoRun;   // dernier exo auto-corrigé (évite de rejouer sur re-rendu)
 
     protected override void OnInitialized()
     {
-        // Pré-sélectionner le premier exercice disponible pour qu'un clic ait toujours une cible.
+        // Fallback (/check sans paramètre) : pré-sélectionner le premier exercice pour qu'un clic
+        // ait toujours une cible. Un exercice passé par l'URL écrase ce choix dans OnParametersSet.
         var first = AllExercises().FirstOrDefault();
         if (first is not null)
         {
             _selectedId = first.Id;
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Sans exercice dans l'URL : on garde la pré-sélection du premier exo, sans auto-correction.
+        if (string.IsNullOrWhiteSpace(ExerciseId))
+        {
+            return;
+        }
+
+        var target = AllExercises()
+            .FirstOrDefault(e => string.Equals(e.Id, ExerciseId, StringComparison.OrdinalIgnoreCase));
+        if (target is null)
+        {
+            return;
+        }
+
+        // Exercice ciblé : le pré-sélectionner (au lieu du premier) et programmer sa correction.
+        _selectedId = target.Id;
+        if (!string.Equals(_lastAutoRun, target.Id, StringComparison.OrdinalIgnoreCase))
+        {
+            _autoRunTarget = target.Id;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // L'auto-correction n'a lieu qu'en contexte interactif : OnAfterRender ne s'exécute pas
+        // pendant le prérendu serveur, donc la correction (Roslyn + sandbox, coûteuse) ne bloque
+        // jamais le premier rendu HTTP. Consommée une seule fois par exercice ciblé.
+        if (_autoRunTarget is null || _running)
+        {
+            return;
+        }
+
+        _lastAutoRun = _autoRunTarget;
+        _autoRunTarget = null;
+        await RunCheck();
     }
 
     private async Task RunCheck()

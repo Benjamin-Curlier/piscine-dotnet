@@ -8,23 +8,33 @@ de `Db`.
 
 ## Objectif
 
+Lis **quatre messages** sur l'entrée standard, un par ligne, dans cet ordre :
+
+1. message `App` (Information) ;
+2. message `Db` (Information) — **sera filtré** ;
+3. message `Db` (Warning) ;
+4. message `App` (Information).
+
 Configure un **seul** `LoggerFactory` :
 
 - provider fourni, niveau minimum **Information** ;
 - un filtre : `builder.AddFilter("Db", LogLevel.Warning)`.
 
-Crée deux loggers (`App` et `Db`) et émets, dans l'ordre :
+Crée deux loggers (`App` et `Db`) et émets, dans l'ordre (avec les messages lus) :
 
 ```csharp
-app.LogInformation("Démarrage");
-db.LogInformation("Requête SELECT *");   // filtré : Db n'émet qu'à partir de Warning
-db.LogWarning("Requête lente (1.2s)");
-app.LogInformation("Arrêt");
+app.LogInformation("{Message}", msgAppDemarrage);
+db.LogInformation("{Message}", msgDbInfo);     // filtré : Db n'émet qu'à partir de Warning
+db.LogWarning("{Message}", msgDbWarning);
+app.LogInformation("{Message}", msgAppArret);
 ```
 
-Aucune entrée standard.
+> ⚠️ Ne te contente pas de recopier les 4 lignes lues : le 2ᵉ message (Db en Information) doit
+> **disparaître** grâce au filtre. C'est tout l'intérêt de l'exercice.
 
 ## Sortie attendue
+
+Pour l'entrée `Démarrage` / `Requête SELECT *` / `Requête lente (1.2s)` / `Arrêt` :
 
 ```
 App [Information] Démarrage

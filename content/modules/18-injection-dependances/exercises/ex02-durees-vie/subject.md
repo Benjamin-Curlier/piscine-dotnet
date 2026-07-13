@@ -2,21 +2,24 @@
 
 ## Objectif
 
-Ce programme ne lit rien : il **démontre** la différence entre les durées de vie d'un service.
+Lis un entier `N` sur l'entrée standard (le **nombre de résolutions** à effectuer). Le programme
+**démontre** la différence entre les durées de vie d'un service.
 
 Tu as deux compteurs identiques (un champ `int`, une méthode `Incrementer()` qui pré-incrémente
 et renvoie la valeur). Enregistre l'un en **singleton**, l'autre en **transient**.
 
-- Résous le **singleton deux fois** : c'est la **même instance**, donc `Incrementer()` renvoie `1`
-  puis `2`.
-- Résous le **transient deux fois** : c'est une **instance neuve** à chaque fois, donc `Incrementer()`
-  renvoie `1` puis `1`.
+- Résous le **singleton N fois** : c'est la **même instance**, donc `Incrementer()` renvoie
+  `1, 2, …, N` (l'état s'accumule).
+- Résous le **transient N fois** : c'est une **instance neuve** à chaque fois, donc `Incrementer()`
+  renvoie `1` à chaque résolution.
 
-Affiche les **4 lignes** :
+Affiche `2 × N` lignes. Exemple pour `N = 3` :
 
 ```
 Singleton: 1
 Singleton: 2
+Singleton: 3
+Transient: 1
 Transient: 1
 Transient: 1
 ```
@@ -28,8 +31,10 @@ Transient: 1
 ## Indices
 
 - Ajoute `using Microsoft.Extensions.DependencyInjection;` en haut.
+- Lis `N` avec `int.Parse(System.Console.ReadLine())`.
 - Chaque classe : `private int _n; public int Incrementer() => ++_n;`.
 - Enregistre : `services.AddSingleton<CompteurSingleton>(); services.AddTransient<CompteurTransient>();`.
-- Construis le provider, puis appelle `provider.GetRequiredService<...>().Incrementer()` deux fois
-  pour chaque compteur, en préfixant l'affichage par `"Singleton: "` ou `"Transient: "`.
-- Pas de saisie : aucune lecture de l'entrée. Instructions d'abord, classes après.
+- Construis le provider, puis, dans une **boucle** de `N` tours, appelle
+  `provider.GetRequiredService<...>().Incrementer()` pour chaque compteur, en préfixant l'affichage
+  par `"Singleton: "` ou `"Transient: "`.
+- Instructions d'abord (y compris la lecture de `N`), classes après.

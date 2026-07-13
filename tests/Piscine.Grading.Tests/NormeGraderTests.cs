@@ -21,6 +21,8 @@ public class NormeGraderTests
 
         Assert.Equal(GraderStatus.Reussi, result.Status); // non bloquant
         Assert.NotEmpty(result.Messages);
+        // Le message doit être actionnable : oriente vers un reformatage concret.
+        Assert.Contains(result.Messages, m => m.Contains("dotnet format"));
     }
 
     [Fact]

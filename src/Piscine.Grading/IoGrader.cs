@@ -29,7 +29,7 @@ public sealed class IoGrader : IGrader
         if (!compilation.Success)
         {
             var messages = new List<string> { "Le programme ne compile pas :" };
-            messages.AddRange(compilation.Errors);
+            messages.AddRange(CapErrors(compilation.Errors));
             return GraderResult.Failure(Type, messages.ToArray()).WithTrigger(FeedbackTriggers.CompileError);
         }
 
@@ -68,6 +68,23 @@ public sealed class IoGrader : IGrader
         }
 
         return GraderResult.Success(Type);
+    }
+
+    // Plafonne le déballage des erreurs de compilation : au-delà, le mur d'erreurs noie la cause première.
+    private const int MaxReportedErrors = 5;
+
+    private static IEnumerable<string> CapErrors(IReadOnlyList<string> errors)
+    {
+        foreach (var error in errors.Take(MaxReportedErrors))
+        {
+            yield return error;
+        }
+
+        var overflow = errors.Count - MaxReportedErrors;
+        if (overflow > 0)
+        {
+            yield return $"… et {overflow} autre(s) erreur(s).";
+        }
     }
 
     private static string Normalize(string s) => s.Replace("\r\n", "\n");

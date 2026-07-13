@@ -55,9 +55,35 @@ public sealed class ProgressStore
 
         // Écriture atomique : on écrit un fichier temporaire voisin puis on le déplace par-dessus la
         // cible, pour ne jamais laisser un progress.json à moitié écrit (que Load() devrait ensuite
-        // récupérer) si le process est interrompu en plein File.WriteAllText.
-        var temp = _path + ".tmp";
-        File.WriteAllText(temp, json);
-        File.Move(temp, _path, overwrite: true);
+        // récupérer) si le process est interrompu en plein File.WriteAllText. Le nom du temporaire est
+        // UNIQUE par écriture (GUID) : le hook grade-received (post-receive) et un `check` CLI/Desktop
+        // peuvent sauvegarder en parallèle sans se disputer un même « .tmp » (IOException de partage,
+        // ou File.Move sur un temp déjà consommé par l'autre process).
+        var temp = _path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temp, json);
+            File.Move(temp, _path, overwrite: true);
+        }
+        finally
+        {
+            TryDeleteTemp(temp);
+        }
+    }
+
+    /// <summary>Supprime le temporaire s'il subsiste (échec avant/pendant le Move). Best-effort.</summary>
+    private static void TryDeleteTemp(string temp)
+    {
+        try
+        {
+            if (File.Exists(temp))
+            {
+                File.Delete(temp);
+            }
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // On ne laisse jamais l'échec du nettoyage masquer la vraie erreur (ni casser le Move réussi).
+        }
     }
 }

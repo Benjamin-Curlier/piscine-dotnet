@@ -1,5 +1,11 @@
 using Microsoft.Extensions.Logging;
 
+// Quatre messages lus sur stdin, dans l'ordre : App (info), Db (info, filtré), Db (warning), App (info).
+var appDemarrage = System.Console.ReadLine();
+var dbInfo = System.Console.ReadLine();
+var dbWarning = System.Console.ReadLine();
+var appArret = System.Console.ReadLine();
+
 using var factory = LoggerFactory.Create(builder =>
 {
     builder.AddProvider(new CaptureLoggerProvider());
@@ -10,7 +16,7 @@ using var factory = LoggerFactory.Create(builder =>
 var app = factory.CreateLogger("App");
 var db = factory.CreateLogger("Db");
 
-app.LogInformation("Démarrage");
-db.LogInformation("Requête SELECT *");
-db.LogWarning("Requête lente (1.2s)");
-app.LogInformation("Arrêt");
+app.LogInformation("{Message}", appDemarrage);
+db.LogInformation("{Message}", dbInfo);       // filtré : Db n'émet qu'à partir de Warning
+db.LogWarning("{Message}", dbWarning);
+app.LogInformation("{Message}", appArret);

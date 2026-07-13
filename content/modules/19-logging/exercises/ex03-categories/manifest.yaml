@@ -8,12 +8,19 @@ starter: [Categories.cs, LogCapture.cs]
 grading:
   - type: io
     cases:
-      - stdin: ""
+      # les 4 messages viennent de stdin ; le 2e (Db Information) est filtré et n'apparaît pas
+      - stdin: "Démarrage\nRequête SELECT *\nRequête lente (1.2s)\nArrêt\n"
         expect_stdout: "App [Information] Démarrage\nDb [Warning] Requête lente (1.2s)\nApp [Information] Arrêt\n"
+        expect_exit: 0
+      - stdin: "Init\nSELECT users\nDeadlock détecté\nFin\n"
+        expect_stdout: "App [Information] Init\nDb [Warning] Deadlock détecté\nApp [Information] Fin\n"
+        expect_exit: 0
+      - stdin: "Boot\nping db\nConnexion perdue\nExtinction\n"
+        expect_stdout: "App [Information] Boot\nDb [Warning] Connexion perdue\nApp [Information] Extinction\n"
         expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
-      message: "builder.AddFilter(\"Db\", LogLevel.Warning) : le LogInformation de la catégorie Db est filtré, mais son LogWarning passe. App reste à Information."
+      message: "Lis les 4 messages sur stdin. builder.AddFilter(\"Db\", LogLevel.Warning) : le LogInformation de la catégorie Db (2e message) est filtré et n'apparaît PAS, mais son LogWarning passe. App reste à Information. N'échoue pas en recopiant les 4 lignes telles quelles."
   course_ref: "cours.md#categories"
 solution: [Categories.cs, LogCapture.cs]

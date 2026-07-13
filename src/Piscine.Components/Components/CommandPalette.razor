@@ -15,6 +15,11 @@
             <div class="cmdk-search">
                 <span class="cmdk-search-icon" aria-hidden="true">⌕</span>
                 <input @ref="_inputRef" class="cmdk-input" type="text" data-testid="command-palette-input"
+                       role="combobox" aria-label="Rechercher un module, un exercice, une action"
+                       aria-autocomplete="list"
+                       aria-expanded="@(_results.Count > 0 ? "true" : "false")"
+                       aria-controls="@ListboxId"
+                       aria-activedescendant="@ActiveOptionId"
                        placeholder="Rechercher un module, un exercice, une action…"
                        autocomplete="off" spellcheck="false"
                        value="@_query" @oninput="OnInput" />
@@ -27,15 +32,20 @@
             }
             else
             {
-                <ul class="cmdk-results" data-testid="command-palette-results">
+                <ul class="cmdk-results" data-testid="command-palette-results"
+                    id="@ListboxDomId" role="listbox" aria-label="Résultats">
                     @for (var i = 0; i < _results.Count; i++)
                     {
                         var index = i;
                         var result = _results[i];
                         var command = result.Command;
-                        <li>
+                        <li role="presentation">
                             <button type="button"
                                     class="cmdk-item @(index == _selected ? "selected" : "")"
+                                    id="@OptionId(index)"
+                                    role="option"
+                                    aria-selected="@(index == _selected ? "true" : "false")"
+                                    tabindex="-1"
                                     data-testid="@command.TestId"
                                     data-kind="@command.Kind"
                                     @onclick="() => Activate(command)"
@@ -69,10 +79,21 @@
 }
 
 @code {
+    // Id DOM stable de la liste de résultats (rôle listbox), référencé par aria-controls du combobox.
+    private const string ListboxDomId = "cmdk-listbox";
+
     private bool _open;
     private string _query = string.Empty;
     private int _selected;
     private IReadOnlyList<SearchResult> _results = [];
+
+    // aria-controls / aria-activedescendant : ne pointent que sur des éléments réellement rendus.
+    // Vides (null → attribut omis) quand il n'y a aucun résultat (la liste n'existe pas).
+    private string? ListboxId => _results.Count > 0 ? ListboxDomId : null;
+
+    private string? ActiveOptionId => _results.Count > 0 ? OptionId(_selected) : null;
+
+    private static string OptionId(int index) => $"cmdk-option-{index}";
 
     private ElementReference _inputRef;
     private IJSObjectReference? _module;

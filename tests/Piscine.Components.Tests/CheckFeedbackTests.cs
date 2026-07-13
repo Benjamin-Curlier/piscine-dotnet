@@ -39,6 +39,53 @@ public sealed class CheckFeedbackTests : BunitContext
         // Assert — aucun diff
         Assert.Empty(cut.FindAll("[data-testid='diff-expected']"));
         Assert.Empty(cut.FindAll("[data-testid='diff-actual']"));
+
+        // Assert — pas d'encart « pas suivant » sur un verdict Réussi
+        Assert.Empty(cut.FindAll("[data-testid='check-next-step']"));
+    }
+
+    // --- Cas AucunFichier : encart actionnable « pas suivant » --------------------------------
+
+    [Fact]
+    public void Render_AucunFichier_ShowsActionableNextStep()
+    {
+        // Arrange — verdict sans cas (workspace vide), tel que produit par CheckService.
+        var outcome = new CheckOutcome(
+            ExerciseId: "ex00-hello",
+            ModuleId: "00-setup-git",
+            Verdict: CheckVerdict.AucunFichier,
+            Cases: [],
+            Hint: null,
+            CourseRef: null);
+
+        // Act
+        var cut = Render<CheckFeedback>(p => p.Add(c => c.Outcome, outcome));
+
+        // Assert — encart actionnable présent, orientant vers « Ouvrir le dossier »
+        var nextStep = cut.Find("[data-testid='check-next-step']");
+        Assert.Contains("Ouvrir le dossier", nextStep.TextContent, System.StringComparison.Ordinal);
+    }
+
+    // --- Cas Introuvable : encart actionnable « pas suivant » ---------------------------------
+
+    [Fact]
+    public void Render_Introuvable_ShowsActionableNextStep()
+    {
+        // Arrange
+        var outcome = new CheckOutcome(
+            ExerciseId: "ex-inconnu",
+            ModuleId: string.Empty,
+            Verdict: CheckVerdict.Introuvable,
+            Cases: [],
+            Hint: null,
+            CourseRef: null);
+
+        // Act
+        var cut = Render<CheckFeedback>(p => p.Add(c => c.Outcome, outcome));
+
+        // Assert — encart actionnable présent, mentionnant l'exercice introuvable
+        var nextStep = cut.Find("[data-testid='check-next-step']");
+        Assert.Contains("introuvable", nextStep.TextContent, System.StringComparison.OrdinalIgnoreCase);
     }
 
     // --- Cas FAIL : diff + indice + lien course_ref -------------------------------------------

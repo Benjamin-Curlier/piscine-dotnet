@@ -156,9 +156,12 @@ public sealed class ProjectGrader : IGrader
             var model = compilation.GetSemanticModel(tree);
             var root = tree.GetRoot();
 
+            // DescendantNodes() ne descend pas dans la trivia : les cref de doc XML (/// <see cref="…"/>)
+            // sont exclus, on ne compte donc que les vraies références de code.
             foreach (var name in root.DescendantNodes().OfType<SimpleNameSyntax>())
             {
-                if (model.GetSymbolInfo(name).Symbol is not INamedTypeSymbol referenced)
+                var referenced = ReferencedType(model.GetSymbolInfo(name).Symbol);
+                if (referenced is null)
                 {
                     continue;
                 }
@@ -187,6 +190,25 @@ public sealed class ProjectGrader : IGrader
     }
 
     /// <summary>
+    /// Type porteur d'une référence, aux fins de l'analyse de couche. Un type nommé (héritage, <c>new</c>,
+    /// <c>typeof</c>, nom pleinement qualifié, alias, <c>global::</c>…) se rapporte à lui-même. Une
+    /// dépendance qui ne NOMME jamais le type — méthode d'extension, <c>using static</c>, accès de membre
+    /// via <c>var</c>… — se rapporte au type qui DÉCLARE le membre résolu (méthode, propriété, champ,
+    /// événement). Pour une méthode d'extension appelée en forme réduite (<c>x.Ext()</c>), on remonte à la
+    /// classe statique d'origine via <see cref="IMethodSymbol.ReducedFrom"/>. <c>null</c> = aucune
+    /// dépendance de type pertinente (namespace, paramètre, variable locale, littéral…).
+    /// </summary>
+    private static INamedTypeSymbol? ReferencedType(ISymbol? symbol) => symbol switch
+    {
+        INamedTypeSymbol type => type,
+        IMethodSymbol method => method.ReducedFrom?.ContainingType ?? method.ContainingType,
+        IPropertySymbol property => property.ContainingType,
+        IFieldSymbol field => field.ContainingType,
+        IEventSymbol @event => @event.ContainingType,
+        _ => null,
+    };
+
+    /// <summary>
     /// Namespace du type qui contient la référence — déterminé via le symbole du type englobant
     /// (gère types imbriqués et namespaces multiples par fichier), avec repli syntaxique pour le code
     /// hors type (top-level statements). Chaîne vide = namespace global.
@@ -212,5 +234,7 @@ public sealed class ProjectGrader : IGrader
 
     private static string Normalize(string s) => s.Replace("\r\n", "\n");
 
-    private static string Quote(string s) => "\"" + s.Replace("\n", "\\n") + "\"";
+    // Échappe \r ET \n (cf. IoGrader.Quote) : un \r brut déplacerait le curseur et corromprait
+    // l'alignement « Attendu / Obtenu » dans le terminal.
+    private static string Quote(string s) => "\"" + s.Replace("\r", "\\r").Replace("\n", "\\n") + "\"";
 }

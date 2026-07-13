@@ -53,8 +53,13 @@ else
         }
         <button class="ex-action" data-testid="ex-open-terminal-embedded" @onclick="OpenEmbeddedTerminal">Terminal intégré</button>
         <button class="ex-action" data-testid="ex-open-terminal-system" @onclick="OpenSystemTerminal">Terminal système</button>
-        <a class="ex-action" data-testid="ex-check" href="/check">Vérifier</a>
+        <a class="ex-action" data-testid="ex-check" href="/check/@_module.Id/@_exercise.Id">Vérifier</a>
     </div>
+
+    @if (_actionError is not null)
+    {
+        <div class="notice notice-warn" role="alert" data-testid="ex-action-error">@_actionError</div>
+    }
 
     <CourseToc Markdown="@_exercise.SubjectMarkdown" />
     <MarkdownView Markdown="@_exercise.SubjectMarkdown" />
@@ -97,6 +102,7 @@ else
     private CourseExercise? _prev;
     private CourseExercise? _next;
     private EditorOption? _editor;
+    private string? _actionError;
 
     protected override void OnParametersSet()
     {
@@ -104,6 +110,7 @@ else
         _exercise = _module is null ? null : Catalog.GetExercise(ModuleId, ExerciseId);
         _prev = _next = null;
         _editor = null;
+        _actionError = null;
 
         if (_module is null || _exercise is null)
         {
@@ -118,8 +125,30 @@ else
         _next = index >= 0 && index < flat.Count - 1 ? flat[index + 1] : null;
     }
 
-    private void OpenFolder() => Launcher.OpenFolder(ExerciseId);
-    private void OpenEditor() { if (_editor is not null) Launcher.OpenEditor(ExerciseId, _editor); }
-    private void OpenSystemTerminal() => Launcher.OpenSystemTerminal(ExerciseId);
+    // Chaque ouverture délègue à WorkspaceLauncher, qui renvoie false quand le programme externe est
+    // introuvable (explorateur / éditeur / terminal absent) : on remonte alors un message actionnable
+    // inline plutôt que d'échouer en silence, en orientant la recrue vers le Terminal intégré.
+    private void OpenFolder()
+        => _actionError = Launcher.OpenFolder(ExerciseId)
+            ? null
+            : "Impossible d'ouvrir le dossier (explorateur de fichiers introuvable). Utilise le Terminal intégré.";
+
+    private void OpenEditor()
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        _actionError = Launcher.OpenEditor(ExerciseId, _editor)
+            ? null
+            : $"Impossible d'ouvrir l'éditeur ({_editor.Label} introuvable). Utilise le Terminal intégré.";
+    }
+
+    private void OpenSystemTerminal()
+        => _actionError = Launcher.OpenSystemTerminal(ExerciseId)
+            ? null
+            : "Impossible d'ouvrir le terminal système (application introuvable). Utilise le Terminal intégré.";
+
     private void OpenEmbeddedTerminal() => Nav.NavigateTo("/terminal");
 }

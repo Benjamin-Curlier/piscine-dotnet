@@ -1,33 +1,33 @@
 id: ex00-insert
-title: "DbContext, insertion & comptage"
-objective: "Créer un DbContext sur SQLite in-memory, insérer des entités et les compter."
+title: "DbContext, insertion, comptage & tri"
+objective: "Créer un DbContext sur SQLite in-memory, insérer des entités, les compter puis les relire triées."
 difficulty: moyen
 deliverables: [Catalogue.cs]
 starter: [Catalogue.cs]
 grading:
   - type: io
     cases:
+      # 1re ligne : le nombre RELU en base ; puis les noms triés par une requête EF Core.
       - stdin: "3\nPomme\nPoire\nBanane\n"
-        expect_stdout: "3\n"
+        expect_stdout: "3\nBanane\nPoire\nPomme\n"
         expect_exit: 0
       - stdin: "1\nKiwi\n"
-        expect_stdout: "1\n"
+        expect_stdout: "1\nKiwi\n"
         expect_exit: 0
-      # 0 produit inséré
+      # 0 produit inséré : aucun nom à lister
       - stdin: "0\n"
         expect_stdout: "0\n"
         expect_exit: 0
-      # 5 produits
-      - stdin: "5\nAnanas\nMelon\nFigue\nDatte\nAvocado\n"
-        expect_stdout: "5\n"
+      # l'ordre de sortie NE SUIT PAS l'ordre d'entrée : un simple écho de stdin échoue
+      - stdin: "5\nMelon\nAnanas\nFigue\nDatte\nAvocado\n"
+        expect_stdout: "5\nAnanas\nAvocado\nDatte\nFigue\nMelon\n"
         expect_exit: 0
-      # 2 produits
-      - stdin: "2\nCerise\nMyrtille\n"
-        expect_stdout: "2\n"
+      - stdin: "2\nMyrtille\nCerise\n"
+        expect_stdout: "2\nCerise\nMyrtille\n"
         expect_exit: 0
 feedback:
   hints:
     - when: io_mismatch
-      message: "Ouvre une SqliteConnection 'DataSource=:memory:' et garde-la ouverte. DbContextOptionsBuilder<T>().UseSqlite(connexion). EnsureCreated(), Add chaque Produit, SaveChanges(), puis affiche Produits.Count()."
+      message: "Ouvre une SqliteConnection 'DataSource=:memory:' et garde-la ouverte. DbContextOptionsBuilder<T>().UseSqlite(connexion). EnsureCreated(), Add chaque Produit, SaveChanges(). Affiche d'abord Produits.Count(), puis relis Produits.OrderBy(p => p.Nom).Select(p => p.Nom) ligne par ligne."
   course_ref: "cours.md#dbcontext"
 solution: [Catalogue.cs]

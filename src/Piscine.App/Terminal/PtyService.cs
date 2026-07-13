@@ -185,10 +185,12 @@ public sealed class PtyService
         // - OnInnerOutput le libere quand le seuil de taille est atteint (flush immediat).
         private readonly SemaphoreSlim _flushSignal = new(0);
 
-        // Taille totale accumulee dans le channel depuis le dernier flush : utilisee pour
-        // decider si le seuil de taille est atteint. Acces depuis le thread PTY uniquement
-        // (OnInnerOutput) ; pas besoin de synchronisation supplementaire car Channel est
-        // thread-safe cote write et cet accumulateur n'est lu que depuis le meme thread.
+        // Taille totale accumulee dans le channel depuis le dernier flush : utilisee pour decider si le
+        // seuil de taille est atteint. Ecrit par DEUX threads en concurrence — le thread PTY
+        // (OnInnerOutput, ajout du chunk) et le thread de flush (RunFlushLoopAsync, remise a zero) —
+        // donc tous les acces passent par Interlocked (atomicite + visibilite inter-thread). La valeur
+        // exacte n'est pas critique : le Channel reste la source de verite des octets ; ce compteur ne
+        // sert qu'a decider d'un flush anticipe sur seuil.
         private int _pendingBytes;
 
         public event Action<byte[]>? Output;
@@ -227,11 +229,12 @@ public sealed class PtyService
             _channel.Writer.TryWrite(chunk);
 
             // Seuil de taille : si le buffer accumule depasse MaxBufferBytes, on signale un flush
-            // immediat sans attendre le prochain tick du timer.
-            _pendingBytes += chunk.Length;
-            if (_pendingBytes >= _options.MaxBufferBytes)
+            // immediat sans attendre le prochain tick du timer. Interlocked car la boucle de flush
+            // remet _pendingBytes a zero en concurrence (cf. commentaire du champ).
+            var total = Interlocked.Add(ref _pendingBytes, chunk.Length);
+            if (total >= _options.MaxBufferBytes)
             {
-                _pendingBytes = 0;
+                Interlocked.Exchange(ref _pendingBytes, 0);
                 _flushSignal.Release();
             }
         }
@@ -256,7 +259,7 @@ public sealed class PtyService
                 }
 
                 // Vider tout ce qui est disponible dans le channel au moment du flush.
-                _pendingBytes = 0; // RAZ avant lecture pour eviter un double-signal parasite.
+                Interlocked.Exchange(ref _pendingBytes, 0); // RAZ (Interlocked : concurrent avec OnInnerOutput).
                 while (_channel.Reader.TryRead(out var chunk))
                 {
                     pending.Add(chunk);

@@ -78,9 +78,11 @@ Fini la grosse classe avec dix champs dont la moitié sont `null` selon l'état 
 
 ---
 
-## 5. Déconstruction {#json}
+## 5. Déconstruction : rendre une valeur JSON {#json}
 
-Le pattern matching peut **extraire** les données d'un record dans la foulée :
+Le pattern matching peut **extraire** les données d'un record dans la foulée. On l'illustre sur une
+petite union « valeur JSON » (`Nombre` / `Texte` / `Booleen`), qu'on transforme en sa
+représentation textuelle :
 
 ```csharp
 var rendu = v switch

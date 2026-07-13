@@ -20,6 +20,13 @@ public static class StructuredDiffBuilder
     private const string ExpectedPrefix = "Attendu";
     private const string ActualPrefix = "Obtenu";
 
+    // Plafonds anti-OOM : la table LCS est en O(n*m) mémoire. Une sortie recrue énorme (mais terminée
+    // dans le budget temps, donc non tuée par le sandbox) ferait exploser l'hôte App à la construction
+    // du diff. Au-delà, on renonce au diff éducatif (retour null) ; le verdict io lui-même reste
+    // inchangé (il compare les chaînes brutes, hors de ce chemin).
+    private const int MaxDiffLines = 2000;
+    private const int MaxDiffChars = 1024 * 1024;
+
     /// <summary>
     /// Tente de bâtir un diff structuré depuis les <paramref name="messages"/> d'un cas. Renvoie
     /// <c>null</c> s'il n'y a pas à la fois une ligne « Attendu » et une ligne « Obtenu » quotées.
@@ -50,8 +57,21 @@ public static class StructuredDiffBuilder
             return null;
         }
 
+        // Borne les quelques lignes très longues avant même de déséchapper/découper.
+        if (expectedRaw.Length > MaxDiffChars || actualRaw.Length > MaxDiffChars)
+        {
+            return null;
+        }
+
         var expectedLines = SplitLines(Unescape(expectedRaw));
         var actualLines = SplitLines(Unescape(actualRaw));
+
+        // Borne le grand nombre de lignes (la table LCS serait en O(n*m)).
+        if (expectedLines.Count > MaxDiffLines || actualLines.Count > MaxDiffLines)
+        {
+            return null;
+        }
+
         return new StructuredDiff(Diff(expectedLines, actualLines));
     }
 
@@ -70,7 +90,15 @@ public static class StructuredDiffBuilder
         return false;
     }
 
-    /// <summary>Déséchappe les séquences produites par <c>Quote</c> : <c>\n</c> → saut de ligne réel.</summary>
+    /// <summary>
+    /// Déséchappe les séquences produites par <c>Quote</c> : <c>\n</c> → saut de ligne réel.
+    /// <para>
+    /// Limite connue et bénigne : si la sortie recrue contient un <c>\n</c> <i>littéral</i> (backslash
+    /// suivi de « n »), <c>Quote</c> l'a doublé (<c>\\n</c>), donc il n'est pas ré-interprété ici ; en
+    /// revanche un vrai saut de ligne recrue, échappé par <c>Quote</c>, redevient un saut de ligne. Ce
+    /// chemin ne sert qu'à l'affichage éducatif du diff — le verdict io compare les chaînes brutes.
+    /// </para>
+    /// </summary>
     private static string Unescape(string quoted)
         => quoted.Replace("\\n", "\n", StringComparison.Ordinal);
 
