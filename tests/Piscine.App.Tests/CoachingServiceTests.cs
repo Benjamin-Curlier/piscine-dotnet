@@ -135,6 +135,20 @@ public sealed class CoachingServiceTests
         Assert.Equal(HintSeverity.Warn, card.Severity);
     }
 
+    [Fact]
+    public void Evaluate_SuccessfulCommit_DoesNotEmitNothingStaged()
+    {
+        // M-9 : un commit RÉUSSI (exit 0) vide l'index (StagedCount == 0) — ne pas afficher
+        // « Rien à committer » après coup. On attend plutôt l'info « pas encore poussé ».
+        var state = CleanPushed() with { StagedCount = 0, AheadOfOrigin = 1 };
+        var evt = new GitCommandEvent(["commit", "-m", "feat"], ExitCode: 0, Cwd: "/repo");
+
+        var cards = Coach.Evaluate(state, evt, new ExerciseExpectation());
+
+        Assert.False(Has(cards, "commit_nothing_staged"));
+        Assert.True(Has(cards, "committed_not_pushed"));
+    }
+
     // --- Regle 6 : typo de sous-commande ------------------------------------------------------
 
     [Fact]

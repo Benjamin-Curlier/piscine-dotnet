@@ -81,8 +81,10 @@ public sealed class CoachingService
                 HintSeverity.Warn));
         }
 
-        // 5. « commit » sans rien stage (Warn).
-        if (string.Equals(lastCommand?.Subcommand, "commit", StringComparison.Ordinal) && state.StagedCount == 0)
+        // 5. « commit » qui ÉCHOUE faute d'index (Warn). Ne se déclenche que si le commit a raté
+        //    (ExitCode != 0) : un commit RÉUSSI vide aussi l'index (StagedCount == 0), il ne faut donc
+        //    pas afficher « Rien à committer » après un succès (M-9).
+        if (lastCommand is { Subcommand: "commit", ExitCode: not 0 } && state.StagedCount == 0)
         {
             cards.Add(new HintCard(
                 "commit_nothing_staged",
