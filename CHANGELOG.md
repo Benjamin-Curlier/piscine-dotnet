@@ -4,6 +4,46 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v4.1.0] — 2026-07-13
+
+Revue « nouvelle recrue » : le clone frais rebuild, l'intégrité de la moulinette est durcie, l'app de
+bureau se lance en plein écran, et les tests E2E s'exécutent réellement en CI.
+
+### Ajouté
+
+- **App de bureau : lancement en plein écran** (fenêtre maximisée au démarrage).
+- **CI : job E2E DevHost** (Playwright/Chromium) — les smokes UI s'exécutent réellement au lieu de se
+  sauter silencieusement (informatif pour l'instant, à promouvoir en check requis une fois éprouvé).
+
+### Corrigé
+
+- **Build cassé sur clone frais (`NU1903`)** : l'advisory SQLite transitif (`GHSA-2m69-gcr7-jv3q`,
+  promu en erreur par `TreatWarningsAsErrors`) est corrigé en épinglant `SQLitePCLRaw.bundle_e_sqlite3`
+  à `3.0.3` (SQLite patché), **sans** désactiver l'audit ni retirer les dépendances porteuses.
+- **Correction identique CLI ↔ Desktop** : les assemblies de référence du code recrue vivent désormais
+  dans `Piscine.Grading` → le module `35-ef-core` est corrigé de la même façon partout (CLI, bureau,
+  DevHost, tests).
+- **io : `Environment.Exit` ne perd plus le stdout** (fini le faux « À revoir » sur un programme correct).
+- **mutation : un mutant qui plante ou boucle est désormais détecté (tué)**, plus compté survivant à tort.
+- **xunit : `[Theory]`/`[InlineData]` reconnus** (un cas par ligne) ; une source de données non
+  supportée est signalée au lieu d'être sautée silencieusement.
+- **Coaching : plus de faux « Rien à committer »** après un commit réussi.
+- **Progression : un incident transitoire du bac à sable ne rétrograde plus un « Réussi »**.
+- **Contenu : un `module.yaml` malformé ne fait plus planter** `list`/`status`/`validate-content` (il est
+  signalé par la gate, sans fail-open).
+- **App de bureau : redimensionnement par poignées corrigé** (plus de dérive/lag derrière le curseur) ;
+  suppression du cadre de focus parasite autour du titre à chaque navigation.
+
+### Sécurité
+
+- **Intégrité de la moulinette (B-2)** : le code recrue ne peut plus falsifier son verdict. Le résultat
+  autoritaire est dérivé d'une **trame stdout** par le processus parent de confiance, et non plus d'un
+  `result.json` que l'enfant (non fiable) pouvait écrire — le vecteur documenté (fausse `result.json` +
+  `FailFast`) est fermé en `unit`/`mutation` (résidu `xunit` documenté, fermeture totale = isolation OS).
+- **CI : `permissions: contents: read`** — moindre privilège du `GITHUB_TOKEN`.
+
+---
+
 ## [v4.0.2] — 2026-06-14
 
 ### Amélioré
