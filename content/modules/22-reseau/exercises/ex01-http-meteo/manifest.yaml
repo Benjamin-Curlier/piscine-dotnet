@@ -1,0 +1,46 @@
+id: ex01-http-meteo
+title: "Lire une API météo JSON"
+objective: "Appeler une route HTTP qui renvoie du JSON, le désérialiser, et afficher une synthèse formatée (pas le corps brut)."
+difficulty: moyen
+deliverables: [Meteo.cs]
+starter: [Meteo.cs]
+grading:
+  - type: reseau
+    network:
+      mode: http
+      routes:
+        - method: GET
+          path: /meteo/paris
+          status_code: 200
+          response_body: '{"ville":"Paris","tempC":19,"humidite":72}'
+          content_type: "application/json; charset=utf-8"
+        - method: GET
+          path: /meteo/lyon
+          status_code: 200
+          response_body: '{"ville":"Lyon","tempC":26,"humidite":40}'
+          content_type: "application/json; charset=utf-8"
+        - method: GET
+          path: /meteo/oslo
+          status_code: 200
+          response_body: '{"ville":"Oslo","tempC":-4,"humidite":88}'
+          content_type: "application/json; charset=utf-8"
+    cases:
+      - args: [meteo/paris]
+        expect_stdout: "Paris : 19°C (humidité 72%)"
+        expect_exit: 0
+      - args: [meteo/lyon]
+        expect_stdout: "Lyon : 26°C (humidité 40%)"
+        expect_exit: 0
+      - args: [meteo/oslo]
+        expect_stdout: "Oslo : -4°C (humidité 88%)"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: compile_error
+      message: "Ajoute `using System.Net.Http;` et `using System.Text.Json;`. Déclare une petite classe (ville, tempC, humidite) pour représenter la réponse."
+    - when: io_mismatch
+      message: "Récupère le JSON avec `GetStringAsync`, désérialise-le, puis formate « Ville : Temp°C (humidité X%) ». Active `PropertyNameCaseInsensitive` pour que les noms JSON correspondent aux propriétés."
+    - when: timeout
+      message: "Ton programme ne se termine pas : vérifie que tu attends bien la réponse HTTP (`await`)."
+  course_ref: "cours.md#httpclient-get"
+solution: [Meteo.cs]
