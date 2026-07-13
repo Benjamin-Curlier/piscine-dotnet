@@ -99,6 +99,10 @@ public sealed class SettingsSmokeTests : IAsyncLifetime
                 "() => window.__settingsReady === true",
                 new PageWaitForFunctionOptions { Timeout = 30_000 });
 
+            // Workspace non initialisé → l'overlay onboarding (1ᵉʳ lancement) recouvre la page et
+            // intercepterait les clics « thème » / « enregistrer ». On le ferme (no-op s'il est absent).
+            await OnboardingOverlay.DismissIfPresentAsync(page);
+
             // Basculer le thème en sombre → <html data-theme="dark"> (application immédiate via interop).
             // On clique le <label> (l'input radio est visuellement masqué : pointer-events:none).
             await page.Locator("[data-testid='settings-theme-dark']").ClickAsync();

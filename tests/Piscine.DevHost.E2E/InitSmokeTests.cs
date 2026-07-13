@@ -108,6 +108,10 @@ public sealed class InitSmokeTests : IAsyncLifetime
                 "[data-testid='init-status']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });
 
+            // Poste vierge → l'overlay onboarding (1ᵉʳ lancement) recouvre la page et intercepterait le
+            // clic « Initialiser ». On le ferme (Dismiss n'initialise rien : data-initialized reste False).
+            await OnboardingOverlay.DismissIfPresentAsync(page);
+
             // ASSERTION 1 : poste vierge → data-initialized="False".
             var statusEl = await page.QuerySelectorAsync("[data-testid='init-status']")
                 ?? throw new InvalidOperationException("init-status introuvable après WaitForSelector.");
