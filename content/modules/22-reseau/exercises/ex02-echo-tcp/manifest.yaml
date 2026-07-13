@@ -1,0 +1,30 @@
+id: ex02-echo-tcp
+title: "Client d'écho TCP"
+objective: "Se connecter à un serveur d'écho TCP, lui envoyer chaque ligne lue sur l'entrée standard, et afficher ce qu'il renvoie."
+difficulty: moyen
+deliverables: [EchoClient.cs]
+starter: [EchoClient.cs]
+grading:
+  - type: reseau
+    network:
+      mode: echo
+    cases:
+      - stdin: "bonjour\n"
+        expect_stdout: "bonjour\n"
+        expect_exit: 0
+      - stdin: "salut le monde\n"
+        expect_stdout: "salut le monde\n"
+        expect_exit: 0
+      - stdin: "un\ndeux\ntrois\n"
+        expect_stdout: "un\ndeux\ntrois\n"
+        expect_exit: 0
+feedback:
+  hints:
+    - when: compile_error
+      message: "Ajoute `using System.Net.Sockets;` et `using System.IO;`. `args[0]` est l'hôte, `args[1]` le port (convertis-le en `int`)."
+    - when: io_mismatch
+      message: "Pour chaque ligne lue sur l'entrée standard : envoie-la au serveur (`WriteLineAsync`), lis l'écho (`ReadLineAsync`) et affiche-le. Le serveur renvoie exactement ce que tu envoies, ligne par ligne."
+    - when: timeout
+      message: "Ton programme ne se termine pas : arrête la boucle quand `Console.ReadLine()` renvoie `null` (fin de l'entrée), et libère le `TcpClient` avec `using`."
+  course_ref: "cours.md#sockets-tcp"
+solution: [EchoClient.cs]

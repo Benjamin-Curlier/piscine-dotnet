@@ -1,0 +1,33 @@
+id: ex01-merge-commit
+title: "Fusion avec commit de merge"
+objective: "Faire diverger deux branches (chacune un commit sur un fichier différent) puis les fusionner : git crée un commit de merge à deux parents. La moulinette inspecte l'état de ton dépôt."
+difficulty: moyen
+deliverables: []
+starter: []
+grading:
+  - type: git
+    git:
+      branches: [main, dev]
+      min_commits: 4
+      no_conflict_markers: true
+      merged:
+        - { into: main, branch: dev }
+      files:
+        - { path: module-a.txt, ref: main, contains: "module A" }
+        - { path: module-b.txt, ref: main, contains: "module B" }
+      # Signal « exercice tenté » : noté en live dès que la branche dev est poussée.
+      attempt:
+        branch: dev
+      # Fixture = scénario corrigé, construit et vérifié par la gate validate-content.
+      fixture:
+        - { branch: main, message: "init", files: { "README.md": "Projet\n" } }
+        - { branch: dev, base: main }
+        - { branch: dev, message: "ajout module A", files: { "module-a.txt": "module A\n" } }
+        - { branch: main, message: "ajout module B", files: { "module-b.txt": "module B\n" } }
+        - { merge_into: main, merge_from: dev }
+feedback:
+  hints:
+    - when: git_state
+      message: "Crée dev (git switch -c dev) et commite module-a.txt. Reviens sur main (git switch main), commite un module-b.txt DIFFÉRENT pour faire diverger les branches, puis fusionne (git merge dev) : comme main a avancé de son côté, git crée un commit de merge. Pousse tout : git push origin --all."
+  course_ref: "cours.md#merge"
+solution: []
