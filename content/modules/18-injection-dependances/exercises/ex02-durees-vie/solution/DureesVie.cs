@@ -1,14 +1,25 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-services.AddSingleton<CompteurSingleton>();
-services.AddTransient<CompteurTransient>();
-var provider = services.BuildServiceProvider();
+var provider = Conteneur.Construire();
 
-System.Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
-System.Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
-System.Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
-System.Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
+Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
+Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
+Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
+Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
+
+static class Conteneur
+{
+    // Enregistre CompteurSingleton en SINGLETON (une seule instance partagée) et CompteurTransient
+    // en TRANSIENT (une instance neuve à chaque résolution), puis construit le fournisseur.
+    public static IServiceProvider Construire()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<CompteurSingleton>();
+        services.AddTransient<CompteurTransient>();
+        return services.BuildServiceProvider();
+    }
+}
 
 class CompteurSingleton
 {

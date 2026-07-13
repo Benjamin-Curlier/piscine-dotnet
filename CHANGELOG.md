@@ -4,6 +4,29 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [Unreleased]
+
+Revue « nouvelle recrue » (2ᵉ vague, constat M7) : les exercices qui enseignent une **technique** ne se
+laissent plus contourner par une sortie littérale.
+
+### Ajouté
+
+- **Graders `unit` sur les exercices-concept** (injection de dépendances, logging, Generic Host,
+  réflexion, EF Core) : en plus du contrôle `io` (« lance-et-vois-la-sortie »), des tests xUnit cachés
+  asservissent désormais la **vraie API** — instancier le `BackgroundService`/`IHostedService`,
+  distinguer singleton et transient, filtrer par catégorie (`AddFilter`), lire un attribut personnalisé,
+  faire un round-trip EF Core réel, réfléchir sur un type inconnu. « Réussi » implique maintenant que la
+  notion est réellement employée : un `Console.Write` de la sortie attendue ne suffit plus. Exercices
+  couverts : `17/ex01`, `17/ex02`, `18/ex02`, `19/ex03`, `20/ex00`, `20/ex01`, `35/ex00`.
+
+### Corrigé
+
+- **Grader `unit` : livrable à instructions de haut niveau (top-level) supporté** — un tel programme est
+  compilé en **exécutable** (au lieu de bibliothèque) pour la notation par tests, sans jamais lancer son
+  point d'entrée (seuls les `[Fact]` s'exécutent). Sans cela, la compilation échouait (CS8805).
+
+---
+
 ## [v4.1.0] — 2026-07-13
 
 Revue « nouvelle recrue » : le clone frais rebuild, l'intégrité de la moulinette est durcie, l'app de

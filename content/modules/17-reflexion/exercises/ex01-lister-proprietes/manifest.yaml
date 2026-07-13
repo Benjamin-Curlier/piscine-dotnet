@@ -9,9 +9,13 @@ grading:
       - stdin: ""
         expect_stdout: "Nom\nPrix\nQuantite\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/ListerProprietesTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "typeof(Produit).GetProperties().Select(p => p.Name).OrderBy(n => n) puis WriteLine de chaque nom."
+    - when: unit_failure
+      message: "ListerProprietes(Type) est testée sur un autre type que Produit : n'affiche/renvoie rien en dur, applique la réflexion sur le type reçu (type.GetProperties()...)."
   course_ref: "cours.md#lister"
 solution: [ListerProprietes.cs]

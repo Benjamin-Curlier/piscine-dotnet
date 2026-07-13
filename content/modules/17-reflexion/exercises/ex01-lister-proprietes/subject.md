@@ -2,12 +2,13 @@
 
 ## Objectif
 
-Affiche le **nom de toutes les propriétés** de la classe `Produit`, **triés par ordre
-alphabétique** (pour un résultat déterministe), un par ligne.
+Complète **`Reflexion.ListerProprietes(Type type)`** : renvoie le **nom de toutes les propriétés**
+du type reçu, **triés par ordre alphabétique** (pour un résultat déterministe).
 
-Il n'y a **rien à lire** sur l'entrée.
+Le `Main` t'est **fourni** : il appelle ta méthode sur la classe `Produit` et affiche chaque nom,
+un par ligne. Il n'y a **rien à lire** sur l'entrée.
 
-Exemple de sortie : `Nom`, puis `Prix`, puis `Quantite`.
+Exemple de sortie pour `Produit` : `Nom`, puis `Prix`, puis `Quantite`.
 
 ## Livrable
 
@@ -15,9 +16,11 @@ Exemple de sortie : `Nom`, puis `Prix`, puis `Quantite`.
 
 ## Indices
 
-- `typeof(Produit).GetProperties()` renvoie un tableau de `PropertyInfo`.
+- `type.GetProperties()` renvoie un tableau de `PropertyInfo`.
 - Chaque `PropertyInfo` a une propriété `Name`.
 - L'ordre renvoyé par la réflexion n'est pas garanti : trie avec `OrderBy(n => n)` pour un
   résultat stable.
 - `Select` et `OrderBy` exigent `using System.Linq;` ; la réflexion exige
-  `using System.Reflection;`.
+  `using System.Reflection;` (déjà en haut).
+- La correction appelle ta méthode sur un **autre type que `Produit`** : ne code aucun nom en dur,
+  applique la réflexion sur le `type` reçu.

@@ -1,10 +1,20 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-var noms = typeof(Produit).GetProperties().Select(p => p.Name).OrderBy(n => n);
-foreach (var nom in noms)
+foreach (var nom in Reflexion.ListerProprietes(typeof(Produit)))
 {
-    System.Console.WriteLine(nom);
+    Console.WriteLine(nom);
+}
+
+static class Reflexion
+{
+    // Renvoie le nom de TOUTES les propriétés publiques du type, triés par ordre alphabétique.
+    public static IEnumerable<string> ListerProprietes(Type type)
+    {
+        return type.GetProperties().Select(p => p.Name).OrderBy(n => n);
+    }
 }
 
 class Produit

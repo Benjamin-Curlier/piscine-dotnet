@@ -10,7 +10,7 @@ public sealed class GradingStep
     /// <summary>Cas d'exécution pour le grader <c>io</c>.</summary>
     public List<IoCase> Cases { get; set; } = new();
 
-    /// <summary>Fichiers de tests cachés pour le grader <c>unit</c> (consommé à l'It.3).</summary>
+    /// <summary>Fichiers de tests xUnit cachés (dossier <c>grader/</c>) pour le grader <c>unit</c>.</summary>
     public List<string> TestFiles { get; set; } = new();
 
     /// <summary>Pour le grader <c>norme</c> : si vrai, un écart de norme fait échouer l'exercice.</summary>

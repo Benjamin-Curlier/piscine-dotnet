@@ -9,9 +9,13 @@ grading:
       - stdin: ""
         expect_stdout: "Singleton: 1\nSingleton: 2\nTransient: 1\nTransient: 1\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/DureesVieTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "AddSingleton<CompteurSingleton>() (même instance => 1 puis 2) et AddTransient<CompteurTransient>() (instance neuve => 1 puis 1) ; Incrementer() => ++_n ; affiche 4 lignes."
+    - when: unit_failure
+      message: "Les durées de vie doivent être réelles : le singleton résolu deux fois doit être la MÊME instance (AddSingleton), le transient deux instances DISTINCTES (AddTransient). Renseigne Conteneur.Construire()."
   course_ref: "cours.md#durees-vie"
 solution: [DureesVie.cs]
