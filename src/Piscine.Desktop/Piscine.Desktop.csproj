@@ -11,7 +11,7 @@
     <!-- PhotinoX.Blazor 4.x (fork maintenu net10-natif de Photino.Blazor) : couche Blazor
          (PhotinoBlazorAppBuilder, namespace Photino.Blazor conservé). Aligne nativement
          Microsoft.AspNetCore.Components.WebView sur 10.0.x → plus d'épingle NU1605 nécessaire. -->
-    <PackageReference Include="PhotinoX.Blazor" Version="4.2.0" />
+    <PackageReference Include="PhotinoX.Blazor" Version="4.2.1" />
   </ItemGroup>
 
   <ItemGroup>
