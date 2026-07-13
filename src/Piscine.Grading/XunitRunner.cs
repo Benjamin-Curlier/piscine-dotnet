@@ -19,8 +19,16 @@ internal static class XunitRunner
         typeof(Xunit.FactAttribute).Assembly.Location,
     };
 
-    /// <summary>Résultat d'une exécution : nombre de tests trouvés, échecs, et drapeau de timeout.</summary>
-    public sealed record RunResult(int FactCount, IReadOnlyList<string> Failures, bool TimedOut);
+    /// <summary>
+    /// Résultat d'une exécution : nombre de tests trouvés, échecs, drapeau de timeout, et drapeau
+    /// <paramref name="Crashed"/> (arrêt anormal du bac à sable — ex. StackOverflow — sans result.json).
+    /// Un run est « propre » (vert exploitable) seulement si <c>!TimedOut &amp;&amp; !Crashed</c>.
+    /// </summary>
+    public sealed record RunResult(int FactCount, IReadOnlyList<string> Failures, bool TimedOut, bool Crashed = false)
+    {
+        /// <summary>Vrai si le processus a mené les tests à terme normalement (ni timeout ni crash).</summary>
+        public bool RanCleanly => !TimedOut && !Crashed;
+    }
 
     public static RunResult Run(byte[] assemblyBytes, TimeSpan timeout)
     {
@@ -30,8 +38,13 @@ internal static class XunitRunner
             ReferencePaths = System.Linq.Enumerable.ToArray(CompilationService.ReferenceAssemblyPaths),
         };
         var result = SandboxProcess.Run(request, assemblyBytes, timeout, out var timedOut);
-        return timedOut
-            ? new RunResult(0, Array.Empty<string>(), true)
-            : new RunResult(result.FactCount, result.Failures, false);
+        if (timedOut)
+        {
+            return new RunResult(0, Array.Empty<string>(), true);
+        }
+
+        // ErrorType non nul sans timeout = arrêt anormal (result.json absent/partiel) : run non fiable.
+        var crashed = result.ErrorType is not null;
+        return new RunResult(result.FactCount, result.Failures, false, crashed);
     }
 }

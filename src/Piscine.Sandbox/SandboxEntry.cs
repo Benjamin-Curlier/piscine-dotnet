@@ -32,6 +32,15 @@ public static class SandboxEntry
         // un résultat partiel marqué ExitedEarly afin que le parent ne le prenne pas pour un crash.
         AppDomain.CurrentDomain.ProcessExit += (_, _) =>
         {
+            // Le finally de restauration dans RunIo n'a PAS tourné (Environment.Exit court-circuite
+            // tout) : on récupère le stdout déjà produit via le writer de capture exposé, sinon un
+            // programme correct qui termine par Environment.Exit renverrait une sortie vide → faux
+            // « À revoir » (M-4). (Console.Out est un wrapper synchronisé, d'où l'accès direct.)
+            if (string.IsNullOrEmpty(result.Stdout) && SandboxExecutor.CurrentIoCapture is { } captured)
+            {
+                result.Stdout = captured.ToString();
+            }
+
             result.ExitedEarly = true;
             Flush();
         };

@@ -32,6 +32,23 @@ public class IoGraderTests
     }
 
     [Fact]
+    public void Grade_Reussi_WhenProgramWritesThenCallsEnvironmentExit()
+    {
+        // M-4 : un programme correct qui termine par Environment.Exit(0) ne doit pas perdre son stdout.
+        var sources = new Dictionary<string, string>
+        {
+            ["Hello.cs"] = """
+                System.Console.Write("Hello, Piscine!");
+                System.Environment.Exit(0);
+                """
+        };
+
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("Hello, Piscine!"));
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+    }
+
+    [Fact]
     public void Grade_ARevoir_WhenStdoutDiffers()
     {
         var sources = new Dictionary<string, string>

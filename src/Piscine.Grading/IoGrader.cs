@@ -72,5 +72,7 @@ public sealed class IoGrader : IGrader
 
     private static string Normalize(string s) => s.Replace("\r\n", "\n");
 
-    private static string Quote(string s) => "\"" + s.Replace("\n", "\\n") + "\"";
+    // Échappe \r ET \n : un \r brut (CRLF de la recrue) déplacerait le curseur et corromprait
+    // l'alignement « Attendu / Obtenu » dans le terminal.
+    private static string Quote(string s) => "\"" + s.Replace("\r", "\\r").Replace("\n", "\\n") + "\"";
 }

@@ -104,7 +104,10 @@ internal static class SandboxProcess
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
 
-                if (!process.WaitForExit((int)timeout.TotalMilliseconds))
+                // Clamp : TotalMilliseconds d'un très grand TimeSpan déborderait le cast int en négatif
+                // (WaitForExit(-n) = attente infinie). Les timeouts réels valent quelques secondes.
+                var waitMs = timeout.TotalMilliseconds >= int.MaxValue ? int.MaxValue : (int)timeout.TotalMilliseconds;
+                if (!process.WaitForExit(waitMs))
                 {
                     try { process.Kill(entireProcessTree: true); }
                     catch { /* déjà mort */ }
@@ -124,7 +127,20 @@ internal static class SandboxProcess
                     {
                         if (result.ExitedEarly)
                         {
+                            // Sortie anticipée légitime (Environment.Exit(n) en io) : le code programme
+                            // fait foi.
                             result.ExitCode = process.ExitCode;
+                        }
+                        else if (process.ExitCode != 0)
+                        {
+                            // Le chemin légitime (SandboxEntry.Run) renvoie 0 hors sortie anticipée. Un
+                            // result.json présent AVEC un code de sortie non nul = crash après écriture
+                            // partielle ou terminaison forcée : résultat non fiable → fail-closed.
+                            return new SandboxResult
+                            {
+                                ErrorType = "ArrêtAnormal",
+                                ErrorMessage = $"Le bac à sable s'est terminé anormalement (code {process.ExitCode}) après avoir produit un résultat.",
+                            };
                         }
 
                         return result;
