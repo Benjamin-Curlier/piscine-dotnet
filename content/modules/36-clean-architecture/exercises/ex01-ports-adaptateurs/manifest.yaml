@@ -1,0 +1,43 @@
+id: ex01-ports-adaptateurs
+title: "Bibliothèque : deux ports, deux adaptateurs"
+objective: "Étendre la règle de dépendance à DEUX ports (persistance + notification) : l'application ne dépend que des abstractions, la composition root câble les deux implémentations concrètes."
+difficulty: difficile
+deliverables: [Domain/Livre.cs, Domain/IDepotLivres.cs, Domain/INotificateur.cs, Application/Bibliotheque.cs, Infrastructure/DepotMemoire.cs, Infrastructure/NotificateurConsole.cs, Program.cs]
+starter: [Domain/Livre.cs, Domain/IDepotLivres.cs, Domain/INotificateur.cs, Application/Bibliotheque.cs, Infrastructure/DepotMemoire.cs, Infrastructure/NotificateurConsole.cs, Program.cs]
+grading:
+  - type: projet
+    cases:
+      # emprunt, refus (déjà emprunté), retour, listing
+      - stdin: "5\nadd Dune\nemprunt Dune\nemprunt Dune\nrendre Dune\nlist\n"
+        expect_stdout: "Ajouté : #1 Dune\n[notif] « Dune » emprunté\nEmprunt OK : Dune\nEmprunt refusé : Dune\n[notif] « Dune » rendu\nRetour OK : Dune\n#1 Dune [disponible]\n"
+        expect_exit: 0
+      # deux livres, un seul emprunté
+      - stdin: "4\nadd Le Petit Prince\nadd 1984\nemprunt 1984\nlist\n"
+        expect_stdout: "Ajouté : #1 Le Petit Prince\nAjouté : #2 1984\n[notif] « 1984 » emprunté\nEmprunt OK : 1984\n#1 Le Petit Prince [disponible]\n#2 1984 [emprunté]\n"
+        expect_exit: 0
+      # titres inconnus : refus sans notification
+      - stdin: "2\nemprunt Inconnu\nrendre Inconnu\n"
+        expect_stdout: "Emprunt refusé : Inconnu\nRetour refusé : Inconnu\n"
+        expect_exit: 0
+    project:
+      requires_types:
+        - Domain.Livre
+        - Domain.IDepotLivres
+        - Domain.INotificateur
+        - Application.Bibliotheque
+        - Infrastructure.DepotMemoire
+        - Infrastructure.NotificateurConsole
+      forbidden_dependencies:
+        - { from: Domain, to: Application }
+        - { from: Domain, to: Infrastructure }
+        - { from: Application, to: Infrastructure }
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Respecte le format exact : « Ajouté : #<id> <titre> », « Emprunt OK / refusé : <titre> », « Retour OK / refusé : <titre> », « #<id> <titre> [emprunté] » ou « [disponible] ». Le NotificateurConsole écrit « [notif] « <titre> » emprunté/rendu » AVANT la ligne de résultat, uniquement sur succès."
+    - when: project_structure
+      message: "Règle de dépendance : Domain ne référence ni Application ni Infrastructure ; Application ne dépend que des PORTS (IDepotLivres, INotificateur), jamais de DepotMemoire ni NotificateurConsole. Seul Program (composition root) connaît les implémentations concrètes."
+    - when: compile_error
+      message: "Chaque couche dans son namespace (Domain / Application / Infrastructure) et son sous-dossier. N'oublie pas les `using` explicites vers Domain."
+  course_ref: "cours.md#ports-adaptateurs"
+solution: [Domain/Livre.cs, Domain/IDepotLivres.cs, Domain/INotificateur.cs, Application/Bibliotheque.cs, Infrastructure/DepotMemoire.cs, Infrastructure/NotificateurConsole.cs, Program.cs]

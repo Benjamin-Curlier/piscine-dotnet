@@ -1,4 +1,6 @@
 /* StatusBadge scoped styles — auto-bundled by Blazor RCL. */
+/* Étiquette = FOND pâle (--badge-*-bg) + texte foncé (--badge-*-fg). Ces jetons sont définis dans
+   piscine.css (clair ET sombre). À ne pas confondre avec les pastilles saturées --dot-* de StatusDot. */
 
 .badge.status-non-commence {
     background-color: var(--badge-neutral-bg, #e5e7eb);

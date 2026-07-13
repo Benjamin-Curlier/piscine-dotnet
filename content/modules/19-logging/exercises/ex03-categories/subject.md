@@ -8,12 +8,13 @@ de `Db`.
 
 ## Objectif
 
-Configure un **seul** `LoggerFactory` :
+Le `Main` (création des loggers `App`/`Db` et émission des logs ci-dessous) t'est **fourni**. À toi
+de compléter **`Journalisation.CreerFabrique()`** : configure un **seul** `LoggerFactory` :
 
 - provider fourni, niveau minimum **Information** ;
 - un filtre : `builder.AddFilter("Db", LogLevel.Warning)`.
 
-Crée deux loggers (`App` et `Db`) et émets, dans l'ordre :
+Les émissions déjà écrites dans le `Main` :
 
 ```csharp
 app.LogInformation("Démarrage");
@@ -22,7 +23,8 @@ db.LogWarning("Requête lente (1.2s)");
 app.LogInformation("Arrêt");
 ```
 
-Aucune entrée standard.
+Aucune entrée standard. La correction interroge directement `IsEnabled` par catégorie : le filtre
+doit être **réel**, pas simulé par la sortie.
 
 ## Sortie attendue
 

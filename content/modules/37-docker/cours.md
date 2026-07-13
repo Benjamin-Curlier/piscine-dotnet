@@ -47,6 +47,13 @@ COPY --from=build /app .
 ENTRYPOINT ["dotnet", "MonAppli.dll"]
 ```
 
+> ⚠️ `COPY *.csproj .` ne marche que pour un **projet unique** à la racine du contexte de build.
+> Dans une **solution multi-projets**, ce glob **aplatit** tous les `.csproj` dans un seul dossier
+> et casse `dotnet restore` (les références entre projets, qui sont des chemins relatifs, ne
+> pointent plus nulle part). Copie alors le `.sln` et chaque `.csproj` **en conservant son
+> arborescence** (`COPY src/MonAppli/MonAppli.csproj src/MonAppli/`, une ligne par projet) avant de
+> faire `restore`, ou copie tout le source d'un coup (au prix du cache de couches).
+
 Images de base Microsoft (`mcr.microsoft.com/dotnet/…`) :
 
 - **`sdk`** : compiler/publier (build uniquement) ;

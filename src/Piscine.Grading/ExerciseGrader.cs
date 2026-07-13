@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Piscine.Core.Model;
 
@@ -37,6 +38,16 @@ public sealed class ExerciseGrader
                     // (une panne transitoire ne doit pas rétrograder un « Réussi » — M-10).
                     results.Add(GraderResult.Internal(step.Type,
                         $"interne : bac à sable d'exécution indisponible — {ex.Message}"));
+                }
+                catch (Exception ex)
+                {
+                    // Fail-closed élargi : toute autre panne d'un grader (HttpListenerException,
+                    // SocketException, LibGit2SharpException, port de loopback indisponible…) ne doit ni
+                    // remonter (elle planterait le hook grade-received au push) ni « réussir ». Même
+                    // sémantique que SandboxUnavailable : échec interne (affiché mais NON persisté comme
+                    // régression — M-10). Ne masque pas le cas « type inconnu » traité dans le else.
+                    results.Add(GraderResult.Internal(step.Type,
+                        $"interne : erreur inattendue du grader — {ex.Message}"));
                 }
             }
             else

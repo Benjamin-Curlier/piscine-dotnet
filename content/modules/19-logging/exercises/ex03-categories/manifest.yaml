@@ -11,9 +11,13 @@ grading:
       - stdin: ""
         expect_stdout: "App [Information] Démarrage\nDb [Warning] Requête lente (1.2s)\nApp [Information] Arrêt\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/CategoriesTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "builder.AddFilter(\"Db\", LogLevel.Warning) : le LogInformation de la catégorie Db est filtré, mais son LogWarning passe. App reste à Information."
+    - when: unit_failure
+      message: "Le filtre doit être réel : dans CreerFabrique(), ajoute le provider, SetMinimumLevel(Information) et AddFilter(\"Db\", LogLevel.Warning). La correction vérifie IsEnabled par catégorie."
   course_ref: "cours.md#categories"
 solution: [Categories.cs, LogCapture.cs]

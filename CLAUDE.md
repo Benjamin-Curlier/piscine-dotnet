@@ -60,7 +60,7 @@ Tests : `tests/` (xUnit ; bUnit pour les composants ; Playwright pour l'E2E DevH
 |---|---|---|
 | `io` | Compile en exe, lance dans le sandbox (stdin/args/timeout), compare stdout/exit | oui |
 | `unit` | Compile code recrue + tests xUnit cachés (`grader/`), exécute par réflexion | oui |
-| `norme` | Diagnostics de style Roslyn (Formatter + `.editorconfig`) | non (avertissement) |
+| `norme` | Compare au formatage canonique Roslyn (`Formatter` par défaut, **sans** `.editorconfig`) | non (avertissement) |
 | `mutation` | La recrue écrit ses tests ; confrontés à une impl. de réf. + mutants nommés | oui |
 | `git` | Vérifie l'état du dépôt rendu (branches, commits, fusions, contenu) via LibGit2Sharp | oui |
 | `projet` | Compil. multi-fichiers + `io` optionnel + assertions d'archi (`forbidden_dependencies`) | oui |

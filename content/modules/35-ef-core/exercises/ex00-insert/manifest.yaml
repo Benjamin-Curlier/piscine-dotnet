@@ -25,9 +25,13 @@ grading:
       - stdin: "2\nCerise\nMyrtille\n"
         expect_stdout: "2\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/InsertTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "Ouvre une SqliteConnection 'DataSource=:memory:' et garde-la ouverte. DbContextOptionsBuilder<T>().UseSqlite(connexion). EnsureCreated(), Add chaque Produit, SaveChanges(), puis affiche Produits.Count()."
+    - when: unit_failure
+      message: "Il faut un VRAI DbContext : une entité Produit (avec Nom), un Catalogue : DbContext exposant DbSet<Produit> Produits et un constructeur (DbContextOptions<Catalogue>). Le comptage doit venir de la base, pas d'un Console.Write."
   course_ref: "cours.md#dbcontext"
 solution: [Catalogue.cs]

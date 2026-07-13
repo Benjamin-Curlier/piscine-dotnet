@@ -45,6 +45,76 @@
     --scrollbar-thumb: rgba(255, 255, 255, 0.24);
 }
 
+/* ============================================================
+   M6 — Jetons sémantiques référencés par les composants scopés
+   ------------------------------------------------------------
+   Plusieurs *.razor.css (Check, Push, Board, Toast, StatusBadge, StatusDot…) référencent des jetons
+   --color-* / --badge-* / --dot-* avec un simple repli clair codé en dur. Faute de définition ici, le
+   repli s'appliquait en thème SOMBRE aussi → texte quasi invisible sur /check, /rapport et la modale de
+   reconnexion. On les définit donc À LA RACINE, dans les deux thèmes.
+
+   • Alias sémantiques (--color-*) : mappés sur les vrais jetons de thème (--ink, --bg, --line, --accent…),
+     donc automatiquement theme-aware — une seule définition suffit. Les valeurs égalent ou améliorent
+     (contraste ↑) les replis clairs précédents.
+   • Statuts (--badge-*/--dot-*) : couleurs littérales → paires claire/sombre explicites.
+     Nit dissocié : --badge-*-bg = FOND pâle (StatusBadge) ; --dot-* = pastille SATURÉE (StatusDot).
+     Avant, StatusDot et StatusBadge partageaient --badge-*-bg avec des sens opposés (fond pâle vs
+     couleur saturée) — d'où la collision.
+   ============================================================ */
+:root {
+    /* Alias sémantiques → jetons de thème (clair ET sombre suivent la source). */
+    --color-text: var(--ink);
+    --color-text-secondary: var(--ink-soft);
+    --color-text-tertiary: var(--ink-soft);
+    --color-muted: var(--ink-soft);
+    --color-surface: var(--bg);
+    --color-surface-alt: var(--bg-soft);
+    --color-border: var(--line);
+    --color-link: var(--accent);
+    --danger: #cf222e; /* rouge d'erreur (texte .check-error) — AA sur fond clair ; surchargé en sombre */
+
+    /* Statuts — fonds pâles + texte (StatusBadge). Clair : identiques aux replis d'origine. */
+    --badge-neutral-bg: #e5e7eb;
+    --badge-neutral-fg: #374151;
+    --badge-info-bg: #dbeafe;
+    --badge-info-fg: #1e40af;
+    --badge-warn-bg: #fef3c7;
+    --badge-warn-fg: #92400e;
+    --badge-success-bg: #d1fae5;
+    --badge-success-fg: #065f46;
+    --badge-error-bg: #fee2e2;
+    --badge-error-fg: #991b1b;
+
+    /* Statuts — pastilles saturées (StatusDot). Clair : reprend les replis saturés d'origine. */
+    --dot-neutral: #cbd5e1;
+    --dot-info: #3b82f6;
+    --dot-warn: #f59e0b;
+    --dot-success: #10b981;
+    --dot-error: #ef4444;
+}
+
+:root[data-theme="dark"] {
+    /* Fonds de statut teintés sombres + texte clair (contraste AA vérifié dans les deux sens). */
+    --badge-neutral-bg: #2d2f36;
+    --badge-neutral-fg: #d1d5db;
+    --badge-info-bg: #17314e;
+    --badge-info-fg: #93c5fd;
+    --badge-warn-bg: #3a2f12;
+    --badge-warn-fg: #fcd34d;
+    --badge-success-bg: #143528;
+    --badge-success-fg: #6ee7b7;
+    --badge-error-bg: #3a1d1d;
+    --badge-error-fg: #fca5a5;
+
+    /* Pastilles saturées, éclaircies pour rester lisibles sur fond sombre. */
+    --dot-neutral: #6b7280;
+    --dot-info: #60a5fa;
+    --dot-warn: #fbbf24;
+    --dot-success: #34d399;
+    --dot-error: #f87171;
+    --danger: #f87171; /* rouge d'erreur éclairci pour rester lisible sur fond sombre */
+}
+
 /* ---------- Barres de défilement thémées (clair/sombre) ----------
    Sans ça, WebView2/Chromium rendait des scrollbars système claires, criardes en thème sombre. */
 * { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent; }

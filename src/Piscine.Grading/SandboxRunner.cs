@@ -73,6 +73,15 @@ internal static class SandboxLauncher
 /// <summary>Lance le bac à sable dans un processus enfant jetable et renvoie son résultat.</summary>
 internal static class SandboxProcess
 {
+    /// <summary>
+    /// Plafond d'accumulation du stdout enfant (~16 M caractères, soit ~32 Mo en mémoire UTF-16). La
+    /// moulinette est de confiance : une recrue qui inonde stdout ferait exploser la mémoire du parent
+    /// AVANT le timeout. Au-delà du plafond on tue l'arbre et on ferme en « SortieTropVolumineuse »
+    /// (jamais un faux « Réussi »). La trame verdict io légitime (sortie recrue capturée + wrapper JSON)
+    /// reste très en deçà.
+    /// </summary>
+    private const int MaxStdoutChars = 16 * 1024 * 1024;
+
     public static SandboxResult Run(SandboxRequest request, byte[] assemblyBytes, TimeSpan timeout, out bool timedOut)
     {
         timedOut = false;
@@ -99,20 +108,51 @@ internal static class SandboxProcess
 
             using (process)
             {
-                // Accumuler stdout (drainage concurrent obligatoire : la trame io embarque la sortie
-                // recrue et peut être volumineuse) ; ignorer stderr. Le verdict est dérivé de la trame
-                // par ParseVerdict — jamais d'un fichier écrit dans workDir (intégrité B-2).
+                // Lecture BORNÉE du stdout enfant par blocs de taille fixe — et NON via l'API orientée
+                // ligne BeginOutputReadLine : la trame io est une SEULE ligne (potentiellement énorme)
+                // que le lecteur du framework matérialiserait intégralement en mémoire AVANT tout
+                // contrôle. Au-delà du plafond : kill de l'arbre + fail-closed « SortieTropVolumineuse »
+                // (jamais un faux « Réussi »). Le verdict reste dérivé de la trame par ParseVerdict
+                // (intégrité B-2). stderr est drainé et ignoré (drainage concurrent obligatoire : sinon
+                // l'enfant peut se bloquer en remplissant le tampon stderr).
                 var stdout = new StringBuilder();
-                process.OutputDataReceived += (_, e) =>
+                var overflowed = false;
+
+                var stdoutTask = Task.Run(() =>
                 {
-                    if (e.Data is not null)
+                    try
                     {
-                        stdout.Append(e.Data).Append('\n');
+                        var buffer = new char[64 * 1024];
+                        int read;
+                        while ((read = process.StandardOutput.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            // Couper AVANT d'accumuler : borne stricte la mémoire du parent au plafond.
+                            if ((long)stdout.Length + read > MaxStdoutChars)
+                            {
+                                overflowed = true;
+                                try { process.Kill(entireProcessTree: true); }
+                                catch { /* déjà mort ou en cours d'arrêt */ }
+                                break;
+                            }
+
+                            stdout.Append(buffer, 0, read);
+                        }
                     }
-                };
-                process.ErrorDataReceived += static (_, _) => { };
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
+                    catch { /* flux fermé (kill/timeout/dispose) : fin de lecture */ }
+                });
+
+                var stderrTask = Task.Run(() =>
+                {
+                    try
+                    {
+                        var buffer = new char[16 * 1024];
+                        while (process.StandardError.Read(buffer, 0, buffer.Length) > 0)
+                        {
+                            // ignoré, mais drainé pour ne pas bloquer l'enfant
+                        }
+                    }
+                    catch { /* flux fermé : fin de lecture */ }
+                });
 
                 // Clamp : TotalMilliseconds d'un très grand TimeSpan déborderait le cast int en négatif
                 // (WaitForExit(-n) = attente infinie). Les timeouts réels valent quelques secondes.
@@ -121,12 +161,28 @@ internal static class SandboxProcess
                 {
                     try { process.Kill(entireProcessTree: true); }
                     catch { /* déjà mort */ }
-                    process.WaitForExit();
+                    process.WaitForExit(2000); // borne courte : ne pas bloquer si un descendant survit
+                    try { Task.WaitAll(new[] { stdoutTask, stderrTask }, 2000); }
+                    catch { /* lectures annulées/terminées */ }
                     timedOut = true;
                     return new SandboxResult();
                 }
 
-                process.WaitForExit(); // s'assurer que les handlers async ont vidé
+                process.WaitForExit(); // s'assurer que le processus est pleinement terminé
+
+                // Joindre les lecteurs (borne courte) : établit un happens-before pour lire stdout/overflowed.
+                try { Task.WaitAll(new[] { stdoutTask, stderrTask }, 2000); }
+                catch { /* lectures annulées/terminées */ }
+
+                if (overflowed)
+                {
+                    // Fail-closed : sortie ingérable ⇒ jamais un « Réussi », on signale l'anomalie.
+                    return new SandboxResult
+                    {
+                        ErrorType = "SortieTropVolumineuse",
+                        ErrorMessage = "Le bac à sable a produit trop de sortie (borne dépassée).",
+                    };
+                }
 
                 return ParseVerdict(stdout.ToString(), process.ExitCode);
             }

@@ -9,9 +9,13 @@ grading:
       - stdin: ""
         expect_stdout: "Coucou\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/AttributTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "EtiquetteAttribute : Attribute avec un string Texte ; lis-le via typeof(MaClasse).GetCustomAttribute<EtiquetteAttribute>()!.Texte."
+    - when: unit_failure
+      message: "Il faut un VRAI attribut : EtiquetteAttribute hérite de System.Attribute, prend un texte au constructeur et l'expose via une propriété Texte ; applique-le sur MaClasse avec [Etiquette(\"Coucou\")]."
   course_ref: "cours.md#attribut"
 solution: [Attribut.cs]

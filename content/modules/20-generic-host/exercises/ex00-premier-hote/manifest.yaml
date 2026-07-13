@@ -9,9 +9,13 @@ grading:
       - stdin: ""
         expect_stdout: "Worker [Information] Hôte démarré, travail effectué\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/PremierHoteTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "Host.CreateApplicationBuilder(args) ; AddHostedService<Worker>() ; dans ExecuteAsync, logue puis IHostApplicationLifetime.StopApplication(). Pense à AddFilter(\"Microsoft\", LogLevel.None) pour taire les logs du host."
+    - when: unit_failure
+      message: "La ligne exacte ne suffit pas : Worker doit hériter de BackgroundService, journaliser \"Hôte démarré, travail effectué\" en Information via son ILogger, puis appeler _lifetime.StopApplication()."
   course_ref: "cours.md#premier-hote"
 solution: [PremierHote.cs, LogCapture.cs]

@@ -235,6 +235,84 @@ public class ProjectGraderTests
     }
 
     [Fact]
+    public void Grade_ARevoir_WhenForbiddenDependencyViolatedViaExtensionMethod()
+    {
+        // La dépendance ne NOMME jamais le type : elle transite par une méthode d'extension
+        // (montant.Doubler()). L'ancienne détection (INamedTypeSymbol uniquement) la laissait échapper ;
+        // elle doit désormais être vue via le type déclarant la méthode résolue.
+        const string infraExtensions = """
+            namespace Infrastructure;
+            public static class MontantExtensions
+            {
+                public static int Doubler(this int valeur) => valeur * 2;
+            }
+            """;
+        const string domainViaExtension = """
+            using Infrastructure;
+            namespace Domain;
+            public sealed class Compte
+            {
+                public int Calcul(int montant) => montant.Doubler();
+            }
+            """;
+        var context = Sources(
+            ("Domain/Compte.cs", domainViaExtension),
+            ("Infrastructure/MontantExtensions.cs", infraExtensions));
+        var step = new GradingStep
+        {
+            Type = "projet",
+            Project = new ProjectAssertions
+            {
+                ForbiddenDependencies = { new LayerRule { From = "Domain", To = "Infrastructure" } },
+            },
+        };
+
+        var result = new ProjectGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Equal(FeedbackTriggers.ProjectStructure, result.Trigger);
+        Assert.Contains(result.Messages, m => m.Contains("couche interdite"));
+    }
+
+    [Fact]
+    public void Grade_Reussi_WhenExtensionMethodDependencyIsAllowedDirection()
+    {
+        // Application -> Domain via méthode d'extension : direction autorisée. Le nouveau chemin de
+        // résolution des membres ne doit PAS introduire de faux positif ici (seule Domain -> Infrastructure
+        // est interdite).
+        const string domainExtensions = """
+            namespace Domain;
+            public static class MontantExtensions
+            {
+                public static int Doubler(this int valeur) => valeur * 2;
+            }
+            """;
+        const string applicationViaExtension = """
+            using Domain;
+            namespace Application;
+            public sealed class Service
+            {
+                public int Calcul(int montant) => montant.Doubler();
+            }
+            """;
+        var context = Sources(
+            ("Domain/MontantExtensions.cs", domainExtensions),
+            ("Application/Service.cs", applicationViaExtension));
+        var step = new GradingStep
+        {
+            Type = "projet",
+            Project = new ProjectAssertions
+            {
+                ForbiddenDependencies = { new LayerRule { From = "Domain", To = "Infrastructure" } },
+            },
+        };
+
+        var result = new ProjectGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+    }
+
+    [Fact]
     public void Grade_ContentError_WhenNoCasesAndNoAssertions()
     {
         var step = new GradingStep { Type = "projet" };

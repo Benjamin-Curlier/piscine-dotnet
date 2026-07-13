@@ -76,6 +76,26 @@ public class ProgressStoreTests
         store.Save(new Progress()); // un second Save (la cible existe déjà) doit réussir via Move overwrite
 
         Assert.True(File.Exists(path));
-        Assert.False(File.Exists(path + ".tmp"));
+        // Le temporaire porte un nom UNIQUE (GUID) par écriture, mais aucun ne doit subsister : le
+        // try/finally supprime tout .tmp orphelin (échec de Move) — sinon les collisions concurrentes
+        // laisseraient des débris.
+        Assert.Empty(Directory.GetFiles(dir.Path, "*.tmp"));
+    }
+
+    [Fact]
+    public void Save_UsesUniqueTempNamePerWrite_LeavingNoOrphan()
+    {
+        using var dir = new TempDir();
+        var path = dir.Combine("progress.json");
+        var store = new ProgressStore(path);
+
+        // Deux Save consécutifs : chacun écrit dans un temporaire distinct (nom à base de GUID) puis
+        // Move par-dessus la cible. Aucun .tmp ne doit rester — c'est ce qui évite qu'un hook
+        // grade-received et un `check` concurrents se disputent un « progress.json.tmp » partagé.
+        store.Save(new Progress());
+        store.Save(new Progress());
+
+        Assert.True(File.Exists(path));
+        Assert.Empty(Directory.GetFiles(dir.Path, "*.tmp"));
     }
 }

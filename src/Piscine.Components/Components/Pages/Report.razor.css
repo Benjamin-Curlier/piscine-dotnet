@@ -17,6 +17,9 @@
 .report h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
 
 .board-metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 0.6rem; }
+/* Même palier responsive que BoardOverview : à l'étroit, les 5 cartes s'empilent en 2 colonnes
+   pour ne plus tronquer les libellés (« En cours » / « À revoir ») autour de 420 px. */
+@media (max-width: 520px) { .board-metrics { grid-template-columns: 1fr 1fr; } }
 .metric { background: rgba(127,127,127,0.08); border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }
 .metric-label { font-size: 0.72rem; color: var(--ink-soft, #888); }
 .metric-value { font-size: 1.3rem; font-weight: 500; }
@@ -24,6 +27,10 @@
 .bar-fill { height: 100%; border-radius: 999px; background: var(--accent, #2563eb); }
 
 .report-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+/* 7 colonnes : à l'étroit, la table déborderait horizontalement. On la rend défilante
+   (display:block + overflow-x, comme .markdown table) au lieu de tronquer. Desktop : table pleine
+   largeur inchangée — le repli en bloc défilant n'est activé que sous le palier étroit. */
+@media (max-width: 640px) { .report-table { display: block; overflow-x: auto; } }
 .report-table th, .report-table td { text-align: right; padding: 0.4rem 0.6rem; border-bottom: 0.5px solid rgba(127,127,127,0.18); }
 .report-table thead th { color: var(--ink-soft, #888); font-weight: 500; }
 .report-table th[scope="row"], .report-table thead th:first-child { text-align: left; }

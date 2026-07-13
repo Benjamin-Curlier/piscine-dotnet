@@ -21,7 +21,7 @@ public sealed class NormeGrader : IGrader
         {
             if (!IsCanonical(source))
             {
-                messages.Add($"{fileName} : le formatage diffère de la norme (indentation, espaces, accolades).");
+                messages.Add($"{fileName} : le formatage diffère de la norme (indentation, espaces, accolades). Reformate avec ton éditeur (ou dotnet format) pour te conformer.");
             }
         }
 

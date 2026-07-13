@@ -110,4 +110,49 @@ public sealed class CommandPaletteTests : BunitContext
         Assert.EndsWith("/progress", nav.Uri, StringComparison.Ordinal);
         Assert.Empty(cut.FindAll("[data-testid='command-palette']")); // refermée après activation
     }
+
+    // ── Accessibilité : sémantique combobox/listbox/option (WAI-ARIA) ─────────
+
+    [Fact]
+    public async Task Input_and_list_expose_combobox_listbox_semantics()
+    {
+        ConfigureServices();
+        var cut = Render<CommandPalette>();
+        await cut.InvokeAsync(() => cut.Instance.OpenFromJs());
+
+        var input = cut.Find("[data-testid='command-palette-input']");
+        Assert.Equal("combobox", input.GetAttribute("role"));
+        Assert.Equal("true", input.GetAttribute("aria-expanded"));
+        Assert.Equal("cmdk-listbox", input.GetAttribute("aria-controls"));
+        // Le 1ᵉʳ résultat est actif par défaut → aria-activedescendant pointe son id.
+        Assert.Equal("cmdk-option-0", input.GetAttribute("aria-activedescendant"));
+
+        var list = cut.Find("[data-testid='command-palette-results']");
+        Assert.Equal("listbox", list.GetAttribute("role"));
+        Assert.Equal("cmdk-listbox", list.GetAttribute("id"));
+
+        var options = cut.FindAll("[data-testid='command-palette-results'] .cmdk-item");
+        Assert.All(options, o => Assert.Equal("option", o.GetAttribute("role")));
+        Assert.All(options, o => Assert.Equal("-1", o.GetAttribute("tabindex")));
+        // Seule l'option sélectionnée (la 1ʳᵉ) porte aria-selected="true".
+        Assert.Equal("cmdk-option-0", options[0].GetAttribute("id"));
+        Assert.Equal("true", options[0].GetAttribute("aria-selected"));
+        Assert.All(options.Skip(1), o => Assert.Equal("false", o.GetAttribute("aria-selected")));
+    }
+
+    [Fact]
+    public async Task Empty_state_collapses_combobox()
+    {
+        ConfigureServices();
+        var cut = Render<CommandPalette>();
+        await cut.InvokeAsync(() => cut.Instance.OpenFromJs());
+
+        cut.Find("[data-testid='command-palette-input']").Input("zzzznotfound");
+
+        var input = cut.Find("[data-testid='command-palette-input']");
+        Assert.Equal("false", input.GetAttribute("aria-expanded"));
+        // Aucune liste rendue → aria-controls / aria-activedescendant omis (pas de cible fantôme).
+        Assert.Null(input.GetAttribute("aria-controls"));
+        Assert.Null(input.GetAttribute("aria-activedescendant"));
+    }
 }

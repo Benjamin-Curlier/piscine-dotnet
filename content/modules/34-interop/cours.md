@@ -98,8 +98,10 @@ struct Union              // une "union" C : champs au même offset
 }
 ```
 
-`nint`/`nuint` (entiers de taille pointeur) remplacent l'ancien `IntPtr` pour les handles et
-adresses.
+`nint`/`nuint` (entiers de taille pointeur) sont les **alias C# de `System.IntPtr`/`System.UIntPtr`**
+introduits en C# 9 : ce sont **exactement les mêmes types**, pas des remplaçants. `nint` *est*
+`IntPtr` — l'alias apporte juste une syntaxe et des opérateurs arithmétiques plus commodes pour
+manipuler handles et adresses.
 
 ---
 

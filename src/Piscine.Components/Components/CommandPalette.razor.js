@@ -11,9 +11,57 @@
 let _handler = null;
 let _dotnet = null;
 let _previousFocus = null;
+let _trapHandler = null;
+let _trapPanel = null;
 
 function isInTerminal(target) {
     return !!(target && target.closest && target.closest(".piscine-terminal"));
+}
+
+// Éléments réellement tabulables du panneau (les options de la liste sont en tabindex=-1 : elles se
+// pilotent aux flèches + aria-activedescendant, pas au Tab — cf. motif combobox/listbox WAI-ARIA).
+function focusable(container) {
+    const selector =
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]),' +
+        ' select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    return Array.from(container.querySelectorAll(selector)).filter((el) => el.tabIndex !== -1);
+}
+
+// Boucle le focus (Tab / Shift+Tab) à l'intérieur du panneau de la palette.
+function installTrap(panel) {
+    releaseTrap();
+    _trapPanel = panel;
+    _trapHandler = (e) => {
+        if (e.key !== "Tab" || !_trapPanel) {
+            return;
+        }
+        const items = focusable(_trapPanel);
+        if (items.length === 0) {
+            e.preventDefault();
+            return;
+        }
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey) {
+            if (active === first || !_trapPanel.contains(active)) {
+                e.preventDefault();
+                last.focus();
+            }
+        } else if (active === last || !_trapPanel.contains(active)) {
+            e.preventDefault();
+            first.focus();
+        }
+    };
+    _trapPanel.addEventListener("keydown", _trapHandler, true);
+}
+
+function releaseTrap() {
+    if (_trapPanel && _trapHandler) {
+        _trapPanel.removeEventListener("keydown", _trapHandler, true);
+    }
+    _trapPanel = null;
+    _trapHandler = null;
 }
 
 function isEditable(target) {
@@ -71,17 +119,23 @@ export function register(dotnet) {
     window.__cmdkReady = true;
 }
 
-// Donne le focus au champ de recherche et mémorise l'élément focalisé précédent (restauré à la fermeture).
+// Donne le focus au champ de recherche, mémorise l'élément focalisé précédent (restauré à la
+// fermeture) et arme le piège de focus dans le panneau de la palette.
 export function focusInput(input) {
     _previousFocus = document.activeElement;
     if (input && typeof input.focus === "function") {
         // Différé d'un tick : l'overlay vient d'être rendu.
         requestAnimationFrame(() => input.focus());
     }
+    const panel = input && input.closest ? input.closest(".cmdk-panel") : null;
+    if (panel) {
+        installTrap(panel);
+    }
 }
 
-// Restaure le focus sur l'élément actif avant ouverture (accessibilité).
+// Restaure le focus sur l'élément actif avant ouverture (accessibilité) et désarme le piège.
 export function restoreFocus() {
+    releaseTrap();
     if (_previousFocus && typeof _previousFocus.focus === "function") {
         try { _previousFocus.focus(); } catch { /* élément retiré du DOM */ }
     }
@@ -93,6 +147,7 @@ export function dispose() {
         document.removeEventListener("keydown", _handler, true);
         _handler = null;
     }
+    releaseTrap();
     _dotnet = null;
     _previousFocus = null;
     window.__cmdkReady = false;

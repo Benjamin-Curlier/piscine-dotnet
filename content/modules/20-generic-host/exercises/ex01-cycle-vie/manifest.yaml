@@ -9,9 +9,13 @@ grading:
       - stdin: ""
         expect_stdout: "Cycle [Information] Démarrage\nCycle [Information] Arrêt\n"
         expect_exit: 0
+  - type: unit
+    test_files: [grader/CycleVieTests.cs]
 feedback:
   hints:
     - when: io_mismatch
       message: "Implémente IHostedService : logue \"Démarrage\" dans StartAsync (puis StopApplication()), et \"Arrêt\" dans StopAsync."
+    - when: unit_failure
+      message: "Cycle doit vraiment implémenter IHostedService : StartAsync journalise \"Démarrage\" en Information puis appelle StopApplication() ; StopAsync journalise \"Arrêt\"."
   course_ref: "cours.md#cycle-vie"
 solution: [CycleVie.cs, LogCapture.cs]

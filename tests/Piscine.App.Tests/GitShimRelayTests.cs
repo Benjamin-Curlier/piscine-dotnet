@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.IO.Pipes;
+using System.Text;
 using Piscine.App.Coaching;
 
 namespace Piscine.App.Tests;
@@ -65,6 +67,65 @@ public sealed class GitShimRelayTests
         Assert.NotNull(captured);
         Assert.Equal("status", captured!.Subcommand);
         Assert.Equal(3, captured.ExitCode);
+    }
+
+    /// <summary>
+    /// Robustesse anti-OOM : un client local hostile (qui connait le nom du pipe via son env) envoie
+    /// une ligne GEANTE sans <c>\n</c>. Le canal doit l'ignorer sans deserialiser ni accumuler sans
+    /// borne, PUIS rester operationnel : un evenement legitime envoye ensuite doit bien etre recu.
+    /// </summary>
+    [Fact]
+    public async Task Ligne_geante_sans_saut_de_ligne_est_ignoree_et_la_boucle_survit()
+    {
+        await using var channel = new NamedPipeCoachingChannel();
+        using var received = new SemaphoreSlim(0);
+        var events = new List<GitCommandEvent>();
+        channel.CommandReceived += evt =>
+        {
+            lock (events)
+            {
+                events.Add(evt);
+            }
+
+            received.Release();
+        };
+        channel.Start();
+
+        // (1) Connexion hostile : > 64 Ko d'un seul tenant, SANS '\n'. Le serveur doit bailer au
+        // plafond et fermer le pipe ; l'ecriture cote client peut donc se terminer par un IOException.
+        await using (var hostile = new NamedPipeClientStream(".", channel.Endpoint, PipeDirection.Out))
+        {
+            await hostile.ConnectAsync(10_000);
+            var giant = new byte[256 * 1024];
+            Array.Fill(giant, (byte)'a');
+            try
+            {
+                await hostile.WriteAsync(giant);
+                await hostile.FlushAsync();
+            }
+            catch (IOException)
+            {
+                // Attendu : le serveur a ferme le pipe des le plafond atteint (ecriture tronquee).
+            }
+        }
+
+        // (2) Connexion legitime ensuite : preuve que la boucle a survecu au message geant.
+        await using (var client = new NamedPipeClientStream(".", channel.Endpoint, PipeDirection.Out))
+        {
+            await client.ConnectAsync(10_000);
+            var json = "{\"argv\":[\"status\"],\"exitCode\":0,\"cwd\":\"/tmp\"}\n";
+            await client.WriteAsync(Encoding.UTF8.GetBytes(json));
+            await client.FlushAsync();
+        }
+
+        var got = await received.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.True(got, "L'evenement legitime posterieur au message geant n'a pas ete recu (boucle morte ?).");
+        lock (events)
+        {
+            Assert.Single(events);
+            Assert.Equal("status", events[0].Subcommand);
+            Assert.Equal(0, events[0].ExitCode);
+        }
     }
 
     /// <summary>

@@ -6,10 +6,12 @@
     margin-right: 6px;
     vertical-align: middle;
     flex: none;
-    background-color: var(--badge-neutral-bg, #e5e7eb);
+    /* Pastille = couleur SATURÉE (jetons --dot-*), distincte des fonds pâles --badge-*-bg de StatusBadge
+       (cf. piscine.css). Repli = valeur claire ; le thème sombre est fourni par piscine.css. */
+    background-color: var(--dot-neutral, #cbd5e1);
 }
 
-.status-dot.status-en-cours { background-color: var(--badge-info-bg, #3b82f6); }
-.status-dot.status-commite-non-pousse { background-color: var(--badge-warn-bg, #f59e0b); }
-.status-dot.status-pousse-note { background-color: var(--badge-success-bg, #10b981); }
-.status-dot.status-a-revoir { background-color: var(--badge-error-bg, #ef4444); }
+.status-dot.status-en-cours { background-color: var(--dot-info, #3b82f6); }
+.status-dot.status-commite-non-pousse { background-color: var(--dot-warn, #f59e0b); }
+.status-dot.status-pousse-note { background-color: var(--dot-success, #10b981); }
+.status-dot.status-a-revoir { background-color: var(--dot-error, #ef4444); }

@@ -1,4 +1,5 @@
 @namespace Piscine.Components.Components.Onboarding
+@implements IAsyncDisposable
 @using Piscine.App.Init
 @using Piscine.App.Onboarding
 @using Piscine.Components.Services
@@ -16,7 +17,7 @@
    ============================================================================================ *@
 @if (_visible)
 {
-    <div class="onboarding-overlay" data-testid="onboarding" role="dialog" aria-modal="true"
+    <div @ref="_overlayRef" class="onboarding-overlay" data-testid="onboarding" role="dialog" aria-modal="true"
          aria-labelledby="onboarding-title" data-step="@_step.ToString()">
         <div class="onboarding-card">
             <ol class="onboarding-steps" aria-hidden="true">
@@ -129,6 +130,11 @@
     private InitOutcome? _outcome;
     private string? _firstExerciseRoute;
 
+    private ElementReference _overlayRef;
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<OnboardingFlow>? _self;
+    private bool _focusArmed;
+
     protected override void OnInitialized()
     {
         // Source de vérité unique : on affiche tant que le workspace n'est pas initialisé.
@@ -145,16 +151,50 @@
         {
             try
             {
-                var module = await JS.InvokeAsync<IJSObjectReference>(
+                _module = await JS.InvokeAsync<IJSObjectReference>(
                     "import", "./_content/Piscine.Components/Components/Onboarding/OnboardingFlow.razor.js");
-                await module.InvokeVoidAsync("markReady");
-                await module.DisposeAsync();
+                await _module.InvokeVoidAsync("markReady");
             }
             catch (Exception ex) when (ex is JSException or InvalidOperationException or JSDisconnectedException or System.Threading.Tasks.TaskCanceledException)
             {
                 // Pas de runtime JS (prérendu / test / circuit fermé) : sans incidence.
+                _module = null;
             }
         }
+
+        if (_module is null)
+        {
+            return;
+        }
+
+        try
+        {
+            // Modale visible : armer le focus (focus initial + piège Tab + Escape → « Plus tard »).
+            if (_visible && !_focusArmed)
+            {
+                _focusArmed = true;
+                _self ??= DotNetObjectReference.Create(this);
+                await _module.InvokeVoidAsync("activate", _overlayRef, _self);
+            }
+            // Modale fermée (Dismiss quel qu'en soit le chemin) : désarmer le focus.
+            else if (!_visible && _focusArmed)
+            {
+                _focusArmed = false;
+                await _module.InvokeVoidAsync("deactivate");
+            }
+        }
+        catch (Exception ex) when (ex is JSException or InvalidOperationException or JSDisconnectedException or System.Threading.Tasks.TaskCanceledException)
+        {
+            // Runtime JS absent/fermé : la gestion du focus est un plus, jamais bloquante.
+        }
+    }
+
+    /// <summary>Fermeture demandée au clavier (Escape) depuis le module JS.</summary>
+    [JSInvokable]
+    public void DismissFromJs()
+    {
+        Dismiss();
+        StateHasChanged();
     }
 
     private void GoToInit() => _step = Step.Init;
@@ -215,5 +255,27 @@
             .FirstOrDefault();
 
         return first is null ? null : $"/module/{first.ModuleId}/{first.Id}";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.InvokeVoidAsync("deactivate");
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit déjà fermé (navigation/reload) : rien à nettoyer côté JS.
+            }
+            catch (JSException)
+            {
+                // Module déjà déchargé : nettoyage best-effort.
+            }
+        }
+
+        _self?.Dispose();
     }
 }

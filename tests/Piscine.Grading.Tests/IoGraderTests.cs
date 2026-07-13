@@ -80,6 +80,32 @@ public class IoGraderTests
     }
 
     [Fact]
+    public void Grade_ManyCompileErrors_AreCappedWithOverflowSummary()
+    {
+        // Une avalanche d'identifiants non déclarés : la moulinette doit plafonner l'affichage
+        // pour que la première cause reste lisible, avec un résumé « … et N autre(s) erreur(s). ».
+        var sources = new Dictionary<string, string>
+        {
+            ["Bad.cs"] = """
+                System.Console.Write(a1);
+                System.Console.Write(a2);
+                System.Console.Write(a3);
+                System.Console.Write(a4);
+                System.Console.Write(a5);
+                System.Console.Write(a6);
+                System.Console.Write(a7);
+                """
+        };
+
+        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("peu importe"));
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        // En-tête + 5 erreurs plafonnées + ligne de dépassement = 7 messages au plus.
+        Assert.True(result.Messages.Count <= 7, $"trop de messages : {result.Messages.Count}");
+        Assert.Contains(result.Messages, m => m.Contains("autre(s) erreur(s)"));
+    }
+
+    [Fact]
     public void Grade_StdoutDiffers_SetsIoMismatchTrigger()
     {
         var sources = new Dictionary<string, string>

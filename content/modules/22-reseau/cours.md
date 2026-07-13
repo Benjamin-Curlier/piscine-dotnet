@@ -68,7 +68,7 @@ using System.Net;            // adresses IP, IPEndPoint
 using System.Net.Sockets;    // TcpListener, TcpClient, UdpClient, NetworkStream
 ```
 
-## 2. Sockets TCP : un mini serveur et un mini client
+## 2. Sockets TCP : un mini serveur et un mini client {#sockets-tcp}
 
 En TCP, le serveur **écoute** avec un `TcpListener`, et le client **se connecte** avec un `TcpClient`.
 Une fois la connexion établie, chacun obtient un **`NetworkStream`** : un flux d'octets par lequel on

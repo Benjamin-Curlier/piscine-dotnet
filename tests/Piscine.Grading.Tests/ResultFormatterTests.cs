@@ -91,4 +91,16 @@ public class ResultFormatterTests
 
         Assert.Contains("Non corrigé", text);
     }
+
+    [Fact]
+    public void Format_NonCorrige_ExplainsGroupStopAtFirstFailure()
+    {
+        var result = ExerciseGradingResult.NotGraded("ex02");
+
+        var text = ResultFormatter.Format(result, new FeedbackConfig());
+
+        // Un « Non corrigé » de groupe (sans détail) doit expliquer l'arrêt au premier échec.
+        Assert.Contains("exercice précédent du groupe est à revoir", text);
+        Assert.Contains("premier échec", text);
+    }
 }

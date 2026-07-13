@@ -106,7 +106,7 @@ bureau** (recommandée — cours, vérification, progression, résultat **et ter
 > dans son IDE habituel, et on peut faire ses commandes git (`git add/commit/push`) **dans le terminal
 > de l'app** — qui affiche un **coaching éducatif** — ou dans un terminal système (§4).
 >
-> **Astuce** : `Ctrl+K` (ou `⌘K` sur macOS) ouvre la **palette de commande** — recherche plein-texte
+> **Astuce** : `Ctrl+K` ouvre la **palette de commande** — recherche plein-texte
 > parmi les modules, exercices, pages et actions (Vérifier, Initialiser, Ouvrir…).
 
 ### Avec le CLI
@@ -136,9 +136,9 @@ On code dans l'**éditeur/IDE de son choix**. La vérification locale et le suiv
    - **Ouvrir** : ouvre le dossier de l'exercice dans l'**éditeur détecté** (VS Code, Rider…),
      dans le **Dossier** du système, dans le **terminal intégré** ou dans un **terminal système**.
      Le starter est copié automatiquement si l'exercice n'a pas encore été démarré.
-   - **Vérifier** : lance le check in-process → feedback éducatif instantané, avec le **diff
-     structuré coloré** attendu/obtenu, l'**indice** et le **lien vers le cours**
-     (**ne compte pas**, autant de fois qu'on veut).
+   - **Vérifier** : ouvre la page *Vérifier* **déjà ciblée sur l'exercice courant** et lance la
+     correction in-process → feedback éducatif avec le **diff structuré coloré** attendu/obtenu,
+     l'**indice** et le **lien vers le cours** (**ne compte pas**, autant de fois qu'on veut).
    - **Pastille de statut** : indique l'état courant (Réussi / À revoir / Non corrigé).
 3. Suivre l'avancement : onglet *Progression* (pastilles de statut dans la navigation) ou
    page *Rapport* (`/rapport`) — vue complète par module, exportable en PDF (impression) ou Markdown.
@@ -199,7 +199,8 @@ git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enr
 - [ ] (App de bureau) `start-piscine-desktop` (ou le raccourci de l'installeur) ouvre une fenêtre qui
       **route le flux** : **tableau de bord** (reprendre l'exercice courant / progression / résultats
       récents) → cours (titre + bloc de code colorisé) → **plan de travail** (bouton *Ouvrir* +
-      *Vérifier* inline + diff coloré) → *Progression* → *Rapport* (exportable PDF/Markdown) →
+      *Vérifier* qui cible l'exo courant et lance la correction, diff coloré) → *Progression* →
+      *Rapport* (exportable PDF/Markdown) →
       *Réglages* (thème, échelle police, éditeur) → *Initialiser* → *Terminal* (git + coaching) →
       *Résultat* (riche). Webview géré par l'installeur, ou présent (§1) en mode zip.
 - [ ] (Facultatif) Configurer l'**éditeur** via la page *Réglages* (icône ⚙ dans la navigation) si

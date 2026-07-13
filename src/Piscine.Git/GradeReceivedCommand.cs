@@ -184,7 +184,7 @@ public sealed class GradeReceivedCommand
         var store = new ProgressStore(_layout.ProgressPath);
         var progress = store.Load();
         ProgressRecorder.Apply(progress, results, _timeProvider.GetLocalNow());
-        store.Save(progress);
+        SaveProgressBestEffort(store, progress);
 
         // En plus du statut (progress.json), persiste le verdict RICHE (diff/indice/cours) du push
         // pour que /resultat l'affiche sans re-jouer le grader (#40). Best-effort : ne casse pas le
@@ -203,6 +203,37 @@ public sealed class GradeReceivedCommand
         }
 
         return new CommandResult(anyToReview ? 1 : 0, sb.ToString().TrimEnd());
+    }
+
+    /// <summary>
+    /// Persiste la progression en encaissant les collisions d'écriture concurrente : le hook
+    /// post-receive et un <c>check</c> CLI/Desktop peuvent réécrire <c>progress.json</c> au même
+    /// instant. Best-effort avec quelques tentatives, puis abandon SILENCIEUX — comme
+    /// <see cref="PersistRichResult"/>, une IOException/UnauthorizedAccessException ne doit JAMAIS
+    /// remonter dans la sortie du <c>git push</c> (déjà accepté) ni rendre le hook non-zero. Le
+    /// File.Move atomique de <see cref="ProgressStore"/> protège les lecteurs même en cas d'échec ;
+    /// au pire, on conserve le snapshot précédent.
+    /// </summary>
+    private static void SaveProgressBestEffort(ProgressStore store, Progress progress)
+    {
+        const int maxAttempts = 3;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                store.Save(progress);
+                return;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                if (attempt == maxAttempts)
+                {
+                    return; // abandon silencieux : le push reste vert (progress.json inchangé).
+                }
+
+                Thread.Sleep(20 * attempt); // laisse l'écrivain concurrent relâcher le fichier, puis on retente.
+            }
+        }
     }
 
     /// <summary>

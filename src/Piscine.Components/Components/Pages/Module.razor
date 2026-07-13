@@ -1,5 +1,8 @@
 @page "/module/{Id}"
+@using Piscine.App.Progress
+@using Piscine.Components.Components.Progress
 @inject CourseCatalog Catalog
+@inject ProgressService Progress
 
 @if (_module is null)
 {
@@ -30,6 +33,7 @@ else
                         {
                             <a class="exercise-card" href="/module/@_module.Id/@ex.Id">
                                 <div class="exercise-card-head">
+                                    <StatusDot Status="StatusFor(ex.Id)" />
                                     <span class="exercise-card-title">@ex.Title</span>
                                     <span class="badge badge-@ex.Difficulty">@ex.Difficulty</span>
                                     @if (ex.Bonus)
@@ -79,17 +83,54 @@ else
     private CourseModule? _prev;
     private CourseModule? _next;
 
+    // Statut de progression par exercice (clé = Id d'exercice, unique dans le module). Lecture seule.
+    private IReadOnlyDictionary<string, ExerciseProgressStatus> _statuses =
+        new Dictionary<string, ExerciseProgressStatus>();
+
     protected override void OnParametersSet()
     {
         _module = Catalog.GetModule(Id);
         if (_module is null)
         {
             _prev = _next = null;
+            _statuses = new Dictionary<string, ExerciseProgressStatus>();
             return;
         }
 
         var index = Catalog.Modules.ToList().FindIndex(m => m.Id == _module.Id);
         _prev = index > 0 ? Catalog.Modules[index - 1] : null;
         _next = index >= 0 && index < Catalog.Modules.Count - 1 ? Catalog.Modules[index + 1] : null;
+
+        LoadStatuses();
     }
+
+    // Charge en une passe le statut dérivé de chaque exercice du module (progress.json + état git).
+    private void LoadStatuses()
+    {
+        var module = _module;
+        if (module is null || !module.HasExercises)
+        {
+            _statuses = new Dictionary<string, ExerciseProgressStatus>();
+            return;
+        }
+
+        var moduleId = module.Id;
+        var exos = module.Groups
+            .SelectMany(g => g.Exercises)
+            .Select(ex => (moduleId, ex.Id))
+            .ToList();
+
+        // Indexeur (et non ToDictionary) : un Id éventuellement en double n'écrase que la valeur
+        // précédente au lieu de faire planter la page (ArgumentException sur clé dupliquée).
+        var statuses = new Dictionary<string, ExerciseProgressStatus>();
+        foreach (var snapshot in Progress.SnapshotFor(exos))
+        {
+            statuses[snapshot.ExerciseId] = snapshot.Status;
+        }
+
+        _statuses = statuses;
+    }
+
+    private ExerciseProgressStatus StatusFor(string exerciseId) =>
+        _statuses.TryGetValue(exerciseId, out var status) ? status : ExerciseProgressStatus.NonCommence;
 }

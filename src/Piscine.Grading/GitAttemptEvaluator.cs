@@ -41,7 +41,21 @@ public static class GitAttemptEvaluator
         return commit?[file.Path]?.Target is Blob;
     }
 
-    /// <summary>Résout une ref (branche, <c>HEAD</c>, ou sha) vers son commit, ou <c>null</c>.</summary>
+    /// <summary>
+    /// Résout une ref (branche, <c>HEAD</c>, ou sha) vers son commit, ou <c>null</c>.
+    /// </summary>
+    /// <remarks>
+    /// Divergence assumée avec <c>GitGrader.ResolveHead</c> : ici le ref implicite <c>HEAD</c> se
+    /// résout sur <c>repo.Head?.Tip</c>, alors que le grader prend le <c>headRef</c> fourni par
+    /// l'appelant (la branche de rendu du dépôt **bare** côté <c>grade-received</c>). Sans impact sur
+    /// le contenu actuel : le seul exo git déclare son <c>attempt</c> par <c>branch</c>, et les
+    /// prédicats <c>File</c> du contenu portent toujours un <c>Ref</c> explicite (jamais le défaut
+    /// <c>HEAD</c>). Le cas à risque — un <c>attempt.File</c> au ref par défaut évalué contre un bare
+    /// au HEAD orphelin — donnerait un faux « non tenté ». L'alignement propre consisterait à propager
+    /// un <c>headRef</c> optionnel depuis <c>GradeReceivedCommand</c> (<c>RenduBranch</c>) jusqu'ici,
+    /// comme le fait déjà le grader. Non fait ici : l'appelant est hors du périmètre de ce lot
+    /// (cf. incomplete).
+    /// </remarks>
     private static Commit? ResolveCommit(Repository repo, string refName)
     {
         if (string.IsNullOrEmpty(refName) || refName == "HEAD")

@@ -13,6 +13,13 @@ else
             @VerdictLabel(Outcome.Verdict)
         </p>
 
+        @if (NextStepMessage(Outcome.Verdict) is { } nextStep)
+        {
+            @* Verdicts sans cas à détailler (aucun fichier / exercice introuvable) : au lieu du seul
+               libellé, on donne le pas suivant concret — comme le fait le CLI. *@
+            <div class="notice notice-warn" role="alert" data-testid="check-next-step">@nextStep</div>
+        }
+
         @foreach (var cas in Outcome.Cases.Where(static c => !c.Passed))
         {
             <div class="check-case" data-testid="check-case">
@@ -71,6 +78,16 @@ else
 
 @code {
     [Parameter] public CheckOutcome? Outcome { get; set; }
+
+    /// <summary>Pas suivant actionnable pour les verdicts sans cas à détailler, ou <c>null</c> sinon.</summary>
+    private static string? NextStepMessage(CheckVerdict verdict) => verdict switch
+    {
+        CheckVerdict.AucunFichier =>
+            "Aucun fichier dans ton workspace. Clique « Ouvrir le dossier » et code d'abord, puis relance la vérification.",
+        CheckVerdict.Introuvable =>
+            "Exercice introuvable dans le contenu. Vérifie l'identifiant de l'exercice ou reviens à la liste des exercices.",
+        _ => null,
+    };
 
     /// <summary>Vrai si le message n'est PAS une ligne brute « Attendu/Obtenu » (déjà rendue par le diff structuré).</summary>
     private static bool IsNotDiffLine(string message)

@@ -1,0 +1,34 @@
+id: ex02-conflit
+title: "Résoudre un conflit de fusion"
+objective: "Provoquer un conflit sur une même ligne depuis deux branches, le résoudre en supprimant les marqueurs, puis finaliser la fusion. La moulinette inspecte l'état de ton dépôt."
+difficulty: difficile
+deliverables: []
+starter: []
+grading:
+  - type: git
+    git:
+      branches: [main, refrain]
+      min_commits: 4
+      no_conflict_markers: true
+      merged:
+        - { into: main, branch: refrain }
+      files:
+        - { path: chanson.txt, ref: main, contains: "on chante ensemble" }
+      # Signal « exercice tenté » : noté en live dès que la branche refrain est poussée.
+      attempt:
+        branch: refrain
+      # Fixture = corrigé de référence. Les deux branches touchent des lignes DIFFÉRENTES du fichier :
+      # la fusion se résout donc proprement (le corrigé n'a plus de marqueur), exactement l'état final
+      # attendu après que tu aies résolu ton conflit à la main.
+      fixture:
+        - { branch: main, message: "chanson initiale", files: { "chanson.txt": "titre: A DEFINIR\ncouplet: premiere partie\npont: transition\nrefrain: A COMPLETER\n" } }
+        - { branch: refrain, base: main }
+        - { branch: refrain, message: "ecrit le refrain", files: { "chanson.txt": "titre: A DEFINIR\ncouplet: premiere partie\npont: transition\nrefrain: on chante ensemble\n" } }
+        - { branch: main, message: "definit le titre", files: { "chanson.txt": "titre: Ma belle chanson\ncouplet: premiere partie\npont: transition\nrefrain: A COMPLETER\n" } }
+        - { merge_into: main, merge_from: refrain }
+feedback:
+  hints:
+    - when: git_state
+      message: "Sur la branche refrain, remplace la ligne « refrain: ... » par « refrain: on chante ensemble » et commite. Sur main, modifie LA MÊME ligne autrement et commite. git merge refrain déclenche alors un conflit : édite chanson.txt pour garder « on chante ensemble », supprime les marqueurs <<<<<<< ======= >>>>>>>, puis git add + git commit. Pousse tout : git push origin --all."
+  course_ref: "cours.md#conflits"
+solution: []

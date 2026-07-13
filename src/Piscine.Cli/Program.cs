@@ -43,10 +43,19 @@ switch (command)
     case "new":
         return New(layout, args);
 
+    case "help" or "--help" or "-h":
+        PrintCommands();
+        return 0;
+
     default:
         Console.WriteLine($"Commande inconnue : {command}");
-        Console.WriteLine("Commandes : list | start <exo> | check <exo> | try <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest> | new exercise <module> <id>");
+        PrintCommands();
         return 64;
+}
+
+static void PrintCommands()
+{
+    Console.WriteLine("Commandes : list | start <exo> | check <exo> | try <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest> | new exercise <module> <id>");
 }
 
 static void ListModules(PiscineLayout layout)

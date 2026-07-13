@@ -2,7 +2,7 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 
-<div @ref="_host" class="piscine-terminal"></div>
+<div @ref="_host" class="piscine-terminal" role="group" aria-label="Terminal"></div>
 
 @code {
     private ElementReference _host;

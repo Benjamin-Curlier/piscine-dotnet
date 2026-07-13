@@ -7,3 +7,4 @@ groups:
     title: "HttpClient — appels HTTP"
     exercises:
       - ex00-httpclient-get
+      - ex01-http-meteo

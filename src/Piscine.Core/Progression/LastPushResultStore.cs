@@ -54,9 +54,34 @@ public sealed class LastPushResultStore
 
         var json = JsonSerializer.Serialize(document, Options);
         // Écriture atomique (comme ProgressStore) : écrire dans un .tmp puis Move — un lecteur (page
-        // /resultat, watcher) ne voit jamais un JSON tronqué si l'écriture est interrompue.
-        var temp = _path + ".tmp";
-        File.WriteAllText(temp, json);
-        File.Move(temp, _path, overwrite: true);
+        // /resultat, watcher) ne voit jamais un JSON tronqué si l'écriture est interrompue. Nom du
+        // temporaire UNIQUE par écriture (GUID) pour ne pas collisionner avec une écriture concurrente
+        // (hook grade-received vs. check CLI/Desktop) sur un « .tmp » partagé.
+        var temp = _path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            File.WriteAllText(temp, json);
+            File.Move(temp, _path, overwrite: true);
+        }
+        finally
+        {
+            TryDeleteTemp(temp);
+        }
+    }
+
+    /// <summary>Supprime le temporaire s'il subsiste (échec avant/pendant le Move). Best-effort.</summary>
+    private static void TryDeleteTemp(string temp)
+    {
+        try
+        {
+            if (File.Exists(temp))
+            {
+                File.Delete(temp);
+            }
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // On ne laisse jamais l'échec du nettoyage masquer la vraie erreur (ni casser le Move réussi).
+        }
     }
 }

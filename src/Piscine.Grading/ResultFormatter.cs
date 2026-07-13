@@ -33,6 +33,13 @@ public static class ResultFormatter
                 sb.AppendLine($"→ Revois le cours : {feedback.CourseRef}");
             }
         }
+        else if (result.Status == GraderStatus.NonCorrige && !HasDetail(result))
+        {
+            // Sans ce mot, un « Non corrigé » de groupe n'affiche que son en-tête : déroutant.
+            sb.AppendLine(
+                "→ Non corrigé : un exercice précédent du groupe est à revoir. La correction s'arrête au " +
+                "premier échec du groupe : corrige-le d'abord, puis repousse.");
+        }
 
         return sb.ToString().TrimEnd();
     }
@@ -49,6 +56,10 @@ public static class ResultFormatter
         sb.AppendLine($"Commence par : piscine start {exerciseId}, puis code dans le workspace.");
         return sb.ToString().TrimEnd();
     }
+
+    /// <summary>Vrai si au moins un grader a produit un message affiché (distingue le vrai « À revoir » détaillé du « Non corrigé » de groupe, vide).</summary>
+    private static bool HasDetail(ExerciseGradingResult result) =>
+        result.Results.Any(r => r.Messages.Count > 0);
 
     /// <summary>Retourne le message du hint dont le <c>when</c> correspond au déclencheur de l'échec, ou <c>null</c>.</summary>
     private static string? MatchHint(ExerciseGradingResult result, FeedbackConfig feedback)

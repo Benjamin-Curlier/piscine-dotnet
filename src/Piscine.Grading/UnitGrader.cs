@@ -23,9 +23,17 @@ public sealed class UnitGrader : IGrader
             sources[name] = content;
         }
 
+        // Un livrable-concept est souvent un programme top-level (module 20 : Generic Host, etc.). Il ne
+        // peut être compilé qu'en exécutable (CS8805) : on choisit ConsoleApplication dans ce cas, DLL
+        // sinon (livrable bibliothèque, ex. une classe utilitaire testée directement). Dans les deux cas
+        // le runner xUnit n'exécute que les [Fact] par réflexion — le point d'entrée n'est jamais lancé.
+        var outputKind = CompilationService.HasTopLevelStatements(sources.Values)
+            ? OutputKind.ConsoleApplication
+            : OutputKind.DynamicallyLinkedLibrary;
+
         var compilation = CompilationService.Compile(
             sources,
-            OutputKind.DynamicallyLinkedLibrary,
+            outputKind,
             additionalReferences: XunitRunner.References);
 
         if (!compilation.Success)
@@ -40,6 +48,16 @@ public sealed class UnitGrader : IGrader
         {
             return GraderResult.Failure(Type, "Les tests ne se sont pas terminés à temps (boucle infinie ?).")
                 .WithTrigger(FeedbackTriggers.Timeout);
+        }
+
+        // Arrêt anormal du bac à sable pendant les tests (StackOverflow, Environment.Exit… non
+        // rattrapables dans un [Fact]) : verdict non fiable → échec explicite (fail-closed), aligné sur
+        // MutationGrader plutôt que de retomber sur le message trompeur « aucun test trouvé ».
+        if (run.Crashed)
+        {
+            return GraderResult.Failure(Type,
+                "Les tests provoquent un arrêt anormal (StackOverflow, Environment.Exit… ?).")
+                .WithTrigger(FeedbackTriggers.UnitFailure);
         }
 
         if (run.FactCount == 0)

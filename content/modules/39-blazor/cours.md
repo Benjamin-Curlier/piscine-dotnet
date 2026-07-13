@@ -17,6 +17,8 @@ Une UI Blazor est un arbre de **composants**. Un composant = un fichier **`.razo
 **balisage HTML** et du **C#** (dans un bloc `@code`). Il est réutilisable et paramétrable.
 
 ```razor
+@rendermode InteractiveServer
+
 <h1>Compteur</h1>
 <p>Valeur : @_compte</p>
 <button @onclick="Incrementer">+1</button>
@@ -31,6 +33,9 @@ Une UI Blazor est un arbre de **composants**. Un composant = un fichier **`.razo
 - `@_compte` **interpole** une variable C# dans le HTML.
 - `@onclick="Incrementer"` lie un **événement DOM** à une méthode C#.
 - Après le clic, Blazor **re-rend** le composant et met à jour le DOM (différentiel).
+- `@rendermode InteractiveServer` **active l'interactivité** : sans lui, en Blazor Web App
+  (.NET 8+), le composant est rendu en **Static SSR** (HTML statique) et le bouton `@onclick` est
+  **inerte** — le clic ne déclenche rien (voir le §5 sur les modèles de rendu).
 
 ## 2. Paramètres & liaison de données {#parametres}
 
@@ -104,6 +109,13 @@ Une **Blazor Web App** unifie plusieurs **modes de rendu**, choisis par page ou 
 - **Interactive WebAssembly** : le composant s'exécute **dans le navigateur** (.NET compilé en WASM) ;
   fonctionne hors-ligne après chargement.
 - **Interactive Auto** : Server au premier chargement, puis bascule WebAssembly une fois téléchargé.
+
+> ⚠️ **Static SSR est le mode par défaut.** En Blazor Web App (.NET 8+), un composant est rendu en
+> HTML statique tant que tu n'as pas **choisi un mode interactif**. Sans interactivité, `@onclick`,
+> `@bind` et les gestionnaires d'événements sont **inertes** : la page s'affiche, mais rien ne réagit.
+> On active l'interactivité en plaçant une directive `@rendermode` en tête du composant
+> (`@rendermode InteractiveServer` ou `InteractiveWebAssembly`), ou sur la balise à l'usage
+> (`<Compteur @rendermode="InteractiveServer" />`). C'est l'oubli n° 1 des débutants.
 
 S'y ajoutent le **streaming rendering** (envoyer le HTML au fur et à mesure) et la **navigation
 améliorée**. Le bon mode dépend du compromis latence / interactivité / charge serveur.

@@ -177,6 +177,13 @@ git pull --rebase
 git branch -d feat/calcul-tva   # supprime la branche locale fusionnée
 ```
 
+> ⚠️ **Après un « Squash commits », utilise `git branch -D` (majuscule).** Le squash crée sur `main`
+> un **nouveau** commit unique : tes commits d'origine, eux, n'y apparaissent pas. Git considère
+> alors ta branche comme **« non fusionnée »** et `git branch -d` (minuscule) la **refuse**
+> (`error: the branch ... is not fully merged`). Force la suppression avec `git branch -D` — c'est
+> sans danger ici, puisque le travail est bien intégré à `main` sous forme squashée. (Sans squash,
+> après un merge classique, `git branch -d` suffit.)
+
 > 🔁 **GitLab MR ≈ GitHub PR.** Une **Pull Request** (PR) sur GitHub, c'est exactement la même
 > idée et le même cycle (brancher → pousser → ouvrir → relire → fusionner). Seul le vocabulaire
 > change : GitLab dit « Merge Request », GitHub dit « Pull Request ». Les concepts sont
@@ -329,7 +336,9 @@ poste, en partageant un même dépôt distant) :
 7. [ ] Réponds, corrige, repousse : observe la **MR se mettre à jour**.
 8. [ ] Provoque un **conflit** volontairement (modifie la même ligne sur `main` et sur ta
        branche), puis **résous-le** lors d'un `git rebase main`.
-9. [ ] Une fois approuvée, **fusionne** la MR, puis nettoie : `git branch -d feat/mon-sujet`.
+9. [ ] Une fois approuvée, **fusionne** la MR, puis nettoie : `git branch -d feat/mon-sujet`
+       (ou `git branch -D` si tu as choisi **« Squash commits »** — la branche est alors vue comme
+       « non fusionnée »).
 10. [ ] Pose un **tag** sur `main` : `git tag -a v0.1.0 -m "Premier jet"`.
 
 Quand tu as fait tout ça **sans regarder ce cours**, tu maîtrises l'essentiel de la
