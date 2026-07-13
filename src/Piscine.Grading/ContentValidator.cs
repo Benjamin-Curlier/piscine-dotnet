@@ -42,6 +42,12 @@ public sealed class ContentValidator
     public ContentValidationReport Validate(PiscineLayout layout)
     {
         var issues = new List<ContentIssue>();
+
+        // DiscoverModules/Rushes est résilient (ignore les yaml malformés pour ne pas casser l'UX recrue) :
+        // on doit donc les signaler ICI, sinon un module.yaml/manifest de rush cassé passerait la gate
+        // (fail-open). On charge chaque fichier explicitement et on rapporte tout échec.
+        ValidateManifestsLoadable(layout, issues);
+
         var referenced = new HashSet<string>(StringComparer.Ordinal);
         foreach (var module in ContentDiscovery.DiscoverModules(layout.Content))
         {
@@ -211,6 +217,55 @@ public sealed class ContentValidator
         catch (Exception)
         {
             // nettoyage best-effort
+        }
+    }
+
+    /// <summary>
+    /// Charge explicitement chaque <c>module.yaml</c> et manifest de rush : un fichier malformé (que la
+    /// découverte résiliente ignore) est ainsi rapporté comme problème de contenu au lieu d'être avalé.
+    /// </summary>
+    private static void ValidateManifestsLoadable(PiscineLayout layout, List<ContentIssue> issues)
+    {
+        var modulesDir = layout.Content.ModulesDirectory;
+        if (Directory.Exists(modulesDir))
+        {
+            foreach (var moduleDir in Directory.EnumerateDirectories(modulesDir))
+            {
+                if (!File.Exists(Path.Combine(moduleDir, ModuleLoader.FileName)))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    ModuleLoader.Load(moduleDir);
+                }
+                catch (Exception e)
+                {
+                    issues.Add(new ContentIssue(Path.GetFileName(moduleDir), $"{ModuleLoader.FileName} invalide : {e.Message}"));
+                }
+            }
+        }
+
+        var rushesDir = layout.Content.RushesDirectory;
+        if (Directory.Exists(rushesDir))
+        {
+            foreach (var rushDir in Directory.EnumerateDirectories(rushesDir))
+            {
+                if (!File.Exists(Path.Combine(rushDir, ExerciseManifestLoader.FileName)))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    ExerciseManifestLoader.Load(rushDir);
+                }
+                catch (Exception e)
+                {
+                    issues.Add(new ContentIssue(Path.GetFileName(rushDir), $"{ExerciseManifestLoader.FileName} invalide : {e.Message}"));
+                }
+            }
         }
     }
 

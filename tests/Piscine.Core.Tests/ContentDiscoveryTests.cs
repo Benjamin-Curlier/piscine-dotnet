@@ -34,6 +34,24 @@ public class ContentDiscoveryTests
     }
 
     [Fact]
+    public void DiscoverModules_SkipsMalformedModuleYaml_WithoutThrowing()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("modules", "00-ok", "module.yaml"), """
+            id: 00-ok
+            title: "OK"
+            order: 0
+            """);
+        // module.yaml malformé (YAML invalide) : ne doit PAS faire planter la découverte (UX recrue).
+        dir.WriteFile(Path.Combine("modules", "01-casse", "module.yaml"), "id: [pas: du: yaml valide");
+
+        var modules = ContentDiscovery.DiscoverModules(new PiscinePaths(dir.Path)).ToList();
+
+        Assert.Single(modules);
+        Assert.Equal("00-ok", modules[0].Id);
+    }
+
+    [Fact]
     public void DiscoverModules_ReturnsEmptyWhenModulesDirectoryMissing()
     {
         using var dir = new TempDir();
