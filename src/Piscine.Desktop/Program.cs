@@ -116,21 +116,25 @@ internal static class Program
         // Le smoke de rendu prouve que le chromeless ne casse pas le rendu (pas d'écran noir).
         if (OperatingSystem.IsLinux())
         {
-            // Repli Linux : chrome OS conservé, taille gérée par l'OS.
-            app.MainWindow.SetUseOsDefaultSize(true);
+            // Repli Linux : chrome OS conservé, taille gérée par l'OS. Lancement agrandi.
+            app.MainWindow.SetUseOsDefaultSize(true).SetMaximized(true);
         }
         else
         {
             // PhotinoX 4.2.0 : « Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize
-            // on Windows. Size and location must be specified. » → on fixe une taille/position explicites
-            // (et on N'appelle PAS SetUseOsDefaultSize). Centrage approximatif au démarrage.
-            const int width = 1200, height = 800;
+            // on Windows. Size and location must be specified. » → on fixe la taille/position NORMALE
+            // (état restauré). Le PLEIN ÉCRAN au lancement est ensuite déclenché par la page une fois
+            // affichée (message "maximizeonstart") : c'est l'OS qui maximise (agrandissement fiable et
+            // correct quel que soit le DPI — un dimensionnement manuel se heurtait au mélange pixels
+            // physiques/logiques de PhotinoX sur écran HiDPI). Sur fenêtre chromeless, la restauration OS
+            // reste imparfaite (limite PhotinoX) : c'est le compromis pour un plein écran fiable.
+            const int width = 1200, height = 800, left = 120, top = 80;
             app.MainWindow
                .SetChromeless(true)
                .SetWidth(width)
                .SetHeight(height)
-               .SetLeft(120)
-               .SetTop(80);
+               .SetLeft(left)
+               .SetTop(top);
             WindowChromeHost.Attach(app);
         }
 

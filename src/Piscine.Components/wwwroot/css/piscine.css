@@ -554,7 +554,11 @@ code { font-family: var(--mono); }
 a:focus-visible,
 button:focus-visible,
 summary:focus-visible,
-[tabindex]:focus-visible,
+/* tabindex="-1" = cible de focus PROGRAMMATIQUE (ex. le <h1>/<main> focalisé par FocusOnNavigate au
+   changement de page pour les lecteurs d'écran) : pas dans l'ordre de tabulation → ne doit PAS afficher
+   d'anneau, sinon un gros cadre apparaît autour du titre à chaque navigation. On ne cible donc que les
+   tabindex focalisables au clavier (0 / positif). */
+[tabindex]:not([tabindex="-1"]):focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
