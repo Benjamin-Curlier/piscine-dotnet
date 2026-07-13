@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Moindre privilege : le GITHUB_TOKEN de cette CI n'a besoin que de lire le dépôt (build/test/validate).
+permissions:
+  contents: read
+
 # CI-2 : annule les runs redondants sur une meme ref (un nouveau push remplace l'ancien run en cours).
 concurrency:
   group: ci-${{ github.ref }}

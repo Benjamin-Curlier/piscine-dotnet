@@ -2,26 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Piscine.Core\Piscine.Core.csproj" />
+    <!-- Piscine.Grading porte les assemblies de référence (EF Core, Extensions.*, SQLite pin) dont le
+         code recrue des modules 18/19/20/35 a besoin à la compilation/exécution — elles arrivent donc
+         ICI transitivement, dans le TPA du CLI, sans référence directe (cf. Piscine.Grading.csproj). -->
     <ProjectReference Include="..\Piscine.Grading\Piscine.Grading.csproj" />
     <ProjectReference Include="..\Piscine.Git\Piscine.Git.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- ATTENTION — ces références ne sont PAS appelées par Program.cs : elles peuplent le
-         TRUSTED_PLATFORM_ASSEMBLIES du process, dont CompilationService se sert comme jeu de
-         références Roslyn pour COMPILER + EXÉCUTER le code recrue des modules 18 (DI), 19 (logging),
-         20 (generic-host) et 35 (EF Core / SQLite). Les retirer casse la correction de ces modules
-         et validate-content. Ne pas « nettoyer ». -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
-    <!-- EF Core Sqlite tire transitivement SQLitePCLRaw.bundle_e_sqlite3 2.1.11, dont le natif
-         lib.e_sqlite3 2.1.11 porte l'advisory GHSA-2m69-gcr7-jv3q (NU1903, promu en erreur par
-         TreatWarningsAsErrors → build cassé sur clone frais). On épingle directement le bundle à une
-         version corrigée (SQLite patché) sans désactiver l'audit ni retirer EF Core. -->
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
   </ItemGroup>
 
   <PropertyGroup>

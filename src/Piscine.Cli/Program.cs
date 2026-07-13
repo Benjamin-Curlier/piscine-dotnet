@@ -257,7 +257,8 @@ static void Status(string version, PiscineLayout layout)
     var modules = ContentDiscovery.DiscoverModules(layout.Content);
     if (modules.Count == 0)
     {
-        Console.WriteLine("Aucun module installé. (Le contenu arrivera dans une prochaine itération.)");
+        Console.WriteLine($"Aucun module trouvé sous : {layout.ContentRoot}");
+        Console.WriteLine("Vérifie l'installation, ou pointe PISCINE_CONTENT vers le dossier 'content'.");
         return;
     }
 

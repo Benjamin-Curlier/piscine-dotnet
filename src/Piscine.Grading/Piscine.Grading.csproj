@@ -17,6 +17,22 @@
     <PackageReference Include="xunit.core" Version="2.9.3" />
   </ItemGroup>
 
+  <!-- Assemblies de RÉFÉRENCE pour compiler/exécuter le code recrue (mêmes raisons que xunit.* ci-dessus,
+       PAS appelées par le moteur) : elles peuplent le TRUSTED_PLATFORM_ASSEMBLIES de TOUT hôte de
+       correction, dont CompilationService tire le jeu de références Roslyn. En les portant ici (et non
+       plus seulement dans le CLI), la correction des modules 18 (DI), 19 (logging), 20 (generic-host)
+       et 35 (EF Core / SQLite) est IDENTIQUE au CLI, au Desktop (correction in-process) et au DevHost —
+       fini la divergence CLI ↔ Desktop (M-3). SQLitePCLRaw épinglé (SQLite patché) pour lever
+       l'advisory transitif NU1903 / GHSA-2m69-gcr7-jv3q sans désactiver l'audit. -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.9" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
