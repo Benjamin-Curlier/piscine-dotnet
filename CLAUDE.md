@@ -87,22 +87,17 @@ empêche de livrer un exercice cassé. Ne jamais committer un exercice qui ne pa
 
 ## Gotchas
 
-- **Build cassé sur clone frais (`NU1903`)** : `TreatWarningsAsErrors=true` promeut l'audit NuGet en
-  erreur. `src/Piscine.Cli` référence `Microsoft.EntityFrameworkCore.Sqlite`, qui traîne le paquet natif
-  vulnérable `SQLitePCLRaw.lib.e_sqlite3` (GHSA-2m69-gcr7-jv3q) → `dotnet build` échoue. Contournement
-  d'observation : ajouter `-p:NuGetAudit=false`. **Attention** : ces 5 `PackageReference` du CLI
-  (`EntityFrameworkCore.Sqlite`, `Extensions.DependencyInjection/Hosting/Logging/Logging.Console`) NE sont
-  **PAS** inutilisées bien que `Program.cs` ne les appelle pas : elles peuplent le `TRUSTED_PLATFORM_ASSEMBLIES`
-  du process, et `CompilationService` s'en sert comme jeu de références Roslyn pour **compiler le code recrue**
-  des modules `18-injection-dependances`, `19-logging`, `20-generic-host`, `35-ef-core`. Les retirer casse
-  la correction de ces modules + `validate-content`. Le vrai correctif du build est de traiter le paquet
-  transitif vulnérable (bump EF Core / référence directe d'un `SQLitePCLRaw` corrigé / politique d'audit),
-  **pas** de supprimer les dépendances. Ne masque pas l'audit dans le dépôt.
-- **Divergence de correction CLI ↔ Desktop (à vérifier/corriger)** : seul `Piscine.Cli` porte le paquet
-  EF Core. Le Desktop corrige **en process** (`Graders.Default()` via `CheckService`) et ne référence pas
-  EF Core (DI/Logging/Hosting arrivent transitivement par Blazor, mais pas EF Core) → le module `35-ef-core`
-  risque de compiler côté CLI/`validate-content`/CI mais d'échouer dans « Vérifier » du bureau. Vérifier et,
-  au besoin, faire porter les mêmes assemblies de référence à l'hôte de correction bureau.
+- **Assemblies de référence du code recrue (ne PAS « nettoyer »)** : `Piscine.Grading` référence
+  `Microsoft.EntityFrameworkCore.Sqlite`, `Extensions.DependencyInjection/Hosting/Logging/Logging.Console`
+  et épingle `SQLitePCLRaw.bundle_e_sqlite3` **sans que le moteur ne les appelle** : elles peuplent le
+  `TRUSTED_PLATFORM_ASSEMBLIES`, dont `CompilationService` tire le jeu de références Roslyn pour **compiler +
+  exécuter le code recrue** des modules `18-injection-dependances`, `19-logging`, `20-generic-host`,
+  `35-ef-core`. Les retirer casse la correction de ces modules + `validate-content`. Comme tout hôte de
+  correction (CLI, Desktop in-process, DevHost, tests) référence `Piscine.Grading`, la correction est
+  **identique partout** (fini l'ancienne divergence CLI ↔ Desktop du module 35).
+- **NU1903 / SQLite** : `SQLitePCLRaw.bundle_e_sqlite3` est épinglé à `3.0.3` (SQLite patché) pour lever
+  l'advisory transitif `GHSA-2m69-gcr7-jv3q` promu en erreur par `TreatWarningsAsErrors` — **sans**
+  désactiver l'audit. Ne repasse pas à `-p:NuGetAudit=false` : c'était un contournement d'observation.
 - **Self-contained, pas single-file** : la résolution des références Roslyn depuis
   `TRUSTED_PLATFORM_ASSEMBLIES` casse en single-file — garder `PublishSingleFile=false`.
 - **Sandbox fail-closed** : ne jamais court-circuiter le processus enfant ; un sandbox indisponible doit

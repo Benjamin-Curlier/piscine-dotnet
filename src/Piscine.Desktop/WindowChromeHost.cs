@@ -27,7 +27,11 @@ internal static class WindowChromeHost
 
         win.RegisterWebMessageReceivedHandler((_, message) =>
         {
-            if (message is null || !message.StartsWith(Prefix, StringComparison.Ordinal)) return;
+            if (message is null || !message.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                return;
+            }
+
             var cmd = message[Prefix.Length..];
             try
             {
