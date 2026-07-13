@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using Piscine.Sandbox;
 
@@ -98,8 +99,17 @@ internal static class SandboxProcess
 
             using (process)
             {
-                // Drainer stdout/stderr pour éviter un blocage de pipe (le protocole passe par fichier).
-                process.OutputDataReceived += static (_, _) => { };
+                // Accumuler stdout (drainage concurrent obligatoire : la trame io embarque la sortie
+                // recrue et peut être volumineuse) ; ignorer stderr. Le verdict est dérivé de la trame
+                // par ParseVerdict — jamais d'un fichier écrit dans workDir (intégrité B-2).
+                var stdout = new StringBuilder();
+                process.OutputDataReceived += (_, e) =>
+                {
+                    if (e.Data is not null)
+                    {
+                        stdout.Append(e.Data).Append('\n');
+                    }
+                };
                 process.ErrorDataReceived += static (_, _) => { };
                 process.BeginOutputReadLine();
                 process.BeginErrorReadLine();
@@ -118,41 +128,7 @@ internal static class SandboxProcess
 
                 process.WaitForExit(); // s'assurer que les handlers async ont vidé
 
-                var resultPath = Path.Combine(workDir, "result.json");
-                if (File.Exists(resultPath))
-                {
-                    var result = JsonSerializer.Deserialize(
-                        File.ReadAllText(resultPath), SandboxJsonContext.Default.SandboxResult);
-                    if (result is not null)
-                    {
-                        if (result.ExitedEarly)
-                        {
-                            // Sortie anticipée légitime (Environment.Exit(n) en io) : le code programme
-                            // fait foi.
-                            result.ExitCode = process.ExitCode;
-                        }
-                        else if (process.ExitCode != 0)
-                        {
-                            // Le chemin légitime (SandboxEntry.Run) renvoie 0 hors sortie anticipée. Un
-                            // result.json présent AVEC un code de sortie non nul = crash après écriture
-                            // partielle ou terminaison forcée : résultat non fiable → fail-closed.
-                            return new SandboxResult
-                            {
-                                ErrorType = "ArrêtAnormal",
-                                ErrorMessage = $"Le bac à sable s'est terminé anormalement (code {process.ExitCode}) après avoir produit un résultat.",
-                            };
-                        }
-
-                        return result;
-                    }
-                }
-
-                // Pas de result.json et pas de timeout ⇒ arrêt anormal (StackOverflow, FailFast…).
-                return new SandboxResult
-                {
-                    ErrorType = "ArrêtAnormal",
-                    ErrorMessage = $"Le bac à sable s'est arrêté anormalement (code {process.ExitCode}) sans produire de résultat.",
-                };
+                return ParseVerdict(stdout.ToString(), process.ExitCode);
             }
         }
         finally
@@ -160,5 +136,52 @@ internal static class SandboxProcess
             try { Directory.Delete(workDir, recursive: true); }
             catch { /* nettoyage best-effort */ }
         }
+    }
+
+    /// <summary>
+    /// Dérive le résultat autoritaire depuis la sortie standard de l'enfant. Condition d'acceptation
+    /// centrée sur la TRAME, pas sur le code de sortie (un programme io légitime peut sortir non-nul
+    /// via Environment.Exit) : exactement une occurrence de la sentinelle dont le JSON se désérialise
+    /// ⇒ acceptée ; zéro (FailFast, StackOverflow… : aucune trame), ≥2 (trame injectée par la recrue)
+    /// ou JSON illisible ⇒ fail-closed « ArrêtAnormal ».
+    /// </summary>
+    private static SandboxResult ParseVerdict(string stdout, int exitCode)
+    {
+        var sentinel = SandboxProtocol.VerdictSentinel;
+        var first = stdout.IndexOf(sentinel, StringComparison.Ordinal);
+        var last = stdout.LastIndexOf(sentinel, StringComparison.Ordinal);
+        if (first >= 0 && first == last)
+        {
+            var start = first + sentinel.Length;
+            var newline = stdout.IndexOf('\n', start);
+            var json = newline >= 0 ? stdout[start..newline] : stdout[start..];
+            try
+            {
+                var result = JsonSerializer.Deserialize(json, SandboxJsonContext.Default.SandboxResult);
+                if (result is not null)
+                {
+                    // Sortie anticipée (Environment.Exit) : le vrai code de sortie vit dans le processus
+                    // (la trame est émise avant la fin) ⇒ on l'y recolle.
+                    if (result.ExitedEarly)
+                    {
+                        result.ExitCode = exitCode;
+                    }
+
+                    return result;
+                }
+            }
+            catch (JsonException)
+            {
+                // Trame illisible ⇒ on tombe en fail-closed ci-dessous.
+            }
+        }
+
+        return new SandboxResult
+        {
+            ErrorType = "ArrêtAnormal",
+            ErrorMessage = first >= 0 && first != last
+                ? $"Le bac à sable a produit plusieurs verdicts (sortie falsifiée, code {exitCode})."
+                : $"Le bac à sable s'est arrêté anormalement (code {exitCode}) sans produire de verdict.",
+        };
     }
 }
