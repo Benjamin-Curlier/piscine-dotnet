@@ -1,16 +1,28 @@
 using Microsoft.Extensions.Logging;
 
-// Lis QUATRE messages sur stdin, dans l'ordre :
-//   1) message App (Information), 2) message Db (Information, sera filtré),
-//   3) message Db (Warning), 4) message App (Information).
-//
-// Configure un seul LoggerFactory :
-//   - provider fourni, niveau minimum Information ;
-//   - un filtre par catégorie : builder.AddFilter("Db", LogLevel.Warning).
-// Crée deux loggers : catégorie "App" et catégorie "Db". Émets, dans l'ordre :
-//   app.LogInformation("{Message}", msgAppDemarrage);
-//   db.LogInformation("{Message}", msgDbInfo);     // filtré (Db >= Warning)
-//   db.LogWarning("{Message}", msgDbWarning);
-//   app.LogInformation("{Message}", msgAppArret);
+// Le Main (création des loggers "App"/"Db" et émission des logs) t'est fourni. À toi de renseigner
+// Journalisation.CreerFabrique() : un SEUL LoggerFactory, provider fourni, niveau minimum Information,
+// et un filtre par catégorie pour que "Db" n'émette qu'à partir de Warning.
 
-// À toi de jouer.
+using var fabrique = Journalisation.CreerFabrique();
+
+var app = fabrique.CreateLogger("App");
+var db = fabrique.CreateLogger("Db");
+
+app.LogInformation("Démarrage");
+db.LogInformation("Requête SELECT *");   // doit être filtré (Db >= Warning)
+db.LogWarning("Requête lente (1.2s)");
+app.LogInformation("Arrêt");
+
+static class Journalisation
+{
+    public static ILoggerFactory CreerFabrique()
+    {
+        return LoggerFactory.Create(builder =>
+        {
+            // TODO : builder.AddProvider(new CaptureLoggerProvider());
+            //        builder.SetMinimumLevel(LogLevel.Information);
+            //        builder.AddFilter("Db", LogLevel.Warning);
+        });
+    }
+}

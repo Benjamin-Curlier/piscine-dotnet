@@ -1,24 +1,21 @@
 id: ex02-attribut
 title: "Un attribut personnalisé"
-objective: "Définir un attribut personnalisé, l'appliquer à plusieurs classes et lire, par réflexion, la valeur portée par la classe désignée sur stdin."
+objective: "Définir un attribut personnalisé, l'appliquer à une classe et lire sa valeur par réflexion."
 deliverables: [Attribut.cs]
 starter: [Attribut.cs]
 grading:
   - type: io
     cases:
-      # le nom lu sur stdin sélectionne la classe dont on lit l'étiquette
-      - stdin: "MaClasse\n"
+      - stdin: ""
         expect_stdout: "Coucou\n"
         expect_exit: 0
-      - stdin: "Produit\n"
-        expect_stdout: "Catalogue de produits\n"
-        expect_exit: 0
-      - stdin: "Client\n"
-        expect_stdout: "Fiche client\n"
-        expect_exit: 0
+  - type: unit
+    test_files: [grader/AttributTests.cs]
 feedback:
   hints:
     - when: io_mismatch
-      message: "EtiquetteAttribute : Attribute avec un string Texte, appliqué à plusieurs classes avec des textes différents. Lis le nom sur stdin, choisis le type (switch => typeof(...)), puis type.GetCustomAttribute<EtiquetteAttribute>()!.Texte."
+      message: "EtiquetteAttribute : Attribute avec un string Texte ; lis-le via typeof(MaClasse).GetCustomAttribute<EtiquetteAttribute>()!.Texte."
+    - when: unit_failure
+      message: "Il faut un VRAI attribut : EtiquetteAttribute hérite de System.Attribute, prend un texte au constructeur et l'expose via une propriété Texte ; applique-le sur MaClasse avec [Etiquette(\"Coucou\")]."
   course_ref: "cours.md#attribut"
 solution: [Attribut.cs]

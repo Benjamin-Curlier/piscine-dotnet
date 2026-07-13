@@ -1,23 +1,24 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
-// Lis N (le nombre de résolutions à effectuer pour chaque durée de vie).
-var n = int.Parse(System.Console.ReadLine());
+var provider = Conteneur.Construire();
 
-var services = new ServiceCollection();
-services.AddSingleton<CompteurSingleton>();
-services.AddTransient<CompteurTransient>();
-var provider = services.BuildServiceProvider();
+Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
+Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
+Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
+Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
 
-// Singleton : même instance à chaque résolution => l'état s'accumule (1, 2, 3, …).
-for (var i = 0; i < n; i++)
+static class Conteneur
 {
-    System.Console.WriteLine("Singleton: " + provider.GetRequiredService<CompteurSingleton>().Incrementer());
-}
-
-// Transient : instance neuve à chaque résolution => l'état repart de zéro (1, 1, 1, …).
-for (var i = 0; i < n; i++)
-{
-    System.Console.WriteLine("Transient: " + provider.GetRequiredService<CompteurTransient>().Incrementer());
+    // Enregistre CompteurSingleton en SINGLETON (une seule instance partagée) et CompteurTransient
+    // en TRANSIENT (une instance neuve à chaque résolution), puis construit le fournisseur.
+    public static IServiceProvider Construire()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<CompteurSingleton>();
+        services.AddTransient<CompteurTransient>();
+        return services.BuildServiceProvider();
+    }
 }
 
 class CompteurSingleton

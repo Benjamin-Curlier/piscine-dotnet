@@ -2,24 +2,23 @@
 
 ## Objectif
 
-Lis un entier `N` sur l'entrée standard (le **nombre de résolutions** à effectuer). Le programme
-**démontre** la différence entre les durées de vie d'un service.
+Ce programme ne lit rien : il **démontre** la différence entre les durées de vie d'un service.
 
 Tu as deux compteurs identiques (un champ `int`, une méthode `Incrementer()` qui pré-incrémente
-et renvoie la valeur). Enregistre l'un en **singleton**, l'autre en **transient**.
+et renvoie la valeur). Le `Main` et les deux compteurs te sont **fournis** : ils résolvent chaque
+service deux fois et affichent le résultat. À toi de compléter **`Conteneur.Construire()`** en
+enregistrant les deux services avec la **bonne durée de vie**.
 
-- Résous le **singleton N fois** : c'est la **même instance**, donc `Incrementer()` renvoie
-  `1, 2, …, N` (l'état s'accumule).
-- Résous le **transient N fois** : c'est une **instance neuve** à chaque fois, donc `Incrementer()`
-  renvoie `1` à chaque résolution.
+- Enregistre `CompteurSingleton` en **singleton** : c'est la **même instance** à chaque résolution,
+  donc `Incrementer()` renvoie `1` puis `2`.
+- Enregistre `CompteurTransient` en **transient** : c'est une **instance neuve** à chaque
+  résolution, donc `Incrementer()` renvoie `1` puis `1`.
 
-Affiche `2 × N` lignes. Exemple pour `N = 3` :
+Sortie attendue (4 lignes) :
 
 ```
 Singleton: 1
 Singleton: 2
-Singleton: 3
-Transient: 1
 Transient: 1
 Transient: 1
 ```
@@ -30,11 +29,8 @@ Transient: 1
 
 ## Indices
 
-- Ajoute `using Microsoft.Extensions.DependencyInjection;` en haut.
-- Lis `N` avec `int.Parse(System.Console.ReadLine())`.
-- Chaque classe : `private int _n; public int Incrementer() => ++_n;`.
-- Enregistre : `services.AddSingleton<CompteurSingleton>(); services.AddTransient<CompteurTransient>();`.
-- Construis le provider, puis, dans une **boucle** de `N` tours, appelle
-  `provider.GetRequiredService<...>().Incrementer()` pour chaque compteur, en préfixant l'affichage
-  par `"Singleton: "` ou `"Transient: "`.
-- Instructions d'abord (y compris la lecture de `N`), classes après.
+- `using Microsoft.Extensions.DependencyInjection;` est déjà en haut.
+- Dans `Conteneur.Construire()` : `services.AddSingleton<CompteurSingleton>();` et
+  `services.AddTransient<CompteurTransient>();` avant de renvoyer le fournisseur.
+- La correction ne se contente pas de comparer la sortie : elle résout chaque service **deux fois**
+  et vérifie que le singleton donne la **même instance** et le transient **deux instances distinctes**.

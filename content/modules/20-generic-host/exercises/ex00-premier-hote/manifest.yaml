@@ -1,24 +1,21 @@
 id: ex00-premier-hote
 title: "Premier hôte"
-objective: "Construire un Generic Host, y enregistrer un service hébergé (BackgroundService) qui effectue la consigne lue sur stdin puis arrête proprement l'application."
+objective: "Construire un Generic Host, y enregistrer un service hébergé (BackgroundService) qui fait une unité de travail puis arrête proprement l'application."
 deliverables: [PremierHote.cs, LogCapture.cs]
 starter: [PremierHote.cs, LogCapture.cs]
 grading:
   - type: io
     cases:
-      # la consigne lue sur stdin paramètre le message journalisé
-      - stdin: "Indexer le catalogue\n"
-        expect_stdout: "Worker [Information] Hôte démarré, travail effectué : Indexer le catalogue\n"
+      - stdin: ""
+        expect_stdout: "Worker [Information] Hôte démarré, travail effectué\n"
         expect_exit: 0
-      - stdin: "Envoyer le rapport\n"
-        expect_stdout: "Worker [Information] Hôte démarré, travail effectué : Envoyer le rapport\n"
-        expect_exit: 0
-      - stdin: "Purger le cache\n"
-        expect_stdout: "Worker [Information] Hôte démarré, travail effectué : Purger le cache\n"
-        expect_exit: 0
+  - type: unit
+    test_files: [grader/PremierHoteTests.cs]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Lis la consigne sur stdin et enregistre-la (AddSingleton) pour l'injecter dans le Worker. Host.CreateApplicationBuilder(args) ; AddHostedService<Worker>() ; dans ExecuteAsync, logue \"Hôte démarré, travail effectué : {Tache}\" puis IHostApplicationLifetime.StopApplication(). Pense à AddFilter(\"Microsoft\", LogLevel.None) pour taire les logs du host."
+      message: "Host.CreateApplicationBuilder(args) ; AddHostedService<Worker>() ; dans ExecuteAsync, logue puis IHostApplicationLifetime.StopApplication(). Pense à AddFilter(\"Microsoft\", LogLevel.None) pour taire les logs du host."
+    - when: unit_failure
+      message: "La ligne exacte ne suffit pas : Worker doit hériter de BackgroundService, journaliser \"Hôte démarré, travail effectué\" en Information via son ILogger, puis appeler _lifetime.StopApplication()."
   course_ref: "cours.md#premier-hote"
 solution: [PremierHote.cs, LogCapture.cs]

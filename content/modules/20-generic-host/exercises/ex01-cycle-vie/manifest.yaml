@@ -1,24 +1,21 @@
 id: ex01-cycle-vie
 title: "Cycle de vie"
-objective: "Implémenter IHostedService directement : StartAsync au démarrage, StopAsync à l'arrêt. Observer l'ordre du cycle de vie, paramétré par le nom lu sur stdin."
+objective: "Implémenter IHostedService directement : StartAsync au démarrage, StopAsync à l'arrêt. Observer l'ordre du cycle de vie."
 deliverables: [CycleVie.cs, LogCapture.cs]
 starter: [CycleVie.cs, LogCapture.cs]
 grading:
   - type: io
     cases:
-      # le nom lu sur stdin apparaît dans les deux temps du cycle de vie
-      - stdin: "Indexeur\n"
-        expect_stdout: "Cycle [Information] Démarrage Indexeur\nCycle [Information] Arrêt Indexeur\n"
+      - stdin: ""
+        expect_stdout: "Cycle [Information] Démarrage\nCycle [Information] Arrêt\n"
         expect_exit: 0
-      - stdin: "Passerelle\n"
-        expect_stdout: "Cycle [Information] Démarrage Passerelle\nCycle [Information] Arrêt Passerelle\n"
-        expect_exit: 0
-      - stdin: "Cache\n"
-        expect_stdout: "Cycle [Information] Démarrage Cache\nCycle [Information] Arrêt Cache\n"
-        expect_exit: 0
+  - type: unit
+    test_files: [grader/CycleVieTests.cs]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Lis le nom sur stdin et injecte-le (AddSingleton) dans le service. Implémente IHostedService : logue \"Démarrage {Nom}\" dans StartAsync (puis StopApplication()), et \"Arrêt {Nom}\" dans StopAsync."
+      message: "Implémente IHostedService : logue \"Démarrage\" dans StartAsync (puis StopApplication()), et \"Arrêt\" dans StopAsync."
+    - when: unit_failure
+      message: "Cycle doit vraiment implémenter IHostedService : StartAsync journalise \"Démarrage\" en Information puis appelle StopApplication() ; StopAsync journalise \"Arrêt\"."
   course_ref: "cours.md#cycle-vie"
 solution: [CycleVie.cs, LogCapture.cs]

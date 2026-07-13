@@ -1,28 +1,21 @@
 id: ex02-durees-vie
 title: "Singleton vs Transient"
-objective: "Observer la différence de durée de vie entre un service singleton et un service transient, sur N résolutions lues sur stdin."
+objective: "Observer la différence de durée de vie entre un service singleton et un service transient."
 deliverables: [DureesVie.cs]
 starter: [DureesVie.cs]
 grading:
   - type: io
     cases:
-      # N = 2 : le cas historique
-      - stdin: "2\n"
+      - stdin: ""
         expect_stdout: "Singleton: 1\nSingleton: 2\nTransient: 1\nTransient: 1\n"
         expect_exit: 0
-      # N = 3 : le singleton continue d'accumuler (1,2,3), le transient reste à 1
-      - stdin: "3\n"
-        expect_stdout: "Singleton: 1\nSingleton: 2\nSingleton: 3\nTransient: 1\nTransient: 1\nTransient: 1\n"
-        expect_exit: 0
-      - stdin: "1\n"
-        expect_stdout: "Singleton: 1\nTransient: 1\n"
-        expect_exit: 0
-      - stdin: "4\n"
-        expect_stdout: "Singleton: 1\nSingleton: 2\nSingleton: 3\nSingleton: 4\nTransient: 1\nTransient: 1\nTransient: 1\nTransient: 1\n"
-        expect_exit: 0
+  - type: unit
+    test_files: [grader/DureesVieTests.cs]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Lis N. AddSingleton<CompteurSingleton>() (même instance => 1,2,…,N) et AddTransient<CompteurTransient>() (instance neuve => 1 à chaque fois) ; Incrementer() => ++_n ; boucle N fois pour chaque compteur (2*N lignes)."
+      message: "AddSingleton<CompteurSingleton>() (même instance => 1 puis 2) et AddTransient<CompteurTransient>() (instance neuve => 1 puis 1) ; Incrementer() => ++_n ; affiche 4 lignes."
+    - when: unit_failure
+      message: "Les durées de vie doivent être réelles : le singleton résolu deux fois doit être la MÊME instance (AddSingleton), le transient deux instances DISTINCTES (AddTransient). Renseigne Conteneur.Construire()."
   course_ref: "cours.md#durees-vie"
 solution: [DureesVie.cs]

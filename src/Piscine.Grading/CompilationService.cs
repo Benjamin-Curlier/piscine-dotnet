@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Piscine.Grading;
 
@@ -88,6 +89,20 @@ public static class CompilationService
         string assemblyName = "Submission",
         IEnumerable<string>? additionalReferences = null) =>
         Emit(CreateCompilation(sources, outputKind, assemblyName, additionalReferences));
+
+    /// <summary>
+    /// Vrai si au moins une source porte des instructions de haut niveau (top-level statements). Une
+    /// telle source synthétise un point d'entrée et NE PEUT être compilée qu'en exécutable (Roslyn
+    /// CS8805 « Program using top-level statements must be an executable » sinon). Sert au grader
+    /// <c>unit</c> à choisir <see cref="OutputKind.ConsoleApplication"/> pour un livrable top-level :
+    /// le runner xUnit du bac à sable n'invoque JAMAIS le point d'entrée (il ne réfléchit que sur les
+    /// <c>[Fact]</c>), donc le programme top-level ne s'exécute pas — on ne fait que rendre l'assembly
+    /// compilable. Un livrable de type bibliothèque (sans top-level) reste compilé en DLL.
+    /// </summary>
+    public static bool HasTopLevelStatements(IEnumerable<string> sources) =>
+        sources.Any(source =>
+            CSharpSyntaxTree.ParseText(source).GetRoot() is CompilationUnitSyntax unit
+            && unit.Members.Any(member => member is GlobalStatementSyntax));
 
     private static string Format(Diagnostic diagnostic)
     {

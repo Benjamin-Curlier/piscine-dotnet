@@ -7,8 +7,8 @@ Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deplo
 ## [v4.2.0] — 2026-07-13
 
 Revue « nouvelle recrue » — 2e vague : durcissement de la moulinette (mémoire bornée, fail-closed
-élargi), rendu au push plus robuste, et finitions UX / accessibilité de l'app de bureau. Contenu
-fiabilisé. Verdicts inchangés côté recrue.
+élargi), rendu au push plus robuste, finitions UX / accessibilité de l'app de bureau, et contenu
+fiabilisé (graders `unit` sur les exercices-concept, nouveaux exercices). Verdicts inchangés côté recrue.
 
 ### Sécurité
 
@@ -20,12 +20,28 @@ fiabilisé. Verdicts inchangés côté recrue.
   inattendue d'un grader est convertie en échec **non persisté** (*À revoir* interne, jamais un faux
   *Réussi*) au lieu de faire planter le hook de correction.
 
+### Ajouté
+
+- **Graders `unit` sur les exercices-concept** (injection de dépendances, logging, Generic Host,
+  réflexion, EF Core) : en plus du contrôle `io`, des tests xUnit cachés asservissent la **vraie API**
+  (instancier le `BackgroundService`/`IHostedService`, distinguer singleton et transient, filtrer par
+  catégorie, lire un attribut personnalisé, round-trip EF Core réel, réflexion sur un type inconnu).
+  « Réussi » implique désormais que la notion est réellement employée : un `Console.Write` de la sortie
+  attendue ne suffit plus. Exercices : `17/ex01`, `17/ex02`, `18/ex02`, `19/ex03`, `20/ex00`, `20/ex01`,
+  `35/ex00`.
+- **Nouveaux exercices sur les modules minces** : `22-reseau` exploite enfin le harnais d'écho TCP
+  (`ex02`) et ajoute un GET HTTP à sortie transformée (`ex01`) ; `05-git-intermediaire` (merge-commit,
+  résolution de conflit) et `36-clean-architecture` (ports & adaptateurs) sont étoffés.
+
 ### Corrigé
 
 - **Rendu au push robuste** : l'écriture de `progress.json` est protégée contre les écritures
   concurrentes (push rapprochés) — plus de progression corrompue ou perdue.
 - **`projet` — `forbidden_dependencies` via membres** : une dépendance interdite atteinte par un
   **membre** (et non par un type nu) est désormais détectée, plus seulement les usages directs de type.
+- **Grader `unit` — livrable top-level supporté** : un programme à instructions de haut niveau est
+  compilé en exécutable (au lieu de bibliothèque) pour la notation par tests, sans lancer son point
+  d'entrée (seuls les `[Fact]` s'exécutent). Sans cela, la compilation échouait (CS8805).
 - **Flux *Vérifier*** : le bouton *Vérifier* d'une page d'exercice **cible le bon exercice** et lance
   la correction (fini la page pré-remplie sur un autre exo).
 - **Retours « Ouvrir » actionnables** : un échec d'ouverture (éditeur / dossier / terminal) est remonté

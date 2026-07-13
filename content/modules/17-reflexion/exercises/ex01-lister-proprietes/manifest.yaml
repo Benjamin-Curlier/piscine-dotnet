@@ -1,24 +1,21 @@
 id: ex01-lister-proprietes
 title: "Lister les propriétés"
-objective: "Choisir une classe d'après un nom lu sur stdin, puis parcourir toutes ses propriétés par réflexion et les afficher triées."
+objective: "Parcourir toutes les propriétés d'une classe par réflexion et les afficher triées."
 deliverables: [ListerProprietes.cs]
 starter: [ListerProprietes.cs]
 grading:
   - type: io
     cases:
-      # le nom lu sur stdin sélectionne la classe à inspecter
-      - stdin: "Produit\n"
+      - stdin: ""
         expect_stdout: "Nom\nPrix\nQuantite\n"
         expect_exit: 0
-      - stdin: "Client\n"
-        expect_stdout: "Adresse\nEmail\nNom\n"
-        expect_exit: 0
-      - stdin: "Commande\n"
-        expect_stdout: "Date\nNumero\nTotal\n"
-        expect_exit: 0
+  - type: unit
+    test_files: [grader/ListerProprietesTests.cs]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Lis le nom de la classe sur stdin et choisis le type (switch => typeof(...)). Puis type.GetProperties().Select(p => p.Name).OrderBy(n => n) et WriteLine de chaque nom."
+      message: "typeof(Produit).GetProperties().Select(p => p.Name).OrderBy(n => n) puis WriteLine de chaque nom."
+    - when: unit_failure
+      message: "ListerProprietes(Type) est testée sur un autre type que Produit : n'affiche/renvoie rien en dur, applique la réflexion sur le type reçu (type.GetProperties()...)."
   course_ref: "cours.md#lister"
 solution: [ListerProprietes.cs]

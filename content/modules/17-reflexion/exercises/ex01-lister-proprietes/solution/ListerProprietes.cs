@@ -1,21 +1,20 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-// Lis le nom de la classe à inspecter sur stdin ; sélectionne le type correspondant.
-var cible = System.Console.ReadLine();
-
-System.Type type = cible switch
+foreach (var nom in Reflexion.ListerProprietes(typeof(Produit)))
 {
-    "Client" => typeof(Client),
-    "Commande" => typeof(Commande),
-    _ => typeof(Produit),
-};
+    Console.WriteLine(nom);
+}
 
-// Réflexion : liste les noms de propriétés du type choisi, triés pour un résultat déterministe.
-var noms = type.GetProperties().Select(p => p.Name).OrderBy(n => n);
-foreach (var nom in noms)
+static class Reflexion
 {
-    System.Console.WriteLine(nom);
+    // Renvoie le nom de TOUTES les propriétés publiques du type, triés par ordre alphabétique.
+    public static IEnumerable<string> ListerProprietes(Type type)
+    {
+        return type.GetProperties().Select(p => p.Name).OrderBy(n => n);
+    }
 }
 
 class Produit
@@ -23,18 +22,4 @@ class Produit
     public string Nom { get; set; } = string.Empty;
     public double Prix { get; set; }
     public int Quantite { get; set; }
-}
-
-class Client
-{
-    public string Adresse { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string Nom { get; set; } = string.Empty;
-}
-
-class Commande
-{
-    public System.DateTime Date { get; set; }
-    public int Numero { get; set; }
-    public double Total { get; set; }
 }
