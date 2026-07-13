@@ -29,8 +29,8 @@ fiabilisé (graders `unit` sur les exercices-concept, nouveaux exercices). Verdi
   « Réussi » implique désormais que la notion est réellement employée : un `Console.Write` de la sortie
   attendue ne suffit plus. Exercices : `17/ex01`, `17/ex02`, `18/ex02`, `19/ex03`, `20/ex00`, `20/ex01`,
   `35/ex00`.
-- **Nouveaux exercices sur les modules minces** : `22-reseau` exploite enfin le harnais d'écho TCP
-  (`ex02`) et ajoute un GET HTTP à sortie transformée (`ex01`) ; `05-git-intermediaire` (merge-commit,
+- **Nouveaux exercices sur les modules minces** : `22-reseau` ajoute un GET HTTP à sortie transformée
+  (`ex01`, désérialisation JSON puis synthèse formatée) ; `05-git-intermediaire` (merge-commit,
   résolution de conflit) et `36-clean-architecture` (ports & adaptateurs) sont étoffés.
 
 ### Corrigé

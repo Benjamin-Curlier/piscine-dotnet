@@ -8,7 +8,3 @@ groups:
     exercises:
       - ex00-httpclient-get
       - ex01-http-meteo
-  - id: sockets
-    title: "Sockets TCP — client d'écho"
-    exercises:
-      - ex02-echo-tcp
