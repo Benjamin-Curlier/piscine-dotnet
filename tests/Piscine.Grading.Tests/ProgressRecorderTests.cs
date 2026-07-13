@@ -28,6 +28,26 @@ public class ProgressRecorderTests
     }
 
     [Fact]
+    public void Apply_DoesNotDowngradeReussi_OnInternalSandboxError()
+    {
+        // M-10 : un « Réussi » déjà acquis ne doit pas être rétrogradé par une panne de bac à sable.
+        var progress = new Progress();
+        ProgressRecorder.Apply(
+            progress,
+            new[] { new ExerciseGradingResult("ex00", new[] { GraderResult.Success("io") }) },
+            DateTimeOffset.UnixEpoch);
+
+        // Nouvelle correction pendant une indisponibilité du sandbox (échec interne, pas la recrue).
+        ProgressRecorder.Apply(
+            progress,
+            new[] { new ExerciseGradingResult("ex00", new[] { GraderResult.Internal("io", "bac à sable indisponible") }) },
+            DateTimeOffset.UnixEpoch);
+
+        Assert.Equal(ExerciseStatus.Reussi, progress.Exercises["ex00"].Status);
+        Assert.Equal(1, progress.Exercises["ex00"].Attempts); // l'incident ne compte pas comme tentative
+    }
+
+    [Fact]
     public void Apply_IncrementsAttempts_OnRepeatedGrading()
     {
         var progress = new Progress();

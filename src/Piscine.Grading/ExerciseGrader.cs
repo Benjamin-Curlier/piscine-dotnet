@@ -33,7 +33,9 @@ public sealed class ExerciseGrader
                     // Fail-closed : le bac à sable d'exécution est indisponible (packaging cassé,
                     // binaire absent). On NE retombe PAS en in-process (cela réintroduirait les fuites
                     // et masquerait la casse) et on NE laisse PAS « réussir » : échec interne explicite.
-                    results.Add(GraderResult.Failure(step.Type,
+                    // Marqué IsInternalError : affiché à la recrue mais NON persisté comme régression
+                    // (une panne transitoire ne doit pas rétrograder un « Réussi » — M-10).
+                    results.Add(GraderResult.Internal(step.Type,
                         $"interne : bac à sable d'exécution indisponible — {ex.Message}"));
                 }
             }

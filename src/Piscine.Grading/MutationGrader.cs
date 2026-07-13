@@ -41,6 +41,13 @@ public sealed class MutationGrader : IGrader
                 .WithTrigger(FeedbackTriggers.Timeout);
         }
 
+        if (refRun.Crashed)
+        {
+            return GraderResult.Failure(Type,
+                "Tes tests provoquent un arrêt anormal (StackOverflow, Environment.Exit… ?) sur l'implémentation correcte.")
+                .WithTrigger(FeedbackTriggers.TestsFailOnReference);
+        }
+
         if (refRun.FactCount == 0)
         {
             return GraderResult.Failure(Type, "Aucun test n'a été trouvé. Écris au moins un test.")
@@ -79,8 +86,11 @@ public sealed class MutationGrader : IGrader
             }
 
             var mutRun = XunitRunner.Run(mutCompile.AssemblyBytes, Timeout);
-            // Le mutant survit s'il termine sans aucun test rouge (un timeout = comportement attrapé = tué).
-            if (!mutRun.TimedOut && mutRun.Failures.Count == 0)
+            // Le mutant n'est SURVIVANT que si les tests tournent proprement et restent TOUS verts.
+            // Tout comportement anormal du mutant est un « tué » : timeout (boucle) ET crash/arrêt
+            // anormal (StackOverflow…) sont des détections valides — les compter survivants pénalisait
+            // à tort des tests corrects (M-5). FactCount>0 garde contre un run vidé de ses tests.
+            if (mutRun.RanCleanly && mutRun.FactCount > 0 && mutRun.Failures.Count == 0)
             {
                 survivors.Add(mutant.Label);
             }

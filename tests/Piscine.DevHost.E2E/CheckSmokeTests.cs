@@ -104,6 +104,10 @@ public sealed class CheckSmokeTests : IAsyncLifetime
                 "[data-testid='exo-select']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });
 
+            // Workspace non initialisé → l'overlay onboarding (1ᵉʳ lancement) recouvre la page et
+            // intercepterait le clic « Vérifier ». On le ferme d'abord (no-op s'il est absent).
+            await OnboardingOverlay.DismissIfPresentAsync(page);
+
             // Sélectionner l'exercice ex00-hello.
             await page.SelectOptionAsync(
                 "[data-testid='exo-select']",

@@ -53,6 +53,10 @@ public sealed class LastPushResultStore
         }
 
         var json = JsonSerializer.Serialize(document, Options);
-        File.WriteAllText(_path, json);
+        // Écriture atomique (comme ProgressStore) : écrire dans un .tmp puis Move — un lecteur (page
+        // /resultat, watcher) ne voit jamais un JSON tronqué si l'écriture est interrompue.
+        var temp = _path + ".tmp";
+        File.WriteAllText(temp, json);
+        File.Move(temp, _path, overwrite: true);
     }
 }

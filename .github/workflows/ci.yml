@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+# Moindre privilege : le GITHUB_TOKEN de cette CI n'a besoin que de lire le dépôt (build/test/validate).
+permissions:
+  contents: read
+
 # CI-2 : annule les runs redondants sur une meme ref (un nouveau push remplace l'ancien run en cours).
 concurrency:
   group: ci-${{ github.ref }}
@@ -106,6 +110,50 @@ jobs:
             esac
             echo "OK $rid"
           done
+
+  # CI-4 : E2E DevHost (Playwright/Chromium). Les smokes de tests/Piscine.DevHost.E2E pilotent un VRAI
+  # navigateur contre le DevHost (onboarding, /init, /check, /reglages, terminal, palette…). Ils tournent
+  # deja dans build-test mais s'y SAUTENT proprement, faute de navigateur (aucune couverture UI reelle).
+  # Ce job installe Chromium via Playwright pour qu'ils s'executent pour de bon.
+  # Marque INFORMATIF (continue-on-error) : verifie vert en local (Chromium installe), mais jamais encore
+  # exerce sur runner Linux (PTY, timing, chromium headless) — a promouvoir en check REQUIS une fois vert
+  # de facon repetee sur CI, pour ne pas rougir la CI sur une difference de plateforme non reproduite.
+  e2e:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Cache NuGet
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore Piscine.slnx
+
+      # Build (Debug, comme en local) : produit aussi le script playwright.ps1 dans la sortie du projet
+      # E2E, et le DevHost que les tests lancent via `dotnet run` (Debug par defaut) au moment du test.
+      - name: Build
+        run: dotnet build Piscine.slnx --no-restore
+
+      # Installe le Chromium bundle de Playwright (+ dependances systeme Linux) via le script genere dans
+      # la sortie de build du projet E2E. Sans cette etape, chaque smoke se saute (skip propre).
+      - name: Installer Chromium (Playwright)
+        run: pwsh tests/Piscine.DevHost.E2E/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+
+      # Fait tourner UNIQUEMENT les E2E DevHost (le reste de la suite passe deja dans build-test). Les
+      # tests resolvent eux-memes le contenu reel via PISCINE_CONTENT (racine du depot) par sous-processus.
+      - name: E2E (DevHost, Playwright)
+        run: dotnet test tests/Piscine.DevHost.E2E/Piscine.DevHost.E2E.csproj --no-build --verbosity normal
 
   # Dry-run AppImage Linux (online) : garde de packaging — construit l'AppImage online et verifie
   # qu'elle est bien produite. NE TOURNE QUE si le packaging change (CI-1). L'AppImage OFFLINE
