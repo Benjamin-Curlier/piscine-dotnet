@@ -26,6 +26,12 @@ public class GitWorkspaceTests
         {
             var origin = repo.Network.Remotes["origin"];
             Assert.NotNull(origin);
+            Assert.Equal(GitWorkspace.DefaultBranchName, repo.Head.FriendlyName);
+        }
+
+        using (var remote = new Repository(layout.RemoteRepoPath))
+        {
+            Assert.Equal(GitWorkspace.DefaultBranchName, remote.Head.FriendlyName);
         }
 
         var hook = Path.Combine(layout.RemoteRepoPath, "hooks", "post-receive");
@@ -44,5 +50,6 @@ public class GitWorkspaceTests
 
         using var repo = new Repository(layout.WorkspaceRoot);
         Assert.NotNull(repo.Network.Remotes["origin"]);
+        Assert.Equal(GitWorkspace.DefaultBranchName, repo.Head.FriendlyName);
     }
 }

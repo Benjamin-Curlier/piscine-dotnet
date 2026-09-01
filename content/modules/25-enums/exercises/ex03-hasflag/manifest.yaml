@@ -2,7 +2,11 @@ id: ex03-hasflag
 title: "Tester un drapeau"
 objective: "Tester la présence d'un drapeau dans une valeur combinée d'enum [Flags] avec HasFlag."
 bonus: true
-difficulty: difficile
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Tester un drapeau d'Asteria."
 deliverables: [HasFlag.cs]
 starter: [HasFlag.cs]
 grading:
@@ -29,6 +33,9 @@ grading:
       - stdin: "5\nLecture\n"
         expect_stdout: "oui\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["[Flags]", ".HasFlag("]
 feedback:
   hints:
     - when: io_mismatch

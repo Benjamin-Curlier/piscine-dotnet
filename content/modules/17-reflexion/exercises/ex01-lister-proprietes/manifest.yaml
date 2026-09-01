@@ -1,6 +1,11 @@
 id: ex01-lister-proprietes
 title: "Lister les propriétés"
 objective: "Parcourir toutes les propriétés d'une classe par réflexion et les afficher triées."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,metaprogramming]
+story_beat: "Sécuriser la capacité Lister les propriétés d'Asteria."
 deliverables: [ListerProprietes.cs]
 starter: [ListerProprietes.cs]
 grading:
@@ -11,6 +16,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/ListerProprietesTests.cs]
+  - type: source
+    source:
+      required_fragments: [".GetProperties("]
 feedback:
   hints:
     - when: io_mismatch

@@ -1,6 +1,9 @@
 id: 27-binaire
 title: "Opérations binaires"
 order: 27
+prerequisites: [01-bases-csharp, 02-boucles]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Décoder les paquets compacts des anciens équipements du centre."
 course: cours.md
 groups:
   - id: binaire

@@ -1,0 +1,9 @@
+.course-rush-callout { display: flex; align-items: center; gap: .8rem; margin: -1rem 0 2rem; padding: .9rem 1rem; border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line)); border-radius: 12px; color: var(--ink); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.course-rush-callout:hover { border-color: var(--accent); text-decoration: none; }
+.course-rush-callout > span:nth-child(2) { flex: 1; display: flex; flex-direction: column; }
+.course-rush-callout small { color: var(--ink-soft); }
+.course-rush-star { display: grid; place-items: center; width: 2.3rem; height: 2.3rem; border-radius: 50%; background: var(--accent); color: #fff; }
+.course-acts { display: grid; gap: 2.2rem; }
+.course-act > header { margin-bottom: .8rem; }
+.course-act > header span { color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.course-act > header h2 { margin: .1rem 0 0; font-size: 1.25rem; }

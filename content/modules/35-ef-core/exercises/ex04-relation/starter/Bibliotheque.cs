@@ -1,3 +1,7 @@
+#:property PublishAot=false
+#:package Microsoft.EntityFrameworkCore@10.0.11
+#:package Microsoft.EntityFrameworkCore.Sqlite@10.0.11
+
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Sqlite;

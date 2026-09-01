@@ -1,6 +1,11 @@
 id: ex00-pairs-doubles
 title: "Pairs doublés"
 objective: "Filtrer (Where) et projeter (Select) avec LINQ."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Pairs doublés d'Asteria."
 deliverables: [PairsDoubles.cs]
 starter: [PairsDoubles.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "100\n"
         expect_stdout: "200\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: [".Where(", ".Select("]
 feedback:
   hints:
     - when: io_mismatch

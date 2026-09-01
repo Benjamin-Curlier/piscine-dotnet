@@ -65,20 +65,21 @@ jobs:
       - name: Build
         run: dotnet build Piscine.slnx --configuration Release --no-restore
 
-      # COV-3 : collecte la couverture (coverlet, deja reference par les projets de test) pour la
+      # COV-3 : collecte la couverture (extension MTP Microsoft, référencée par les projets de test) pour la
       # rendre VISIBLE. Pas de seuil bloquant (coherent avec l'ethos "jamais de note" + les projets
       # hote/CLI hors instrumentation) : visibilite, pas barriere.
       - name: Test (avec couverture)
         run: >-
-          dotnet test Piscine.slnx --configuration Release --no-build --verbosity normal
-          --collect:"XPlat Code Coverage" --results-directory artifacts/coverage
+          dotnet test --solution Piscine.slnx --configuration Release --no-build --verbosity normal
+          --coverage --coverage-output-format cobertura
+          --results-directory artifacts/coverage
 
       - name: Résumé de couverture (job summary, sans seuil)
         if: always()
         run: |
           set -euo pipefail
           dotnet tool install dotnet-reportgenerator-globaltool --tool-path .tools
-          .tools/reportgenerator -reports:"artifacts/coverage/**/coverage.cobertura.xml" \
+          .tools/reportgenerator -reports:"artifacts/coverage/**/*.cobertura.xml" \
             -targetdir:artifacts/coverage/report -reporttypes:MarkdownSummaryGithub
           cat artifacts/coverage/report/SummaryGithub.md >> "$GITHUB_STEP_SUMMARY"
 
@@ -153,7 +154,7 @@ jobs:
       # Fait tourner UNIQUEMENT les E2E DevHost (le reste de la suite passe deja dans build-test). Les
       # tests resolvent eux-memes le contenu reel via PISCINE_CONTENT (racine du depot) par sous-processus.
       - name: E2E (DevHost, Playwright)
-        run: dotnet test tests/Piscine.DevHost.E2E/Piscine.DevHost.E2E.csproj --no-build --verbosity normal
+        run: dotnet test --project tests/Piscine.DevHost.E2E/Piscine.DevHost.E2E.csproj --no-build --verbosity normal
 
   # Dry-run AppImage Linux (online) : garde de packaging — construit l'AppImage online et verifie
   # qu'elle est bien produite. NE TOURNE QUE si le packaging change (CI-1). L'AppImage OFFLINE

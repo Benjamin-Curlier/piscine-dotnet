@@ -1,6 +1,11 @@
 id: ex02-boite
 title: "Une boîte générique"
 objective: "Écrire une classe générique Boite<T> et l'utiliser avec plusieurs types."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,functional]
+story_beat: "Sécuriser la capacité Une boîte générique d'Asteria."
 deliverables: [Boite.cs]
 starter: [Boite.cs]
 grading:
@@ -23,6 +28,9 @@ grading:
       - stdin: "un mot\n1234\n"
         expect_stdout: "Boite contient: un mot\nBoite contient: 1234\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class Boite<T>"]
 feedback:
   hints:
     - when: io_mismatch

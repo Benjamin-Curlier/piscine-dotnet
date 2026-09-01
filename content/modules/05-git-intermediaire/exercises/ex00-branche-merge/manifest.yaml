@@ -1,7 +1,11 @@
 id: ex00-branche-merge
 title: "Branche et fusion"
 objective: "Créer une branche, y faire un commit, puis la fusionner dans main. La moulinette inspecte l'état de ton dépôt git (pas de fichier à rendre : c'est l'historique qui est noté)."
-difficulty: moyen
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [git,collaboration]
+story_beat: "Sécuriser la capacité Branche et fusion d'Asteria."
 deliverables: []
 starter: []
 grading:

@@ -2,6 +2,10 @@ id: ex03-somme-parallele-carres
 title: "Somme des carrés en parallèle"
 objective: "Sommer les carrés 1..N en parallèle (Parallel.For) avec accumulation atomique (Interlocked), résultat déterministe."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [concurrency,csharp]
+story_beat: "Sécuriser la capacité Somme des carrés en parallèle d'Asteria."
 bonus: true
 deliverables: [SommeParallele.cs]
 starter: [SommeParallele.cs]
@@ -24,6 +28,9 @@ grading:
       - stdin: "10\n"
         expect_stdout: "385\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Parallel.For", "Interlocked.Add"]
 feedback:
   hints:
     - when: io_mismatch

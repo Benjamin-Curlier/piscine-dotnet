@@ -148,8 +148,14 @@ public sealed class TryCommand
         var exitLineCount = 0;
         foreach (var line in lines)
         {
-            if (Regex.IsMatch(line, @"^\s*expect_stdout:\s")) stdoutLineCount++;
-            else if (Regex.IsMatch(line, @"^\s*expect_exit:\s")) exitLineCount++;
+            if (Regex.IsMatch(line, @"^\s*expect_stdout:\s"))
+            {
+                stdoutLineCount++;
+            }
+            else if (Regex.IsMatch(line, @"^\s*expect_exit:\s"))
+            {
+                exitLineCount++;
+            }
         }
 
         if (stdoutLineCount != computed.Count)

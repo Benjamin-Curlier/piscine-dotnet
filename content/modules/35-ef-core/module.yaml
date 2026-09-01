@@ -1,6 +1,9 @@
 id: 35-ef-core
 title: "Entity Framework Core (SQLite in-memory)"
 order: 35
+prerequisites: [11-linq, 18-injection-dependances]
+arc: "Acte V — Frontières et interfaces"
+mission: "Persister le catalogue opérationnel et interroger ses données de façon testable."
 course: cours.md
 groups:
   - id: ef-core

@@ -2,6 +2,10 @@ id: ex01-ports-adaptateurs
 title: "Bibliothèque : deux ports, deux adaptateurs"
 objective: "Étendre la règle de dépendance à DEUX ports (persistance + notification) : l'application ne dépend que des abstractions, la composition root câble les deux implémentations concrètes."
 difficulty: difficile
+estimated_minutes: 120
+xp: 240
+tags: [architecture,capstone]
+story_beat: "Sécuriser la capacité Bibliothèque : deux ports, deux adaptateurs d'Asteria."
 deliverables: [Domain/Livre.cs, Domain/IDepotLivres.cs, Domain/INotificateur.cs, Application/Bibliotheque.cs, Infrastructure/DepotMemoire.cs, Infrastructure/NotificateurConsole.cs, Program.cs]
 starter: [Domain/Livre.cs, Domain/IDepotLivres.cs, Domain/INotificateur.cs, Application/Bibliotheque.cs, Infrastructure/DepotMemoire.cs, Infrastructure/NotificateurConsole.cs, Program.cs]
 grading:

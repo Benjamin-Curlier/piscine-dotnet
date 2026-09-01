@@ -1,0 +1,23 @@
+id: ex01-options-validees
+title: "Valider la configuration au démarrage"
+objective: "Lier une section de configuration à des options typées et refuser un démarrage incohérent."
+difficulty: moyen
+estimated_minutes: 60
+xp: 110
+tags: [configuration, options, hosting]
+story_beat: "Empêcher un poste Asteria mal configuré d'entrer en service."
+deliverables: [OptionsSetup.cs]
+starter: [OptionsSetup.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: OptionsSetup.cs
+          required_fragments: ["sealed class StationOptions", "const string SectionName", "required string StationId", "AddOptions<StationOptions>", "GetSection(StationOptions.SectionName)", "ValidateDataAnnotations()", "ValidateOnStart()"]
+          forbidden_fragments: ["Environment.GetEnvironmentVariable", "password =", "Password ="]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Déclare StationOptions, lie sa section avec AddOptions/Bind, active la validation puis ValidateOnStart."
+  course_ref: "cours.md#options"
+solution: [OptionsSetup.cs]

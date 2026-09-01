@@ -9,7 +9,7 @@ voir le dossier **[`docs/contributing/`](docs/contributing/)**.
 1. **Forke** le dépôt sur ton compte, puis clone ton fork.
 2. Crée une **branche** dédiée depuis `main`, nommée selon le changement :
    `feat/…`, `fix/…`, `docs/…` ou `chore/…`.
-3. Développe, en gardant `dotnet build Piscine.slnx` et `dotnet test Piscine.slnx` au vert
+3. Développe, en gardant `dotnet build Piscine.slnx` et `dotnet test --solution Piscine.slnx` au vert
    en local (aucun avertissement d'analyseur : `TreatWarningsAsErrors` est activé ;
    `dotnet format` doit être propre).
 4. Ouvre une **pull request** vers `main` et remplis le modèle de PR.

@@ -1,0 +1,27 @@
+id: ex01-secrets-configuration
+title: "Séparer configuration et secrets"
+objective: "Préparer un dépôt qui décrit ses paramètres sans versionner les valeurs sensibles."
+difficulty: facile
+estimated_minutes: 35
+xp: 70
+tags: [security, configuration, secrets]
+story_beat: "Retirer les clés sensibles des plans partagés d'Asteria."
+deliverables: [appsettings.json, .gitignore, SECRETS.md]
+starter: [appsettings.json, .gitignore, SECRETS.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: appsettings.json
+          required_fragments: ["Identity", "Authority", "Audience", "Asteria.Api"]
+          forbidden_fragments: ["Password", "ClientSecret", "ApiKey", "BEGIN CERTIFICATE", "localhost"]
+        - path: .gitignore
+          required_fragments: [".env", "*.pfx", "secrets/"]
+        - path: SECRETS.md
+          required_fragments: ["dotnet user-secrets", "variable d'environnement", "coffre", "rotation", "ne jamais journaliser"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Conserve Authority/Audience non sensibles dans appsettings, ignore les fichiers sensibles et documente injection/rotation sans valeur réelle."
+  course_ref: "cours.md#secrets"
+solution: [appsettings.json, .gitignore, SECRETS.md]

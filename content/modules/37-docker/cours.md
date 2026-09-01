@@ -1,9 +1,8 @@
 # Module 37 — Docker & conteneurisation (.NET 10)
 
-> **Module de lecture.** Pas d'exercices auto-corrigés : construire et lancer une image dépend de
-> l'installation de Docker sur **ta** machine (et de l'accès réseau à des registres), ce qui n'est ni
-> déterministe ni portable pour la moulinette. Lis ce module, puis **expérimente en local** avec les
-> commandes ci-dessous.
+> La moulinette inspecte désormais un `Dockerfile` et un `.dockerignore` sans télécharger ni lancer
+> d'image. La construction réelle dépend toujours de Docker et de l'accès aux registres : elle reste
+> un atelier local à exécuter après ces exercices déterministes.
 
 Jusqu'ici tu livrais un exécutable. Mais « ça marche sur ma machine » ne suffit pas : il faut la
 **même version du runtime**, les **mêmes dépendances**, la **même configuration** partout. Un

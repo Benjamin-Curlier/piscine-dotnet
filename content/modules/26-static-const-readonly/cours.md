@@ -4,46 +4,7 @@ En C#, plusieurs mécanismes permettent d'**empêcher la modification** d'une va
 initialisation. Ce module présente `const`, les membres `static`, les champs `readonly`,
 les `record` et les `readonly struct`.
 
-## 1. `const` — constante de compilation {#const}
-
-Une **constante de compilation** est une valeur fixée au moment de la *compilation* : le
-compilateur remplace chaque utilisation de la constante par sa valeur littérale.
-
-```csharp
-const int Facteur = 10;
-const string Salutation = "Bonjour";
-```
-
-Règles importantes :
-
-- Déclarée avec `const`, elle est **implicitement statique** (pas besoin d'écrire `static`).
-- Elle ne peut contenir que des types primitifs (`int`, `double`, `string`, `bool`…).
-- Sa valeur doit être connue **avant l'exécution** (pas d'appel de méthode, pas de `new`).
-- Elle ne peut jamais être modifiée après sa déclaration.
-
-```csharp
-const int Max = 100;
-// Max = 200;  // erreur de compilation
-```
-
-### `const` vs `static readonly`
-
-| | `const` | `static readonly` |
-|---|---|---|
-| Moment d'affectation | compilation | exécution (constructeur statique ou initialisation) |
-| Types autorisés | primitifs + `string` | n'importe quel type |
-| Modifiable après | non | non |
-| Implicitement statique | oui | non (faut écrire `static`) |
-
-Utilisez `static readonly` quand la valeur est calculée ou provient d'un type complexe :
-
-```csharp
-static readonly System.DateTime Debut = System.DateTime.Now;
-```
-
----
-
-## 2. Membres `static` — partagés par le type {#static}
+## 1. Membres `static` — partagés par le type {#static}
 
 Un membre `static` appartient à la **classe entière**, pas à une instance particulière.
 Toutes les instances partagent la même valeur.
@@ -83,7 +44,7 @@ System.Console.WriteLine(MathUtils.Carre(5));   // 25
 
 ---
 
-## 3. `readonly` — champ assigné une seule fois {#readonly}
+## 2. `readonly` — champ assigné une seule fois {#readonly}
 
 Un champ `readonly` peut être affecté uniquement lors de sa **déclaration** ou dans un
 **constructeur**. Après cela, il ne peut plus changer.
@@ -104,6 +65,48 @@ class Cercle
 
 Différence avec `const` : `readonly` peut contenir n'importe quel type, et sa valeur peut
 être calculée à l'exécution (par exemple lue depuis la configuration).
+
+Un champ peut combiner les deux notions déjà vues : `static readonly` désigne une valeur unique,
+partagée par le type, mais calculée au démarrage :
+
+```csharp
+static readonly System.DateTime Debut = System.DateTime.Now;
+```
+
+---
+
+## 3. `const` — constante de compilation {#const}
+
+Une **constante de compilation** est une valeur fixée au moment de la *compilation* : le
+compilateur remplace chaque utilisation de la constante par sa valeur littérale.
+
+```csharp
+const int Facteur = 10;
+const string Salutation = "Bonjour";
+```
+
+Règles importantes :
+
+- Déclarée avec `const`, elle est **implicitement statique** : le mot-clé `static` est inutile.
+- Elle ne peut contenir que des types primitifs (`int`, `double`, `string`, `bool`…).
+- Sa valeur doit être connue **avant l'exécution** (pas d'appel de méthode, pas de `new`).
+- Elle ne peut jamais être modifiée après sa déclaration.
+
+```csharp
+const int Max = 100;
+// Max = 200;  // erreur de compilation
+```
+
+### `const` vs `static readonly`
+
+| | `const` | `static readonly` |
+|---|---|---|
+| Moment d'affectation | compilation | exécution (constructeur statique ou initialisation) |
+| Types autorisés | primitifs + `string` | n'importe quel type |
+| Modifiable après | non | non |
+| Relation avec `static` | implicitement statique | `static` doit être indiqué explicitement |
+
+Choisis `static readonly` quand la valeur est calculée à l'exécution ou provient d'un type complexe.
 
 ---
 

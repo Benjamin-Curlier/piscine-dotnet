@@ -2,6 +2,10 @@ id: ex04-command
 title: "Command — actions réifiées & undo"
 objective: "Encapsuler des actions en objets pour pouvoir les exécuter, les empiler et les annuler."
 difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Command — actions réifiées & undo d'Asteria."
 bonus: true
 deliverables: [Commande.cs]
 starter: [Commande.cs]
@@ -29,9 +33,14 @@ grading:
       - stdin: "undo\nadd 7\n"
         expect_stdout: "7\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["interface ICommande", "Annuler("]
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Chaque commande implémente Executer et Annuler. À l'exécution, empile la commande ; sur 'undo', dépile et appelle Annuler. 'undo' sur une pile vide ne fait rien. Affiche la valeur finale."
+      - when: io_mismatch
+        message: "Chaque commande implémente Executer et Annuler. À l'exécution, empile la commande ; sur 'undo', dépile et appelle Annuler. 'undo' sur une pile vide ne fait rien. Affiche la valeur finale."
+      - when: compile_error
+        message: "ICommande déclare Executer et Annuler avec les mêmes signatures ; l'historique est une pile d'ICommande."
   course_ref: "cours.md#command"
 solution: [Commande.cs]

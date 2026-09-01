@@ -31,7 +31,8 @@ somme des carres = 29
 
 ## Indications
 
-- Stocke les tâches dans une `List<Task<int>>`, puis `int[] carres = await Task.WhenAll(taches);`.
+- Stocke les tâches dans une `List<Task<int>>`, attends leur achèvement groupé, puis additionne le
+  tableau de résultats.
 - `Task.WhenAll` renvoie les résultats **dans l'ordre des tâches** ; mais comme on fait juste une
   somme, l'ordre n'a de toute façon pas d'importance — d'où le déterminisme.
 - Une méthode `async Task<int>` peut faire `await Task.Yield();` pour être réellement asynchrone

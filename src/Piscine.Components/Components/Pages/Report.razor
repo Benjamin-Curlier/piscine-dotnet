@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @namespace Piscine.Components.Components.Pages
 @using System.Linq
+@using Piscine.App.Board
 @using Piscine.App.Git
 @using Piscine.App.Progress
 @using Piscine.App.Push
@@ -9,6 +10,7 @@
 @using Piscine.Components.Components.Progress
 @using Piscine.Components.Services
 @using Piscine.Core
+@using Piscine.Core.Content
 @implements IAsyncDisposable
 @inject CourseCatalog Catalog
 @inject ProgressService Progress
@@ -66,6 +68,31 @@
             <div class="metric" data-testid="report-arevoir"><span class="metric-label">À revoir</span><span class="metric-value">@_model.ARevoir</span></div>
             <div class="metric" data-testid="report-restant"><span class="metric-label">Restant</span><span class="metric-value">@_model.Restant</span></div>
         </div>
+    </section>
+
+    <section class="report-rushes" data-testid="report-rushes">
+        <div class="report-section-heading">
+            <div>
+                <h2>Missions de synthèse</h2>
+                <p>Comptées séparément des @_model.Total exercices de modules.</p>
+            </div>
+            <a class="report-no-print" href="/rushes">Feuille de route</a>
+        </div>
+        <div class="board-metrics report-rush-metrics">
+            <div class="metric metric-accent"><span class="metric-label">Rush validés</span><span class="metric-value">@_rushCounts.Fait/@_rushCounts.Total</span></div>
+            <div class="metric"><span class="metric-label">En cours</span><span class="metric-value">@_rushCounts.EnCours</span></div>
+            <div class="metric"><span class="metric-label">À revoir</span><span class="metric-value">@_rushCounts.ARevoir</span></div>
+            <div class="metric"><span class="metric-label">Restant</span><span class="metric-value">@_rushCounts.Restant</span></div>
+        </div>
+        <ul class="report-rush-list">
+            @foreach (var rush in _model.Rushes)
+            {
+                <li data-testid="report-rush-row">
+                    <a href="/rush/@rush.Id">@rush.Title</a>
+                    <StatusBadge Status="rush.Status" />
+                </li>
+            }
+        </ul>
     </section>
 
     <section class="report-modules">
@@ -132,6 +159,7 @@
     private ReportModel _model = Empty();
     private IJSObjectReference? _module;
     private bool _copied;
+    private BoardCounts _rushCounts = BoardCounts.From([]);
 
     protected override void OnInitialized()
     {
@@ -160,10 +188,19 @@
             .ToList();
 
         var status = new Dictionary<(string, string), ExerciseProgressStatus>();
-        foreach (var info in Progress.SnapshotFor(exercises.Select(e => (e.ModuleId, e.ExerciseId))))
+        var rushes = Catalog.Rushes
+            .Select(rush => new ReportRushHeader(ContentLocator.RushesModuleId, rush.Id, rush.Title))
+            .ToList();
+        var targets = exercises.Select(exercise => (exercise.ModuleId, exercise.ExerciseId))
+            .Concat(rushes.Select(rush => (rush.ModuleId, rush.Id)));
+        foreach (var info in Progress.SnapshotFor(targets))
         {
             status[(info.ModuleId, info.ExerciseId)] = info.Status;
         }
+
+        _rushCounts = BoardCounts.From(rushes
+            .Select(rush => status.GetValueOrDefault((rush.ModuleId, rush.Id), ExerciseProgressStatus.NonCommence))
+            .ToList());
 
         var headers = Catalog.Modules
             .Where(m => m.HasExercises)
@@ -172,7 +209,7 @@
 
         var repo = Git.Read(Layout.WorkspaceRoot);
 
-        return ReportBuilder.Build(repo, DateTimeOffset.Now, headers, exercises, status, Pushes.LatestResult());
+        return ReportBuilder.Build(repo, DateTimeOffset.Now, headers, exercises, status, Pushes.LatestResult(), rushes);
     }
 
     private async Task<IJSObjectReference> ModuleAsync()
@@ -198,7 +235,7 @@
     }
 
     private static ReportModel Empty() => new(
-        null, null, null, DateTimeOffset.Now, 0, 0, 0, 0, 0, 0, [], []);
+        null, null, null, DateTimeOffset.Now, 0, 0, 0, 0, 0, 0, [], [], []);
 
     public async ValueTask DisposeAsync()
     {

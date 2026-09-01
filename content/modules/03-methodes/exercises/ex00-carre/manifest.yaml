@@ -1,6 +1,11 @@
 id: ex00-carre
 title: "Carré"
 objective: "Écrire une méthode qui renvoie le carré d'un entier lu sur l'entrée standard."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,design]
+story_beat: "Sécuriser la capacité Carré d'Asteria."
 deliverables: [Carre.cs]
 starter: [Carre.cs]
 grading:

@@ -2,6 +2,10 @@ id: ex04-relation
 title: "Relation 1-N & Include"
 objective: "Modéliser une relation un-à-plusieurs et charger les entités liées (Include)."
 difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [data,ef-core]
+story_beat: "Sécuriser la capacité Relation 1-N & Include d'Asteria."
 bonus: true
 deliverables: [Bibliotheque.cs]
 starter: [Bibliotheque.cs]
@@ -22,9 +26,14 @@ grading:
       - stdin: "3\nDumas Monte-Cristo\nDumas Mousquetaires\nDumas Tulipe\n"
         expect_stdout: "Dumas: Monte-Cristo, Mousquetaires, Tulipe\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["DbContext", ".Include("]
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Auteur a une List<Livre> ; Livre a AuteurId + Auteur. Réutilise l'auteur déjà créé (dictionnaire). Charge avec db.Auteurs.Include(a => a.Livres).OrderBy(a => a.Nom) et trie aussi les titres. Affiche 'auteur: titre1, titre2'."
+      - when: io_mismatch
+        message: "Auteur a une List<Livre> ; Livre a AuteurId + Auteur. Réutilise l'auteur déjà créé (dictionnaire). Charge avec db.Auteurs.Include(a => a.Livres).OrderBy(a => a.Nom) et trie aussi les titres. Affiche 'auteur: titre1, titre2'."
+      - when: compile_error
+        message: "Les navigations sont réciproques : Auteur expose une collection de Livre, et Livre une clé AuteurId ainsi qu'une propriété Auteur initialisée."
   course_ref: "cours.md#relations"
 solution: [Bibliotheque.cs]

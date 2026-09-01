@@ -16,6 +16,9 @@ public sealed record ReportExercise(string ModuleId, string ExerciseId, bool Bon
 /// <summary>En-tête d'un module pour le rapport (numéro affiché + titre).</summary>
 public sealed record ReportModuleHeader(string ModuleId, string Number, string Title);
 
+/// <summary>En-tête d'une mission de synthèse pour le rapport.</summary>
+public sealed record ReportRushHeader(string ModuleId, string Id, string Title);
+
 /// <summary>
 /// Composeur <b>pur</b> du <see cref="ReportModel"/> : assemble identité git, avancement global,
 /// lignes par module et historique de push à partir de données déjà lues (aucun I/O ici). La page
@@ -29,7 +32,8 @@ public static class ReportBuilder
         IReadOnlyList<ReportModuleHeader> modules,
         IReadOnlyList<ReportExercise> exercises,
         IReadOnlyDictionary<(string ModuleId, string ExerciseId), ExerciseProgressStatus> statuses,
-        PushResult? recent)
+        PushResult? recent,
+        IReadOnlyList<ReportRushHeader>? rushes = null)
     {
         ArgumentNullException.ThrowIfNull(modules);
         ArgumentNullException.ThrowIfNull(exercises);
@@ -101,6 +105,15 @@ public static class ReportBuilder
             .ToList()
             ?? [];
 
+        var rushRows = (rushes ?? [])
+            .Select(rush => new ReportRushRow(
+                rush.Id,
+                rush.Title,
+                statuses.GetValueOrDefault(
+                    (rush.ModuleId, rush.Id),
+                    ExerciseProgressStatus.NonCommence)))
+            .ToList();
+
         return new ReportModel(
             repo.UserName,
             repo.UserEmail,
@@ -113,6 +126,7 @@ public static class ReportBuilder
             counts.Restant,
             counts.Total,
             rows,
-            pushes);
+            pushes,
+            rushRows);
     }
 }

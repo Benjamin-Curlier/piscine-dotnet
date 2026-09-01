@@ -1,0 +1,5 @@
+stages:
+  - build
+  - test
+
+# TODO: jobs bloquants

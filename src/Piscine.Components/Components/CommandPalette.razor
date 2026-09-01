@@ -15,12 +15,12 @@
             <div class="cmdk-search">
                 <span class="cmdk-search-icon" aria-hidden="true">⌕</span>
                 <input @ref="_inputRef" class="cmdk-input" type="text" data-testid="command-palette-input"
-                       role="combobox" aria-label="Rechercher un module, un exercice, une action"
+                       role="combobox" aria-label="Rechercher un module, un exercice, un Rush ou une action"
                        aria-autocomplete="list"
                        aria-expanded="@(_results.Count > 0 ? "true" : "false")"
                        aria-controls="@ListboxId"
                        aria-activedescendant="@ActiveOptionId"
-                       placeholder="Rechercher un module, un exercice, une action…"
+                       placeholder="Rechercher un module, un exercice, un Rush ou une action…"
                        autocomplete="off" spellcheck="false"
                        value="@_query" @oninput="OnInput" />
                 <kbd class="cmdk-hint">Échap</kbd>
@@ -32,7 +32,7 @@
             }
             else
             {
-                <ul class="cmdk-results" data-testid="command-palette-results"
+                <ul class="cmdk-results" data-testid="command-palette-results" data-query="@_query"
                     id="@ListboxDomId" role="listbox" aria-label="Résultats">
                     @for (var i = 0; i < _results.Count; i++)
                     {
@@ -258,6 +258,7 @@
         SearchKind.Action => "⚡",
         SearchKind.Module => "▤",
         SearchKind.Exercise => "◆",
+        SearchKind.Rush => "★",
         _ => "¶",
     };
 

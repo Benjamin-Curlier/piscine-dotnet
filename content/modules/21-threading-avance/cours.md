@@ -104,17 +104,17 @@ sans `lock` manuel.
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
-var channel = System.Threading.Channels.Channel.CreateUnbounded<int>();
+var flux = System.Threading.Channels.Channel.CreateUnbounded<int>();
 
 // Producteur : écrit puis signale la fin
-await channel.Writer.WriteAsync(2);
-await channel.Writer.WriteAsync(3);
-channel.Writer.Complete();
+await flux.Writer.WriteAsync(2);
+await flux.Writer.WriteAsync(3);
+flux.Writer.Complete();
 
 // Consommateur : lit dans l'ordre d'écriture (FIFO), s'arrête à la complétion
-await foreach (var x in channel.Reader.ReadAllAsync())
+await foreach (var message in flux.Reader.ReadAllAsync())
 {
-    System.Console.WriteLine(x * 2);   // 4, puis 6
+    System.Console.WriteLine(message * 2); // 4, puis 6
 }
 ```
 

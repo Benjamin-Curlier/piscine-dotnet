@@ -1,6 +1,11 @@
 id: ex00-resolution
 title: "Résolution d'un service"
 objective: "Enregistrer IGreeter→Greeter en singleton, construire le provider, résoudre et appeler le service."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,architecture]
+story_beat: "Sécuriser la capacité Résolution d'un service d'Asteria."
 deliverables: [Resolution.cs]
 starter: [Resolution.cs]
 grading:
@@ -25,6 +30,9 @@ grading:
       - stdin: "A B\n"
         expect_stdout: "Bonjour, A B!\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["ServiceCollection", "AddSingleton"]
 feedback:
   hints:
     - when: io_mismatch

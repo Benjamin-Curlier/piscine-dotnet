@@ -18,7 +18,7 @@ public sealed class SmokeTests : IAsyncLifetime
 
     private Process? _host;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -35,7 +35,7 @@ public sealed class SmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(60));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -43,7 +43,7 @@ public sealed class SmokeTests : IAsyncLifetime
             catch { /* le processus a déjà rendu l'âme */ }
         }
         _host?.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -58,9 +58,7 @@ public sealed class SmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Navigateur non installé (ex. CI sans `playwright install chromium`) : on saute
-            // proprement (sortie sans assertion) pour ne pas casser la run solution.
-            // xUnit 2.x n'a pas d'API Assert.Skip ; le retour anticipé fait office de skip.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
             return;
         }
 
@@ -68,6 +66,7 @@ public sealed class SmokeTests : IAsyncLifetime
         {
             var page = await browser.NewPageAsync();
             await page.GotoAsync($"{BaseUrl}/cours", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
 
             // Le catalogue de cours expose la grille de modules + un titre.
             await page.WaitForSelectorAsync("[data-testid='module-grid']", new PageWaitForSelectorOptions { Timeout = 30_000 });

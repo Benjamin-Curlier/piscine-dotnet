@@ -1,0 +1,30 @@
+id: ex02-ack-redelivery
+title: "Accuser après traitement"
+objective: "Décider ACK, NAK et ACK de doublon lors de redélivrances JetStream simulées."
+difficulty: moyen
+estimated_minutes: 55
+xp: 110
+tags: [nats, jetstream, reliability]
+story_beat: "Garantir que chaque ordre durable d'Asteria produit un seul effet métier."
+deliverables: [Ack.cs]
+starter: [Ack.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "6\n10 5 FAIL\n10 5 OK\n11 7 OK\n10 5 OK\n12 3 FAIL\n12 3 OK\n"
+        expect_stdout: "NAK 10\nACK 10\nACK 11\nACK_DUPLICATE 10\nNAK 12\nACK 12\nTOTAL 15\n"
+        expect_exit: 0
+      - stdin: "3\n1 9 OK\n2 4 FAIL\n2 4 FAIL\n"
+        expect_stdout: "ACK 1\nNAK 2\nNAK 2\nTOTAL 9\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["HashSet<int>", "outcome == \"OK\""]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "FAIL produit NAK sans mémoriser l'effet. Au premier OK, applique et ACK ; un OK déjà appliqué produit ACK_DUPLICATE sans modifier le total."
+    - when: source_constraint
+      message: "Conserve les séquences dont l'effet métier a réellement réussi, pas celles simplement reçues."
+  course_ref: "cours.md#jetstream"
+solution: [Ack.cs]

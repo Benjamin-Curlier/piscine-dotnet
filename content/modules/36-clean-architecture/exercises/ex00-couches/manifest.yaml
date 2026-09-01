@@ -1,7 +1,11 @@
 id: ex00-couches
 title: "Gestionnaire de tâches en couches"
 objective: "Structurer une petite application en couches (Domain / Application / Infrastructure) en respectant la règle de dépendance, et la câbler depuis une composition root."
-difficulty: difficile
+difficulty: moyen
+estimated_minutes: 75
+xp: 150
+tags: [architecture,capstone]
+story_beat: "Sécuriser la capacité Gestionnaire de tâches en couches d'Asteria."
 deliverables: [Domain/Tache.cs, Domain/IDepotTaches.cs, Application/GestionTaches.cs, Infrastructure/DepotMemoire.cs, Program.cs]
 starter: [Domain/Tache.cs, Domain/IDepotTaches.cs, Application/GestionTaches.cs, Infrastructure/DepotMemoire.cs, Program.cs]
 grading:

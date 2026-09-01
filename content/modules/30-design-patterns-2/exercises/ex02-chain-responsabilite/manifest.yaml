@@ -1,0 +1,33 @@
+id: ex02-chain-responsabilite
+title: "Chain of Responsibility — pipeline de validation"
+objective: "Faire traverser une requête par des handlers indépendants jusqu'à acceptation ou refus."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [patterns, architecture, validation]
+story_beat: "Installer la chaîne de contrôle qui protège les commandes sensibles d'Asteria."
+deliverables: [Validation.cs]
+starter: [Validation.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\nvisiteur 20\noperateur 20\noperateur 150\nadmin 150\nadmin 0\n"
+        expect_stdout: "REFUS authentification\nACCEPTE\nREFUS limite\nACCEPTE\nREFUS montant\n"
+        expect_exit: 0
+      - stdin: "4\nADMIN 101\nOPERATEUR 100\ninconnu 100\nadmin -2\n"
+        expect_stdout: "ACCEPTE\nACCEPTE\nREFUS authentification\nREFUS montant\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract class Handler", "SetNext(", "Handle("]
+      required_occurrences:
+        - fragment: "override string Handle("
+          count: 3
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Fais passer chaque requête dans cet ordre : authentification, montant positif, limite opérateur, puis exécution."
+    - when: source_constraint
+      message: "Modélise un Handler abstrait qui conserve le suivant ; SetNext construit la chaîne et Handle délègue quand le handler courant accepte."
+  course_ref: "cours.md#chain-of-responsibility"
+solution: [Validation.cs]

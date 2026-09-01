@@ -1,6 +1,11 @@
 id: ex01-parite
 title: "Parité"
 objective: "Déterminer si un entier lu sur l'entrée standard est pair ou impair."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,fundamentals]
+story_beat: "Sécuriser la capacité Parité d'Asteria."
 deliverables: [Parite.cs]
 starter: [Parite.cs]
 grading:

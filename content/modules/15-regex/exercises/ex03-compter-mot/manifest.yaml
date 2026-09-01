@@ -1,7 +1,11 @@
 id: ex03-compter-mot
 title: "Compter un mot entier"
 objective: "Compter les occurrences d'un mot entier (limites \\b) et sans casse via Regex."
-difficulty: difficile
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,text]
+story_beat: "Sécuriser la capacité Compter un mot entier d'Asteria."
 bonus: true
 deliverables: [CompterMot.cs]
 starter: [CompterMot.cs]
@@ -26,6 +30,9 @@ grading:
       - stdin: "et\net puis et encore et\n"
         expect_stdout: "3\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Regex.Matches"]
 feedback:
   hints:
     - when: io_mismatch

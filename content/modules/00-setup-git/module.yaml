@@ -1,6 +1,8 @@
 id: 00-setup-git
 title: "Mise en place & premiers pas Git"
 order: 0
+arc: "Acte I — Prise de quart"
+mission: "Prendre le quart, initialiser le poste isolé et transmettre son premier signal versionné."
 course: cours.md
 groups:
   - id: premiers-pas

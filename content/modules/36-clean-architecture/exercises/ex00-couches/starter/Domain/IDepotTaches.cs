@@ -1,3 +1,5 @@
+#:include .\Tache.cs
+
 using System.Collections.Generic;
 
 namespace Domain;

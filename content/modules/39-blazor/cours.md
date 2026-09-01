@@ -1,9 +1,8 @@
 # Module 39 — Blazor (interfaces web en C#)
 
-> **Module de lecture.** Pas d'exercices auto-corrigés : une appli Blazor est un **site web**
-> (serveur HTTP + rendu HTML/DOM dans un navigateur). Sa sortie n'est pas un `stdout` comparable au
-> caractère près, et la corriger demanderait un navigateur *headless* — ni déterministe ni portable
-> pour la moulinette console. Lis ce module, puis **construis et lance une appli sur ta machine**.
+> La moulinette inspecte désormais la structure de petits composants `.razor` sans démarrer de
+> navigateur. Le rendu, l'accessibilité et l'interaction réelle doivent encore être vérifiés dans une
+> application Blazor locale avec les outils du navigateur.
 
 Jusqu'ici, tes programmes parlaient à la **console**. Avec **Blazor**, tu écris des **interfaces web**
 (des pages, des boutons, des formulaires) **en C#** au lieu de JavaScript. Tu réutilises tout ce que

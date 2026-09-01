@@ -1,0 +1,23 @@
+id: ex00-directory-build-props
+title: "Centraliser la politique de build"
+objective: "Écrire un Directory.Build.props qui impose une base .NET 10 homogène et exigeante."
+difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [msbuild, quality, nullable]
+story_beat: "Aligner tous les composants Asteria sur la même politique de compilation."
+deliverables: [Directory.Build.props]
+starter: [Directory.Build.props]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Directory.Build.props
+          required_fragments: ['<Project>', '<TargetFramework>net10.0</TargetFramework>', '<Nullable>enable</Nullable>', '<TreatWarningsAsErrors>true</TreatWarningsAsErrors>', '<AnalysisLevel>latest-recommended</AnalysisLevel>', '<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>']
+          forbidden_fragments: ['<NoWarn>', '<TreatWarningsAsErrors>false']
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Place les propriétés communes dans un PropertyGroup sous Project ; n'éteins ni nullable ni les avertissements."
+  course_ref: "cours.md#build-props"
+solution: [Directory.Build.props]

@@ -1,9 +1,44 @@
 @namespace Piscine.Components.Components.Progress
 @using Piscine.App.Progress
 @using Piscine.Components.Services
+@using Piscine.Core.Content
 @inject CourseCatalog Catalog
 
 <div class="progress-list" data-testid="progress-list">
+    @if (Catalog.Rushes.Count > 0)
+    {
+        <section class="progress-module progress-rushes" data-testid="progress-rushes">
+            <div class="progress-section-head">
+                <div>
+                    <span class="progress-kicker">Missions de synthèse</span>
+                    <h2 class="progress-module-title">Rushes</h2>
+                </div>
+                <a href="/rushes" class="progress-overview-link">Vue d’ensemble</a>
+            </div>
+            <ul class="progress-exo-list">
+                @foreach (var rush in Catalog.Rushes)
+                {
+                    var statusInfo = LookupStatus(ContentLocator.RushesModuleId, rush.Id);
+                    var milestone = Catalog.GetRecommendedModule(rush);
+                    <li class="progress-exo-item" data-testid="progress-rush-item">
+                        <span class="progress-exo-title">@rush.Title</span>
+                        @if (milestone is not null)
+                        {
+                            <span class="progress-milestone">@($"après M{milestone.Number}")</span>
+                        }
+                        <StatusBadge Status="@statusInfo.Status" Source="@statusInfo.Source" />
+                        <a data-testid="rush-subject-link"
+                           href="/rush/@rush.Id"
+                           class="progress-exo-link">Mission</a>
+                        <a data-testid="rush-check-link"
+                           href="/check/@ContentLocator.RushesModuleId/@rush.Id"
+                           class="progress-exo-link">Vérifier</a>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+
     @foreach (var module in Catalog.Modules)
     {
         var moduleExos = module.Groups.SelectMany(g => g.Exercises).ToList();

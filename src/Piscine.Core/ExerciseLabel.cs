@@ -7,7 +7,7 @@ namespace Piscine.Core;
 public static class ExerciseLabel
 {
     /// <summary>Ex. <c>ex00-tri-bulle — facile</c>, ou <c>ex03-x — difficile (bonus)</c>.</summary>
-    public static string Format(string id, string? difficulty, bool bonus)
+    public static string Format(string id, string? difficulty, bool bonus, int estimatedMinutes = 0, int xp = 0)
     {
         var label = id;
         if (!string.IsNullOrWhiteSpace(difficulty))
@@ -18,6 +18,16 @@ public static class ExerciseLabel
         if (bonus)
         {
             label += " (bonus)";
+        }
+
+        if (estimatedMinutes > 0)
+        {
+            label += $" · ≈ {estimatedMinutes} min";
+        }
+
+        if (xp > 0)
+        {
+            label += $" · {xp} XP";
         }
 
         return label;

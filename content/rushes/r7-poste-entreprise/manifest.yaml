@@ -1,0 +1,45 @@
+id: r7-poste-entreprise
+title: "Rush 7 — Poste Asteria d'entreprise"
+objective: "Livrer le contrat complet d'un client lourd réactif relié à une API sécurisée, gRPC, EF Core, NATS et une chaîne CI."
+difficulty: difficile
+estimated_minutes: 240
+xp: 650
+tags: [desktop, distributed, aspnet, grpc, security, database, testing, ci, capstone]
+story_beat: "Mettre Asteria en service comme produit hybride exploitable par une équipe d'entreprise."
+recommended_after: "52-diagnostic-performance"
+manual_validation: true
+deliverables: [Directory.Build.props, DesktopViewModel.cs, Api.cs, commands.proto, CommandStore.cs, IntegrationTests.cs, .gitlab-ci.yml, OPERATIONS.md]
+starter: [Directory.Build.props, DesktopViewModel.cs, Api.cs, commands.proto, CommandStore.cs, IntegrationTests.cs, .gitlab-ci.yml, OPERATIONS.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Directory.Build.props
+          required_fragments: ['<TargetFramework>net10.0</TargetFramework>', '<Nullable>enable</Nullable>', '<TreatWarningsAsErrors>true</TreatWarningsAsErrors>', '<Deterministic>true</Deterministic>']
+        - path: DesktopViewModel.cs
+          required_fragments: ["INotifyPropertyChanged", "ICommandGateway", "IUiDispatcher", "CancellationTokenSource?", "Interlocked.Increment", "await gateway.SubmitAsync", "dispatcher.InvokeAsync", "OperationCanceledException"]
+          forbidden_fragments: [".Result", ".Wait(", "Thread.Sleep", "async void"]
+        - path: Api.cs
+          required_fragments: ["AddProblemDetails", "AddOpenApi", "AddAuthentication", "AddAuthorization", "MapPost(\"/commands\"", "Idempotency-Key", "CancellationToken", "Results.Accepted", "RequireAuthorization(\"send-command\")"]
+          forbidden_fragments: ["AllowAnonymous", "localhost", "RequireHttpsMetadata = false"]
+        - path: commands.proto
+          required_fragments: ['syntax = "proto3";', 'package asteria.commands.v1;', 'service CommandEvents', 'returns (stream CommandStatus)', 'reserved']
+        - path: CommandStore.cs
+          required_fragments: ["IdempotencyKey", "IsUnique = true", "[ConcurrencyCheck]", "long Version", "OutboxMessage", "BeginTransactionAsync", "SaveChangesAsync(cancellationToken)", "CommitAsync(cancellationToken)"]
+          forbidden_fragments: ["EnsureCreated", "CancellationToken.None"]
+        - path: IntegrationTests.cs
+          required_fragments: ["WebApplicationFactory<Program>", "PostAsJsonAsync", "HttpStatusCode.Accepted", "HttpStatusCode.Unauthorized", "Idempotency-Key", "Assert.Equal(firstId, secondId)"]
+          forbidden_fragments: ["localhost", "Thread.Sleep", "Assert.True(true)"]
+        - path: .gitlab-ci.yml
+          required_fragments: ["dotnet restore", "--locked-mode", "dotnet build", "dotnet test", "dotnet format", "--verify-no-changes", "package --vulnerable", "artifacts:", "when: always"]
+          forbidden_fragments: ["allow_failure: true", "|| true", "latest"]
+        - path: OPERATIONS.md
+          required_fragments: ["## Scénario nominal", "## Poste déconnecté", "## Coupure API", "## Coupure NATS", "## Conflit de données", "## Compatibilité de versions", "## Rollback", "correlationId", "readiness", "redelivery", "aucun double effet", "ancien client"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Commence par les contrats : build commun, proto et route sécurisée. Relie ensuite ViewModel, store/outbox et tests d'idempotence."
+    - when: file_constraint
+      message: "La preuve finale doit couvrir annulation/latest-wins côté poste, transaction/outbox côté données, compatibilité ancien client et scénarios de coupure dans le runbook."
+  course_ref: "subject.md"
+solution: [Directory.Build.props, DesktopViewModel.cs, Api.cs, commands.proto, CommandStore.cs, IntegrationTests.cs, .gitlab-ci.yml, OPERATIONS.md]

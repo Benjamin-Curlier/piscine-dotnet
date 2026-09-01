@@ -2,6 +2,10 @@ id: ex02-point
 title: "Classer un point"
 objective: "Classer un Point (record) selon ses coordonnées avec des property patterns."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,patterns]
+story_beat: "Sécuriser la capacité Classer un point d'Asteria."
 deliverables: [Point.cs]
 starter: [Point.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "0\n-7\n"
         expect_stdout: "axe Y\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["record Point", "switch"]
 feedback:
   hints:
     - when: io_mismatch

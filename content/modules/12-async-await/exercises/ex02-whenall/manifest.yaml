@@ -1,6 +1,11 @@
 id: ex02-whenall
 title: "Carrés en parallèle (WhenAll)"
 objective: "Lancer plusieurs tâches sans les attendre, puis toutes les attendre avec Task.WhenAll."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,async]
+story_beat: "Sécuriser la capacité Carrés en parallèle (WhenAll) d'Asteria."
 deliverables: [WhenAll.cs]
 starter: [WhenAll.cs]
 grading:
@@ -25,9 +30,12 @@ grading:
       - stdin: "1\n11\n"
         expect_stdout: "121\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Task.WhenAll"]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Remplis var tasks = new Task<int>[n]; sans await, puis var resultats = await Task.WhenAll(tasks); et affiche chaque élément dans l'ordre."
+      message: "Crée une collection de Task<int>, démarre toutes les opérations sans await dans la boucle, puis attends le groupe avec Task.WhenAll et affiche le tableau retourné."
   course_ref: "cours.md#whenall"
 solution: [WhenAll.cs]

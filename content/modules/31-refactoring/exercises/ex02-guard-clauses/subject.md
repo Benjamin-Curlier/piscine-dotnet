@@ -22,5 +22,6 @@ Exemples : `20` / `500` → `OUI` ; `16` / `500` → `NON`.
 
 ## Indices
 
-- `if (age < 18) { return false; }` puis les autres exclusions, et `return true;` à la fin.
+- traite chaque motif d'inéligibilité par un retour anticipé, puis accepte à la fin si aucune garde
+  ne s'est déclenchée.
 - Les clauses-gardes réduisent l'indentation et rendent les conditions d'échec explicites.

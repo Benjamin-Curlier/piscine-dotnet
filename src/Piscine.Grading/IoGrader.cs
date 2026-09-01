@@ -39,13 +39,19 @@ public sealed class IoGrader : IGrader
 
             if (run.TimedOut)
             {
-                return GraderResult.Failure(Type, "Votre programme ne s'est pas terminé à temps (boucle infinie ?).")
+                return GraderResult.Failure(
+                        Type,
+                        "Votre programme ne s'est pas terminé à temps (boucle infinie ?).",
+                        $"Entrée du test : {Quote(ioCase.Stdin)}")
                     .WithTrigger(FeedbackTriggers.Timeout);
             }
 
             if (run.Error is not null)
             {
-                return GraderResult.Failure(Type, $"Votre programme a levé une exception : {run.Error.TypeName} — {run.Error.Message}")
+                return GraderResult.Failure(
+                        Type,
+                        $"Votre programme a levé une exception : {run.Error.TypeName} — {run.Error.Message}",
+                        $"Entrée du test : {Quote(ioCase.Stdin)}")
                     .WithTrigger(FeedbackTriggers.RuntimeError);
             }
 
@@ -54,6 +60,7 @@ public sealed class IoGrader : IGrader
                 return GraderResult.Failure(
                     Type,
                     "La sortie ne correspond pas.",
+                    $"Entrée du test : {Quote(ioCase.Stdin)}",
                     $"Attendu : {Quote(ioCase.ExpectStdout)}",
                     $"Obtenu  : {Quote(run.Stdout)}").WithTrigger(FeedbackTriggers.IoMismatch);
             }
@@ -62,6 +69,7 @@ public sealed class IoGrader : IGrader
             {
                 return GraderResult.Failure(
                     Type,
+                    $"Entrée du test : {Quote(ioCase.Stdin)}",
                     $"Code de sortie inattendu : attendu {ioCase.ExpectExit}, obtenu {run.ExitCode}.")
                     .WithTrigger(FeedbackTriggers.ExitCode);
             }

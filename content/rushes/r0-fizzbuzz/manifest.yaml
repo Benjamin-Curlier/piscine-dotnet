@@ -1,6 +1,12 @@
 id: r0-fizzbuzz
 title: "FizzBuzz"
 objective: "Projet de synthèse : afficher la suite FizzBuzz de 1 à N (boucles, conditions, modulo, I/O)."
+difficulty: facile
+estimated_minutes: 45
+xp: 90
+tags: [csharp,capstone]
+story_beat: "Réactiver la première balise de contrôle d'Asteria."
+recommended_after: "04-tableaux-chaines"
 deliverables: [FizzBuzz.cs]
 starter: [FizzBuzz.cs]
 grading:

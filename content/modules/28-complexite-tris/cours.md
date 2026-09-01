@@ -147,39 +147,24 @@ System.Console.WriteLine(indice);
 **Idée** : diviser-pour-régner. On divise le tableau en deux moitiés, on trie chacune
 **récursivement**, puis on **fusionne** les deux moitiés triées en un seul tableau trié.
 
-```csharp
-// Tri fusion — implémentation manuelle (récursive)
-static int[] TriFusion(int[] t)
-{
-    if (t.Length <= 1) return t;
+```text
+TRIER(tableau)
+  si le tableau contient au plus un élément : il est déjà trié
+  le séparer en une moitié gauche et une moitié droite
+  gaucheTriée ← TRIER(gauche)
+  droiteTriée ← TRIER(droite)
+  fusionner gaucheTriée et droiteTriée
 
-    var milieu = t.Length / 2;
-    var gauche = new int[milieu];
-    var droite = new int[t.Length - milieu];
-
-    System.Array.Copy(t, 0, gauche, 0, milieu);
-    System.Array.Copy(t, milieu, droite, 0, droite.Length);
-
-    gauche = TriFusion(gauche);
-    droite = TriFusion(droite);
-
-    return Fusionner(gauche, droite);
-}
-
-static int[] Fusionner(int[] g, int[] d)
-{
-    var resultat = new int[g.Length + d.Length];
-    int i = 0, j = 0, k = 0;
-    while (i < g.Length && j < d.Length)
-    {
-        if (g[i] <= d[j]) resultat[k++] = g[i++];
-        else              resultat[k++] = d[j++];
-    }
-    while (i < g.Length) resultat[k++] = g[i++];
-    while (j < d.Length) resultat[k++] = d[j++];
-    return resultat;
-}
+FUSIONNER(gauche, droite)
+  comparer les deux premiers éléments encore disponibles
+  déplacer le plus petit vers le résultat
+  recommencer, puis copier les éléments restants
 ```
+
+Exemple de fusion : `[2, 7]` et `[1, 5, 8]` donnent successivement
+`[1]`, `[1, 2]`, `[1, 2, 5]`, `[1, 2, 5, 7]`, puis `[1, 2, 5, 7, 8]`.
+Le cours fournit ainsi la stratégie ; l'exercice te demande de la traduire en C# et de gérer les
+indices correctement.
 
 **Complexité** : O(n log n) dans tous les cas — bien meilleur que O(n²) pour de grands tableaux.
 

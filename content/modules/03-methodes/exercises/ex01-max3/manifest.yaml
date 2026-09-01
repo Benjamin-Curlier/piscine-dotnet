@@ -1,6 +1,11 @@
 id: ex01-max3
 title: "Maximum de trois"
 objective: "Écrire une méthode Max(int, int) et la réutiliser pour trouver le plus grand de trois entiers."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,design]
+story_beat: "Sécuriser la capacité Maximum de trois d'Asteria."
 deliverables: [Max3.cs]
 starter: [Max3.cs]
 grading:

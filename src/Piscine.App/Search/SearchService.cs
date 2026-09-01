@@ -136,6 +136,7 @@ public sealed class SearchService(IReadOnlyList<SearchCommand> index)
         SearchKind.Destination => 40,
         SearchKind.Action => 30,
         SearchKind.Module => 20,
+        SearchKind.Rush => 15,
         SearchKind.Exercise => 10,
         _ => 0,
     };

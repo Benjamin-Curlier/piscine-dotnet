@@ -1,6 +1,11 @@
 id: ex01-parse-robuste
 title: "Parse robuste"
 objective: "Attraper une FormatException ligne par ligne avec try/catch."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,resilience]
+story_beat: "Sécuriser la capacité Parse robuste d'Asteria."
 deliverables: [Parse.cs]
 starter: [Parse.cs]
 grading:

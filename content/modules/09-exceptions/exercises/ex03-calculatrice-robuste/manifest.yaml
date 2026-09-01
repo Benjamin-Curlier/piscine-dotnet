@@ -2,6 +2,10 @@ id: ex03-calculatrice-robuste
 title: "Calculatrice tolérante aux erreurs"
 objective: "Évaluer N opérations « a op b » en traitant par ligne les erreurs (format, division par zéro, opérateur inconnu) sans interrompre le reste."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,resilience]
+story_beat: "Sécuriser la capacité Calculatrice tolérante aux erreurs d'Asteria."
 bonus: true
 deliverables: [Calculatrice.cs]
 starter: [Calculatrice.cs]

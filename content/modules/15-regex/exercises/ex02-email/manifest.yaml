@@ -1,6 +1,11 @@
 id: ex02-email
 title: "Email valide ?"
 objective: "Reconnaître un email simple avec Regex.IsMatch et le motif ^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,text]
+story_beat: "Sécuriser la capacité Email valide ? d'Asteria."
 deliverables: [Email.cs]
 starter: [Email.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "2\nuser @mail.com\nfirst.last+tag@example.co.uk\n"
         expect_stdout: "invalide\nvalide\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Regex.IsMatch"]
 feedback:
   hints:
     - when: io_mismatch

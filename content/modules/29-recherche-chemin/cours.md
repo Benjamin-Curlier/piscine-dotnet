@@ -164,6 +164,21 @@ while (ouverts.Count > 0)
 
 Ces trois algorithmes sont donc une même idée à trois niveaux de raffinement.
 
+### Comparaison visuelle
+
+Sur une même grille, les symboles `·` représentent les cases explorées avant d'atteindre `E` :
+
+```text
+BFS (coût uniforme)      Dijkstra (coûts)       A* (coûts + direction)
+S····                    S····                   S··
+··#··                    ··#··                   ··#·
+··#·E                    ··#·E                   ··#E
+explore par anneaux      suit le coût g          privilégie g + h vers E
+```
+
+La forme exacte dépend des obstacles et des coûts, mais la différence de décision reste la même :
+BFS ordonne par nombre de pas, Dijkstra par coût déjà payé, A* par coût payé **plus** estimation.
+
 ---
 
 ## 6. En pratique {#pratique}
@@ -172,6 +187,8 @@ Ces trois algorithmes sont donc une même idée à trois niveaux de raffinement.
 - Initialiser les distances/coûts à une valeur « infinie » (`-1` pour BFS, `int.MaxValue` pour A\*)
   pour distinguer « non visité » de « visité à coût 0 ».
 - Fixer un **ordre d'exploration** des voisins dès qu'on veut un chemin reproductible.
+- Un caractère chiffre n'est pas sa valeur numérique : `'1'` a le code Unicode 49. Pour obtenir
+  le coût `1`, écris `grille[r][c] - '0'` (ou utilise `int.Parse(grille[r][c].ToString())`).
 
 ### Exercices du module
 

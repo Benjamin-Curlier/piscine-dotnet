@@ -2,6 +2,10 @@ id: ex03-switch
 title: "Chaîne de if → switch expression"
 objective: "Remplacer une cascade de if/else if par un switch expression concis."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [quality,refactoring]
+story_beat: "Sécuriser la capacité Chaîne de if → switch expression d'Asteria."
 deliverables: [Operation.cs]
 starter: [Operation.cs]
 grading:
@@ -28,9 +32,15 @@ grading:
       - stdin: "mul 99 0\n"
         expect_stdout: "0\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["switch"]
+      forbidden_fragments: ["else if"]
 feedback:
   hints:
     - when: io_mismatch
       message: "Lis 'op a b'. Remplace les if/else if par un switch expression : op switch { \"add\" => a + b, \"sub\" => a - b, \"mul\" => a * b, _ => 0 }."
+    - when: source_constraint
+      message: "La sortie ne suffit pas : remplace réellement la cascade par une switch expression."
   course_ref: "cours.md#switch"
 solution: [Operation.cs]

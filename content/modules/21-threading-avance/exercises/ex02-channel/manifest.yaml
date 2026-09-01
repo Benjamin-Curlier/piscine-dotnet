@@ -1,6 +1,11 @@
 id: ex02-channel
 title: "Producteur / consommateur avec Channel"
 objective: "Transférer N entiers d'un producteur à un consommateur via un Channel<int> (FIFO), et afficher leur double."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [concurrency,csharp]
+story_beat: "Sécuriser la capacité Producteur / consommateur avec Channel d'Asteria."
 deliverables: [Channel.cs]
 starter: [Channel.cs]
 grading:
@@ -25,9 +30,12 @@ grading:
       - stdin: "1\n99\n"
         expect_stdout: "198\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Channel.CreateUnbounded", "ReadAllAsync"]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Channel.CreateUnbounded<int>(); écris les N entiers avec WriteAsync, puis Writer.Complete(); puis await foreach (var x in channel.Reader.ReadAllAsync()) WriteLine(x * 2);. using System.Threading.Channels; et using System.Threading.Tasks;."
+      message: "Crée un Channel<int>, écris les N entiers de façon asynchrone, appelle Writer.Complete(), puis parcours Reader.ReadAllAsync() avec await foreach et affiche le double. Ajoute les namespaces Channels et Tasks."
   course_ref: "cours.md#channel"
 solution: [Channel.cs]

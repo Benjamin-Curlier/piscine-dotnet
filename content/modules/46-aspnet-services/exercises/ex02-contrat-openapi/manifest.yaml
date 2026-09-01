@@ -1,0 +1,23 @@
+id: ex02-contrat-openapi
+title: "Décrire le contrat OpenAPI du poste"
+objective: "Écrire un contrat OpenAPI explicite pour soumettre et suivre une commande distribuée."
+difficulty: moyen
+estimated_minutes: 65
+xp: 120
+tags: [openapi, contracts, api]
+story_beat: "Figer le langage HTTP partagé entre le pupitre et la passerelle Asteria."
+deliverables: [asteria.openapi.yaml]
+starter: [asteria.openapi.yaml]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: asteria.openapi.yaml
+          required_fragments: ["openapi: 3.1.0", "/commands:", "operationId: submitCommand", "requestBody:", "'202':", "'400':", "'409':", "CommandRequest:", "CommandAccepted:", "Idempotency-Key"]
+          forbidden_fragments: ["localhost", "password", "example-token"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Décris POST /commands, son corps, la clé d'idempotence et les réponses 202, 400 et 409 avec des schémas nommés."
+  course_ref: "cours.md#openapi"
+solution: [asteria.openapi.yaml]

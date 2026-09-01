@@ -1,0 +1,23 @@
+id: ex01-dispatcher-ui
+title: "Isoler le dispatcher du framework"
+objective: "Faire repasser une publication d'état par une abstraction de thread UI testable."
+difficulty: moyen
+estimated_minutes: 55
+xp: 110
+tags: [desktop, threading, testability]
+story_beat: "Canaliser les mises à jour concurrentes vers le pupitre Asteria."
+deliverables: [UiDispatcher.cs]
+starter: [UiDispatcher.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: UiDispatcher.cs
+          required_fragments: ["interface IUiDispatcher", "Task InvokeAsync", "Action action", "CancellationToken cancellationToken", "sealed class StatusPresenter", "dispatcher.InvokeAsync", "StatusChanged?.Invoke"]
+          forbidden_fragments: ["SynchronizationContext.Current!", "Control.CheckForIllegalCrossThreadCalls"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Injecte IUiDispatcher dans StatusPresenter et exécute la publication StatusChanged à l'intérieur de InvokeAsync."
+  course_ref: "cours.md#dispatcher"
+solution: [UiDispatcher.cs]

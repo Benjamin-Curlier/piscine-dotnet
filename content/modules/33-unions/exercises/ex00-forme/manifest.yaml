@@ -2,6 +2,10 @@ id: ex00-forme
 title: "Union de formes & aire"
 objective: "Modéliser un ensemble fermé de variantes (Cercle/Rectangle/Carre) et le filtrer par type."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Union de formes & aire d'Asteria."
 deliverables: [Forme.cs]
 starter: [Forme.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "carre 10\n"
         expect_stdout: "100\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract record Forme"]
 feedback:
   hints:
     - when: io_mismatch

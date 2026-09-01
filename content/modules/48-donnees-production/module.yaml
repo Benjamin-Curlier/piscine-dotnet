@@ -1,0 +1,11 @@
+id: 48-donnees-production
+title: "Données de production : SQL, migrations et concurrence"
+order: 48
+prerequisites: [35-ef-core, 44-socle-entreprise]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Faire évoluer les données Asteria sans perte ni écrasement concurrent."
+course: cours.md
+groups:
+  - id: persistance-durable
+    title: "Schéma, transactions et requêtes efficaces"
+    exercises: [ex00-migration-commandes, ex01-concurrence-optimiste, ex02-requete-paginee]

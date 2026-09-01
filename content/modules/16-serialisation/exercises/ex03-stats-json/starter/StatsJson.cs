@@ -7,6 +7,7 @@ using System.Text.Json;
 // Min, Max, Somme (noms par défaut, PascalCase), ex. {"Min":1,"Max":5,"Somme":14}.
 
 string json = System.Console.ReadLine();
-int[] nombres = JsonSerializer.Deserialize<int[]>(json);
+// TODO : désérialise json vers le tableau d'entiers à analyser.
+int[] nombres = [];
 
 // TODO : crée un objet (classe Stats { Min, Max, Somme }) et écris JsonSerializer.Serialize(...).

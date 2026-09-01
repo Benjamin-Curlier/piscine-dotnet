@@ -40,7 +40,7 @@
   // TOTAL depuis le début du geste (resizeto), et l'hôte l'applique à une ancre figée au pointerdown
   // (resizestart) : la fenêtre suit exactement le curseur, sans la dérive/lag des deltas incrémentaux
   // appliqués sur win.Width. Poignées masquées/no-op en navigateur.
-  ['e', 's', 'se'].forEach(function (edge) {
+  ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'].forEach(function (edge) {
     document.addEventListener('pointerdown', function (e) {
       var h = e.target.closest && e.target.closest('.rh-' + edge); if (!h) return;
       var sx = e.screenX, sy = e.screenY; e.preventDefault();

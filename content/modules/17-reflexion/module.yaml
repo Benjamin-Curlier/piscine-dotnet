@@ -1,6 +1,9 @@
 id: 17-reflexion
 title: "Réflexion & attributs"
 order: 17
+prerequisites: [07-poo-1]
+arc: "Acte III — Services en production"
+mission: "Découvrir dynamiquement les capacités déclarées par les extensions d'Asteria."
 course: cours.md
 groups:
   - id: reflexion

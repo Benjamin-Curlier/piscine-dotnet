@@ -100,13 +100,13 @@ string[] mots = { "pomme", "poire", "pomme", "banane", "poire", "pomme" };
 
 var compte = mots
     .GroupBy(m => m)                                  // un groupe par mot distinct
-    .Select(g => new { Mot = g.Key, Compte = g.Count() })   // type anonyme
-    .OrderByDescending(x => x.Compte)                 // les plus fréquents d'abord
-    .ThenBy(x => x.Mot);                              // ex æquo : ordre alphabétique
+    .Select(g => new { Terme = g.Key, Occurrences = g.Count() }) // type anonyme
+    .OrderByDescending(x => x.Occurrences)            // les plus fréquents d'abord
+    .ThenBy(x => x.Terme);                            // ex æquo : ordre alphabétique
 
 foreach (var x in compte)
 {
-    System.Console.WriteLine($"{x.Mot}: {x.Compte}");
+    System.Console.WriteLine($"{x.Terme}: {x.Occurrences}");
 }
 // pomme: 3
 // poire: 2

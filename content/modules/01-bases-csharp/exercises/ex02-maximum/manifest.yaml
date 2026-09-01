@@ -1,6 +1,11 @@
 id: ex02-maximum
 title: "Maximum"
 objective: "Lire deux entiers sur l'entrée standard et afficher le plus grand."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,fundamentals]
+story_beat: "Sécuriser la capacité Maximum d'Asteria."
 deliverables: [Maximum.cs]
 starter: [Maximum.cs]
 grading:

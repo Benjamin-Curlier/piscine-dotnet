@@ -7,11 +7,11 @@ namespace Piscine.App.Coaching;
 public interface ICoachingChannel : IAsyncDisposable
 {
     /// <summary>Nom/adresse du canal a passer au shim (variable d'env <c>PISCINE_COACH_PIPE</c>).</summary>
-    string Endpoint { get; }
+    public string Endpoint { get; }
 
     /// <summary>Declenche pour chaque evenement de commande git recu.</summary>
-    event Action<GitCommandEvent>? CommandReceived;
+    public event Action<GitCommandEvent>? CommandReceived;
 
     /// <summary>Demarre la boucle d'ecoute (non bloquante).</summary>
-    void Start();
+    public void Start();
 }

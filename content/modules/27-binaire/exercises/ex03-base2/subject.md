@@ -2,7 +2,7 @@
 
 ## Objectif
 
-Lis un entier **n** (positif ou nul). Affiche sa **représentation binaire**, sans zéros de tête.
+Lis un entier **n supérieur ou égal à zéro** (`n >= 0`). Affiche sa **représentation binaire**, sans zéros de tête.
 Le cas particulier `0` s'affiche `0`.
 
 Exemple : `5` → `101`, `10` → `1010`.
@@ -11,9 +11,23 @@ Exemple : `5` → `101`, `10` → `1010`.
 
 - `Base2.cs`
 
-## Indices
+## Contraintes
 
-- `Convert.ToString(n, 2)` renvoie directement la chaîne binaire de `n` (la base `2`), déjà sans
-  zéros de tête, et `0` donne bien `"0"`.
-- `Convert` vit dans l'espace de noms `System` : ajoute `using System;` en haut du fichier.
-- Affiche avec `System.Console.WriteLine(Convert.ToString(n, 2));`.
+- Construis la représentation avec `% 2` et `/ 2`.
+- N'utilise ni `Convert.ToString(n, 2)` ni une API équivalente de conversion de base.
+
+## Indices progressifs
+
+### 1. Démarrer
+
+Traite d'abord le cas particulier `n == 0`. Pour les autres valeurs, prépare une chaîne vide qui
+recevra les bits.
+
+### 2. Trouver le prochain bit
+
+À chaque tour, `n % 2` vaut `0` ou `1`. Ce bit est celui de **droite** ; place-le donc avant les bits
+déjà trouvés, puis remplace `n` par `n / 2`.
+
+### 3. S'arrêter
+
+La boucle se termine lorsque le quotient devient zéro. Affiche alors la chaîne accumulée.

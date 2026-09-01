@@ -69,4 +69,30 @@ public class SubmissionLoaderTests
         Assert.True(submission.Context.GraderFiles.ContainsKey("reference/Compte.cs"));
         Assert.Contains("public class Compte", submission.Context.GraderFiles["reference/Compte.cs"]);
     }
+
+    [Fact]
+    public void Load_RemovesFileBasedDirectives_ButPreservesDiagnosticLines()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("content", "manifest.yaml"), """
+            id: ex00
+            deliverables: [Program.cs]
+            """);
+        dir.WriteFile(Path.Combine("ws", "Program.cs"), """
+            #!
+            #:property PublishAot=false
+            #:package Exemple@1.0.0
+            #:include .\Domain\Modele.cs
+            System.Console.WriteLine("ok");
+            """);
+
+        var submission = SubmissionLoader.Load(dir.Combine("content"), dir.Combine("ws"));
+        var source = submission.Context.Sources["Program.cs"];
+
+        Assert.DoesNotContain("#:", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("#!", source, StringComparison.Ordinal);
+        Assert.Equal(5, source.Split('\n', StringSplitOptions.None)
+            .Select((line, index) => (line, index))
+            .Single(x => x.line.Contains("WriteLine", StringComparison.Ordinal)).index + 1);
+    }
 }

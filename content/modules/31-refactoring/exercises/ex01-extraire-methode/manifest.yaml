@@ -2,6 +2,10 @@ id: ex01-extraire-methode
 title: "Duplication → extraire une méthode"
 objective: "Supprimer du code dupliqué en l'extrayant dans une méthode réutilisable."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [quality,refactoring]
+story_beat: "Sécuriser la capacité Duplication → extraire une méthode d'Asteria."
 deliverables: [Distances.cs]
 starter: [Distances.cs]
 grading:
@@ -28,9 +32,16 @@ grading:
       - stdin: "10 1 6 2\n"
         expect_stdout: "13\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["static int Distance"]
+      required_occurrences:
+        - { fragment: "Distance(", count: 3 }
 feedback:
   hints:
     - when: io_mismatch
       message: "Les deux calculs |x-y| sont identiques : extrais une méthode Distance(x, y) => Math.Abs(x - y) et appelle-la deux fois. Le résultat est la somme des deux distances."
+    - when: source_constraint
+      message: "Déclare Distance(x, y), puis appelle cette méthode pour les deux paires : le grader vérifie l'extraction, pas seulement la sortie."
   course_ref: "cours.md#extraire"
 solution: [Distances.cs]

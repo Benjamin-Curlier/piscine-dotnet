@@ -2,6 +2,10 @@ id: ex03-decrire-objet
 title: "Décrire un objet par réflexion"
 objective: "Énumérer les propriétés d'un objet par réflexion et afficher nom=valeur, triées."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,metaprogramming]
+story_beat: "Sécuriser la capacité Décrire un objet par réflexion d'Asteria."
 bonus: true
 deliverables: [DecrireObjet.cs]
 starter: [DecrireObjet.cs]
@@ -21,6 +25,9 @@ grading:
       - stdin: "Z\n7\nfalse\n"
         expect_stdout: "Actif=False\nAge=7\nNom=Z\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: [".GetProperties("]
 feedback:
   hints:
     - when: io_mismatch

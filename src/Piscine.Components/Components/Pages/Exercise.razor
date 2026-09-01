@@ -26,11 +26,17 @@ else
         <h1>@_exercise.Title</h1>
         <div class="exercise-meta">
             <span class="badge badge-@_exercise.Difficulty">@_exercise.Difficulty</span>
+            <span class="badge badge-time">≈ @_exercise.EstimatedMinutes min</span>
+            <span class="badge badge-xp">+@_exercise.Xp XP</span>
             @if (_exercise.Bonus)
             {
                 <span class="badge badge-bonus">bonus</span>
             }
         </div>
+        @if (!string.IsNullOrWhiteSpace(_exercise.StoryBeat))
+        {
+            <p class="story-beat" data-testid="exercise-story">Mission : @_exercise.StoryBeat</p>
+        }
         <p class="exercise-objective">@_exercise.Objective</p>
     </header>
 

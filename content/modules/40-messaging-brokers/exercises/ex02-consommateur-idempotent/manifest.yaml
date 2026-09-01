@@ -1,0 +1,33 @@
+id: ex02-consommateur-idempotent
+title: "Rendre un consommateur idempotent"
+objective: "Neutraliser les redélivrances grâce à un identifiant de message stable."
+difficulty: moyen
+estimated_minutes: 50
+xp: 100
+tags: [messaging, reliability, collections]
+story_beat: "Empêcher une redélivrance de facturer deux fois les ressources d'Asteria."
+deliverables: [Idempotence.cs]
+starter: [Idempotence.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "6\ne1 10\ne2 5\ne1 10\ne3 -2\ne2 5\ne4 7\n"
+        expect_stdout: "TOTAL 20\nDOUBLONS 2\n"
+        expect_exit: 0
+      - stdin: "3\na 0\nb 100\nc 2\n"
+        expect_stdout: "TOTAL 102\nDOUBLONS 0\n"
+        expect_exit: 0
+      - stdin: "4\nx 8\nx 99\nx -1\nx 8\n"
+        expect_stdout: "TOTAL 8\nDOUBLONS 3\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["HashSet<string>", ".Add("]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Le premier message d'un id modifie le total ; toute occurrence suivante est un doublon, même si sa valeur diffère."
+    - when: source_constraint
+      message: "HashSet.Add renvoie false quand l'identifiant a déjà été vu : utilise ce résultat comme décision atomique locale."
+  course_ref: "cours.md#livraison"
+solution: [Idempotence.cs]

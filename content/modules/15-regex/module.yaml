@@ -1,6 +1,9 @@
 id: 15-regex
 title: "Regex — Expressions régulières"
 order: 15
+prerequisites: [04-tableaux-chaines]
+arc: "Acte III — Services en production"
+mission: "Filtrer et valider les signaux textuels reçus de systèmes hétérogènes."
 course: cours.md
 groups:
   - id: regex

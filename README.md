@@ -24,10 +24,23 @@ Pré-requis : SDK .NET 10.
 
 ```bash
 dotnet build Piscine.slnx
-dotnet test Piscine.slnx
+dotnet test --solution Piscine.slnx
 dotnet run --project src/Piscine.Cli           # le CLI (moteur, grade-received, validate-content…)
 dotnet run --project src/Piscine.Desktop -c Release   # l'app de bureau PhotinoX (fenêtre native)
 ```
+
+Diagnostic et qualité du contenu : `piscine doctor`, `piscine validate-content` puis
+`piscine audit-content`. Le dernier est consultatif et signale les risques pédagogiques sans modifier
+les fichiers.
+
+Le curriculum courant couvre **53 modules (M00–M52), 185 exercices et 8 Rushes**, organisés dans le
+fil rouge du [centre Asteria](content/parcours.md). Durées indicatives, XP, niveaux, série et badges
+sont visibles dans l'app ; `piscine profile` fournit le même bilan dans le CLI. Aucun exercice n'est
+verrouillé par la gamification.
+
+Le parcours cible d'abord les **applications lourdes et distribuées**. ASP.NET Core, OpenAPI et gRPC
+y sont enseignés comme façades et contrats consommés par le poste opérateur, puis intégrés avec
+sécurité, données de production, tests, CI/CD et diagnostic.
 
 ## Site du cours / harnais de dev (navigateur)
 
@@ -52,7 +65,7 @@ Publier une release (mainteneur) : **[docs/deploiement.md](docs/deploiement.md)*
 
 - `src/` :
   - **moteur & CLI** — `Piscine.Core` (modèles + découverte de contenu), `Piscine.Grading`
-    (Roslyn + graders `io`/`unit`/`norme`/`mutation`/`git`/`projet`/`reseau`), `Piscine.Git`
+    (Roslyn + graders `io`/`unit`/`norme`/`mutation`/`git`/`projet`/`reseau`/`source`/`fichier`), `Piscine.Git`
     (rendu git LibGit2Sharp + `grade-received`), `Piscine.Sandbox` (+ `Piscine.Sandbox.Contracts`,
     contrat IPC) — exécution du code recrue dans un **processus enfant jetable** (kill au timeout,
     fail-closed), `Piscine.Cli` (binaire `piscine`).

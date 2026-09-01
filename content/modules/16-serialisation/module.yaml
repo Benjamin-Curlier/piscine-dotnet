@@ -1,6 +1,9 @@
 id: 16-serialisation
 title: "Sérialisation — System.Text.Json"
 order: 16
+prerequisites: [04-tableaux-chaines, 07-poo-1]
+arc: "Acte III — Services en production"
+mission: "Établir des contrats JSON durables entre le cœur et ses futurs services."
 course: cours.md
 groups:
   - id: json

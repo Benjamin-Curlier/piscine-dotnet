@@ -2,6 +2,10 @@ id: ex00-jour
 title: "Le nom du jour"
 objective: "Transformer un entier (1-7) en nom de jour avec une switch expression et le motif _ par défaut."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,patterns]
+story_beat: "Sécuriser la capacité Le nom du jour d'Asteria."
 deliverables: [Jour.cs]
 starter: [Jour.cs]
 grading:
@@ -30,6 +34,9 @@ grading:
       - stdin: "0\n"
         expect_stdout: "inconnu\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["switch"]
 feedback:
   hints:
     - when: io_mismatch

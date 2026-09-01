@@ -1,0 +1,33 @@
+id: ex02-circuit-breaker
+title: "Programmer un circuit breaker"
+objective: "Faire évoluer explicitement un circuit entre Closed, Open et son appel de sonde."
+difficulty: difficile
+estimated_minutes: 80
+xp: 160
+tags: [resilience, state-machine, reliability]
+story_beat: "Isoler une dépendance défaillante avant qu'elle ne fasse chuter tout Asteria."
+deliverables: [Circuit.cs]
+starter: [Circuit.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "2 2\n5\nFAIL\nFAIL\nOK\nOK\nOK\n"
+        expect_stdout: "FAIL\nOPEN\nSKIP\nSKIP\nPROBE_OK\nSTATE CLOSED\n"
+        expect_exit: 0
+      - stdin: "3 1\n7\nFAIL\nOK\nFAIL\nFAIL\nFAIL\nOK\nFAIL\n"
+        expect_stdout: "FAIL\nOK\nFAIL\nFAIL\nOPEN\nSKIP\nPROBE_FAIL\nSTATE OPEN\n"
+        expect_exit: 0
+      - stdin: "2 1\n4\nOK\nFAIL\nOK\nFAIL\n"
+        expect_stdout: "OK\nFAIL\nOK\nFAIL\nSTATE CLOSED\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["enum CircuitState", "CircuitState.Open", "CircuitState.Closed"]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Closed compte les FAIL consécutifs. Open saute exactement cooldown événements, puis traite le suivant comme sonde : OK ferme, FAIL rouvre."
+    - when: source_constraint
+      message: "Représente l'état par un enum plutôt que par plusieurs booléens contradictoires."
+  course_ref: "cours.md#circuit-breaker"
+solution: [Circuit.cs]

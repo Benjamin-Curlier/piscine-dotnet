@@ -2,6 +2,10 @@ id: ex01-couleur-hex
 title: "Couleur en hexadécimal"
 objective: "Convertir un membre d'enum Couleur en son code hexadécimal via une switch expression."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Couleur en hexadécimal d'Asteria."
 deliverables: [CouleurHex.cs]
 starter: [CouleurHex.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "Rouge\n"
         expect_stdout: "#FF0000\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["enum Couleur", "switch"]
 feedback:
   hints:
     - when: io_mismatch

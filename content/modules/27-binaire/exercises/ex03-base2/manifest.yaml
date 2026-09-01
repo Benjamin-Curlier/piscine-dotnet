@@ -1,7 +1,11 @@
 id: ex03-base2
 title: "Représentation binaire"
-objective: "Convertir un entier en sa représentation binaire avec Convert.ToString(n, 2)."
-difficulty: difficile
+objective: "Construire manuellement la représentation binaire d'un entier avec les quotients et restes des divisions par deux."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Représentation binaire d'Asteria."
 bonus: true
 deliverables: [Base2.cs]
 starter: [Base2.cs]
@@ -33,9 +37,15 @@ grading:
       - stdin: "42\n"
         expect_stdout: "101010\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["% 2"]
+      forbidden_fragments: ["Convert.ToString"]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Ajoute using System; puis affiche Convert.ToString(n, 2) : la base 2 retire déjà les zéros de tête."
+      message: "Traite 0 séparément. Sinon, répète : bit = n % 2, place ce bit à gauche du résultat, puis n = n / 2, jusqu'à n == 0."
+    - when: source_constraint
+      message: "L'objectif est de pratiquer la conversion : utilise le reste `% 2` et la division entière au lieu de Convert.ToString."
   course_ref: "cours.md#base2"
 solution: [Base2.cs]

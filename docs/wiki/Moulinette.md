@@ -27,14 +27,17 @@ Un exercice combine un ou plusieurs graders, déclarés dans son `manifest.yaml`
 | **`git`** | Verdict sur l'**état attendu du dépôt rendu** (branches, `min_commits`, fusions, contenu de fichiers, absence de marqueurs de conflit), via LibGit2Sharp. Au push, noté contre le **dépôt bare** si l'exo est « tenté ». | Oui |
 | **`projet`** | Compilation **multi-fichiers** + cas `io` optionnels + **assertions d'architecture** Roslyn (`requires_types`, `forbidden_dependencies` namespace→namespace). | Oui |
 | **`reseau`** | Lance un **harnais d'écho TCP** loopback, injecte host/port en arguments, compare `io`. | Oui |
+| **`source`** | Vérifie des fragments requis ou interdits après retrait des commentaires, pour imposer une technique pédagogique (`% 2`, absence de `Array.Sort`…). | Oui |
+| **`fichier`** | Inspecte des livrables texte non compilés (`Dockerfile`, Razor, shader, AppHost) avec fragments requis/interdits. | Oui |
 
 Chaque exécution C# se fait dans un **processus enfant jetable** (`Piscine.Sandbox`) avec
 redirection de la Console et un **timeout** — un programme qui boucle ou plante n'affecte pas la
 moulinette : au timeout, le parent **tue l'arbre de processus** (récupération thread et assembly),
 et le résultat est **fail-closed** si le bac à sable est indisponible (jamais de faux « Réussi »).
 
-> Tous les modules ne sont pas auto-notés : ceux dont la sortie n'est pas déterministe en console
-> (Docker, Silk.NET, Blazor, interop, git avancé, réseau brut) sont livrés en **lecture guidée**.
+> Pour Docker, Silk.NET, Blazor, interop et Aspire, l'inspection déterministe valide le contrat
+> statique. Le cours demande en plus un atelier dans l'environnement réel ; la moulinette ne prétend
+> pas simuler un moteur Docker, un GPU, un navigateur, une bibliothèque native ou un broker.
 
 ## Correction par groupe : arrêt au premier échec
 
@@ -53,9 +56,12 @@ C'est le comportement de la trace 42 : on règle un exercice avant de débloquer
 - La progression (statut par exercice, tentatives, dernier feedback) est persistée dans l'état
   local (`~/piscine`, surchargeable via `PISCINE_HOME`). Les *Non corrigé* ne sont pas enregistrés
   comme un échec définitif : ils seront corrigés une fois le blocage levé.
+- La première réussite conserve sa date et attribue les XP une seule fois. Niveau, série et badges
+  sont calculés depuis cette progression, sans note ni classement et sans verrouiller le contenu.
 
 ## Garde-fou qualité (CI)
 
-`piscine validate-content` vérifie pour **chaque** exercice : manifest valide, fichiers de graders
-présents, et surtout que le **corrigé `solution/` passe ses propres graders**. La CI exécute la même
+`piscine validate-content` vérifie pour **chaque** exercice : manifest valide, prérequis cohérents,
+directives file-based résolues, fichiers de graders présents, et surtout que le **corrigé `solution/`
+passe ses propres graders**. La CI exécute la même
 commande → impossible de livrer un exercice cassé. Voir [Ajouter un exercice](Ajouter-un-exercice).

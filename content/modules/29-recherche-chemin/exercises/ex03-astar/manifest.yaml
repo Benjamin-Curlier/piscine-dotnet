@@ -2,6 +2,10 @@ id: ex03-astar
 title: "A* — chemin de coût minimal"
 objective: "Implémenter A* avec heuristique de Manhattan sur une grille pondérée et afficher le coût minimal."
 difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [algorithms,pathfinding]
+story_beat: "Sécuriser la capacité A* — chemin de coût minimal d'Asteria."
 deliverables: [AStar.cs]
 starter: [AStar.cs]
 grading:
@@ -18,7 +22,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "A* = Dijkstra guidé par une heuristique. Priorité d'une case = coût réel g depuis le départ + estimation h = distance de Manhattan jusqu'à l'arrivée. Le coût d'entrée dans une case est son chiffre ; le départ ne coûte rien."
+      - when: io_mismatch
+        message: "A* = Dijkstra guidé par une heuristique. Priorité d'une case = coût réel g depuis le départ + estimation h = distance de Manhattan jusqu'à l'arrivée. Le coût d'entrée dans une case est son chiffre ; le départ ne coûte rien."
+      - when: compile_error
+        message: "PriorityQueue<TElement,TPriority> reçoit la case comme élément et g+h comme priorité ; garde séparément le meilleur g connu."
   course_ref: "cours.md#astar"
 solution: [AStar.cs]

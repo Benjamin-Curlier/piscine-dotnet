@@ -44,3 +44,5 @@ Exemple :
   voisin est moins cher, mets à jour `cout` et ré-enfile le voisin avec sa nouvelle priorité.
 - L'heuristique de Manhattan ne surestime jamais le vrai coût (chaque pas coûte au moins `1`),
   donc A\* renvoie bien le coût **optimal**.
+- `grille[nr][nc]` est un `char` : `'1'` vaut le code 49, pas l'entier 1. Convertis un chiffre
+  avec `grille[nr][nc] - '0'` avant de l'ajouter au coût.

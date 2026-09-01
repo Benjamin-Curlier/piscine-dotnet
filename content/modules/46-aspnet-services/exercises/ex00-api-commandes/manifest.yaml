@@ -1,0 +1,23 @@
+id: ex00-api-commandes
+title: "Exposer une façade de commandes"
+objective: "Configurer une Minimal API qui accepte une commande asynchrone et publie son contrat."
+difficulty: moyen
+estimated_minutes: 70
+xp: 130
+tags: [aspnet, api, desktop-integration]
+story_beat: "Ouvrir un canal HTTP contrôlé entre le pupitre et les services Asteria."
+deliverables: [Program.cs]
+starter: [Program.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Program.cs
+          required_fragments: ["WebApplication.CreateBuilder", "AddProblemDetails", "AddOpenApi", "MapOpenApi", "MapGet(\"/health\"", "MapPost(\"/commands\"", "CancellationToken", "Results.Accepted", "Build()", "Run()"]
+          forbidden_fragments: ["localhost:", "Thread.Sleep", ".Result", ".Wait("]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Enregistre ProblemDetails et OpenAPI, mappe health et POST /commands, puis renvoie 202 avec l'identifiant produit par le port."
+  course_ref: "cours.md#minimal-api"
+solution: [Program.cs]

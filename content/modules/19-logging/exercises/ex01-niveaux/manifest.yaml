@@ -1,6 +1,11 @@
 id: ex01-niveaux
 title: "Niveaux de log"
 objective: "Journaliser à plusieurs niveaux (Debug, Information, Warning, Error) en fixant le niveau minimum à Information : le Debug est filtré."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [observability,csharp]
+story_beat: "Sécuriser la capacité Niveaux de log d'Asteria."
 deliverables: [Niveaux.cs, LogCapture.cs]
 starter: [Niveaux.cs, LogCapture.cs]
 grading:
@@ -20,6 +25,9 @@ grading:
       - stdin: "Auth-Service\n"
         expect_stdout: "App [Information] Auth-Service prêt\nApp [Warning] Mémoire faible\nApp [Error] Échec du traitement\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["LogWarning", "LogError"]
 feedback:
   hints:
     - when: io_mismatch

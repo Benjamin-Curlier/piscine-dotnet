@@ -1,6 +1,11 @@
 id: ex02-somme-pairs
 title: "Somme des pairs (LINQ)"
 objective: "Avec LINQ, filtrer les nombres pairs et calculer leur somme."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Somme des pairs (LINQ) d'Asteria."
 deliverables: [SommePairs.cs]
 starter: [SommePairs.cs]
 grading:

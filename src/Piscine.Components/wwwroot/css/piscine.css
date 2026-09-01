@@ -169,7 +169,7 @@ a:hover { text-decoration: underline; }
     box-shadow: 0 1px 2px rgba(0,0,0,.04);
 }
 
-.brand { display: flex; align-items: center; gap: .6rem; color: var(--ink); font-size: 1.2rem; }
+.brand { display: flex; align-items: center; gap: .6rem; color: var(--ink); font-size: 1.2rem; white-space: nowrap; }
 .brand:hover { text-decoration: none; }
 .brand-mark {
     font-family: var(--mono);
@@ -182,7 +182,7 @@ a:hover { text-decoration: underline; }
 }
 .brand-text strong { color: var(--accent); }
 
-.navbar-links { display: flex; align-items: center; gap: 1.5rem; }
+.navbar-links { display: flex; align-items: center; gap: 1.1rem; }
 .navbar-links a { color: var(--ink-soft); font-weight: 500; }
 .navbar-links a:hover { color: var(--accent); text-decoration: none; }
 
@@ -236,6 +236,40 @@ a:hover { text-decoration: underline; }
     color: var(--ink-soft);
     font-weight: 700;
 }
+
+.side-hub {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .6rem;
+    margin: 0 .2rem .35rem;
+    padding: .55rem .65rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+    border-radius: 8px;
+    color: var(--ink);
+    font-weight: 650;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.side-hub:hover, .side-hub.active { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+.side-count { color: var(--ink-soft); font-family: var(--mono); font-size: .72rem; font-weight: 500; }
+.side-rush-group, .arc-group { margin: .2rem 0 .45rem; }
+.side-rush-group > summary, .arc-summary {
+    display: flex;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .35rem .6rem;
+    list-style: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    font-size: .78rem;
+    font-weight: 650;
+}
+.side-rush-group > summary::-webkit-details-marker,
+.arc-summary::-webkit-details-marker { display: none; }
+.side-rush-group > summary::before, .arc-summary::before { content: "›"; transition: transform .15s; }
+.side-rush-group[open] > summary::before, .arc-group[open] > .arc-summary::before { transform: rotate(90deg); }
+.side-rush-group .rush-nav { margin-left: .5rem; }
+.arc-group > .module-list { margin-left: .25rem; }
 
 .module-list, .exercise-list { list-style: none; margin: 0; padding: 0; }
 
@@ -352,6 +386,8 @@ a:hover { text-decoration: underline; }
 .badge-moyen { background: #fff3d6; color: #9a6700; }
 .badge-difficile { background: #fbe2e2; color: #c01c1c; }
 .badge-bonus { background: var(--accent-soft); color: var(--accent); }
+.badge-time { background: var(--badge-neutral-bg); color: var(--badge-neutral-fg); }
+.badge-xp { background: var(--badge-info-bg); color: var(--badge-info-fg); }
 /* S7 — variantes badges en thème sombre : les fonds clairs ci-dessus restent lisibles (texte foncé
    sur pastille pâle), donc on conserve les mêmes paires — contraste vérifié dans les deux thèmes. */
 
@@ -372,6 +408,11 @@ a:hover { text-decoration: underline; }
 .exercise-card-head { display: flex; align-items: center; gap: .5rem; }
 .exercise-card-title { font-weight: 600; margin-right: auto; }
 .exercise-card-obj { margin: .4rem 0 0; font-size: .9rem; color: var(--ink-soft); }
+.exercise-card-story { margin: .45rem 0 0; font-size: .82rem; color: var(--accent); }
+.story-beat { color: var(--accent); font-weight: 600; margin: 0 0 .55rem; }
+.mission-card { display: grid; gap: .3rem; border: 1px solid var(--accent); background: var(--accent-soft); border-radius: var(--radius); padding: 1rem 1.1rem; margin: 1rem 0 1.4rem; }
+.mission-card > span:last-child { color: var(--ink-soft); font-size: .85rem; }
+.mission-arc { color: var(--accent); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
 
 /* ---------- Notices ---------- */
 .notice {
@@ -479,7 +520,7 @@ code { font-family: var(--mono); }
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--line);
-        max-height: 50vh;
+        max-height: 32vh;
     }
     .body { flex-direction: column; }
     .content { padding: 1.5rem 1.2rem 4rem; }
@@ -724,12 +765,12 @@ textarea:focus-visible {
         gap: .5rem;
     }
     .navbar-links {
-        flex-wrap: wrap;
-        gap: .6rem 1rem;
+        flex-wrap: nowrap;
+        gap: .6rem;
         width: 100%;
     }
-    /* Onglets primaires : rangée défilante (évite le débordement aux 6+ destinations). */
-    .navbar-links :is(.nav-tabs, nav) { max-width: 100%; }
+    /* Onglets primaires : rangée défilante (évite le débordement aux nombreuses destinations). */
+    .navbar-links :is(.nav-tabs, nav) { min-width: 0; max-width: 100%; }
     /* La sidebar empilée (bloc d'origine) ne doit pas voler toute la hauteur sur mobile. */
     .sidebar { top: 0; }
     .hero h1 { font-size: 2.1rem; }
@@ -861,6 +902,7 @@ html[data-host="photino"] .titlebar-drag { -webkit-app-region: drag; app-region:
 html[data-host="photino"] .titlebar-drag .no-drag,
 html[data-host="photino"] .titlebar-drag button,
 html[data-host="photino"] .titlebar-drag a { -webkit-app-region: no-drag; app-region: no-drag; }
+html[data-host="photino"] .titlebar-grip { flex: 1; align-self: stretch; min-width: 2rem; cursor: move; }
 /* Contrôles de fenêtre : masqués hors Photino (le navigateur / l'OS fournissent le chrome). */
 .window-controls { margin-left: 8px; }
 html:not([data-host="photino"]) .window-controls { display: none; }
@@ -885,9 +927,14 @@ html[data-host="photino"] .main { height: 100%; overflow-y: auto; }
 .resize-handles { display: none; }
 html[data-host="photino"]:not(.is-maximized) .resize-handles { display: block; }
 .resize-handles .rh { position: fixed; z-index: 9999; -webkit-app-region: no-drag; app-region: no-drag; }
-.rh-e { top: 0; right: 0; width: 5px; height: 100%; cursor: ew-resize; }
-.rh-s { left: 0; bottom: 0; height: 5px; width: 100%; cursor: ns-resize; }
-.rh-se { right: 0; bottom: 0; width: 10px; height: 10px; cursor: nwse-resize; }
+.rh-n { top: 0; left: 0; width: 100%; height: 7px; cursor: ns-resize; }
+.rh-e { top: 0; right: 0; width: 7px; height: 100%; cursor: ew-resize; }
+.rh-s { left: 0; bottom: 0; height: 7px; width: 100%; cursor: ns-resize; }
+.rh-w { top: 0; left: 0; width: 7px; height: 100%; cursor: ew-resize; }
+.rh-ne { top: 0; right: 0; width: 13px; height: 13px; cursor: nesw-resize; }
+.rh-se { right: 0; bottom: 0; width: 13px; height: 13px; cursor: nwse-resize; }
+.rh-sw { left: 0; bottom: 0; width: 13px; height: 13px; cursor: nesw-resize; }
+.rh-nw { top: 0; left: 0; width: 13px; height: 13px; cursor: nwse-resize; }
 
 /* ---------- Terminal embarqué ----------
    xterm.js gère son propre curseur ; on neutralise l'anneau de focus parasite (S7) sur le textarea

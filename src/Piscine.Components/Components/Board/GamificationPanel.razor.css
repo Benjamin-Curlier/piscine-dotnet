@@ -1,0 +1,12 @@
+.game-panel { display: grid; grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(110px, 1fr)); gap: .75rem; margin: 1rem 0; }
+.game-level, .game-stat, .game-badges { border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; background: var(--surface); }
+.game-level { display: grid; gap: .35rem; }
+.game-level strong { font-size: 1.35rem; }
+.game-kicker { color: var(--accent); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.game-stat { display: grid; place-content: center; text-align: center; gap: .2rem; }
+.game-stat > span { font-size: 1.25rem; }
+.game-stat small, .game-level small, .game-badges small { color: var(--ink-soft); }
+.game-badges { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.game-badge { border-radius: 999px; padding: .2rem .55rem; color: var(--accent); background: var(--accent-soft); font-size: .75rem; font-weight: 600; }
+.game-empty { color: var(--ink-soft); font-size: .82rem; }
+@media (max-width: 760px) { .game-panel { grid-template-columns: 1fr 1fr; } .game-level { grid-column: 1 / -1; } }

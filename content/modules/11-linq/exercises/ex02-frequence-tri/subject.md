@@ -26,6 +26,7 @@ banane: 1
 
 - Ajoute `using System.Linq;` en haut.
 - Regroupe les mots avec `.GroupBy(m => m)` : chaque groupe a une clé `g.Key` et un `g.Count()`.
-- Projette avec `.Select(g => new { Mot = g.Key, Compte = g.Count() })` (type anonyme).
-- Trie avec `.OrderByDescending(x => x.Compte).ThenBy(x => x.Mot)`.
+- Projette chaque groupe vers un type anonyme contenant sa clé et son nombre d'éléments.
+- Trie la projection par compte décroissant, puis par mot croissant pour rendre les égalités
+  déterministes.
 - Parcours le résultat et affiche `$"{g.Mot}: {g.Compte}"`.

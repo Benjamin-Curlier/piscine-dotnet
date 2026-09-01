@@ -1,6 +1,11 @@
 id: ex01-dependance
 title: "Injection par constructeur"
 objective: "Injecter un service Multiplieur dans un service Traitement via son constructeur."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,architecture]
+story_beat: "Sécuriser la capacité Injection par constructeur d'Asteria."
 deliverables: [Dependance.cs]
 starter: [Dependance.cs]
 grading:
@@ -25,6 +30,9 @@ grading:
       - stdin: "42\n"
         expect_stdout: "84\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class Traitement", "Multiplieur"]
 feedback:
   hints:
     - when: io_mismatch

@@ -1,6 +1,11 @@
 id: ex00-strategy
 title: "Strategy — opérations interchangeables"
 objective: "Encapsuler des algorithmes (addition, multiplication) derrière une interface commune et choisir la stratégie à l'exécution."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Strategy — opérations interchangeables d'Asteria."
 deliverables: [Strategy.cs]
 starter: [Strategy.cs]
 grading:
@@ -31,6 +36,9 @@ grading:
       - stdin: "add\n0\n0\n"
         expect_stdout: "0\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["interface IOperation"]
 feedback:
   hints:
     - when: io_mismatch

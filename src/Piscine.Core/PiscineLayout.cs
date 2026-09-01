@@ -26,6 +26,9 @@ public sealed class PiscineLayout
     /// <summary>Résultat riche du dernier push (diff/indice/cours) écrit par <c>grade-received</c>.</summary>
     public string LastPushResultPath => Path.Combine(StateDir, "last-push-result.json");
 
+    /// <summary>Dernier échec produit par <c>piscine check</c>, utilisé par <c>--replay-last</c>.</summary>
+    public string LastCheckFailurePath => Path.Combine(StateDir, "last-check-failure.json");
+
     /// <summary>Dépôt bare local servant d'« origin » (le « GitLab » de la piscine).</summary>
     public string RemoteRepoPath => Path.Combine(StateDir, "remote.git");
 

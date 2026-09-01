@@ -1,6 +1,9 @@
 id: 02-boucles
 title: "Boucles"
 order: 2
+prerequisites: [01-bases-csharp]
+arc: "Acte I — Prise de quart"
+mission: "Automatiser les diagnostics répétitifs sans perdre la maîtrise des itérations."
 course: cours.md
 groups:
   - id: iteration

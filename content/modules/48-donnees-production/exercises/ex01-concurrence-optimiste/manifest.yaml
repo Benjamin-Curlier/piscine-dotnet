@@ -1,0 +1,25 @@
+id: ex01-concurrence-optimiste
+title: "Détecter une écriture concurrente"
+objective: "Configurer un token de concurrence EF Core et convertir le conflit en résultat métier."
+difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [ef-core, concurrency, transactions]
+story_beat: "Empêcher deux opérateurs d'écraser silencieusement la même commande Asteria."
+deliverables: [CommandStore.cs]
+starter: [CommandStore.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: CommandStore.cs
+          required_fragments: ["[ConcurrencyCheck]", "long Version", "enum SaveResult", "Saved", "Conflict", "command.Version++", "SaveChangesAsync(cancellationToken)", "catch (DbUpdateConcurrencyException)", "return SaveResult.Conflict"]
+          forbidden_fragments: ["EnsureCreated", "catch (Exception)", "Thread.Sleep", ".Result"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Marque Version comme ConcurrencyCheck et incrémente-la avant SaveChangesAsync."
+    - when: file_constraint
+      message: "Capture uniquement DbUpdateConcurrencyException et traduis-la en SaveResult.Conflict."
+  course_ref: "cours.md#concurrence"
+solution: [CommandStore.cs]

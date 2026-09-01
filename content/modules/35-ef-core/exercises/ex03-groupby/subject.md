@@ -16,7 +16,7 @@ legume: 2
 
 ## Livrable
 
-- `Catalogue.cs`
+- `ComptageCategories.cs`
 
 ## Contraintes
 
@@ -24,5 +24,6 @@ legume: 2
 
 ## Indices
 
-- `db.Articles.GroupBy(a => a.Categorie).Select(g => new { Categorie = g.Key, Nombre = g.Count() }).OrderBy(x => x.Categorie)`.
+- Construis la requête en quatre étapes : source → `GroupBy` sur la catégorie → projection contenant
+  la clé et `Count()` → tri sur la clé.
 - Projette le groupe dans un type anonyme `{ clé, compte }` avant d'itérer : plus sûr à traduire en SQL.

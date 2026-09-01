@@ -1,0 +1,33 @@
+id: ex02-ordre-demarrage
+title: "Ordonner une topologie de ressources"
+objective: "Calculer un ordre compatible avec les dépendances et détecter un cycle."
+difficulty: difficile
+estimated_minutes: 80
+xp: 160
+tags: [aspire, graph, algorithms]
+story_beat: "Vérifier que le plan de démarrage d'Asteria ne contient aucune boucle impossible."
+deliverables: [Topologie.cs]
+starter: [Topologie.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "4\napi db\nworker nats\nnats -\ndb -\n"
+        expect_stdout: "db\napi\nnats\nworker\n"
+        expect_exit: 0
+      - stdin: "3\na b\nb c\nc a\n"
+        expect_stdout: "CYCLE\n"
+        expect_exit: 0
+      - stdin: "5\nweb api\napi db\ndb -\nmetrics -\nworker db\n"
+        expect_stdout: "db\napi\nmetrics\nweb\nworker\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["HashSet<string>", "OrderBy("]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "À chaque étape, choisis lexicalement la première ressource restante dont la dépendance vaut '-' ou est déjà démarrée. Sans candidate, la topologie contient un cycle."
+    - when: source_constraint
+      message: "Conserve les ressources démarrées dans un HashSet et trie les candidates, sans coder les noms des cas de test."
+  course_ref: "cours.md#ressources"
+solution: [Topologie.cs]

@@ -1,3 +1,6 @@
+#:include ..\Domain\IDepotLivres.cs
+#:include ..\Domain\INotificateur.cs
+
 using System.Collections.Generic;
 using Domain;
 

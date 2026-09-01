@@ -1,0 +1,22 @@
+id: ex01-dockerignore
+title: "Réduire et sécuriser le contexte de build"
+objective: "Exclure sorties, historique et secrets potentiels du contexte Docker."
+difficulty: facile
+estimated_minutes: 25
+xp: 50
+tags: [docker, security, tooling]
+story_beat: "Empêcher les artefacts sensibles de quitter le sas de build d'Asteria."
+deliverables: [.dockerignore]
+starter: [.dockerignore]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: .dockerignore
+          required_fragments: ["**/bin", "**/obj", ".git", ".env", "*.pfx", "secrets"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Exclus récursivement bin/ et obj/, puis l'historique Git, les fichiers .env, les certificats .pfx et tout dossier secrets."
+  course_ref: "cours.md#images-minimales"
+solution: [.dockerignore]

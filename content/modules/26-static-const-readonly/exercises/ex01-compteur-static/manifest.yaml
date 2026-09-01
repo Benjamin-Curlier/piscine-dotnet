@@ -2,6 +2,10 @@ id: ex01-compteur-static
 title: "Compteur d'instances"
 objective: "Utiliser un champ statique pour compter le nombre d'instances créées d'une classe."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,immutability]
+story_beat: "Sécuriser la capacité Compteur d'instances d'Asteria."
 deliverables: [CompteurStatic.cs]
 starter: [CompteurStatic.cs]
 grading:
@@ -24,6 +28,9 @@ grading:
       - stdin: "10\n"
         expect_stdout: "10\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["static int"]
 feedback:
   hints:
     - when: io_mismatch

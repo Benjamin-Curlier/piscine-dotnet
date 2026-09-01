@@ -1,10 +1,8 @@
 # Module 34 — Interopérabilité (P/Invoke & code natif)
 
-> **Module de lecture.** Contrairement aux autres modules, celui-ci n'a pas d'exercices
-> auto-corrigés. L'interopérabilité appelle du **code natif spécifique au système** (noms de
-> bibliothèques différents sous Windows / Linux / macOS) : ce n'est ni portable ni déterministe,
-> donc impossible à corriger de façon fiable par la moulinette. Lis-le, puis **expérimente sur ta
-> propre machine** avec les exemples ci-dessous.
+> Le module corrige la **déclaration** d'un contrat natif sans charger de bibliothèque. L'appel réel
+> reste une pratique locale : noms de bibliothèques, ABI et comportement diffèrent entre Windows,
+> Linux et macOS et ne seraient pas déterministes dans la moulinette.
 
 .NET vit dans un monde **managé** : mémoire gérée par le GC, sûreté des types, portabilité. Mais
 parfois il faut sortir de ce monde pour appeler une **bibliothèque native** (C/C++) : une API du
@@ -54,7 +52,7 @@ C'est précisément cette dépendance au système qui rend l'interop non portabl
 
 ---
 
-## 3. P/Invoke moderne : `LibraryImport` (.NET 7+)
+## 3. P/Invoke moderne : `LibraryImport` (.NET 7+) {#libraryimport}
 
 `[LibraryImport]` remplace `[DllImport]` par une approche **générée à la compilation** (source
 generator) : le code de marshalling est produit et **visible**, plus rapide, et compatible AOT. La

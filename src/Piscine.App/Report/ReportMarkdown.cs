@@ -72,6 +72,22 @@ public static class ReportMarkdown
             }
         }
 
+        sb.Append("\n## Missions de synthèse\n\n");
+        if (model.Rushes.Count == 0)
+        {
+            sb.Append("_Aucun Rush configuré._\n");
+        }
+        else
+        {
+            sb.Append("| Rush | Statut |\n");
+            sb.Append("|:---|:---|\n");
+            foreach (var rush in model.Rushes)
+            {
+                sb.Append("| ").Append(Escape(rush.Title)).Append(" | ")
+                  .Append(StatusLabel(rush.Status)).Append(" |\n");
+            }
+        }
+
         // Historique des push récents.
         sb.Append("\n## Push récents\n\n");
         if (model.RecentPushes.Count == 0)
@@ -116,4 +132,12 @@ public static class ReportMarkdown
     /// <summary>Échappe les barres verticales pour ne pas casser les cellules de tableau Markdown.</summary>
     private static string Escape(string value)
         => value.Replace("|", "\\|", StringComparison.Ordinal);
+
+    private static string StatusLabel(Piscine.App.Progress.ExerciseProgressStatus status) => status switch
+    {
+        Piscine.App.Progress.ExerciseProgressStatus.PousseNote => "Fait",
+        Piscine.App.Progress.ExerciseProgressStatus.ARevoir => "À revoir",
+        Piscine.App.Progress.ExerciseProgressStatus.NonCommence => "Non commencé",
+        _ => "En cours",
+    };
 }

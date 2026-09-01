@@ -1,6 +1,9 @@
 id: 01-bases-csharp
 title: "Bases C#"
 order: 1
+prerequisites: [00-setup-git]
+arc: "Acte I — Prise de quart"
+mission: "Décoder les entrées du poste et produire des décisions C# fiables."
 course: cours.md
 groups:
   - id: variables-conditions

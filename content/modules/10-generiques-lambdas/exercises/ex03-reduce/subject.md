@@ -36,3 +36,15 @@ produit=24
   nouvel accumulateur (`R`).
 - Les deux appels ne diffèrent que par le `seed` (`0` / `1`) et la lambda (`(a, x) => a + x` /
   `(a, x) => a * x`).
+
+Pour l'entrée `2, 3, 4`, la somme évolue ainsi :
+
+| Étape | `acc` avant | `element` | `acc` après |
+|---|---:|---:|---:|
+| départ | `0` | — | `0` |
+| 1 | `0` | `2` | `2` |
+| 2 | `2` | `3` | `5` |
+| 3 | `5` | `4` | `9` |
+
+Le produit suit exactement la même mécanique, avec un départ à `1` et une multiplication. La
+méthode `Reduce` ne connaît donc ni la somme ni le produit : c'est la lambda qui choisit l'opération.

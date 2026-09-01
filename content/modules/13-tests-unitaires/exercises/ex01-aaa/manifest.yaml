@@ -1,23 +1,26 @@
 id: ex01-aaa
-title: "Arrange-Act-Assert"
-objective: "Derouler le patron Arrange-Act-Assert : preparer, calculer, puis verifier le resultat."
-deliverables: [Aaa.cs]
-starter: [Aaa.cs]
+title: "AAA et valeur frontière"
+objective: "Structurer des tests Arrange-Act-Assert qui distinguent 17 ans de la borne exacte 18 ans."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [testing, quality]
+story_beat: "Sécuriser la règle d'accès à la salle de contrôle."
+deliverables: [AccesTests.cs]
+starter: [AccesTests.cs]
 grading:
-  - type: io
-    cases:
-      - stdin: "2\n3\n5\n"
-        expect_stdout: "PASS\n"
-        expect_exit: 0
-      - stdin: "2\n2\n5\n"
-        expect_stdout: "FAIL\n"
-        expect_exit: 0
-      - stdin: "10\n5\n15\n"
-        expect_stdout: "PASS\n"
-        expect_exit: 0
+  - type: mutation
+    reference: reference/Acces.cs
+    mutants:
+      - id: borne-inclusive
+        label: "La frontière exacte de 18 ans n'est pas couverte."
+        find: "age < 18"
+        replace: "age <= 18"
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Arrange : lis a, b, attendu. Act : somme = a + b. Assert : si somme == attendu affiche PASS, sinon FAIL."
-  course_ref: "cours.md#aaa"
-solution: [Aaa.cs]
+    - when: mutant_survived
+      message: "Teste les deux côtés immédiats de la frontière : 17 puis 18."
+    - when: tests_fail_on_reference
+      message: "Arrange l'âge, appelle Acces.Classer, puis vérifie mineur/majeur avec Assert.Equal."
+  course_ref: "cours.md#arrange-act-assert"
+solution: [AccesTests.cs]

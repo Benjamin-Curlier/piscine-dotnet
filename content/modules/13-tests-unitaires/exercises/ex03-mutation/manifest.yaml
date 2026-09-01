@@ -2,6 +2,10 @@ id: ex03-mutation
 title: "Des tests qui attrapent les bugs"
 objective: "Ecrire une suite de tests xUnit qui detecte les implementations boguees (mutants)."
 difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [testing,quality]
+story_beat: "Sécuriser la capacité Des tests qui attrapent les bugs d'Asteria."
 deliverables: [CompteTests.cs]
 starter: [Compte.cs, CompteTests.cs]
 grading:

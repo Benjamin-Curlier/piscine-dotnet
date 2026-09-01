@@ -1,6 +1,11 @@
 id: ex00-correspond
 title: "Que des chiffres ?"
 objective: "Valider chaque ligne avec Regex.IsMatch et le motif ^\\d+$ (oui/non)."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,text]
+story_beat: "Sécuriser la capacité Que des chiffres ? d'Asteria."
 deliverables: [Correspond.cs]
 starter: [Correspond.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "2\n-5\n5\n"
         expect_stdout: "non\noui\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Regex.IsMatch"]
 feedback:
   hints:
     - when: io_mismatch

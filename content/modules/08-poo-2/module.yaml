@@ -1,6 +1,9 @@
 id: 08-poo-2
 title: "POO 2 — Héritage & polymorphisme"
 order: 8
+prerequisites: [07-poo-1]
+arc: "Acte II — Cœur métier"
+mission: "Piloter des familles d'équipements derrière des contrats communs."
 course: cours.md
 groups:
   - id: heritage-polymorphisme

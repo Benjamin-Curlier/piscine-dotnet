@@ -1,6 +1,9 @@
 id: 06-collections
 title: "Collections"
 order: 6
+prerequisites: [04-tableaux-chaines]
+arc: "Acte II — Cœur métier"
+mission: "Cataloguer les ressources récupérées avec la structure adaptée à chaque recherche."
 course: cours.md
 groups:
   - id: listes-dictionnaires

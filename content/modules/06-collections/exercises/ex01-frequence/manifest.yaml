@@ -1,6 +1,11 @@
 id: ex01-frequence
 title: "Fréquence d'un mot"
 objective: "Compter, avec un dictionnaire, combien de fois un mot cible apparaît dans une liste."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Fréquence d'un mot d'Asteria."
 deliverables: [Frequence.cs]
 starter: [Frequence.cs]
 grading:

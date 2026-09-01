@@ -1,6 +1,11 @@
 id: ex02-somme-n
 title: "Somme de 1 à N"
 objective: "Calculer et afficher la somme de tous les entiers de 1 à N."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Somme de 1 à N d'Asteria."
 deliverables: [SommeN.cs]
 starter: [SommeN.cs]
 grading:

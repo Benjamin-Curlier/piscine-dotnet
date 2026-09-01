@@ -33,7 +33,7 @@ et crée la **GitHub Release** avec les zips attachés.
 
 Tout doit être vert **sur `main`**, arbre propre :
 
-- [ ] `dotnet test Piscine.slnx -c Release` → **0 échec** (mettre à jour le compteur dans le HANDOFF).
+- [ ] `dotnet test --solution Piscine.slnx -c Release` → **0 échec** (mettre à jour le compteur dans le HANDOFF).
 - [ ] `validate-content` → **« Contenu valide. »** :
       ```powershell
       $env:PISCINE_CONTENT = "$PWD\content"; dotnet run --project src/Piscine.Cli -c Release -- validate-content
@@ -80,7 +80,7 @@ Le workflow a **3 jobs** :
 
 ### `package-linux` (ubuntu-24.04)
 
-> Ubuntu **24.04** car PhotinoX.Blazor 4.2.0 cible **webkit2gtk-4.1** (soup3) ; la 22.04 ne fournit que la 4.0.
+> Ubuntu **24.04** car PhotinoX.Blazor 5.1.2 cible **webkit2gtk-4.1** (soup3) ; la 22.04 ne fournit que la 4.0.
 
 1. **`package-content content artifacts/content`** — copie le contenu **sans les `solution/`**
    (les corrigés ne sont jamais distribués).
@@ -130,7 +130,7 @@ peut falloir l'installer à la main :
 - **Windows** : runtime **WebView2** (Evergreen). Préinstallé sur Windows 11 et les Windows 10
   récents. **Éditions N** / images minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
   (`WebView2Loader.dll` est dans le paquet ; c'est le **runtime** qui peut manquer, pas le loader.)
-- **Linux** : **`libwebkit2gtk-4.1`** (PhotinoX 4.2.0) — Debian/Ubuntu
+- **Linux** : **`libwebkit2gtk-4.1`** (PhotinoX.Blazor 5.1.2) — Debian/Ubuntu
   `sudo apt install libwebkit2gtk-4.1-0`, Fedora `sudo dnf install webkit2gtk4.1`.
   *(Requis aussi par l'**AppImage online** — l'offline est abandonnée en v3.1.0, cf. §4 `package-linux`.)*
 

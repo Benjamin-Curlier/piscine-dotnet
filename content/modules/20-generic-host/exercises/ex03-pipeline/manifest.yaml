@@ -2,6 +2,10 @@ id: ex03-pipeline
 title: "Pipeline producteur/consommateur"
 objective: "Dans un service hébergé, faire transiter des valeurs par un Channel (producteur puis consommateur, FIFO déterministe), journaliser chaque traitement et le total, puis arrêter."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [hosting,architecture]
+story_beat: "Sécuriser la capacité Pipeline producteur/consommateur d'Asteria."
 bonus: true
 deliverables: [Pipeline.cs, LogCapture.cs]
 starter: [Pipeline.cs, LogCapture.cs]
@@ -22,9 +26,14 @@ grading:
       - stdin: "1 2 3 4 5\n"
         expect_stdout: "Pipeline [Information] Traité 1 -> 2\nPipeline [Information] Traité 2 -> 4\nPipeline [Information] Traité 3 -> 6\nPipeline [Information] Traité 4 -> 8\nPipeline [Information] Traité 5 -> 10\nPipeline [Information] Total = 30\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Channel.CreateUnbounded", "ReadAllAsync"]
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Channel.CreateUnbounded<int>() : écris toutes les valeurs, Writer.Complete(), puis consomme via ReadAllAsync. Logue \"Traité {Valeur} -> {Double}\" pour chacune, puis \"Total = {Total}\"."
+      - when: io_mismatch
+        message: "Channel.CreateUnbounded<int>() : écris toutes les valeurs, Writer.Complete(), puis consomme via ReadAllAsync. Logue \"Traité {Valeur} -> {Double}\" pour chacune, puis \"Total = {Total}\"."
+      - when: compile_error
+        message: "Référence System.Threading.Channels ; le producteur et le consommateur sont asynchrones et doivent retourner Task."
   course_ref: "cours.md#pipeline"
 solution: [Pipeline.cs, LogCapture.cs]

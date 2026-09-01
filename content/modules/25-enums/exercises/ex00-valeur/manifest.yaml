@@ -2,6 +2,10 @@ id: ex00-valeur
 title: "La valeur d'une couleur"
 objective: "Lire un nom de Couleur et afficher sa valeur entière sous-jacente via un cast (int)."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité La valeur d'une couleur d'Asteria."
 deliverables: [Valeur.cs]
 starter: [Valeur.cs]
 grading:
@@ -24,6 +28,9 @@ grading:
       - stdin: "Rouge\n"
         expect_stdout: "0\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["enum Couleur"]
 feedback:
   hints:
     - when: io_mismatch

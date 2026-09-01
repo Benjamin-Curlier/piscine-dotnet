@@ -1,0 +1,227 @@
+@page "/rush/{Id}"
+@rendermode InteractiveServer
+@using Piscine.App.Launch
+@using Piscine.App.Progress
+@using Piscine.App.Settings
+@using Piscine.Components.Components.Progress
+@using Piscine.Components.Services
+@using Piscine.Core
+@using Piscine.Core.Content
+@using Piscine.Core.Progression
+@inject CourseCatalog Catalog
+@inject WorkspaceLauncher Launcher
+@inject ProgressService Progress
+@inject SettingsService Settings
+@inject PiscineLayout Layout
+@inject NavigationManager Nav
+
+@if (_rush is null)
+{
+    <PageTitle>Mission introuvable</PageTitle>
+    <div class="notice notice-warn">Mission <code>@Id</code> introuvable.</div>
+}
+else
+{
+    <PageTitle>@_rush.Title — Piscine .NET</PageTitle>
+    <nav class="breadcrumb">
+        <a href="/rushes">Rushes</a> <span>/</span> <span>@_rush.Title</span>
+    </nav>
+    <header class="exercise-header" data-testid="rush-page">
+        <h1>@_rush.Title</h1>
+        <div class="exercise-meta">
+            <span class="badge badge-@_rush.Difficulty">@_rush.Difficulty</span>
+            <span class="badge badge-time">≈ @_rush.EstimatedMinutes min</span>
+            <span class="badge badge-xp">+@_rush.Xp XP</span>
+            <StatusBadge Status="_status.Status" Source="_status.Source" />
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_rush.StoryBeat))
+        {
+            <p class="story-beat">Mission : @_rush.StoryBeat</p>
+        }
+        <p class="exercise-objective">@_rush.Objective</p>
+    </header>
+
+    <section class="rush-brief" aria-label="Contrat de la mission">
+        <div class="rush-brief-block">
+            <span class="rush-brief-label">Jalon conseillé</span>
+            @if (_milestone is not null)
+            {
+                <a href="/module/@_milestone.Id">Après M@_milestone.Number — @_milestone.Title</a>
+            }
+            else
+            {
+                <span>Mission libre</span>
+            }
+            <small>Conseil de rythme, jamais un verrou.</small>
+        </div>
+        <div class="rush-brief-block">
+            <span class="rush-brief-label">Validation</span>
+            <strong>Moulinette automatique</strong>
+            <small>@AutomaticValidationLabel(_rush)</small>
+            @if (_rush.ManualValidation)
+            {
+                <span class="manual-proof">+ preuves d’exploitation à relire</span>
+            }
+        </div>
+        <div class="rush-brief-block">
+            <span class="rush-brief-label">Historique</span>
+            <strong>@(_attempts == 0 ? "Aucune tentative" : $"{_attempts} tentative{(_attempts > 1 ? "s" : "")}")</strong>
+            @if (_lastAttempt is not null)
+            {
+                <small>Dernière : @_lastAttempt.Value.ToLocalTime().ToString("g")</small>
+            }
+        </div>
+    </section>
+
+    @if (_rush.Deliverables.Count > 0)
+    {
+        <section class="rush-deliverables" data-testid="rush-deliverables">
+            <h2>Checklist des livrables</h2>
+            <ul>
+                @foreach (var file in _rush.Deliverables)
+                {
+                    <li><span aria-hidden="true">□</span><code>@file</code></li>
+                }
+            </ul>
+        </section>
+    }
+
+    <div class="exercise-actions" data-testid="rush-actions">
+        <button class="ex-action ex-action-primary" data-testid="rush-open-folder" @onclick="OpenFolder">@StartLabel</button>
+        @if (_editor is not null)
+        {
+            <button class="ex-action" data-testid="rush-open-editor" @onclick="OpenEditor">Ouvrir dans @_editor.Label</button>
+        }
+        <button class="ex-action" data-testid="rush-open-terminal" @onclick="OpenEmbeddedTerminal">Terminal intégré</button>
+        <button class="ex-action" data-testid="rush-open-system-terminal" @onclick="OpenSystemTerminal">Terminal système</button>
+        <a class="ex-action ex-action-check" data-testid="rush-check" href="/check/@ContentLocator.RushesModuleId/@_rush.Id">Vérifier</a>
+    </div>
+    @if (_error is not null)
+    {
+        <div class="notice notice-warn">@_error</div>
+    }
+    <CourseToc Markdown="@_rush.SubjectMarkdown" />
+    <MarkdownView Markdown="@_rush.SubjectMarkdown" />
+
+    <nav class="pager" aria-label="Navigation entre les Rushes">
+        @if (_previous is not null)
+        {
+            <a class="pager-prev" href="/rush/@_previous.Id">
+                <span class="pager-dir">← Rush précédent</span>
+                <span class="pager-title">@_previous.Title</span>
+            </a>
+        }
+        else
+        {
+            <a class="pager-prev" href="/rushes">
+                <span class="pager-dir">← Feuille de route</span>
+                <span class="pager-title">Tous les Rushes</span>
+            </a>
+        }
+        @if (_next is not null)
+        {
+            <a class="pager-next" href="/rush/@_next.Id">
+                <span class="pager-dir">Rush suivant →</span>
+                <span class="pager-title">@_next.Title</span>
+            </a>
+        }
+        else
+        {
+            <a class="pager-next" href="/rushes">
+                <span class="pager-dir">Retour →</span>
+                <span class="pager-title">Feuille de route</span>
+            </a>
+        }
+    </nav>
+}
+
+@code {
+    [Parameter] public string Id { get; set; } = string.Empty;
+    private CourseRush? _rush;
+    private CourseRush? _previous;
+    private CourseRush? _next;
+    private CourseModule? _milestone;
+    private EditorOption? _editor;
+    private ExerciseStatusInfo _status = new(
+        ContentLocator.RushesModuleId,
+        string.Empty,
+        ExerciseProgressStatus.NonCommence,
+        StatusSource.Progress);
+    private int _attempts;
+    private DateTimeOffset? _lastAttempt;
+    private string? _error;
+
+    protected override void OnParametersSet()
+    {
+        _rush = Catalog.GetRush(Id);
+        _previous = _next = null;
+        _milestone = null;
+        _error = null;
+        _attempts = 0;
+        _lastAttempt = null;
+        _editor = null;
+
+        if (_rush is null)
+        {
+            return;
+        }
+
+        var index = Catalog.Rushes.ToList().FindIndex(rush =>
+            string.Equals(rush.Id, _rush.Id, StringComparison.OrdinalIgnoreCase));
+        _previous = index > 0 ? Catalog.Rushes[index - 1] : null;
+        _next = index >= 0 && index < Catalog.Rushes.Count - 1 ? Catalog.Rushes[index + 1] : null;
+        _milestone = Catalog.GetRecommendedModule(_rush);
+        _editor = EditorResolver.Resolve(Settings.Load().EditorCommand, ExecutableProbe.OnPath);
+        _status = Progress.StatusFor(ContentLocator.RushesModuleId, _rush.Id);
+
+        var persisted = new ProgressStore(Layout.ProgressPath).Load();
+        if (persisted.Exercises.TryGetValue(_rush.Id, out var entry))
+        {
+            _attempts = entry.Attempts;
+            _lastAttempt = entry.LastAttempt;
+        }
+    }
+
+    private string StartLabel => _status.Status switch
+    {
+        ExerciseProgressStatus.NonCommence => "Démarrer la mission",
+        ExerciseProgressStatus.PousseNote => "Revoir le dossier",
+        _ => "Reprendre la mission",
+    };
+
+    private void OpenFolder()
+        => _error = Launcher.OpenFolder(Id) ? null : "Impossible d'ouvrir le dossier de la mission.";
+
+    private void OpenEditor()
+    {
+        if (_editor is not null)
+        {
+            _error = Launcher.OpenEditor(Id, _editor)
+                ? null
+                : $"Impossible d'ouvrir l'éditeur ({_editor.Label} introuvable). Utilise le Terminal intégré.";
+        }
+    }
+
+    private void OpenSystemTerminal()
+        => _error = Launcher.OpenSystemTerminal(Id)
+            ? null
+            : "Impossible d'ouvrir le terminal système. Utilise le Terminal intégré.";
+
+    private void OpenEmbeddedTerminal() => Nav.NavigateTo("/terminal");
+
+    private static string AutomaticValidationLabel(CourseRush rush)
+        => rush.GradingTypes.Count == 0
+            ? "Contrôle de fichiers et de comportement."
+            : string.Join(" · ", rush.GradingTypes.Select(GraderLabel));
+
+    private static string GraderLabel(string type) => type.ToLowerInvariant() switch
+    {
+        "io" => "entrées/sorties",
+        "unit" => "tests unitaires",
+        "source" => "contraintes de code",
+        "projet" => "architecture",
+        "fichier" => "contrats de fichiers",
+        "git" => "historique Git",
+        _ => type,
+    };
+}

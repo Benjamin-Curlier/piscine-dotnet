@@ -17,6 +17,33 @@ else
         <a href="/cours">Cours</a> <span>/</span> <span>Module @_module.Number</span>
     </nav>
 
+    @if (_module.PrerequisiteIds.Count > 0)
+    {
+        <aside class="notice notice-info" data-testid="module-prerequisites" aria-label="Prérequis conseillés">
+            <strong>Prérequis conseillés :</strong>
+            @foreach (var prerequisiteId in _module.PrerequisiteIds)
+            {
+                var prerequisite = Catalog.GetModule(prerequisiteId);
+                if (prerequisite is not null)
+                {
+                    <a href="/module/@prerequisite.Id">@prerequisite.Number — @prerequisite.Title</a>
+                }
+            }
+        </aside>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_module.Mission))
+    {
+        <aside class="mission-card" data-testid="module-mission">
+            <span class="mission-arc">@_module.Arc</span>
+            <strong>Mission : @_module.Mission</strong>
+            @if (_module.HasExercises)
+            {
+                <span>≈ @_module.EstimatedMinutes min · @_module.TotalXp XP disponibles</span>
+            }
+        </aside>
+    }
+
     <CourseToc Markdown="@_module.CourseMarkdown" />
     <MarkdownView Markdown="@_module.CourseMarkdown" />
 
@@ -36,11 +63,17 @@ else
                                     <StatusDot Status="StatusFor(ex.Id)" />
                                     <span class="exercise-card-title">@ex.Title</span>
                                     <span class="badge badge-@ex.Difficulty">@ex.Difficulty</span>
+                                    <span class="badge badge-time">@ex.EstimatedMinutes min</span>
+                                    <span class="badge badge-xp">@ex.Xp XP</span>
                                     @if (ex.Bonus)
                                     {
                                         <span class="badge badge-bonus">bonus</span>
                                     }
                                 </div>
+                                @if (!string.IsNullOrWhiteSpace(ex.StoryBeat))
+                                {
+                                    <p class="exercise-card-story">@ex.StoryBeat</p>
+                                }
                                 <p class="exercise-card-obj">@ex.Objective</p>
                             </a>
                         }

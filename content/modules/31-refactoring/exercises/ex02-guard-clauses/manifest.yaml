@@ -2,6 +2,10 @@ id: ex02-guard-clauses
 title: "Conditions imbriquées → clauses-gardes"
 objective: "Aplatir des if imbriqués en retours anticipés (guard clauses) plus lisibles."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [quality,refactoring]
+story_beat: "Sécuriser la capacité Conditions imbriquées → clauses-gardes d'Asteria."
 deliverables: [Eligibilite.cs]
 starter: [Eligibilite.cs]
 grading:
@@ -28,9 +32,16 @@ grading:
       - stdin: "40\n100000\n"
         expect_stdout: "OUI\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["static bool EstEligible"]
+      required_occurrences:
+        - { fragment: "return", count: 4 }
 feedback:
   hints:
     - when: io_mismatch
       message: "Éligible si age >= 18 ET 0 <= solde <= 100000. Plutôt que d'imbriquer les if, sors tôt : if (age < 18) return false; etc. Même comportement, lecture linéaire."
+    - when: source_constraint
+      message: "Extrais EstEligible et utilise au moins trois retours anticipés avant le return true final."
   course_ref: "cours.md#guard"
 solution: [Eligibilite.cs]

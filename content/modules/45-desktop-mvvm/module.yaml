@@ -1,0 +1,11 @@
+id: 45-desktop-mvvm
+title: "Applications lourdes : MVVM, thread UI et tâches longues"
+order: 45
+prerequisites: [12-async-await, 18-injection-dependances, 39-blazor]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Rendre le poste opérateur réactif pendant les traitements et les échanges distribués."
+course: cours.md
+groups:
+  - id: desktop-reactif
+    title: "État, dispatcher et concurrence d'interaction"
+    exercises: [ex00-viewmodel-notifiable, ex01-dispatcher-ui, ex02-derniere-requete]

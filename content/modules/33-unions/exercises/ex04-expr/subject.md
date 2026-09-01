@@ -13,6 +13,23 @@ Lis une expression en **notation polonaise préfixe** (l'opérateur précède se
 
 Affiche la valeur évaluée.
 
+### Comment lire la notation préfixe
+
+En notation habituelle, l'opérateur se place **entre** ses deux opérandes : `3 + 4`. En notation
+préfixe, il se place **avant** : `+ 3 4`. Chaque opérateur consomme toujours les deux expressions
+qui le suivent ; une expression peut elle-même commencer par un opérateur.
+
+Pour `+ 3 * 4 2`, lis de gauche à droite :
+
+```text
++ 3 * 4 2
+└─ gauche : 3
+└─ droite : * 4 2  → 4 × 2
+résultat : 3 + 8 = 11
+```
+
+Cette règle rend les parenthèses inutiles et se traduit directement par une fonction récursive.
+
 Exemples :
 - `+ 3 * 4 2` → `11` (soit `3 + (4 × 2)`) ;
 - `* + 1 2 3` → `9` (soit `(1 + 2) × 3`) ;

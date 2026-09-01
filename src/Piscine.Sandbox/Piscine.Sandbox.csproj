@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Piscine.Sandbox</AssemblyName>
     <RootNamespace>Piscine.Sandbox</RootNamespace>
-    <!-- Référence xunit.core pour EXÉCUTER les tests recrue, pas pour être un projet de tests. -->
+    <!-- Référence xunit.v3.extensibility.core pour EXÉCUTER les tests recrue, pas pour être un projet de tests. -->
     <IsTestProject>false</IsTestProject>
     <!-- NE PAS désactiver la sérialisation JSON par réflexion : le code recrue s'exécute dans CE
          processus et certains exercices utilisent System.Text.Json par réflexion. Notre propre
@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.assert" Version="2.9.3" />
-    <PackageReference Include="xunit.core" Version="2.9.3" />
+    <PackageReference Include="xunit.v3.assert" Version="4.0.0" />
+    <PackageReference Include="xunit.v3.extensibility.core" Version="4.0.0" />
   </ItemGroup>
 
 </Project>

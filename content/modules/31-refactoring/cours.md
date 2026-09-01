@@ -59,12 +59,13 @@ Le « code en escalier » (`if` dans `if`) noie le cas nominal sous les exclusio
 **clauses-gardes** traitent les cas d'échec d'abord, avec des **retours anticipés**.
 
 ```csharp
-// Avant
-if (age >= 18) { if (solde >= 0) { ... } }
-// Après
-if (age < 18) { return false; }
-if (solde < 0) { return false; }
-return true;
+// Avant : les validations d'un fichier sont imbriquées les unes dans les autres.
+if (fichier is not null) { if (fichier.Length > 0) { Traiter(fichier); } }
+
+// Après : chaque cas invalide sort immédiatement.
+if (fichier is null) return false;
+if (fichier.Length == 0) return false;
+return Traiter(fichier);
 ```
 
 Moins d'indentation, conditions d'échec explicites, cas nominal visible à la fin.

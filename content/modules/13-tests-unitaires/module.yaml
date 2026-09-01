@@ -1,6 +1,9 @@
 id: 13-tests-unitaires
 title: "Tests unitaires"
 order: 13
+prerequisites: [03-methodes]
+arc: "Acte II — Cœur métier"
+mission: "Construire le filet de sécurité qui détecte les régressions avant remise en ligne."
 course: cours.md
 groups:
   - id: tests-unitaires

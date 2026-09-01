@@ -1,22 +1,25 @@
-# ex00-assertion — L'assertion
+# ex00-assertion — Premier vrai test xUnit
 
-## Objectif
+## Mission
 
-Un test, au fond, c'est une **comparaison** : un résultat **attendu** face à un résultat
-**obtenu**. C'est exactement ce que fait `Assert.Equal(attendu, obtenu)` en xUnit.
+Tu ne produis plus une sortie console : tu écris une suite de tests contre cette API fournie :
 
-Lis deux entiers : d'abord l'**attendu**, puis l'**obtenu**. Affiche `OK` s'ils sont **égaux**,
-sinon `KO`.
+```csharp
+public static class Calculatrice
+{
+    public static int Additionner(int a, int b);
+}
+```
 
-Exemple : `5` puis `5` → `OK`. `5` puis `6` → `KO`.
+Le starter vérifie seulement `0 + 0`, un exemple trop faible. Remplace-le ou complète-le par des
+tests `[Fact]` qui échoueraient si l'addition était accidentellement remplacée par une soustraction.
 
 ## Livrable
 
-- `Assertion.cs`
+- `CalculatriceTests.cs`
 
-## Indices
+## Progression des indices
 
-- Lis chaque entier avec `int.Parse(System.Console.ReadLine())`.
-- Compare les deux valeurs avec `==`.
-- Affiche le résultat avec `System.Console.WriteLine`.
-- N'oublie pas le cas `0` / `0` : deux zéros sont bien **égaux**, donc `OK`.
+1. Respecte Arrange-Act-Assert et donne un nom qui décrit le scénario.
+2. `Assert.Equal(attendu, Calculatrice.Additionner(a, b))` compare le contrat au résultat.
+3. Évite uniquement des zéros : addition et soustraction y donnent toutes deux zéro.

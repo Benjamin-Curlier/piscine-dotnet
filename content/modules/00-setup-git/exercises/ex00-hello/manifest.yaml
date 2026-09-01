@@ -1,6 +1,11 @@
 id: ex00-hello
 title: "Hello, Piscine"
 objective: "Afficher un message précis sur la sortie standard."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [git,tooling]
+story_beat: "Sécuriser la capacité Hello, Piscine d'Asteria."
 deliverables: [Hello.cs]
 starter: [Hello.cs]
 grading:

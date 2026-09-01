@@ -7,6 +7,10 @@ public sealed record CourseExercise(
     string Title,
     string Objective,
     string Difficulty,
+    int EstimatedMinutes,
+    int Xp,
+    IReadOnlyList<string> Tags,
+    string StoryBeat,
     bool Bonus,
     IReadOnlyList<string> Deliverables,
     string? SubjectMarkdown);
@@ -22,6 +26,9 @@ public sealed record CourseModule(
     string Id,
     int Order,
     string Title,
+    IReadOnlyList<string> PrerequisiteIds,
+    string Arc,
+    string Mission,
     string CourseMarkdown,
     IReadOnlyList<CourseGroup> Groups)
 {
@@ -31,4 +38,25 @@ public sealed record CourseModule(
     public int ExerciseCount => Groups.Sum(g => g.Exercises.Count);
 
     public bool HasExercises => ExerciseCount > 0;
+
+    public int EstimatedMinutes => Groups.SelectMany(group => group.Exercises).Sum(exercise => exercise.EstimatedMinutes);
+
+    public int TotalXp => Groups.SelectMany(group => group.Exercises).Sum(exercise => exercise.Xp);
 }
+
+/// <summary>Mini-projet transverse affiché dans l'application au même titre que les modules.</summary>
+public sealed record CourseRush(
+    string Id,
+    string Title,
+    string Objective,
+    string Difficulty,
+    int EstimatedMinutes,
+    int Xp,
+    IReadOnlyList<string> Tags,
+    string StoryBeat,
+    string RecommendedAfterModuleId,
+    bool ManualValidation,
+    IReadOnlyList<string> GradingTypes,
+    bool Bonus,
+    IReadOnlyList<string> Deliverables,
+    string? SubjectMarkdown);

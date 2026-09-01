@@ -1,6 +1,11 @@
 id: ex00-attente
 title: "Doubler en asynchrone"
 objective: "Écrire et attendre une méthode async Task<int> avec await Task.Delay."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,async]
+story_beat: "Sécuriser la capacité Doubler en asynchrone d'Asteria."
 deliverables: [Attente.cs]
 starter: [Attente.cs]
 grading:
@@ -25,6 +30,9 @@ grading:
       - stdin: "100\n"
         expect_stdout: "200\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["async Task<int>", "await"]
 feedback:
   hints:
     - when: io_mismatch

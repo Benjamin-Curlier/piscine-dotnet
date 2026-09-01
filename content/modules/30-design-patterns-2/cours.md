@@ -9,7 +9,8 @@ un singleton ») et évite de réinventer des structures fragiles.
 On classe traditionnellement les patrons GoF en trois familles :
 - **Créationnels** — comment créer des objets (Singleton, Builder, Factory…).
 - **Structurels** — comment composer des objets (Adapter, Decorator…).
-- **Comportementaux** — comment les objets collaborent (Command, Strategy, Observer…).
+- **Comportementaux** — comment les objets collaborent (Chain of Responsibility, Command,
+  Strategy, Observer…).
 
 ---
 
@@ -63,36 +64,33 @@ l'appareil, on intercale une pièce qui les rend compatibles.
 
 ---
 
-## 3. Decorator {#decorator}
+## 3. Chain of Responsibility {#chain-of-responsibility}
 
-**Problème** : ajouter des responsabilités à un objet **dynamiquement**, sans faire exploser le
-nombre de sous-classes (CaféAvecLait, CaféAvecLaitEtSucre, CaféAvecSucre…).
+**Problème** : une requête doit traverser une série de contrôles, mais le client ne doit pas
+connaître toutes les règles ni leur ordre interne.
 
-**Solution** : des **décorateurs** qui implémentent la même interface que l'objet et l'**enveloppent**.
-Chaque décorateur délègue à l'objet enveloppé, puis ajoute sa contribution.
+**Solution** : chaque **handler** traite une responsabilité et conserve une référence vers le
+suivant. Il répond immédiatement s'il bloque la requête ; sinon, il délègue. La chaîne peut ainsi
+être recomposée sans modifier le client ni créer une méthode monolithique.
 
 ```csharp
-interface IBoisson { string Description(); int Cout(); }
-
-abstract class Decorateur : IBoisson
+abstract class Handler
 {
-    protected readonly IBoisson Enveloppe;
-    protected Decorateur(IBoisson enveloppe) => Enveloppe = enveloppe;
-    public abstract string Description();
-    public abstract int Cout();
+    private Handler? _next;
+    public Handler SetNext(Handler next) { _next = next; return next; }
+    protected string Next(Requete r) => _next?.Handle(r) ?? "ACCEPTE";
+    public abstract string Handle(Requete r);
 }
 
-sealed class Lait : Decorateur
+sealed class AuthHandler : Handler
 {
-    public Lait(IBoisson b) : base(b) { }
-    public override string Description() => Enveloppe.Description() + ", lait";
-    public override int Cout() => Enveloppe.Cout() + 1;
+    public override string Handle(Requete r) =>
+        r.EstAuthentifie ? Next(r) : "REFUS authentification";
 }
 ```
 
-On empile alors les décorateurs comme des poupées russes : `new Sucre(new Lait(new Cafe()))`. Chaque
-couche s'appuie sur la précédente. C'est la même idée que les `Stream` de .NET
-(`GZipStream` enveloppant un `FileStream`…).
+Ce patron convient aux pipelines de validation, aux middlewares et aux filtres. Attention à garder
+un ordre explicite : déplacer un contrôle peut changer le comportement du système.
 
 ---
 
@@ -158,14 +156,15 @@ mécanisme derrière le Ctrl+Z de n'importe quel éditeur.
 
 - Un pattern résout un problème **précis** : ne force pas un patron là où une simple méthode suffit.
 - Beaucoup de patrons GoF sont déjà **intégrés** au framework .NET (Builder, Decorator via les
-  `Stream`, Iterator via `IEnumerable`…). Sache les reconnaître autant que les écrire.
+  `Stream`, Chain via les middlewares, Iterator via `IEnumerable`…). Sache les reconnaître autant
+  que les écrire.
 - `Singleton` et état global : préfère l'**injection de dépendances** dès qu'un projet grossit.
 
 ### Exercices du module
 
 - **ex00-singleton** — instance unique partagée.
 - **ex01-adapter** — rendre compatible une API existante.
-- **ex02-decorator** — empiler des comportements.
+- **ex02-chain-responsabilite** — composer un pipeline de contrôles.
 - **ex03-builder** — construction fluide pas à pas.
 - **ex04-command** *(bonus)* — actions réifiées & undo.
 

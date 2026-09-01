@@ -2,6 +2,10 @@ id: ex02-compte-bits
 title: "Compter les bits à 1"
 objective: "Compter à la main le nombre de bits à 1 d'un entier avec un masque n & 1 et un décalage n >>= 1."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Compter les bits à 1 d'Asteria."
 deliverables: [CompteBits.cs]
 starter: [CompteBits.cs]
 grading:

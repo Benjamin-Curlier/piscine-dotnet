@@ -13,13 +13,18 @@
 .report-key { color: var(--ink-soft, #888); margin-right: 0.4rem; }
 .report-val { font-weight: 500; }
 
-.report-overview, .report-modules, .report-pushes { margin: 1.5rem 0; }
+.report-overview, .report-rushes, .report-modules, .report-pushes { margin: 1.5rem 0; }
 .report h2 { font-size: 1.05rem; margin: 0 0 0.6rem; }
+.report-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+.report-section-heading p { margin: -.35rem 0 .7rem; color: var(--ink-soft); font-size: .82rem; }
+.report-rush-metrics { grid-template-columns: repeat(4, 1fr); }
+.report-rush-list { list-style: none; margin: .7rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: .35rem .8rem; }
+.report-rush-list li { display: flex; align-items: center; justify-content: space-between; gap: .7rem; padding: .4rem 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
 
 .board-metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 0.6rem; }
 /* Même palier responsive que BoardOverview : à l'étroit, les 5 cartes s'empilent en 2 colonnes
    pour ne plus tronquer les libellés (« En cours » / « À revoir ») autour de 420 px. */
-@media (max-width: 520px) { .board-metrics { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .board-metrics, .report-rush-metrics { grid-template-columns: 1fr 1fr; } }
 .metric { background: rgba(127,127,127,0.08); border-radius: 8px; padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; }
 .metric-label { font-size: 0.72rem; color: var(--ink-soft, #888); }
 .metric-value { font-size: 1.3rem; font-weight: 500; }

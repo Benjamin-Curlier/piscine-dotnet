@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package asteria.commands.v1;
+option csharp_namespace = "Asteria.Commands.V1";
+
+service CommandService {
+  rpc Submit (SubmitCommandRequest) returns (SubmitCommandReply);
+  rpc Watch (WatchCommandRequest) returns (stream CommandStatus);
+}
+
+message SubmitCommandRequest {
+  string idempotency_key = 1;
+  string kind = 2;
+  string payload = 3;
+  reserved 4;
+  reserved "legacy_operator";
+}
+
+message SubmitCommandReply {
+  string command_id = 1;
+}
+
+message WatchCommandRequest {
+  string command_id = 1;
+}
+
+message CommandStatus {
+  string command_id = 1;
+  string state = 2;
+}

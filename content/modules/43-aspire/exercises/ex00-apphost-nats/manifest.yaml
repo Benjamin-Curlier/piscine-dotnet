@@ -1,0 +1,23 @@
+id: ex00-apphost-nats
+title: "Composer API, worker et NATS dans l'AppHost"
+objective: "Décrire une topologie Aspire avec dépendances, volume durable et attente explicite."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [aspire, nats, architecture]
+story_beat: "Assembler le poste de commande, le worker et le bus d'Asteria."
+deliverables: [AppHost.cs]
+starter: [AppHost.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: AppHost.cs
+          required_fragments: ["DistributedApplication.CreateBuilder", "AddContainer(\"nats\"", "WithArgs(\"-js\")", "WithDataVolume", "AddProject<Projects.Api>", "AddProject<Projects.Worker>", "WithReference(nats)", "WaitFor(nats)", "Build().Run()"]
+          forbidden_fragments: ["localhost:4222"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Crée la ressource nats avec AddContainer, active -js et un volume, puis référence-la et attends-la depuis l'API et le worker avant Build().Run()."
+  course_ref: "cours.md#apphost"
+solution: [AppHost.cs]

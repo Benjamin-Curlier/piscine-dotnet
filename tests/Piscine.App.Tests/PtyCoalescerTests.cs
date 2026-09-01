@@ -73,7 +73,7 @@ public sealed class PtyCoalescerTests
             }
 
             // On attend plus long que la fenetre pour etre sur que le flush a eu lieu.
-            await Task.Delay(TimeSpan.FromMilliseconds(200));
+            await Task.Delay(TimeSpan.FromMilliseconds(200), TestContext.Current.CancellationToken);
         }
 
         // Le coalescer doit avoir regroupe : moins d'evenements que de chunks.
@@ -109,7 +109,7 @@ public sealed class PtyCoalescerTests
             // ~3× la fenêtre (90 ms) flake sous charge (le flush passe par un timer + une boucle async).
             // La promptitude fine est couverte par Seuil_de_taille_declenche_flush_immediat et le
             // round-trip PTY réel (E2E TerminalSmokeTests).
-            var seen = await received.WaitAsync(TimeSpan.FromSeconds(5));
+            var seen = await received.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
             Assert.True(seen, "L'ecriture isolee n'a jamais ete emise (bloquee dans le buffer ?).");
         }
 
@@ -134,7 +134,10 @@ public sealed class PtyCoalescerTests
         {
             session.Output += bytes =>
             {
-                lock (all) all.AddRange(bytes);
+                lock (all)
+                {
+                    all.AddRange(bytes);
+                }
             };
 
             for (byte i = 0; i < n; i++)
@@ -143,7 +146,7 @@ public sealed class PtyCoalescerTests
             }
 
             // On attend que le flush ait eu lieu.
-            await Task.Delay(TimeSpan.FromMilliseconds(200));
+            await Task.Delay(TimeSpan.FromMilliseconds(200), TestContext.Current.CancellationToken);
         }
 
         // Apres DisposeAsync, la boucle de flush a vide le residuel.
@@ -177,7 +180,7 @@ public sealed class PtyCoalescerTests
             // Le flush par seuil de taille doit arriver SANS attendre la fenetre (30 s). On attend
             // jusqu'a 3 s : largement au-dessus du hop async (donc pas de flake sous charge CI) mais
             // tres en-dessous de la fenetre de 30 s (donc c'est bien le SEUIL, pas le timer, qui declenche).
-            var seen = await firstFlush.WaitAsync(TimeSpan.FromSeconds(3));
+            var seen = await firstFlush.WaitAsync(TimeSpan.FromSeconds(3), TestContext.Current.CancellationToken);
             Assert.True(seen, "Le seuil de taille n'a pas declenche de flush avant la fenetre.");
         }
     }

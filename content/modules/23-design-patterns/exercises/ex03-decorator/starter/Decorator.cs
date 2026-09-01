@@ -12,5 +12,5 @@ using System;
 string texte = System.Console.ReadLine();
 string decorations = System.Console.ReadLine();
 
-// TODO : définis une interface ITexte { string Rendu(); }, une classe de base TexteBrut,
-// et un décorateur par option (chacun enveloppe un ITexte). Compose-les dans une boucle.
+// TODO : définis une interface ITexte { string Rendu(); }, une classe de base TexteSimple,
+// et un décorateur par option (chacun enveloppe l'ITexte courant). Compose-les dans une boucle.

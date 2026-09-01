@@ -1,69 +1,156 @@
 @inject CourseCatalog Catalog
 @inject NavigationManager Nav
 @inject Piscine.App.Progress.ProgressService Progress
+@inject Piscine.App.Push.IPushResultWatcher Watcher
 @using Piscine.App.Progress
+@using Piscine.App.Push
 @using Piscine.Components.Components.Progress
+@using Piscine.Core.Content
+@implements IDisposable
 
-<div class="sidebar-inner">
+<div class="sidebar-inner" data-testid="nav-menu"
+     data-interactive-ready="@(_interactiveReady ? "true" : "false")">
+    @if (Catalog.Rushes.Count > 0)
+    {
+        <div class="side-section-title">Missions</div>
+        <a class="side-hub @(IsRushRoute ? "active" : "")" href="/rushes">
+            <span>★ Rushes</span>
+            <span class="side-count">@CompletedRushes/@Catalog.Rushes.Count</span>
+        </a>
+        <details class="side-rush-group" open="@IsRushDetailRoute">
+            <summary>Voir les missions</summary>
+            <ul class="exercise-list rush-nav">
+                @foreach (var rush in Catalog.Rushes)
+                {
+                    <li>
+                        <a class="exercise-link @(IsActiveRush(rush.Id) ? "active" : "")" href="/rush/@rush.Id">
+                            <StatusDot Status="RushStatus(rush.Id)" />
+                            @rush.Title
+                        </a>
+                    </li>
+                }
+            </ul>
+        </details>
+    }
     <div class="side-section-title">Modules</div>
-    <ul class="module-list">
-        @foreach (var m in Catalog.Modules)
-        {
-            var active = IsActiveModule(m.Id);
-            <li>
-                <details open="@active">
-                    <summary>
-                        <a class="module-link @(active ? "active" : "")" href="/module/@m.Id">
+    @{ var moduleArcs = Catalog.Modules.GroupBy(module => module.Arc).ToList(); }
+    @foreach (var arc in moduleArcs)
+    {
+        var arcModules = arc.ToList();
+        var activeArc = arcModules.Any(module => IsActiveModule(module.Id));
+        var openArc = activeArc || (!HasActiveModule
+            && string.Equals(arc.Key, moduleArcs[0].Key, StringComparison.Ordinal));
+        <details class="arc-group" open="@openArc">
+            <summary class="arc-summary">
+                <span>@ShortArcTitle(arc.Key)</span>
+                <span class="side-count">@arcModules.Count(ModuleComplete)/@arcModules.Count</span>
+            </summary>
+            <ul class="module-list">
+                @foreach (var m in arcModules)
+                {
+                    var active = IsActiveModule(m.Id);
+                    <li>
+                        <details open="@active">
+                            <summary>
+                                <a class="module-link @(active ? "active" : "")" href="/module/@m.Id">
+                                    @if (m.HasExercises)
+                                    {
+                                        <StatusDot Status="ModuleStatus(m)" />
+                                    }
+                                    <span class="mod-num">@m.Number</span>
+                                    <span class="mod-title">@m.Title</span>
+                                </a>
+                            </summary>
                             @if (m.HasExercises)
                             {
-                                <StatusDot Status="ModuleStatus(m)" />
+                                <ul class="exercise-list">
+                                    @foreach (var ex in m.Groups.SelectMany(g => g.Exercises))
+                                    {
+                                        <li>
+                                            <a class="exercise-link @(IsActiveExercise(m.Id, ex.Id) ? "active" : "")"
+                                               href="/module/@m.Id/@ex.Id">
+                                                <StatusDot Status="ExoStatus(m.Id, ex.Id)" />
+                                                @ex.Title
+                                                @if (ex.Bonus)
+                                                {
+                                                    <span class="badge badge-bonus">bonus</span>
+                                                }
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
                             }
-                            <span class="mod-num">@m.Number</span>
-                            <span class="mod-title">@m.Title</span>
-                        </a>
-                    </summary>
-                    @if (m.HasExercises)
-                    {
-                        <ul class="exercise-list">
-                            @foreach (var ex in m.Groups.SelectMany(g => g.Exercises))
-                            {
-                                <li>
-                                    <a class="exercise-link @(IsActiveExercise(m.Id, ex.Id) ? "active" : "")"
-                                       href="/module/@m.Id/@ex.Id">
-                                        <StatusDot Status="ExoStatus(m.Id, ex.Id)" />
-                                        @ex.Title
-                                        @if (ex.Bonus)
-                                        {
-                                            <span class="badge badge-bonus">bonus</span>
-                                        }
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </details>
-            </li>
-        }
-    </ul>
+                        </details>
+                    </li>
+                }
+            </ul>
+        </details>
+    }
 </div>
 
 @code {
     private readonly Dictionary<(string Module, string Exercise), ExerciseProgressStatus> _status = new();
+    private bool _interactiveReady;
+    private bool _subscribed;
 
     protected override void OnInitialized()
     {
+        RefreshStatuses();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return Task.CompletedTask;
+        }
+
+        Watcher.Start();
+        Watcher.ResultReceived += OnProgressChanged;
+        _subscribed = true;
+        _interactiveReady = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void RefreshStatuses()
+    {
         var exos = Catalog.Modules
             .SelectMany(m => m.Groups.SelectMany(g => g.Exercises))
-            .Select(ex => (ex.ModuleId, ex.Id));
+            .Select(ex => (ex.ModuleId, ex.Id))
+            .Concat(Catalog.Rushes.Select(rush => (ContentLocator.RushesModuleId, rush.Id)));
 
+        _status.Clear();
         foreach (var info in Progress.SnapshotFor(exos))
         {
             _status[(info.ModuleId, info.ExerciseId)] = info.Status;
         }
     }
 
+    private async void OnProgressChanged(PushResult _)
+    {
+        try
+        {
+            await InvokeAsync(() =>
+            {
+                RefreshStatuses();
+                StateHasChanged();
+            });
+        }
+        catch (Exception)
+        {
+            // Le circuit a été fermé pendant le rafraîchissement : rien à publier.
+        }
+    }
+
     private ExerciseProgressStatus ExoStatus(string moduleId, string exerciseId)
         => _status.GetValueOrDefault((moduleId, exerciseId), ExerciseProgressStatus.NonCommence);
+
+    private ExerciseProgressStatus RushStatus(string rushId)
+        => ExoStatus(ContentLocator.RushesModuleId, rushId);
+
+    private int CompletedRushes => Catalog.Rushes.Count(rush =>
+        RushStatus(rush.Id) == ExerciseProgressStatus.PousseNote);
 
     private ExerciseProgressStatus ModuleStatus(CourseModule m)
         => ProgressRollup.ForModule(
@@ -76,6 +163,15 @@
         .Split('?', '#')[0]
         .Split('/', StringSplitOptions.RemoveEmptyEntries);
 
+    private bool IsRushRoute => Segments.Length > 0
+        && (Segments[0].Equals("rush", StringComparison.OrdinalIgnoreCase)
+            || Segments[0].Equals("rushes", StringComparison.OrdinalIgnoreCase));
+
+    private bool IsRushDetailRoute => Segments.Length > 0
+        && Segments[0].Equals("rush", StringComparison.OrdinalIgnoreCase);
+
+    private bool HasActiveModule => Catalog.Modules.Any(module => IsActiveModule(module.Id));
+
     private bool IsActiveModule(string moduleId)
         => Segments.Length >= 2
            && Segments[0] == "module"
@@ -85,4 +181,26 @@
         => IsActiveModule(moduleId)
            && Segments.Length >= 3
            && string.Equals(Segments[2], exerciseId, StringComparison.OrdinalIgnoreCase);
+
+    private bool IsActiveRush(string rushId)
+        => Segments.Length >= 2
+           && Segments[0].Equals("rush", StringComparison.OrdinalIgnoreCase)
+           && Segments[1].Equals(rushId, StringComparison.OrdinalIgnoreCase);
+
+    private bool ModuleComplete(CourseModule module)
+        => ModuleStatus(module) == ExerciseProgressStatus.PousseNote;
+
+    private static string ShortArcTitle(string arc)
+    {
+        var separator = arc.IndexOf(" — ", StringComparison.Ordinal);
+        return separator >= 0 ? arc[..separator] : arc;
+    }
+
+    public void Dispose()
+    {
+        if (_subscribed)
+        {
+            Watcher.ResultReceived -= OnProgressChanged;
+        }
+    }
 }

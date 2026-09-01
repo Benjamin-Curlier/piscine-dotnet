@@ -1,6 +1,11 @@
 id: ex01-filtre
 title: "Filtrer avec un prédicat"
 objective: "Utiliser un Func<int,bool> (lambda prédicat) pour ne garder que certaines valeurs."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,functional]
+story_beat: "Sécuriser la capacité Filtrer avec un prédicat d'Asteria."
 deliverables: [Filtre.cs]
 starter: [Filtre.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "1\n6\n"
         expect_stdout: "6\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Func<int, bool>"]
 feedback:
   hints:
     - when: io_mismatch

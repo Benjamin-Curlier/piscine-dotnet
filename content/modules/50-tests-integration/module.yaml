@@ -1,0 +1,11 @@
+id: 50-tests-integration
+title: "Tests d'intégration et de contrats"
+order: 50
+prerequisites: [13-tests-unitaires, 46-aspnet-services, 48-donnees-production, 49-grpc-protobuf]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Prouver les frontières réelles d'Asteria sans transformer chaque test en scénario fragile."
+course: cours.md
+groups:
+  - id: preuves-systeme
+    title: "Hôte de test, dépendances réelles et compatibilité"
+    exercises: [ex00-webapplicationfactory, ex01-test-conteneurise, ex02-tests-contrat]

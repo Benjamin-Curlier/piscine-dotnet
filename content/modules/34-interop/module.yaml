@@ -1,8 +1,11 @@
 id: 34-interop
 title: "Interopérabilité (P/Invoke & code natif)"
 order: 34
+prerequisites: [07-poo-1]
+arc: "Acte V — Frontières et interfaces"
+mission: "Reconnecter un capteur natif sans contaminer le cœur managé."
 course: cours.md
 groups:
-  - id: interop-lecture
-    title: "À lire et pratiquer"
-    exercises: []
+  - id: declarations-natives
+    title: "Contrats à la frontière native"
+    exercises: [ex00-library-import]

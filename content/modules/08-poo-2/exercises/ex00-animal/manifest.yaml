@@ -1,6 +1,11 @@
 id: ex00-animal
 title: "Le cri des animaux"
 objective: "Définir une hiérarchie Animal → Chien/Chat avec une méthode redéfinie (virtual/override)."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Le cri des animaux d'Asteria."
 deliverables: [Animal.cs]
 starter: [Animal.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "5\nchat\nchat\nchien\nchat\nchat\n"
         expect_stdout: "Miaou\nMiaou\nWouf\nMiaou\nMiaou\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class Chien", "override"]
 feedback:
   hints:
     - when: io_mismatch

@@ -1,6 +1,11 @@
 id: ex01-extraire
 title: "Extraire les nombres"
 objective: "Extraire tous les groupes de chiffres d'une ligne avec Regex.Matches et Match.Value."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,text]
+story_beat: "Sécuriser la capacité Extraire les nombres d'Asteria."
 deliverables: [Extraire.cs]
 starter: [Extraire.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "score=9999pts\n"
         expect_stdout: "9999\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Regex.Matches"]
 feedback:
   hints:
     - when: io_mismatch

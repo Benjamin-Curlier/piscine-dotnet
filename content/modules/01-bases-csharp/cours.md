@@ -41,7 +41,35 @@ a * b      // multiplication    a / b   // division (entière entre deux int !)
 a % b      // modulo : reste de la division (7 % 2 == 1)
 ```
 
-Comparaisons (donnent un `bool`) : `==` (égal), `!=` (différent), `<`, `>`, `<=`, `>=`.
+Les comparaisons produisent toujours un `bool` :
+
+| Opérateur | Signification | Exemple vrai |
+|---|---|---|
+| `==` | égal à | `age == 30` |
+| `!=` | différent de | `nom != ""` |
+| `<` / `>` | strictement inférieur / supérieur | `prix < 10` |
+| `<=` / `>=` | inférieur / supérieur ou égal | `note >= 10` |
+
+Pour combiner des conditions, utilise `&&` (**et**), `||` (**ou**) et `!` (**non**) :
+
+```csharp
+bool majeurEtActif = age >= 18 && actif;
+bool remise = age < 18 || age >= 65;
+bool inactif = !actif;
+```
+
+> `=` affecte une valeur ; `==` compare deux valeurs. Les confondre est une erreur classique.
+
+### Conventions de nommage
+
+Les noms ne changent pas le comportement du programme, mais une convention constante rend le code
+immédiatement lisible :
+
+- `PascalCase` pour les types, méthodes et propriétés : `CompteBancaire`, `CalculerTotal`, `Solde` ;
+- `camelCase` pour les variables et paramètres : `prixTotal`, `nombreArticles` ;
+- `_camelCase` pour les champs privés : `_solde`.
+
+Choisis des noms qui décrivent le rôle (`nombreEssais`) plutôt que la forme (`n2`).
 
 ## 4. Conditions {#conditions}
 
@@ -61,6 +89,23 @@ Forme courte, l'**opérateur ternaire** `condition ? valeurSiVrai : valeurSiFaux
 ```csharp
 System.Console.WriteLine(n % 2 == 0 ? "pair" : "impair");
 ```
+
+### Aperçu : `switch` et `enum`
+
+Quand plusieurs branches comparent la même valeur, `switch` évite une longue cascade de `if` :
+
+```csharp
+var libelle = note switch
+{
+    >= 16 => "très bien",
+    >= 10 => "admis",
+    _ => "à revoir",
+};
+```
+
+Quand une valeur ne peut prendre qu'un petit nombre de cas nommés, un `enum` remplace les nombres
+ou chaînes « magiques » : `enum Etat { EnAttente, EnCours, Termine }`. Les modules 24 et 25
+approfondissent ces deux outils ; tu peux déjà les reconnaître et les utiliser dans un cas simple.
 
 ### Exercices du module
 

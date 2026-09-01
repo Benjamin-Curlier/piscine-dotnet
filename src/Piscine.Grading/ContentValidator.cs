@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Piscine.Core;
 using Piscine.Core.Content;
 using Piscine.Core.Model;
@@ -66,8 +67,39 @@ public sealed class ContentValidator
 
         ValidateNoOrphans(layout, referenced, issues);
         ValidateNoDuplicateIds(layout, issues);
+        ValidateModulePrerequisites(layout, issues);
+        ValidateRushMilestones(layout, issues);
 
         return new ContentValidationReport(issues);
+    }
+
+    private static void ValidateRushMilestones(PiscineLayout layout, List<ContentIssue> issues)
+    {
+        var modules = ContentDiscovery.DiscoverModules(layout.Content)
+            .Select(module => module.Id)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var rush in ContentDiscovery.DiscoverRushes(layout.Content))
+        {
+            var manifest = ExerciseManifestLoader.Load(rush.ContentDir);
+            if (string.IsNullOrWhiteSpace(manifest.RecommendedAfter))
+            {
+                issues.Add(new ContentIssue(rush.Id,
+                    "recommended_after manquant : chaque Rush doit annoncer son jalon conseillé."));
+            }
+            else if (!modules.Contains(manifest.RecommendedAfter))
+            {
+                issues.Add(new ContentIssue(rush.Id,
+                    $"recommended_after introuvable : {manifest.RecommendedAfter}."));
+            }
+
+            if (manifest.ManualValidation
+                && !manifest.Deliverables.Any(file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase)))
+            {
+                issues.Add(new ContentIssue(rush.Id,
+                    "manual_validation exige un livrable Markdown décrivant les preuves à relire."));
+            }
+        }
     }
 
     private void ValidateExercise(PiscineLayout layout, string exerciseId, List<ContentIssue> issues)
@@ -112,7 +144,9 @@ public sealed class ContentValidator
         }
 
         ValidateDifficulty(exerciseId, manifest, issues);
+        ValidateLearningMetadata(exerciseId, location, manifest, issues);
         ValidateStarterFiles(exerciseId, location, manifest, issues);
+        ValidateFileBasedDirectives(exerciseId, location, manifest, issues);
         ValidateCourseRef(exerciseId, location, manifest, issues);
         ValidateHints(exerciseId, manifest, issues);
 
@@ -349,6 +383,48 @@ public sealed class ContentValidator
         }
     }
 
+    /// <summary>Valide la carte pédagogique : références existantes, antérieures et non dupliquées.</summary>
+    private static void ValidateModulePrerequisites(PiscineLayout layout, List<ContentIssue> issues)
+    {
+        var modules = ContentDiscovery.DiscoverModules(layout.Content);
+        var byId = modules.ToDictionary(module => module.Id, StringComparer.Ordinal);
+
+        foreach (var module in modules)
+        {
+            if (string.IsNullOrWhiteSpace(module.Arc))
+            {
+                issues.Add(new ContentIssue(module.Id, "arc narratif manquant."));
+            }
+
+            if (string.IsNullOrWhiteSpace(module.Mission))
+            {
+                issues.Add(new ContentIssue(module.Id, "mission narrative manquante."));
+            }
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var prerequisiteId in module.Prerequisites)
+            {
+                if (!seen.Add(prerequisiteId))
+                {
+                    issues.Add(new ContentIssue(module.Id, $"prérequis dupliqué : {prerequisiteId}."));
+                    continue;
+                }
+
+                if (!byId.TryGetValue(prerequisiteId, out var prerequisite))
+                {
+                    issues.Add(new ContentIssue(module.Id, $"prérequis introuvable : {prerequisiteId}."));
+                    continue;
+                }
+
+                if (prerequisite.Order >= module.Order)
+                {
+                    issues.Add(new ContentIssue(module.Id,
+                        $"prérequis non antérieur : {prerequisiteId} (ordre {prerequisite.Order} >= {module.Order})."));
+                }
+            }
+        }
+    }
+
     private static void ValidateDifficulty(string exerciseId, ExerciseManifest manifest, List<ContentIssue> issues)
     {
         if (!ValidDifficulties.Contains(manifest.Difficulty))
@@ -356,6 +432,39 @@ public sealed class ContentValidator
             issues.Add(new ContentIssue(
                 exerciseId,
                 $"difficulty invalide : « {manifest.Difficulty} » (attendu : {string.Join(" | ", ValidDifficulties)})."));
+        }
+    }
+
+    private static void ValidateLearningMetadata(
+        string exerciseId,
+        ExerciseLocation location,
+        ExerciseManifest manifest,
+        List<ContentIssue> issues)
+    {
+        var raw = File.ReadAllText(Path.Combine(location.ContentDir, ExerciseManifestLoader.FileName));
+        if (!Regex.IsMatch(raw, @"(?m)^difficulty:\s*"))
+        {
+            issues.Add(new ContentIssue(exerciseId, "difficulty doit être explicite pour permettre un calibrage fiable."));
+        }
+
+        if (manifest.EstimatedMinutes is < 10 or > 240)
+        {
+            issues.Add(new ContentIssue(exerciseId, "estimated_minutes doit être compris entre 10 et 240."));
+        }
+
+        if (manifest.Xp is < 10 or > 1_000)
+        {
+            issues.Add(new ContentIssue(exerciseId, "xp doit être compris entre 10 et 1000."));
+        }
+
+        if (manifest.Tags.Count == 0 || manifest.Tags.Any(string.IsNullOrWhiteSpace))
+        {
+            issues.Add(new ContentIssue(exerciseId, "tags doit contenir au moins une compétence non vide."));
+        }
+
+        if (string.IsNullOrWhiteSpace(manifest.StoryBeat))
+        {
+            issues.Add(new ContentIssue(exerciseId, "story_beat doit relier l'exercice au fil rouge."));
         }
     }
 
@@ -380,6 +489,94 @@ public sealed class ContentValidator
             if (!File.Exists(path))
             {
                 issues.Add(new ContentIssue(exerciseId, $"fichier starter déclaré mais manquant : {StarterInstaller.StarterDirName}/{starter}"));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Vérifie les directives .NET 10 des starters : elles doivent précéder le code, référencer des
+    /// fichiers présents dans le starter et pinner explicitement les versions NuGet.
+    /// </summary>
+    private static void ValidateFileBasedDirectives(
+        string exerciseId,
+        ExerciseLocation location,
+        ExerciseManifest manifest,
+        List<ContentIssue> issues)
+    {
+        var starterRoot = Path.GetFullPath(Path.Combine(location.ContentDir, StarterInstaller.StarterDirName));
+        var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+        foreach (var starter in manifest.Starter)
+        {
+            var starterPath = Path.Combine(starterRoot, starter);
+            if (!File.Exists(starterPath))
+            {
+                continue; // Déjà signalé par ValidateStarterFiles.
+            }
+
+            var seenCode = false;
+            var included = new HashSet<string>(comparison == StringComparison.OrdinalIgnoreCase
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal);
+            foreach (var rawLine in File.ReadLines(starterPath))
+            {
+                var line = rawLine.Trim();
+                if (line.Length == 0)
+                {
+                    continue;
+                }
+
+                if (line.StartsWith("#!", StringComparison.Ordinal)
+                    || line.StartsWith("#:", StringComparison.Ordinal))
+                {
+                    if (seenCode)
+                    {
+                        issues.Add(new ContentIssue(exerciseId,
+                            $"directive file-based placée après du code dans starter/{starter}."));
+                    }
+
+                    if (line.StartsWith("#:include ", StringComparison.Ordinal))
+                    {
+                        var declared = line[10..].Trim().Trim('"');
+                        var portable = declared
+                            .Replace('\\', Path.DirectorySeparatorChar)
+                            .Replace('/', Path.DirectorySeparatorChar);
+                        var target = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(starterPath)!, portable));
+                        var withinRoot = string.Equals(target, starterRoot, comparison)
+                            || target.StartsWith(starterRoot.TrimEnd(Path.DirectorySeparatorChar)
+                                + Path.DirectorySeparatorChar, comparison);
+
+                        if (!withinRoot)
+                        {
+                            issues.Add(new ContentIssue(exerciseId,
+                                $"include sort du starter dans starter/{starter} : {declared}."));
+                        }
+                        else if (!File.Exists(target))
+                        {
+                            issues.Add(new ContentIssue(exerciseId,
+                                $"include introuvable dans starter/{starter} : {declared}."));
+                        }
+                        else if (!included.Add(target))
+                        {
+                            issues.Add(new ContentIssue(exerciseId,
+                                $"include dupliqué dans starter/{starter} : {declared}."));
+                        }
+                    }
+                    else if (line.StartsWith("#:package ", StringComparison.Ordinal))
+                    {
+                        var package = line[10..].Trim();
+                        var separator = package.LastIndexOf('@');
+                        if (separator <= 0 || separator == package.Length - 1 || package[(separator + 1)..].Contains('*'))
+                        {
+                            issues.Add(new ContentIssue(exerciseId,
+                                $"package non épinglé dans starter/{starter} : {package}. Utilise Nom@Version."));
+                        }
+                    }
+
+                    continue;
+                }
+
+                seenCode = true;
             }
         }
     }

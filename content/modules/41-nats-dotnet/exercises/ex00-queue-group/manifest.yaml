@@ -1,0 +1,30 @@
+id: ex00-queue-group
+title: "Simuler un queue group"
+objective: "Répartir chaque message sur un seul worker d'un groupe."
+difficulty: facile
+estimated_minutes: 30
+xp: 60
+tags: [nats, messaging, algorithms]
+story_beat: "Répartir le flux de rendu entre les workers disponibles d'Asteria."
+deliverables: [QueueGroup.cs]
+starter: [QueueGroup.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\n7\na\nb\nc\nd\ne\nf\ng\n"
+        expect_stdout: "worker-1 a\nworker-2 b\nworker-3 c\nworker-1 d\nworker-2 e\nworker-3 f\nworker-1 g\n"
+        expect_exit: 0
+      - stdin: "1\n3\nx\ny\nz\n"
+        expect_stdout: "worker-1 x\nworker-1 y\nworker-1 z\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["% workers"]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Le message d'indice i va au worker (i modulo nombreDeWorkers) + 1. Chaque message apparaît exactement une fois."
+    - when: source_constraint
+      message: "Utilise le modulo pour faire revenir l'index au premier worker."
+  course_ref: "cours.md#queue-groups"
+solution: [QueueGroup.cs]

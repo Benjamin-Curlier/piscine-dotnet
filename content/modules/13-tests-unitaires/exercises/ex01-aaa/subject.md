@@ -1,25 +1,22 @@
-# ex01-aaa — Arrange-Act-Assert
+# ex01-aaa — AAA et valeur frontière
 
-## Objectif
+## Mission
 
-Un test bien écrit se déroule en trois temps : **Arrange** (préparer les données), **Act** (appeler
-la fonction à tester) et **Assert** (vérifier le résultat). Tu vas suivre ce patron pour tester une
-addition.
-
-Lis trois entiers : `a`, `b`, puis l'**attendu**. Calcule `somme = a + b` (c'est l'**Act**), puis
-compare `somme` à l'attendu (c'est l'**Assert**) : affiche `PASS` si elles sont égales, sinon
-`FAIL`.
-
-Exemple : `2`, `3`, `5` → `somme` vaut `5`, qui égale l'attendu → `PASS`.
-Exemple : `2`, `2`, `5` → `somme` vaut `4`, différent de `5` → `FAIL`.
+L'API `Acces.Classer(age)` renvoie `mineur` avant 18 ans et `majeur` à partir de 18 ans. Écris une
+petite suite xUnit organisée en Arrange-Act-Assert qui protège précisément cette frontière.
 
 ## Livrable
 
-- `Aaa.cs`
+- `AccesTests.cs`
 
-## Indices
+## Contraintes
 
-- **Arrange** : lis `a`, `b` et `attendu` avec `int.Parse(System.Console.ReadLine())`.
-- **Act** : calcule `var somme = a + b;`.
-- **Assert** : `if (somme == attendu)` → `PASS`, sinon `FAIL`.
-- Garde les trois temps bien séparés dans ton code : c'est ce qui rend un test lisible.
+- au moins un cas juste avant la limite ;
+- le cas égal à la limite ;
+- les tests doivent décrire leur intention dans leur nom.
+
+## Progression des indices
+
+1. Une valeur très éloignée de la frontière ne prouve pas la règle exacte.
+2. Les deux âges les plus informatifs sont 17 et 18.
+3. Un `Assert.Equal("majeur", Acces.Classer(18))` tue l'erreur classique `<` devenue `<=`.

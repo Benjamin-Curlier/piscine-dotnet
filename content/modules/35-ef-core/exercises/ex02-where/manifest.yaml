@@ -2,8 +2,12 @@ id: ex02-where
 title: "Filtre (Where) + tri"
 objective: "Filtrer des entités selon une condition, puis trier le résultat."
 difficulty: moyen
-deliverables: [Catalogue.cs]
-starter: [Catalogue.cs]
+estimated_minutes: 45
+xp: 90
+tags: [data,ef-core]
+story_beat: "Sécuriser la capacité Filtre (Where) + tri d'Asteria."
+deliverables: [FiltreProduits.cs]
+starter: [FiltreProduits.cs]
 grading:
   - type: io
     cases:
@@ -25,9 +29,12 @@ grading:
       - stdin: "4\n3\nRaisin 4\nFigue 2\nMelon 6\n"
         expect_stdout: "Melon 6\nRaisin 4\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["DbContext", ".Where("]
 feedback:
   hints:
     - when: io_mismatch
       message: "Lis le seuil, puis N, puis N 'nom prix'. Garde les produits dont Prix >= seuil : db.Produits.Where(x => x.Prix >= seuil).OrderBy(x => x.Nom)."
   course_ref: "cours.md#requetes"
-solution: [Catalogue.cs]
+solution: [FiltreProduits.cs]

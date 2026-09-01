@@ -2,14 +2,14 @@
 
 ## Objectif
 
-Lis un entier **N** (nombre d'éléments), puis **N entiers séparés par des espaces** sur la
-deuxième ligne. Trie le tableau par ordre **croissant** en utilisant le **tri fusion récursif**
+Lis des **entiers séparés par des espaces sur une seule ligne**. Trie le tableau par ordre
+**croissant** en utilisant le **tri fusion récursif**
 implémenté à la main. Affiche le résultat : les entiers séparés par un espace.
 
 Exemples :
-- `5`, `5 3 1 4 2` → `1 2 3 4 5`
-- `6`, `6 5 4 3 2 1` → `1 2 3 4 5 6`
-- `1`, `9` → `9`
+- `5 3 1 4 2` → `1 2 3 4 5`
+- `6 5 4 3 2 1` → `1 2 3 4 5 6`
+- `9` → `9`
 
 ## Livrable
 

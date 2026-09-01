@@ -18,5 +18,6 @@ Exemple : `3` puis `2`, `3`, `4` → `4`, `9`, `16`.
 - Ajoute `using System.Threading.Tasks;`.
 - Crée `var tasks = new Task<int>[n];` et remplis-le dans la boucle : `tasks[i] = CarreAsync(valeur);`
   (note : **pas** de `await` ici, on récupère juste la tâche).
-- Puis `var resultats = await Task.WhenAll(tasks);` : `resultats` est un `int[]` ordonné.
+- Attends ensuite toutes les tâches en une fois : le tableau retourné conserve l'ordre de la
+  collection de tâches, pas l'ordre de fin réel.
 - Affiche chaque élément de `resultats` dans l'ordre. Pas besoin de LINQ.

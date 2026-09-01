@@ -4,10 +4,10 @@ Ce guide s'adresse à la **recrue** (pour installer et lancer la piscine) et à 
 (check-list de préparation). Il ne nécessite **aucune installation de SDK .NET** : le binaire est
 auto-contenu (runtime .NET + Roslyn embarqués).
 
-> **Ce que contient le paquet** : un parcours complet **C# / .NET 10** — modules **M00 à M39**
-> (fondamentaux → palier avancé → approfondissement → plateformes & architecture) et **4 Rushes**
+> **Ce que contient le paquet** : un parcours complet **C# / .NET 10** — **53 modules M00 à M52**
+> (fondamentaux → applications lourdes → services et systèmes distribués), **185 exercices** et **8 Rushes**
 > de synthèse. Correction locale par la moulinette (graders `io` / `unit` / `norme` / `mutation` /
-> `git` / `projet` / `reseau`), rendu par **vrai git**. **UX recrue** : une **app de bureau**
+> `git` / `projet` / `reseau` / `source` / `fichier`), rendu par **vrai git**. **UX recrue** : une **app de bureau**
 > (tableau de bord, cours, vérification, progression, rapport, réglages, **terminal embarqué +
 > coaching git**) **ou** le **CLI** `piscine` — même moteur. Carte détaillée :
 > [Curriculum](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/wiki/Curriculum.md).
@@ -33,7 +33,7 @@ auto-contenu (runtime .NET + Roslyn embarqués).
     - **Windows** : **WebView2** — préinstallé sur Windows 11 / Windows 10 récents. Éditions N ou images
       minimales : installer l'[Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/).
     - **Linux** : **`libwebkit2gtk-4.1`** — Debian/Ubuntu `sudo apt install libwebkit2gtk-4.1-0`,
-      Fedora `sudo dnf install webkit2gtk4.1`. *(PhotinoX 4.2.0 cible la série 4.1.)*
+      Fedora `sudo dnf install webkit2gtk4.1`. *(PhotinoX.Blazor 5.1.2 cible la série 4.1.)*
   Détails côté packaging : [docs/deploiement.md](deploiement.md).
 - **Espace disque** : ~150 Mo une fois installé/dézippé (runtime + Roslyn inclus).
 
@@ -96,9 +96,9 @@ bureau** (recommandée — cours, vérification, progression, résultat **et ter
 2. Si c'est le **premier lancement**, l'app affiche un **guide d'onboarding** : suivre les étapes pour
    mettre en place le **workspace**, le **dépôt bare local** (`origin`) et le **hook** de moulinette.
    *(Équivalent en ligne de commande : `piscine init`. Accessible aussi via l'onglet *Initialiser*.)*
-3. Le **tableau de bord** (`/`) oriente d'un coup d'œil : **carte « Reprendre »** vers l'exercice en
-   cours, **progression globale** (pourcentages + compteurs par module) et **résultats récents** des
-   derniers push.
+3. Le **tableau de bord** (`/`) oriente d'un coup d'œil : **carte « Reprendre »**, progression
+   globale, **niveau/XP/série/badges**, missions Rush et résultats récents. Les XP sont attribués une
+   fois à la première réussite et ne verrouillent aucun exercice.
 4. Parcourir les **cours** et les **sujets** via le sommaire de gauche ou l'onglet *Cours* ; la suite
    de la boucle (Vérifier, Progression, Terminal, Résultat) est décrite au §4.
 
@@ -116,7 +116,9 @@ place `piscine` et le git portable (MinGit) sur le PATH — puis :
 
 ```bash
 piscine init          # workspace + dépôt bare (origin) + hook de correction au push
+piscine doctor        # diagnostique contenu, état, sandbox, Git et éditeur
 piscine status        # bannière + état
+piscine profile       # niveau, XP, série et badges
 piscine list          # modules et exercices disponibles
 git --version         # (Windows : via start-piscine.cmd ; sinon git système)
 ```
@@ -159,6 +161,7 @@ Le rendu officiel passe par git. Deux options équivalentes :
 ```bash
 piscine start <exo>        # (si besoin) copie le squelette de l'exercice dans le workspace
 piscine check <exo>        # équivalent CLI de la page Vérifier (ne compte pas)
+piscine check --replay-last # rejoue l'exercice du dernier échec enregistré
 git add .
 git commit -m "<exo>"
 git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enregistre la progression
@@ -173,6 +176,7 @@ git push origin main       # RENDU OFFICIEL : le hook lance la moulinette et enr
 
 ## 5. Dépannage
 
+- **Diagnostic général** : lancer `piscine doctor`, corriger les lignes `[ERREUR]`, puis relancer la commande.
 - **Antivirus / SmartScreen** : binaire non signé — c'est attendu (voir §2 : débloquer / *Exécuter quand même*).
 - **`piscine` introuvable** : se placer dans le dossier dézippé, ou utiliser `start-piscine.cmd`
   (Windows) qui ajoute le dossier au PATH.

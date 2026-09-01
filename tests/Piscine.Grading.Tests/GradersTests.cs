@@ -82,4 +82,30 @@ public class GradersTests
         Assert.Equal(GraderStatus.Reussi, result.Status);
         Assert.Equal(2, result.Results.Count);
     }
+
+    [Fact]
+    public void Default_DispatchesFileStep()
+    {
+        var manifest = new ExerciseManifest
+        {
+            Id = "file",
+            Grading =
+            {
+                new GradingStep
+                {
+                    Type = "fichier",
+                    File = new FileAssertions
+                    {
+                        Rules = { new FileRule { Path = "Dockerfile", RequiredFragments = { "FROM" } } }
+                    }
+                }
+            }
+        };
+        var context = new GradingContext(new Dictionary<string, string> { ["Dockerfile"] = "FROM runtime" });
+
+        var result = Graders.Default().Grade(manifest, context);
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
+        Assert.Contains(result.Results, grader => grader.GraderType == "fichier");
+    }
 }

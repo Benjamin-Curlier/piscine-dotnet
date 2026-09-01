@@ -1,6 +1,11 @@
 id: ex02-travail
 title: "Une unité de travail"
 objective: "Injecter un paramètre par DI dans un BackgroundService, calculer une valeur déterministe, la journaliser, puis arrêter l'hôte."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [hosting,architecture]
+story_beat: "Sécuriser la capacité Une unité de travail d'Asteria."
 deliverables: [Travail.cs, LogCapture.cs]
 starter: [Travail.cs, LogCapture.cs]
 grading:
@@ -20,6 +25,9 @@ grading:
       - stdin: "100\n"
         expect_stdout: "Travailleur [Information] Somme 1..100 = 5050\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["BackgroundService", "StopApplication"]
 feedback:
   hints:
     - when: io_mismatch

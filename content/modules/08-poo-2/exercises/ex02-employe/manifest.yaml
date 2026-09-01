@@ -1,6 +1,11 @@
 id: ex02-employe
 title: "Masse salariale"
 objective: "Définir une classe abstraite Employe avec une méthode abstraite SalaireMensuel()."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Masse salariale d'Asteria."
 deliverables: [Employe.cs]
 starter: [Employe.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "0\n0\n0\n"
         expect_stdout: "0\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract class Employe"]
 feedback:
   hints:
     - when: io_mismatch

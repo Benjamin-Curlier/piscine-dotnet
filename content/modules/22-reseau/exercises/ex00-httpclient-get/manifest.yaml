@@ -1,6 +1,11 @@
 id: ex00-httpclient-get
 title: "Premier appel HTTP avec HttpClient"
 objective: "Appeler une route HTTP GET via HttpClient et afficher le corps de la réponse."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [network,http]
+story_beat: "Sécuriser la capacité Premier appel HTTP avec HttpClient d'Asteria."
 deliverables: [HttpGet.cs]
 starter: [HttpGet.cs]
 grading:

@@ -1,0 +1,23 @@
+id: ex01-erreurs-http
+title: "Stabiliser les erreurs HTTP"
+objective: "Transformer validation, absence et conflit en réponses ProblemDetails prévisibles pour le client lourd."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [aspnet, problem-details, contracts]
+story_beat: "Donner au pupitre Asteria des erreurs actionnables plutôt que des exceptions brutes."
+deliverables: [CommandErrors.cs]
+starter: [CommandErrors.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: CommandErrors.cs
+          required_fragments: ["enum CommandError", "Validation", "NotFound", "Conflict", "Results<", "ProblemHttpResult", "TypedResults.Problem", "StatusCodes.Status400BadRequest", "StatusCodes.Status404NotFound", "StatusCodes.Status409Conflict", "traceId"]
+          forbidden_fragments: ["exception.ToString", "StackTrace", "ConnectionString"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Mappe chaque erreur métier sur un statut distinct avec TypedResults.Problem et ajoute traceId aux extensions."
+  course_ref: "cours.md#problem-details"
+solution: [CommandErrors.cs]

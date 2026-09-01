@@ -1,6 +1,11 @@
 id: ex01-inverser
 title: "Inverser une chaîne"
 objective: "Afficher une chaîne de caractères à l'envers."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Inverser une chaîne d'Asteria."
 deliverables: [Inverser.cs]
 starter: [Inverser.cs]
 grading:

@@ -7,6 +7,6 @@ public static class Graders
         new(new IGrader[]
         {
             new IoGrader(), new NormeGrader(), new UnitGrader(), new MutationGrader(), new GitGrader(),
-            new ProjectGrader(), new ReseauGrader(),
+            new ProjectGrader(), new ReseauGrader(), new SourceGrader(), new FileGrader(),
         });
 }

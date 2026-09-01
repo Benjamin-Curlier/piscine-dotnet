@@ -1,6 +1,11 @@
 id: ex00-serialiser
 title: "Sérialiser une personne"
 objective: "Construire un objet Personne et le convertir en JSON avec JsonSerializer.Serialize."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,serialization]
+story_beat: "Sécuriser la capacité Sérialiser une personne d'Asteria."
 deliverables: [Serialiser.cs]
 starter: [Serialiser.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "C3PO\n0\n"
         expect_stdout: "{\"Nom\":\"C3PO\",\"Age\":0}\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["JsonSerializer.Serialize"]
 feedback:
   hints:
     - when: io_mismatch

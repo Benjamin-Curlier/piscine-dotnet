@@ -1,7 +1,7 @@
 # Module 14 — Git avancé & collaboration
 
-Tu sais déjà **committer** et **pousser** ton travail (modules 00 et 05). Ce module n'introduit
-**aucun exercice auto-noté** : c'est un module de **lecture et de pratique guidée**. Le but est de
+Tu sais déjà **committer** et **pousser** ton travail (modules 00 et 05). Ce module combine lecture,
+pratique guidée et un exercice Git inspecté sur l'historique réel. Le but est de
 te rendre à l'aise dans le travail **en équipe**, là où git prend tout son sens : plusieurs
 personnes modifient le même dépôt, et il faut intégrer ces changements **proprement**.
 
@@ -13,6 +13,10 @@ collègue de façon constructive, et quelques **outils** qui te sauveront la mis
 > 💡 Tout ce qui suit se pratique sur un **dépôt jouet**. Crée un dossier de test, fais-y quelques
 > commits sur des fichiers `.txt`, et essaie chaque commande sans risque. On apprend git en se
 > trompant dans un coin sûr, pas sur le dépôt de l'équipe.
+
+L'exercice final simule un correctif urgent à reporter sur deux lignes de livraison. La moulinette
+inspecte les branches, les ancêtres et les fichiers : un simple copier-coller hors historique ne
+suffit pas.
 
 ## 1. Rebase : réorganiser son historique {#rebase}
 

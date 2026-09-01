@@ -1,0 +1,25 @@
+id: ex02-modele-menaces
+title: "Modéliser les menaces du poste distribué"
+objective: "Relier actifs, frontières, scénarios d'attaque, prévention, détection et réponse."
+difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [security, threat-model, distributed]
+story_beat: "Cartographier les voies d'attaque avant le déploiement d'Asteria."
+deliverables: [THREAT-MODEL.md]
+starter: [THREAT-MODEL.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: THREAT-MODEL.md
+          required_fragments: ["## Actifs", "## Frontières de confiance", "## Rejeu de commande", "## Poste compromis", "## Service usurpé", "Prévention", "Détection", "Réponse", "OIDC", "mTLS", "idempotence", "moindre privilège", "rotation"]
+          forbidden_fragments: ["réseau interne donc sûr", "aucun risque"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Liste d'abord données, identités et commandes critiques, puis les frontières poste/API/broker/base."
+    - when: file_constraint
+      message: "Pour rejeu, poste compromis et service usurpé, fournis une prévention, un signal de détection et une réponse opérationnelle."
+  course_ref: "cours.md#threat-model"
+solution: [THREAT-MODEL.md]

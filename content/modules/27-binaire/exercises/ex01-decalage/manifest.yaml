@@ -2,6 +2,10 @@ id: ex01-decalage
 title: "Décalages"
 objective: "Utiliser les opérateurs de décalage << et >> et observer leur effet (multiplier/diviser par 2)."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Décalages d'Asteria."
 deliverables: [Decalage.cs]
 starter: [Decalage.cs]
 grading:

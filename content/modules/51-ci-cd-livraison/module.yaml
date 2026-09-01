@@ -1,0 +1,11 @@
+id: 51-ci-cd-livraison
+title: "CI/CD et livraison des postes et services"
+order: 51
+prerequisites: [14-git-avance, 37-docker, 44-socle-entreprise, 50-tests-integration]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Produire des artefacts Asteria traçables, signés et déployables avec retour arrière."
+course: cours.md
+groups:
+  - id: chaine-livraison
+    title: "Pipeline, reproductibilité et release"
+    exercises: [ex00-pipeline-qualite, ex01-build-deterministe, ex02-checklist-livraison]

@@ -1,25 +1,38 @@
 using System;
 
-// Machine à états comme union : l'état porte SES données (pas de champs inutilisés).
-var ligne = System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+var n = int.Parse(System.Console.ReadLine());
+Etat etat = new EnAttente();
 
-Etat etat = ligne[0] switch
+for (var i = 0; i < n; i++)
 {
-    "attente" => new EnAttente(),
-    "cours" => new EnCours(int.Parse(ligne[1])),
-    "termine" => new Termine(ligne[1]),
-    _ => throw new ArgumentException("etat inconnu")
+    var commande = System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+    var nouvelEtat = Transition(etat, commande);
+    if (nouvelEtat is null)
+    {
+        System.Console.WriteLine("transition refusee");
+        continue;
+    }
+
+    etat = nouvelEtat;
+    System.Console.WriteLine(Decrire(etat));
+}
+
+static Etat? Transition(Etat etat, string[] commande) => (etat, commande[0]) switch
+{
+    (EnAttente, "demarrer") => new EnCours(0),
+    (EnCours, "progres") when commande.Length == 2
+        && int.TryParse(commande[1], out var p) && p >= 0 && p <= 100 => new EnCours(p),
+    (EnCours, "terminer") when commande.Length == 2 => new Termine(commande[1]),
+    _ => null,
 };
 
-var description = etat switch
+static string Decrire(Etat etat) => etat switch
 {
-    EnAttente => "en attente",
     EnCours e => "en cours a " + e.Pourcent + "%",
     Termine t => "termine: " + t.Resultat,
-    _ => ""
+    EnAttente => "en attente",
+    _ => throw new ArgumentOutOfRangeException(nameof(etat)),
 };
-
-System.Console.WriteLine(description);
 
 abstract record Etat;
 sealed record EnAttente : Etat;

@@ -1,6 +1,9 @@
 id: 22-reseau
 title: "Réseau"
 order: 22
+prerequisites: [12-async-await, 16-serialisation]
+arc: "Acte III — Services en production"
+mission: "Établir les premiers échanges fiables avec les secteurs distants."
 course: cours.md
 groups:
   - id: httpclient

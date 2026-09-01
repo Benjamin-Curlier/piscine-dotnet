@@ -1,8 +1,11 @@
 id: 39-blazor
 title: "Blazor (interfaces web en C#)"
 order: 39
+prerequisites: [07-poo-1, 12-async-await, 18-injection-dependances]
+arc: "Acte V — Frontières et interfaces"
+mission: "Construire le panneau opérateur interactif qui pilotera les services restaurés."
 course: cours.md
 groups:
-  - id: blazor-lecture
-    title: "À lire et pratiquer"
-    exercises: []
+  - id: composants-testables
+    title: "Composants, état et chargement asynchrone"
+    exercises: [ex00-compteur-interactif, ex01-liste-asynchrone]

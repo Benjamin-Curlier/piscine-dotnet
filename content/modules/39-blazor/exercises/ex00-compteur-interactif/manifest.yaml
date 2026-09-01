@@ -1,0 +1,22 @@
+id: ex00-compteur-interactif
+title: "Créer un compteur interactif paramétrable"
+objective: "Relier rendu, binding et événement dans un composant Blazor interactif."
+difficulty: facile
+estimated_minutes: 35
+xp: 70
+tags: [blazor, ui, state]
+story_beat: "Rendre le panneau de réglage Asteria interactif sans JavaScript."
+deliverables: [Counter.razor]
+starter: [Counter.razor]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Counter.razor
+          required_fragments: ["@rendermode InteractiveServer", "Valeur : @_count", "<input type=\"number\"", "@bind=\"_step\"", "@onclick=\"Increment\"", "private int _count", "private int _step", "void Increment()", "_count += _step"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Active InteractiveServer, lie l'input numérique à _step, branche le bouton sur Increment et ajoute _step à _count."
+  course_ref: "cours.md#composant"
+solution: [Counter.razor]

@@ -1,6 +1,9 @@
 id: 18-injection-dependances
 title: "Injection de dépendances"
 order: 18
+prerequisites: [07-poo-1]
+arc: "Acte III — Services en production"
+mission: "Découpler les services de leurs adaptateurs pour pouvoir les tester et les remplacer."
 course: cours.md
 groups:
   - id: injection-dependances

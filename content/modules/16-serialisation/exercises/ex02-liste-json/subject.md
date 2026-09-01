@@ -17,6 +17,6 @@ Exemple : `3` puis `a`, `b`, `c` → `["a","b","c"]`.
 - Lis `N` avec `int.Parse(System.Console.ReadLine())`.
 - Crée `var liste = new List<string>();` puis remplis-la dans une boucle `for` avec
   `liste.Add(System.Console.ReadLine());`.
-- Sérialise : `var json = JsonSerializer.Serialize(liste);`. Une liste devient un **tableau JSON**
+- Sérialise la collection complète avec `JsonSerializer`. Une liste devient un **tableau JSON**
   entre crochets : `["a","b","c"]`.
 - Affiche le JSON avec `System.Console.WriteLine(json)`.

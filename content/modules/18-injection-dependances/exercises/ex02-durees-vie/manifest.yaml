@@ -1,6 +1,11 @@
 id: ex02-durees-vie
 title: "Singleton vs Transient"
 objective: "Observer la différence de durée de vie entre un service singleton et un service transient."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,architecture]
+story_beat: "Sécuriser la capacité Singleton vs Transient d'Asteria."
 deliverables: [DureesVie.cs]
 starter: [DureesVie.cs]
 grading:
@@ -11,6 +16,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/DureesVieTests.cs]
+  - type: source
+    source:
+      required_fragments: ["AddSingleton", "AddTransient"]
 feedback:
   hints:
     - when: io_mismatch

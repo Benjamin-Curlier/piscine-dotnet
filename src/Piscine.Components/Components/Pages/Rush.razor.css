@@ -1,0 +1,20 @@
+.rush-brief { display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; margin: 1rem 0 1.2rem; }
+.rush-brief-block { display: flex; flex-direction: column; gap: .25rem; min-width: 0; padding: .8rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft); }
+.rush-brief-label { color: var(--ink-soft); font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.rush-brief-block small { color: var(--ink-soft); }
+.manual-proof { color: #9a6700; font-size: .8rem; font-weight: 600; }
+.rush-deliverables { margin: 1rem 0; padding: .9rem 1rem; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 10px; }
+.rush-deliverables h2 { margin: 0 0 .65rem; font-size: 1rem; }
+.rush-deliverables ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.rush-deliverables li { display: flex; align-items: baseline; gap: .45rem; min-width: 0; color: var(--ink-soft); }
+.rush-deliverables code { overflow-wrap: anywhere; }
+.exercise-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--line); }
+.ex-action { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: .5rem .9rem; font: inherit; font-size: .88rem; color: inherit; text-decoration: none; cursor: pointer; }
+.ex-action:hover { background: rgba(127,127,127,.1); text-decoration: none; }
+.ex-action-primary { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 650; }
+.ex-action-primary:hover { color: #fff; filter: brightness(1.06); }
+.ex-action-check { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); color: var(--accent); font-weight: 600; }
+
+@media (max-width: 760px) {
+    .rush-brief { grid-template-columns: 1fr; }
+}

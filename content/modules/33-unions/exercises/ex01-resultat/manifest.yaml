@@ -2,6 +2,10 @@ id: ex01-resultat
 title: "Resultat — succès ou erreur"
 objective: "Représenter un calcul qui peut échouer par une union Succes | Erreur, sans exception."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Resultat — succès ou erreur d'Asteria."
 deliverables: [Resultat.cs]
 starter: [Resultat.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "100/0\n"
         expect_stdout: "ERR division par zero\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract record Resultat"]
 feedback:
   hints:
     - when: io_mismatch

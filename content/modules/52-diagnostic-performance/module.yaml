@@ -1,0 +1,11 @@
+id: 52-diagnostic-performance
+title: "Diagnostic, performance et cache distribué"
+order: 52
+prerequisites: [21-threading-avance, 32-garbage-collection, 42-observabilite-resilience, 45-desktop-mvvm]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Diagnostiquer les gels, files et latences d'Asteria avec des mesures avant d'optimiser."
+course: cours.md
+groups:
+  - id: diagnostic-mesure
+    title: "Outils runtime, cache et budgets"
+    exercises: [ex00-plan-diagnostic, ex01-cache-distribue, ex02-budget-performance]

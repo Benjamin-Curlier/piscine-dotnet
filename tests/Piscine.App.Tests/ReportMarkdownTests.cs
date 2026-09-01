@@ -32,6 +32,10 @@ public sealed class ReportMarkdownTests
         RecentPushes:
         [
             new ReportPushEntry("ex00-hello", "Réussi", 1),
+        ],
+        Rushes:
+        [
+            new ReportRushRow("r0-fizzbuzz", "FizzBuzz", Piscine.App.Progress.ExerciseProgressStatus.PousseNote),
         ]);
 
     [Fact]
@@ -62,6 +66,16 @@ public sealed class ReportMarkdownTests
 
         Assert.Contains("## Push récents", md);
         Assert.Contains("| ex00-hello | Réussi | 1 |", md);
+    }
+
+    [Fact]
+    public void Renders_rushes_separately_from_module_totals()
+    {
+        var md = ReportMarkdown.Render(Sample());
+
+        Assert.Contains("## Missions de synthèse", md);
+        Assert.Contains("| FizzBuzz | Fait |", md);
+        Assert.Contains("**Avancement :** 50 % (2/4 faits)", md);
     }
 
     [Fact]

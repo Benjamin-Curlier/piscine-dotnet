@@ -2,6 +2,10 @@ id: ex01-voisins
 title: "Voisins libres sur une grille"
 objective: "Énumérer les cases voisines accessibles (4 directions) d'une case sur une grille ASCII."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [algorithms,pathfinding]
+story_beat: "Sécuriser la capacité Voisins libres sur une grille d'Asteria."
 deliverables: [Voisins.cs]
 starter: [Voisins.cs]
 grading:

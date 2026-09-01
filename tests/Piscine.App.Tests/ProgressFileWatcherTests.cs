@@ -22,7 +22,10 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
     {
         var dir = new DirectoryInfo(System.AppContext.BaseDirectory);
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Piscine.slnx")))
+        {
             dir = dir.Parent;
+        }
+
         return dir?.FullName ?? throw new DirectoryNotFoundException("Piscine.slnx introuvable.");
     }
 
@@ -55,9 +58,9 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
 
     private const int EventTimeoutMs = 5_000;
 
-    public Task InitializeAsync() => Task.CompletedTask;
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         // TempDir.Dispose est synchrone ; on l'appelle ici pour cohérence IAsyncLifetime.
         await Task.Run(() => _temp.Dispose());
@@ -79,7 +82,9 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
 
         // Assert
-        var completed = await Task.WhenAny(tcs.Task, Task.Delay(EventTimeoutMs));
+        var completed = await Task.WhenAny(
+            tcs.Task,
+            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
         Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
 
         var result = await tcs.Task;
@@ -115,7 +120,9 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
             ("ex01-foo", ExerciseStatus.ARevoir, 1));    // nouveau
 
         // Assert — uniquement ex01-foo dans le delta.
-        var completed = await Task.WhenAny(tcs.Task, Task.Delay(EventTimeoutMs));
+        var completed = await Task.WhenAny(
+            tcs.Task,
+            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
         Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
 
         var result = await tcs.Task;
@@ -142,7 +149,7 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
 
         // Assert — attendre plus que le debounce pour s'assurer qu'aucun événement n'est parti.
-        await Task.Delay(600);
+        await Task.Delay(600, TestContext.Current.CancellationToken);
         Assert.Equal(0, Volatile.Read(ref eventCount));
     }
 
@@ -168,15 +175,17 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         for (int i = 1; i <= 5; i++)
         {
             WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, i));
-            await Task.Delay(30); // rapide mais pas nul
+            await Task.Delay(30, TestContext.Current.CancellationToken); // rapide mais pas nul
         }
 
         // Assert — attendre la fin du debounce + marge.
-        var completed = await Task.WhenAny(tcs.Task, Task.Delay(EventTimeoutMs));
+        var completed = await Task.WhenAny(
+            tcs.Task,
+            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
         Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
 
         // Laisser un peu plus de temps pour d'éventuels événements supplémentaires.
-        await Task.Delay(400);
+        await Task.Delay(400, TestContext.Current.CancellationToken);
 
         Assert.Single(received);
         // Le dernier état (Attempts=5) doit être dans l'événement.
@@ -200,7 +209,9 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         WriteProgress(layout, ("ex00-hello", ExerciseStatus.Reussi, 2));
 
         // Assert
-        var completed = await Task.WhenAny(tcs.Task, Task.Delay(EventTimeoutMs));
+        var completed = await Task.WhenAny(
+            tcs.Task,
+            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
         Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
 
         var r2 = await tcs.Task;
@@ -227,7 +238,7 @@ public sealed class ProgressFileWatcherTests : IAsyncLifetime
         WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
 
         // Assert — attendre plus que le debounce.
-        await Task.Delay(600);
+        await Task.Delay(600, TestContext.Current.CancellationToken);
         Assert.Equal(0, Volatile.Read(ref eventCount));
         // TempDir doit se nettoyer sans IOException.
     }

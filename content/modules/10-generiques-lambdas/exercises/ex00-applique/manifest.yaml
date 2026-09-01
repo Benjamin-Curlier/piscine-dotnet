@@ -1,6 +1,11 @@
 id: ex00-applique
 title: "Appliquer une fonction"
 objective: "Utiliser un Func<int,int> (lambda) pour transformer des valeurs."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,functional]
+story_beat: "Sécuriser la capacité Appliquer une fonction d'Asteria."
 deliverables: [Applique.cs]
 starter: [Applique.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "2\n1\n-1\n"
         expect_stdout: "1\n1\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Func<int, int>"]
 feedback:
   hints:
     - when: io_mismatch

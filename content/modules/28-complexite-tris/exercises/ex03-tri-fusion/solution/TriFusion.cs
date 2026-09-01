@@ -1,4 +1,3 @@
-var n = int.Parse(System.Console.ReadLine());
 var t = System.Array.ConvertAll(
     System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries),
     int.Parse);

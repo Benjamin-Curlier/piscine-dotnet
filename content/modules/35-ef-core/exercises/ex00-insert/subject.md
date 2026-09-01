@@ -13,7 +13,7 @@ Exemple : `3` / `Pomme` / `Poire` / `Banane` → `3`.
 
 ## Livrable
 
-- `Catalogue.cs`
+- `InsertionProduits.cs`
 
 ## Contraintes
 

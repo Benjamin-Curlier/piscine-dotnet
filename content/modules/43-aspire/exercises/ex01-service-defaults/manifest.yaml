@@ -1,0 +1,22 @@
+id: ex01-service-defaults
+title: "Construire les Service Defaults"
+objective: "Centraliser OpenTelemetry, health checks, découverte et résilience HTTP."
+difficulty: moyen
+estimated_minutes: 65
+xp: 130
+tags: [aspire, observability, resilience]
+story_beat: "Donner à chaque service Asteria les mêmes instruments de diagnostic."
+deliverables: [Extensions.cs]
+starter: [Extensions.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Extensions.cs
+          required_fragments: ["AddServiceDefaults", "ConfigureOpenTelemetry", "AddDefaultHealthChecks", "AddServiceDiscovery", "ConfigureHttpClientDefaults", "AddStandardResilienceHandler", "MapDefaultEndpoints", "MapHealthChecks(\"/health\")", "MapHealthChecks(\"/alive\")"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "AddServiceDefaults compose télémétrie, health checks, découverte et HttpClient résilient ; MapDefaultEndpoints publie séparément /health et /alive."
+  course_ref: "cours.md#service-defaults"
+solution: [Extensions.cs]

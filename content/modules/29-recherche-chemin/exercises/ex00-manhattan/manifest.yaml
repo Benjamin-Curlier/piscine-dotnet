@@ -2,6 +2,10 @@ id: ex00-manhattan
 title: "Distance de Manhattan"
 objective: "Calculer la distance de Manhattan entre deux points — l'heuristique de base du pathfinding."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [algorithms,pathfinding]
+story_beat: "Sécuriser la capacité Distance de Manhattan d'Asteria."
 deliverables: [Manhattan.cs]
 starter: [Manhattan.cs]
 grading:

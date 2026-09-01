@@ -22,7 +22,7 @@ public sealed class OnboardingSmokeTests : IAsyncLifetime
     private string? _tempHome;
     private string? _tempWorkspace;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -50,7 +50,7 @@ public sealed class OnboardingSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -69,7 +69,7 @@ public sealed class OnboardingSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -84,7 +84,8 @@ public sealed class OnboardingSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            return; // Chromium absent : skip propre.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
         }
 
         await using (browser)

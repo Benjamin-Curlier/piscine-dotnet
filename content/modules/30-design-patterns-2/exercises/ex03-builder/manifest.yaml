@@ -2,6 +2,10 @@ id: ex03-builder
 title: "Builder — construction fluide pas à pas"
 objective: "Construire un objet complexe étape par étape avec une interface fluide (chaînable)."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Builder — construction fluide pas à pas d'Asteria."
 deliverables: [Burger.cs]
 starter: [Burger.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "bacon salade\n"
         expect_stdout: "Burger : pain, steak, bacon, salade (4 ingrédients)\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class BurgerBuilder"]
 feedback:
   hints:
     - when: io_mismatch

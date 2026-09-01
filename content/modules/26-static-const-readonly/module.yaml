@@ -1,6 +1,9 @@
 id: 26-static-const-readonly
 title: "Static, const, readonly & immutabilité"
 order: 26
+prerequisites: [07-poo-1]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Protéger les constantes, identités et valeurs partagées du cœur d'Asteria."
 course: cours.md
 groups:
   - id: immutabilite

@@ -2,6 +2,10 @@ id: ex03-vehicule
 title: "Flotte de véhicules"
 objective: "Modéliser une classe abstraite Vehicule et deux sous-classes pour calculer la consommation de carburant par polymorphisme."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Flotte de véhicules d'Asteria."
 bonus: true
 deliverables: [Vehicule.cs]
 starter: [Vehicule.cs]
@@ -25,9 +29,14 @@ grading:
       - stdin: "300\n"
         expect_stdout: "21\n75\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract class Vehicule", "override"]
 feedback:
   hints:
-    - when: io_mismatch
-      message: "abstract class Vehicule avec une propriété abstraite (litres/100km) et LitresPour(km) = km * taux / 100. Voiture = 7, Camion = 25. Affiche dans l'ordre Voiture puis Camion."
+      - when: io_mismatch
+        message: "abstract class Vehicule avec une propriété abstraite (litres/100km) et LitresPour(km) = km * taux / 100. Voiture = 7, Camion = 25. Affiche dans l'ordre Voiture puis Camion."
+      - when: compile_error
+        message: "Une classe abstraite peut déclarer un membre abstract ; chaque type concret doit alors fournir override avec le même type."
   course_ref: "cours.md#vehicule"
 solution: [Vehicule.cs]

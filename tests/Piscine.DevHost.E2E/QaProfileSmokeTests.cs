@@ -54,7 +54,8 @@ public sealed class QaProfileSmokeTests
             }
             catch (PlaywrightException)
             {
-                return; // Chromium absent (CI sans `playwright install`) : skip propre.
+                Assert.Skip("Chromium Playwright n'est pas installé.");
+                return;
             }
 
             await using (browser)
@@ -64,7 +65,7 @@ public sealed class QaProfileSmokeTests
 
                 // L'overlay onboarding (fresh) et les pastilles (mixed) sont des îles InteractiveServer :
                 // elles apparaissent une fois le circuit SignalR monté → attente sur le sélecteur.
-                await page.WaitForSelectorAsync(hallmark, new PageWaitForSelectorOptions { Timeout = 30_000 });
+                await page.WaitForSelectorAsync($"{hallmark}:visible", new PageWaitForSelectorOptions { Timeout = 30_000 });
 
                 Assert.True(
                     await page.Locator(hallmark).CountAsync() > 0,

@@ -4,11 +4,11 @@ namespace Piscine.App.Terminal;
 public interface IPtySession : IAsyncDisposable
 {
     /// <summary>Octets bruts emis par le shell (deja decodes du flux PTY).</summary>
-    event Action<byte[]>? Output;
+    public event Action<byte[]>? Output;
 
     /// <summary>Declenche quand le processus shell se termine (transporte le code de sortie).</summary>
-    event Action<int>? Exited;
+    public event Action<int>? Exited;
 
-    Task WriteAsync(string data, CancellationToken ct = default);
-    void Resize(int cols, int rows);
+    public Task WriteAsync(string data, CancellationToken ct = default);
+    public void Resize(int cols, int rows);
 }

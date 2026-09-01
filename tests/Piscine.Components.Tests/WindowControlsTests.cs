@@ -26,4 +26,14 @@ public sealed class WindowControlsTests : BunitContext
         Assert.Contains("winControl('togglemax')", markup);
         Assert.Contains("winControl('close')", markup);
     }
+
+    [Fact]
+    public void Minimize_icon_UsesTheCurrentThemeColor()
+    {
+        var cut = Render<WindowControls>();
+
+        var icon = cut.Find("button.win-min rect");
+
+        Assert.Equal("currentColor", icon.GetAttribute("fill"));
+    }
 }

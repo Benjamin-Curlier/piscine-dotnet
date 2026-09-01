@@ -17,7 +17,7 @@ Poire 2
 
 ## Livrable
 
-- `Catalogue.cs`
+- `FiltreProduits.cs`
 
 ## Contraintes
 

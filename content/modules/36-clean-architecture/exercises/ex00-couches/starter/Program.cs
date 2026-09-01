@@ -1,3 +1,10 @@
+#!
+#:property ExperimentalFileBasedProgramEnableTransitiveDirectives=true
+#:include .\Domain\IDepotTaches.cs
+#:include .\Domain\Tache.cs
+#:include .\Application\GestionTaches.cs
+#:include .\Infrastructure\DepotMemoire.cs
+
 using System.Linq;
 using Application;
 using Domain;

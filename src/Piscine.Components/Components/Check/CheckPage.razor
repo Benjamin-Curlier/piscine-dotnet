@@ -7,14 +7,14 @@
 @inject CourseCatalog Catalog
 @inject CheckService Check
 
-<h1 class="check-page-title">Vérifier un exercice</h1>
+<h1 class="check-page-title">Vérifier un exercice ou un Rush</h1>
 
 <div class="check-controls">
-    <label for="exo-select" class="check-label">Exercice</label>
+    <label for="exo-select" class="check-label">Livrable</label>
     <select id="exo-select" data-testid="exo-select" @bind="_selectedId" class="check-select">
-        @foreach (var exercise in AllExercises())
+        @foreach (var target in AllTargets())
         {
-            <option value="@exercise.Id">@exercise.Title</option>
+            <option value="@target.Id" data-module="@target.ModuleId">@target.Label</option>
         }
     </select>
 
@@ -49,7 +49,7 @@
     {
         // Fallback (/check sans paramètre) : pré-sélectionner le premier exercice pour qu'un clic
         // ait toujours une cible. Un exercice passé par l'URL écrase ce choix dans OnParametersSet.
-        var first = AllExercises().FirstOrDefault();
+        var first = AllTargets().FirstOrDefault();
         if (first is not null)
         {
             _selectedId = first.Id;
@@ -64,8 +64,10 @@
             return;
         }
 
-        var target = AllExercises()
-            .FirstOrDefault(e => string.Equals(e.Id, ExerciseId, StringComparison.OrdinalIgnoreCase));
+        var target = AllTargets().FirstOrDefault(candidate =>
+            string.Equals(candidate.Id, ExerciseId, StringComparison.OrdinalIgnoreCase)
+            && (string.IsNullOrWhiteSpace(ModuleId)
+                || string.Equals(candidate.ModuleId, ModuleId, StringComparison.OrdinalIgnoreCase)));
         if (target is null)
         {
             return;
@@ -124,8 +126,18 @@
         }
     }
 
-    private IEnumerable<CourseExercise> AllExercises()
-        => Catalog.Modules
-            .SelectMany(m => m.Groups)
-            .SelectMany(g => g.Exercises);
+    private IEnumerable<CheckTarget> AllTargets()
+    {
+        foreach (var exercise in Catalog.Modules.SelectMany(module => module.Groups).SelectMany(group => group.Exercises))
+        {
+            yield return new CheckTarget(exercise.ModuleId, exercise.Id, exercise.Title);
+        }
+
+        foreach (var rush in Catalog.Rushes)
+        {
+            yield return new CheckTarget("rushes", rush.Id, $"Rush · {rush.Title}");
+        }
+    }
+
+    private sealed record CheckTarget(string ModuleId, string Id, string Label);
 }

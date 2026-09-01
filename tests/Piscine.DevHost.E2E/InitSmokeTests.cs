@@ -26,7 +26,7 @@ public sealed class InitSmokeTests : IAsyncLifetime
     private string? _tempHome;
     private string? _tempWorkspace;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -56,7 +56,7 @@ public sealed class InitSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -78,7 +78,7 @@ public sealed class InitSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -93,8 +93,7 @@ public sealed class InitSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Navigateur non installé (CI sans `playwright install chromium`) : skip propre.
-            // xUnit 2.x n'a pas d'API Assert.Skip ; le retour anticipé fait office de skip.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
             return;
         }
 
@@ -129,7 +128,7 @@ public sealed class InitSmokeTests : IAsyncLifetime
                     break;
                 }
 
-                await Task.Delay(500);
+                await Task.Delay(500, TestContext.Current.CancellationToken);
             }
 
             // Attendre init-result (GitWorkspace.Initialize crée le bare repo + hook).

@@ -1,6 +1,9 @@
 id: 24-switch-patterns
 title: "Switch & pattern matching"
 order: 24
+prerequisites: [01-bases-csharp, 07-poo-1]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Rendre les décisions métier lisibles et exhaustives face aux nouveaux états."
 course: cours.md
 groups:
   - id: switch-patterns

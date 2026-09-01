@@ -1,0 +1,23 @@
+id: ex02-requete-paginee
+title: "Projeter une page stable"
+objective: "Composer une requête EF Core filtrée, non suivie, projetée et paginée de façon déterministe."
+difficulty: moyen
+estimated_minutes: 75
+xp: 140
+tags: [ef-core, sql, performance]
+story_beat: "Alimenter le tableau du poste Asteria sans charger tout l'historique."
+deliverables: [CommandQueries.cs]
+starter: [CommandQueries.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: CommandQueries.cs
+          required_fragments: ["AsNoTracking()", "Where(", "OrderBy(", "ThenBy(", "Select(", "Take(pageSize + 1)", "ToListAsync(cancellationToken)", "hasMore", "nextCursor"]
+          forbidden_fragments: ["ToList().Where", "AsEnumerable()", "Skip(page *", ".Result"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Filtre avant de matérialiser, trie par date puis identifiant, projette le DTO et prends pageSize + 1."
+  course_ref: "cours.md#requetes"
+solution: [CommandQueries.cs]

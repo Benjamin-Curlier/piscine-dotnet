@@ -2,6 +2,10 @@ id: ex04-chemin
 title: "Reconstruction du chemin"
 objective: "Reconstruire et afficher le chemin BFS sous forme de directions U/D/L/R (déterministe)."
 difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [algorithms,pathfinding]
+story_beat: "Sécuriser la capacité Reconstruction du chemin d'Asteria."
 bonus: true
 deliverables: [Chemin.cs]
 starter: [Chemin.cs]
@@ -19,7 +23,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Pendant le BFS, mémorise pour chaque case son prédécesseur et la lettre du déplacement (U/D/L/R), en explorant les voisins dans l'ordre Haut, Bas, Gauche, Droite. Remonte de E à S puis inverse la séquence."
+      - when: io_mismatch
+        message: "Pendant le BFS, mémorise pour chaque case son prédécesseur et la lettre du déplacement (U/D/L/R), en explorant les voisins dans l'ordre Haut, Bas, Gauche, Droite. Remonte de E à S puis inverse la séquence."
+      - when: compile_error
+        message: "Stocke prédécesseur et direction dans un dictionnaire indexé par la case ; la reconstruction produit une liste de char à inverser."
   course_ref: "cours.md#reconstruction"
 solution: [Chemin.cs]

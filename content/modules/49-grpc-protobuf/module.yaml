@@ -1,0 +1,11 @@
+id: 49-grpc-protobuf
+title: "gRPC et Protobuf : contrats distribués typés"
+order: 49
+prerequisites: [16-serialisation, 46-aspnet-services]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Établir un canal typé et évolutif entre postes et services Asteria."
+course: cours.md
+groups:
+  - id: contrats-rpc
+    title: "Schéma Protobuf, service et compatibilité"
+    exercises: [ex00-contrat-protobuf, ex01-service-grpc, ex02-evolution-protobuf]

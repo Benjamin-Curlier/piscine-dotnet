@@ -2,6 +2,10 @@ id: ex01-mention
 title: "La mention"
 objective: "Classer une note avec des patterns relationnels (>=) dans une switch expression."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,patterns]
+story_beat: "Sécuriser la capacité La mention d'Asteria."
 deliverables: [Mention.cs]
 starter: [Mention.cs]
 grading:
@@ -32,6 +36,9 @@ grading:
       - stdin: "49\n"
         expect_stdout: "insuffisant\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["switch"]
 feedback:
   hints:
     - when: io_mismatch

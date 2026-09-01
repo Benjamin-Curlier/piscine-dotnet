@@ -90,8 +90,8 @@ using System.Threading.Tasks;
 
 for (var i = 0; i < n; i++)
 {
-    var carre = await CarreAsync(valeur);   // on attend celle-ci avant la suivante
-    System.Console.WriteLine(carre);
+    var resultat = await TransformerAsync(element); // on attend avant de poursuivre
+    System.Console.WriteLine(resultat);
 }
 ```
 
@@ -105,17 +105,17 @@ Pour **lancer plusieurs tâches en même temps**, on les démarre **sans `await`
 ```csharp
 using System.Threading.Tasks;
 
-var tasks = new Task<int>[n];
+var travaux = new Task<int>[n];
 for (var i = 0; i < n; i++)
 {
-    tasks[i] = CarreAsync(valeur);   // lancée, mais PAS attendue ici
+    travaux[i] = CarreAsync(valeur); // lancée, mais PAS attendue ici
 }
 
-var resultats = await Task.WhenAll(tasks);   // attend que toutes finissent
+var sorties = await Task.WhenAll(travaux);   // attend que toutes finissent
 ```
 
-`Task.WhenAll(tasks)` (sur des `Task<int>`) renvoie un `int[]` **dans le même ordre** que le
-tableau de tâches : `resultats[0]` correspond à `tasks[0]`, etc. L'ordre de **fin** des tâches
+`Task.WhenAll(travaux)` (sur des `Task<int>`) renvoie un `int[]` **dans le même ordre** que le
+tableau de tâches : `sorties[0]` correspond à `travaux[0]`, etc. L'ordre de **fin** des tâches
 n'a donc pas d'importance pour l'affichage.
 
 > Différence clé : en séquentiel, on attend chaque tâche avant de lancer la suivante ; avec

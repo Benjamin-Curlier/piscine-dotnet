@@ -2,6 +2,10 @@ id: ex03-pipeline-di
 title: "Pipeline par injection de dépendances"
 objective: "Enregistrer IFormateur + Rapport dans un conteneur DI, injecter par constructeur, résoudre et traiter chaque ligne."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,architecture]
+story_beat: "Sécuriser la capacité Pipeline par injection de dépendances d'Asteria."
 bonus: true
 deliverables: [Pipeline.cs]
 starter: [Pipeline.cs]
@@ -22,6 +26,9 @@ grading:
       - stdin: "a\nb\nc\n"
         expect_stdout: "[A]\n[B]\n[C]\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["ServiceCollection", "AddSingleton"]
 feedback:
   hints:
     - when: io_mismatch

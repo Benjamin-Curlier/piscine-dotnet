@@ -1,6 +1,9 @@
 id: 09-exceptions
 title: "Exceptions — Gestion des erreurs"
 order: 9
+prerequisites: [03-methodes]
+arc: "Acte II — Cœur métier"
+mission: "Contenir les pannes attendues et rendre chaque échec explicable."
 course: cours.md
 groups:
   - id: gestion-erreurs

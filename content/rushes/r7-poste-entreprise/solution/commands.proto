@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package asteria.commands.v1;
+option csharp_namespace = "Asteria.Commands.V1";
+
+service CommandEvents {
+  rpc Watch (WatchCommand) returns (stream CommandStatus);
+}
+
+message WatchCommand {
+  string command_id = 1;
+  reserved 2;
+  reserved "legacy_station";
+}
+
+message CommandStatus {
+  string command_id = 1;
+  string state = 2;
+  int64 sequence = 3;
+}

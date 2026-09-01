@@ -1,0 +1,45 @@
+id: r5-event-processor
+title: "Rush 5 — Processeur d'événements résilient"
+objective: "Combiner contrats JSON, architecture en couches, traitement asynchrone, idempotence et audit."
+difficulty: difficile
+estimated_minutes: 180
+xp: 360
+tags: [messaging, architecture, serialization, async, capstone]
+story_beat: "Fiabiliser le cœur événementiel d'Asteria avant la remise en réseau générale."
+recommended_after: "42-observabilite-resilience"
+deliverables: [Domain/EventMessage.cs, Domain/IInbox.cs, Domain/IAuditSink.cs, Application/EventProcessor.cs, Infrastructure/MemoryInbox.cs, Infrastructure/ConsoleAuditSink.cs, Program.cs]
+starter: [Domain/EventMessage.cs, Domain/IInbox.cs, Domain/IAuditSink.cs, Application/EventProcessor.cs, Infrastructure/MemoryInbox.cs, Infrastructure/ConsoleAuditSink.cs, Program.cs]
+grading:
+  - type: projet
+    cases:
+      - stdin: "5\n{\"id\":\"e1\",\"type\":\"credit\",\"amount\":10}\n{\"id\":\"e2\",\"type\":\"debit\",\"amount\":3}\n{\"id\":\"e1\",\"type\":\"credit\",\"amount\":10}\n{\"id\":\"e3\",\"type\":\"credit\",\"amount\":5}\n{\"id\":\"e4\",\"type\":\"other\",\"amount\":8}\n"
+        expect_stdout: "APPLIED e1 BALANCE 10\nAPPLIED e2 BALANCE 7\nDUPLICATE e1\nAPPLIED e3 BALANCE 12\nREJECTED e4\nFINAL 12\n"
+        expect_exit: 0
+      - stdin: "4\n{\"id\":\"a\",\"type\":\"debit\",\"amount\":2}\n{\"id\":\"b\",\"type\":\"credit\",\"amount\":0}\n{\"id\":\"b\",\"type\":\"credit\",\"amount\":4}\n{\"id\":\"a\",\"type\":\"debit\",\"amount\":2}\n"
+        expect_stdout: "APPLIED a BALANCE -2\nREJECTED b\nAPPLIED b BALANCE 2\nDUPLICATE a\nFINAL 2\n"
+        expect_exit: 0
+    project:
+      requires_types:
+        - Domain.EventMessage
+        - Domain.IInbox
+        - Domain.IAuditSink
+        - Application.EventProcessor
+        - Infrastructure.MemoryInbox
+        - Infrastructure.ConsoleAuditSink
+      forbidden_dependencies:
+        - { from: Domain, to: Application }
+        - { from: Domain, to: Infrastructure }
+        - { from: Application, to: Infrastructure }
+  - type: source
+    source:
+      required_fragments: ["JsonSerializer.Deserialize<EventMessage>", "HashSet<string>", "CancellationToken", "TryRecord(", "ProcessAsync("]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Valide d'abord type et montant. Un événement rejeté n'entre pas dans l'inbox ; un id déjà appliqué produit DUPLICATE ; credit ajoute, debit soustrait, puis affiche FINAL."
+    - when: project_structure
+      message: "Domain contient contrats et ports. Application ne connaît que IInbox/IAuditSink. Infrastructure implémente ces ports ; Program est la seule composition root."
+    - when: source_constraint
+      message: "Désérialise chaque ligne avec System.Text.Json, déduplique dans un HashSet et propage CancellationToken jusqu'à ProcessAsync."
+  course_ref: "subject.md"
+solution: [Domain/EventMessage.cs, Domain/IInbox.cs, Domain/IAuditSink.cs, Application/EventProcessor.cs, Infrastructure/MemoryInbox.cs, Infrastructure/ConsoleAuditSink.cs, Program.cs]

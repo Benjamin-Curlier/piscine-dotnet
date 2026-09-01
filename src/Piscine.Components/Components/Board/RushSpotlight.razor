@@ -1,0 +1,54 @@
+@namespace Piscine.Components.Components.Board
+@using Piscine.App.Board
+@using Piscine.Components.Components.Progress
+@using Piscine.Components.Services
+
+<section class="rush-spotlight" data-testid="rush-spotlight">
+    <div class="rush-spotlight-head">
+        <div>
+            <span class="rush-kicker">Prochaine mission de synthèse</span>
+            <span class="rush-summary">@Counts.Fait/@Counts.Total validée@(Counts.Fait > 1 ? "s" : "")</span>
+        </div>
+        <a href="/rushes">Voir les @Counts.Total Rushes</a>
+    </div>
+
+    @if (Item is null)
+    {
+        <div class="rush-all-done">
+            <strong>Centre Asteria pleinement opérationnel.</strong>
+            <span>Toutes les missions de synthèse sont validées.</span>
+        </div>
+    }
+    else
+    {
+        <div class="rush-spotlight-body">
+            <div class="rush-copy">
+                <div class="rush-title-line">
+                    <h2>@Item.Rush.Title</h2>
+                    <StatusBadge Status="Item.StatusInfo.Status" Source="Item.StatusInfo.Source" />
+                </div>
+                <p>@Item.Rush.StoryBeat</p>
+                <div class="rush-meta">
+                    <span>@Item.Rush.Difficulty</span>
+                    <span>≈ @Item.Rush.EstimatedMinutes min</span>
+                    <span>+@Item.Rush.Xp XP</span>
+                    @if (Milestone is not null)
+                    {
+                        <span class="@(Item.MilestoneReached ? "ready" : "upcoming")">
+                            @(Item.MilestoneReached ? "Conseillée maintenant" : $"Conseillée après M{Milestone.Number}")
+                        </span>
+                    }
+                </div>
+            </div>
+            <a class="rush-cta" data-testid="rush-spotlight-cta" href="/rush/@Item.Rush.Id">
+                @Item.ActionLabel <span aria-hidden="true">→</span>
+            </a>
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter, EditorRequired] public RushProgressItem? Item { get; set; }
+    [Parameter, EditorRequired] public BoardCounts Counts { get; set; } = BoardCounts.From([]);
+    [Parameter] public CourseModule? Milestone { get; set; }
+}

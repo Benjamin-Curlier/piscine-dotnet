@@ -1,6 +1,11 @@
 id: ex02-liste-json
 title: "Une liste en tableau JSON"
 objective: "Construire une List<string> et la sérialiser en tableau JSON avec JsonSerializer.Serialize."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,serialization]
+story_beat: "Sécuriser la capacité Une liste en tableau JSON d'Asteria."
 deliverables: [ListeJson.cs]
 starter: [ListeJson.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "3\n1\n2\n3\n"
         expect_stdout: "[\"1\",\"2\",\"3\"]\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["JsonSerializer.Serialize"]
 feedback:
   hints:
     - when: io_mismatch

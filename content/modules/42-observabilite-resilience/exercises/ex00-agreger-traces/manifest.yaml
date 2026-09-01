@@ -1,0 +1,30 @@
+id: ex00-agreger-traces
+title: "Agréger des spans par trace"
+objective: "Reconstruire une vue d'opération à partir de spans distribués désordonnés."
+difficulty: moyen
+estimated_minutes: 50
+xp: 100
+tags: [observability, tracing, collections]
+story_beat: "Reconstituer le trajet des commandes perdues entre les services d'Asteria."
+deliverables: [Traces.cs]
+starter: [Traces.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "5\nt2 stock 12 OK\nt1 api 8 OK\nt1 db 20 ERROR\nt2 api 5 OK\nt1 bus 3 OK\n"
+        expect_stdout: "t1 DUREE 31 ERREURS 1\nt2 DUREE 17 ERREURS 0\n"
+        expect_exit: 0
+      - stdin: "3\nz worker 1 ERROR\na api 10 OK\nz bus 2 ERROR\n"
+        expect_stdout: "a DUREE 10 ERREURS 0\nz DUREE 3 ERREURS 2\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Dictionary<string", "OrderBy("]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Pour chaque traceId, additionne les durées de tous ses spans et compte les statuts ERROR ; affiche ensuite les ids triés ordinalement."
+    - when: source_constraint
+      message: "Indexe l'agrégat par traceId dans un dictionnaire, puis trie seulement au moment d'afficher."
+  course_ref: "cours.md#correlation"
+solution: [Traces.cs]

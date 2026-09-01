@@ -1,0 +1,29 @@
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  tags: [windows]
+  script:
+    - dotnet restore Asteria.slnx --locked-mode
+    - dotnet build Asteria.slnx -c Release --no-restore
+  artifacts:
+    when: always
+    paths:
+      - artifacts/
+      - "**/bin/Release/"
+      - "**/obj/"
+
+test:
+  stage: test
+  tags: [windows]
+  dependencies: [build]
+  script:
+    - dotnet test Asteria.slnx -c Release --no-build --no-restore
+    - dotnet format Asteria.slnx --verify-no-changes --no-restore
+    - dotnet list Asteria.slnx package --vulnerable --include-transitive --no-restore
+  artifacts:
+    when: always
+    paths:
+      - TestResults/

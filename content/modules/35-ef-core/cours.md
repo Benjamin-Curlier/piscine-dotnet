@@ -81,10 +81,10 @@ db.Produits.OrderBy(p => p.Nom);              // ORDER BY nom
 ## 4. Agréger : GroupBy {#agregation}
 
 ```csharp
-var stats = db.Articles
-    .GroupBy(a => a.Categorie)
-    .Select(g => new { Categorie = g.Key, Nombre = g.Count() })
-    .OrderBy(x => x.Categorie);
+var chiffresParRegion = db.Ventes
+    .GroupBy(vente => vente.Region)
+    .Select(groupe => new { Region = groupe.Key, Total = groupe.Sum(v => v.Montant) })
+    .OrderBy(ligne => ligne.Region);
 ```
 
 Projeter le groupe dans un type anonyme `{ clé, agrégat }` avant d'itérer aide EF à produire un
@@ -135,6 +135,21 @@ par défaut).
 - `EnsureCreated()` pour un schéma jetable (en prod, on utilise plutôt les **migrations**).
 - **Toujours `OrderBy`** pour une sortie déterministe.
 - SQLite in-memory : garder la connexion ouverte le temps du programme.
+
+### Exécuter directement dans Rider ou avec `dotnet run fichier.cs`
+
+Les starters EF Core commencent par des **directives file-based** :
+
+```csharp
+#:property PublishAot=false
+#:package Microsoft.EntityFrameworkCore@10.0.11
+#:package Microsoft.EntityFrameworkCore.Sqlite@10.0.11
+```
+
+Elles permettent à Rider et à `dotnet run MonExercice.cs` de restaurer les paquets sans créer de
+`.csproj`. Chaque exercice utilise aussi un nom de fichier distinct, afin que Rider crée une
+configuration d'exécution non ambiguë. Tu peux laisser ces directives dans ton rendu :
+`piscine check` fournit ses propres références et les ignore automatiquement.
 
 ### Exercices du module
 

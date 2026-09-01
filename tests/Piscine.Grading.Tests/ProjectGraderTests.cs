@@ -158,20 +158,21 @@ public class ProjectGraderTests
     }
 
     [Fact]
-    public void Grade_ARevoir_WhenIoOutputDiffers()
+    public void Grade_ARevoir_WhenIoOutputDiffers_ReportsTheFailingInput()
     {
         var context = Sources(
             ("Program.cs", "System.Console.WriteLine(\"faux\");"));
         var step = new GradingStep
         {
             Type = "projet",
-            Cases = { new IoCase { ExpectStdout = "attendu\n", ExpectExit = 0 } },
+            Cases = { new IoCase { Stdin = "Dune\n", ExpectStdout = "attendu\n", ExpectExit = 0 } },
         };
 
         var result = new ProjectGrader().Grade(context, step);
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Equal(FeedbackTriggers.IoMismatch, result.Trigger);
+        Assert.Contains(result.Messages, message => message.Contains("Dune\\n", System.StringComparison.Ordinal));
     }
 
     [Fact]
@@ -352,5 +353,22 @@ public class ProjectGraderTests
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Equal(FeedbackTriggers.CompileError, result.Trigger);
+    }
+
+    [Fact]
+    public void Grade_RuntimeException_ReportsTheFailingInput()
+    {
+        var context = Sources(("Program.cs", "throw new System.InvalidOperationException(\"boom\");"));
+        var step = new GradingStep
+        {
+            Type = "projet",
+            Cases = { new IoCase { Stdin = "commande invalide\n", ExpectStdout = string.Empty } },
+        };
+
+        var result = new ProjectGrader().Grade(context, step);
+
+        Assert.Equal(FeedbackTriggers.RuntimeError, result.Trigger);
+        Assert.Contains(result.Messages,
+            message => message.Contains("commande invalide\\n", System.StringComparison.Ordinal));
     }
 }

@@ -2,6 +2,11 @@ id: r3-traitement
 title: "Rush 3 — Traitement de commandes (Worker)"
 objective: "Synthèse Worker Service : un BackgroundService consomme une file (Channel) de commandes injectée par DI, journalise chaque décision via un logger déterministe, dresse un bilan, puis s'arrête."
 difficulty: difficile
+estimated_minutes: 150
+xp: 300
+tags: [hosting,async,capstone]
+story_beat: "Réarmer le worker de traitement des commandes."
+recommended_after: "23-design-patterns"
 deliverables: [Traitement.cs, LogCapture.cs]
 starter: [Traitement.cs, LogCapture.cs]
 grading:

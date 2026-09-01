@@ -1,0 +1,23 @@
+id: ex02-tests-contrat
+title: "Bloquer les ruptures de contrats"
+objective: "Créer une gate CI qui compare Protobuf et OpenAPI à leur baseline de référence."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [testing, contracts, ci]
+story_beat: "Empêcher une release Asteria de casser les postes déjà déployés."
+deliverables: [contracts.gitlab-ci.yml]
+starter: [contracts.gitlab-ci.yml]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: contracts.gitlab-ci.yml
+          required_fragments: ["contracts:", "stage: test", "buf breaking", "against", "oasdiff breaking", "contracts/baseline", "artifacts/openapi", "merge_request_event", "artifacts:", "when: always"]
+          forbidden_fragments: ["allow_failure: true", "|| true", "latest"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Dans un job MR bloquant, lance buf breaking pour les protos puis oasdiff breaking entre baseline et OpenAPI généré."
+  course_ref: "cours.md#contracts"
+solution: [contracts.gitlab-ci.yml]

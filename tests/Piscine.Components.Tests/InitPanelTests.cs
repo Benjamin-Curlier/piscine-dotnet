@@ -36,7 +36,10 @@ public sealed class InitPanelTests : BunitContext, IDisposable
                 if (Directory.Exists(Path))
                 {
                     foreach (var f in Directory.EnumerateFiles(Path, "*", SearchOption.AllDirectories))
+                    {
                         File.SetAttributes(f, FileAttributes.Normal);
+                    }
+
                     Directory.Delete(Path, recursive: true);
                 }
             }

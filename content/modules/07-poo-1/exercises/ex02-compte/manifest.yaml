@@ -1,6 +1,11 @@
 id: ex02-compte
 title: "Compte bancaire"
 objective: "Encapsuler un solde derrière des opérations sûres (dépôt, retrait contrôlé)."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Compte bancaire d'Asteria."
 deliverables: [Compte.cs]
 starter: [Compte.cs]
 grading:
@@ -31,6 +36,9 @@ grading:
       - stdin: "1000\n0\n0\n"
         expect_stdout: "1000\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class Compte", "Retirer("]
 feedback:
   hints:
     - when: io_mismatch

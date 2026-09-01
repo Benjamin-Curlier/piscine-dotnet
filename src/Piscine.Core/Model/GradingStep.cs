@@ -30,6 +30,45 @@ public sealed class GradingStep
 
     /// <summary>Pour le grader <c>reseau</c> : configuration du serveur de test embarqué.</summary>
     public NetworkConfig? Network { get; set; }
+
+    /// <summary>Pour le grader <c>source</c> : fragments textuels requis ou interdits.</summary>
+    public SourceAssertions? Source { get; set; }
+
+    /// <summary>Pour le grader <c>fichier</c> : contenu attendu dans des livrables texte quelconques.</summary>
+    public FileAssertions? File { get; set; }
+}
+
+/// <summary>Contraintes simples sur le code source, utiles pour imposer une technique pédagogique.</summary>
+public sealed class SourceAssertions
+{
+    public List<string> RequiredFragments { get; set; } = new();
+
+    public List<string> ForbiddenFragments { get; set; } = new();
+
+    public List<SourceOccurrence> RequiredOccurrences { get; set; } = new();
+}
+
+/// <summary>Nombre minimal d'occurrences d'un fragment C# hors commentaires.</summary>
+public sealed class SourceOccurrence
+{
+    public string Fragment { get; set; } = string.Empty;
+
+    public int Count { get; set; }
+}
+
+/// <summary>Assertions sur des fichiers texte (Dockerfile, YAML, Markdown, C# file-based…).</summary>
+public sealed class FileAssertions
+{
+    public List<FileRule> Rules { get; set; } = new();
+}
+
+public sealed class FileRule
+{
+    public string Path { get; set; } = string.Empty;
+
+    public List<string> RequiredFragments { get; set; } = new();
+
+    public List<string> ForbiddenFragments { get; set; } = new();
 }
 
 /// <summary>Configuration du serveur de test embarqué (grader <c>reseau</c>).</summary>

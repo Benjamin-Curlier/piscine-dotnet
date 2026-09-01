@@ -1,6 +1,11 @@
 id: ex02-structure
 title: "Log structuré"
 objective: "Journaliser avec un message à trous nommés (\"Commande {Id} pour {Client}\") et ses arguments : c'est le logging structuré."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [observability,csharp]
+story_beat: "Sécuriser la capacité Log structuré d'Asteria."
 deliverables: [Structure.cs, LogCapture.cs]
 starter: [Structure.cs, LogCapture.cs]
 grading:
@@ -20,6 +25,9 @@ grading:
       - stdin: "0\nZoé\n"
         expect_stdout: "Commandes [Information] Commande 0 validée pour Zoé\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["LogInformation"]
 feedback:
   hints:
     - when: io_mismatch

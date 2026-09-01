@@ -1,6 +1,12 @@
 id: r2-rapport
 title: "Rush 2 — Rapport de données"
 objective: "Synthèse parsing + LINQ : agréger des données par catégorie et produire un rapport."
+difficulty: moyen
+estimated_minutes: 75
+xp: 150
+tags: [data,linq,capstone]
+story_beat: "Produire le rapport de situation du centre."
+recommended_after: "12-async-await"
 deliverables: [Rapport.cs]
 starter: [Rapport.cs]
 grading:

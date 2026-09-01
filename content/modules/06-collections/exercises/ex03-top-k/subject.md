@@ -19,6 +19,7 @@ Exemple : pour `a b a c a b` puis `2`, le programme affiche `a` puis `b`.
 ## Indices
 
 - Compte les occurrences dans un `Dictionary<string,int>` (`freq[mot] = freq.GetValueOrDefault(mot) + 1`).
-- Trie avec LINQ : `.OrderByDescending(p => p.Value).ThenBy(p => p.Key)` (nécessite `using System.Linq;`).
+- Trie d'abord par fréquence décroissante, puis par mot croissant pour départager les égalités
+  (les opérateurs LINQ de tri peuvent être chaînés).
 - Le `ThenBy` sur la clé garantit un ordre **déterministe** quand deux mots ont la même fréquence.
 - `.Take(K)` limite au nombre demandé.

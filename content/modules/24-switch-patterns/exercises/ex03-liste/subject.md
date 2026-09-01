@@ -20,6 +20,9 @@ Exemple : `5` → `un seul` ; `1 2 3` → `premier=1 dernier=3` ; `10 20` → `p
 
 - Découpe et parse : `ligne.Split(' ', System.StringSplitOptions.RemoveEmptyEntries)` puis
   `.Select(int.Parse).ToArray()` (nécessite `using System.Linq;`).
+- `Split` renvoie déjà un `string[]`, donc tu peux appeler directement `Select` : ajouter
+  `.ToList()` entre les deux est inutile. Si `Select` n'est pas reconnu, vérifie d'abord la présence
+  de `using System.Linq;` en haut du fichier.
 - Un **list pattern** décrit la forme du tableau : `[var x]` (exactement un élément),
   `[var f, .., var l]` (un premier `f`, une tranche `..` au milieu, un dernier `l`).
 - La **tranche `..`** absorbe zéro, un ou plusieurs éléments : `[var f, .., var l]` accepte donc

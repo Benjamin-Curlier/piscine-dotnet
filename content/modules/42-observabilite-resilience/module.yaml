@@ -1,0 +1,11 @@
+id: 42-observabilite-resilience
+title: "Observabilité et résilience distribuée"
+order: 42
+prerequisites: [19-logging, 40-messaging-brokers]
+arc: "Acte VI — Asteria distribué"
+mission: "Rendre les échanges d'Asteria mesurables, bornés et capables de se dégrader proprement."
+course: cours.md
+groups:
+  - id: signaux-et-politiques
+    title: "Traces, retry et circuit breaker"
+    exercises: [ex00-agreger-traces, ex01-retry-borne, ex02-circuit-breaker]

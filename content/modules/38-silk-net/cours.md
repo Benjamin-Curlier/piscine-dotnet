@@ -1,9 +1,8 @@
 # Module 38 — Silk.NET (fenêtrage & rendu graphique)
 
-> **Module de lecture.** Pas d'exercices auto-corrigés : ouvrir une **fenêtre** et dessiner avec le
-> **GPU** demande un affichage, des pilotes graphiques et des bibliothèques natives — c'est
-> spécifique à la machine et **non déterministe** (impossible à corriger de façon fiable, surtout en
-> CI *headless*). Lis ce module, puis **expérimente sur ta propre machine**.
+> La moulinette peut inspecter les deux shaders du pipeline sans ouvrir de fenêtre. L'exécution sur
+> le **GPU** demande toujours affichage, pilotes et bibliothèques natives : elle reste un atelier local
+> non déterministe, surtout en CI *headless*.
 
 Tu as surtout écrit des programmes console. Mais .NET sait aussi piloter le **matériel graphique**.
 **Silk.NET** est la bibliothèque .NET de référence pour cela : des **bindings** haute performance vers
@@ -101,6 +100,24 @@ window.Render += dt =>
 Aller plus loin (hors lecture) : **VBO/VAO** (les données des sommets), **shaders** GLSL compilés
 (vertex + fragment), puis `gl.DrawArrays`/`DrawElements` pour tracer des triangles — la base de tout
 rendu 3D.
+
+Le trajet minimal d'un triangle dans OpenGL est le suivant :
+
+```text
+positions C# (CPU)
+       │ copie une fois
+       ▼
+VBO ──► VAO ──► vertex shader ──► assemblage du triangle ──► fragment shader ──► pixels
+données  format    position écran          3 sommets             couleur       framebuffer
+```
+
+- le **VBO** stocke les nombres représentant les sommets sur le GPU ;
+- le **VAO** décrit comment lire ces nombres (par exemple trois coordonnées par sommet) ;
+- le **vertex shader** transforme chaque sommet ;
+- le **fragment shader** choisit la couleur des pixels couverts.
+
+Cette chaîne est présentée pour comprendre le vocabulaire. Dessiner le triangle reste une pratique
+**optionnelle avancée**, jamais nécessaire pour valider la Piscine.
 
 ---
 

@@ -1,0 +1,25 @@
+id: ex02-checklist-livraison
+title: "Préparer une release hybride"
+objective: "Écrire une checklist commune au client lourd, aux services et à la migration de données."
+difficulty: difficile
+estimated_minutes: 95
+xp: 190
+tags: [release, desktop, containers, operations]
+story_beat: "Livrer le poste et les services Asteria sans perdre la capacité de retour arrière."
+deliverables: [RELEASE.md]
+starter: [RELEASE.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: RELEASE.md
+          required_fragments: ["## Commit et artefacts", "## Client lourd", "installateur signé", "mise à jour", "## Services", "image OCI", "non-root", "## Données", "migration", "sauvegarde", "## Compatibilité", "ancien client", "## Rollback", "SBOM", "health checks"]
+          forbidden_fragments: ["tag latest", "modifier le binaire", "mot de passe dans"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Relie commit, tests et SBOM aux artefacts, puis sépare les gates desktop, services et données."
+    - when: file_constraint
+      message: "Ajoute coexistence ancien/nouveau client et un rollback testé pour binaire, service et schéma."
+  course_ref: "cours.md#artefacts"
+solution: [RELEASE.md]

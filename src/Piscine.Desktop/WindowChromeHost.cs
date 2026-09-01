@@ -1,5 +1,6 @@
 using System.Globalization;
 using Photino.Blazor;
+using Photino.NET;
 
 namespace Piscine.Desktop;
 
@@ -24,10 +25,13 @@ internal static class WindowChromeHost
 
         var anchorW = 0;
         var anchorH = 0;
+        var anchorLeft = 0;
+        var anchorTop = 0;
 
-        win.RegisterWebMessageReceivedHandler((_, message) =>
+        win.RegisterWebMessageReceivedHandler((_, eventArgs) =>
         {
-            if (message is null || !message.StartsWith(Prefix, StringComparison.Ordinal))
+            var message = eventArgs.Message;
+            if (!message.StartsWith(Prefix, StringComparison.Ordinal))
             {
                 return;
             }
@@ -39,12 +43,12 @@ internal static class WindowChromeHost
                 else if (cmd == "close") { win.Close(); }
                 else if (cmd == "querystate")
                 {
-                    win.SendWebMessage("PISCINE_WIN_STATE:" + (win.Maximized ? "maximized" : "normal"));
+                    win.SendWebMessage("PISCINE_WIN_STATE:" + (IsMaximized(win) ? "maximized" : "normal"));
                 }
                 else if (cmd == "maximizeonstart")
                 {
                     // Plein écran au lancement, déclenché après l'affichage : l'OS maximise (DPI correct).
-                    if (!win.Maximized)
+                    if (!IsMaximized(win))
                     {
                         win.SetMaximized(true);
                         win.SendWebMessage("PISCINE_WIN_STATE:maximized");
@@ -52,7 +56,7 @@ internal static class WindowChromeHost
                 }
                 else if (cmd == "togglemax")
                 {
-                    var max = !win.Maximized;
+                    var max = !IsMaximized(win);
                     win.SetMaximized(max);
                     win.SendWebMessage("PISCINE_WIN_STATE:" + (max ? "maximized" : "normal"));
                 }
@@ -63,16 +67,18 @@ internal static class WindowChromeHost
                         && int.TryParse(parts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var dx)
                         && int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var dy))
                     {
-                        if (win.Maximized) { win.SetMaximized(false); win.SendWebMessage("PISCINE_WIN_STATE:normal"); }
+                        if (IsMaximized(win)) { win.SetMaximized(false); win.SendWebMessage("PISCINE_WIN_STATE:normal"); }
                         win.SetLeft(win.Left + dx);
                         win.SetTop(win.Top + dy);
                     }
                 }
                 else if (cmd.StartsWith("resizestart:", StringComparison.Ordinal))
                 {
-                    if (win.Maximized) { win.SetMaximized(false); win.SendWebMessage("PISCINE_WIN_STATE:normal"); }
+                    if (IsMaximized(win)) { win.SetMaximized(false); win.SendWebMessage("PISCINE_WIN_STATE:normal"); }
                     anchorW = System.Math.Max(640, win.Width);
                     anchorH = System.Math.Max(480, win.Height);
+                    anchorLeft = win.Left;
+                    anchorTop = win.Top;
                 }
                 else if (cmd.StartsWith("resizeto:", StringComparison.Ordinal))
                 {
@@ -88,10 +94,25 @@ internal static class WindowChromeHost
                         // Delta TOTAL depuis l'ancre : la fenêtre suit exactement le curseur, sans dérive.
                         if (edge.Contains('e')) { win.SetWidth(System.Math.Max(640, anchorW + dx)); }
                         if (edge.Contains('s')) { win.SetHeight(System.Math.Max(480, anchorH + dy)); }
+                        if (edge.Contains('w'))
+                        {
+                            var width = System.Math.Max(640, anchorW - dx);
+                            win.SetLeft(anchorLeft + anchorW - width);
+                            win.SetWidth(width);
+                        }
+                        if (edge.Contains('n'))
+                        {
+                            var height = System.Math.Max(480, anchorH - dy);
+                            win.SetTop(anchorTop + anchorH - height);
+                            win.SetHeight(height);
+                        }
                     }
                 }
             }
             catch { /* best-effort : ne jamais faire planter l'hôte depuis le chrome. */ }
         });
     }
+
+    private static bool IsMaximized(PhotinoWindow window) =>
+        window.WindowState == PhotinoWindowState.Maximized;
 }

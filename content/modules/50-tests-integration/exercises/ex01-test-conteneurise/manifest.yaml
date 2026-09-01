@@ -1,0 +1,25 @@
+id: ex01-test-conteneurise
+title: "Tester contre une vraie base isolée"
+objective: "Piloter le cycle de vie d'un PostgreSQL de test et appliquer les migrations avant le scénario."
+difficulty: difficile
+estimated_minutes: 105
+xp: 200
+tags: [testing, testcontainers, database]
+story_beat: "Prouver la persistance Asteria sur le même moteur qu'en environnement cible."
+deliverables: [PostgresFixture.cs]
+starter: [PostgresFixture.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: PostgresFixture.cs
+          required_fragments: ["IAsyncLifetime", "PostgreSqlBuilder", "WithImage(\"postgres:18-alpine\")", "WithDatabase", "WithUsername", "Build()", "StartAsync", "GetConnectionString()", "MigrateAsync", "DisposeAsync", "CancellationToken"]
+          forbidden_fragments: ["latest", "localhost", "Thread.Sleep", "EnsureCreated", "static string ConnectionString"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Construis un conteneur PostgreSQL avec une image épinglée et démarre-le dans InitializeAsync."
+    - when: file_constraint
+      message: "Crée ensuite le DbContext avec GetConnectionString, applique MigrateAsync et détruis le conteneur via IAsyncLifetime."
+  course_ref: "cours.md#testcontainers"
+solution: [PostgresFixture.cs]

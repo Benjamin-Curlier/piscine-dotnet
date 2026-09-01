@@ -1,6 +1,9 @@
 id: 05-git-intermediaire
 title: "Git intermédiaire"
 order: 5
+prerequisites: [00-setup-git]
+arc: "Acte I — Prise de quart"
+mission: "Isoler, fusionner et réparer les interventions concurrentes de l'équipe."
 course: cours.md
 groups:
   - id: git-pratique

@@ -1,6 +1,9 @@
 id: 03-methodes
 title: "Méthodes"
 order: 3
+prerequisites: [01-bases-csharp, 02-boucles]
+arc: "Acte I — Prise de quart"
+mission: "Découper les procédures de remise en service en opérations réutilisables."
 course: cours.md
 groups:
   - id: parametres-retour

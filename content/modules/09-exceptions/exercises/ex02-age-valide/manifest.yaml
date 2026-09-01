@@ -1,6 +1,11 @@
 id: ex02-age-valide
 title: "Age valide"
 objective: "Lever une ArgumentOutOfRangeException avec throw et l'attraper."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,resilience]
+story_beat: "Sécuriser la capacité Age valide d'Asteria."
 deliverables: [Age.cs]
 starter: [Age.cs]
 grading:

@@ -2,6 +2,11 @@ id: r4-clean-arch
 title: "Rush 4 — Catalogue de produits (Clean Architecture)"
 objective: "Synthèse Clean Architecture : implémenter un catalogue de produits en respectant la règle de dépendance (Domain / Application / Infrastructure / composition root), noté par assertions Roslyn."
 difficulty: difficile
+estimated_minutes: 180
+xp: 360
+tags: [architecture,capstone]
+story_beat: "Reconstruire le catalogue selon une architecture durable."
+recommended_after: "36-clean-architecture"
 deliverables: [Domain/Produit.cs, Domain/ICatalogueProduits.cs, Application/GestionCatalogue.cs, Infrastructure/CatalogueMemoire.cs, Program.cs]
 starter: [Domain/Produit.cs, Domain/ICatalogueProduits.cs, Application/GestionCatalogue.cs, Infrastructure/CatalogueMemoire.cs, Program.cs]
 grading:

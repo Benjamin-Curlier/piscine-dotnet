@@ -1,142 +1,132 @@
 # Curriculum
 
-Le parcours va des fondamentaux C# débutant jusqu'à un palier avancé proche de la stack de
-production. **Git est tissé dans tout le parcours** (pratiqué à chaque rendu) + deux modules git
-dédiés. Le contenu est généré **progressivement** au fil des itérations.
+Le parcours courant contient **53 modules (M00–M52), 185 exercices auto-corrigés et 8 Rushes**.
+Git est pratiqué à chaque rendu et possède deux modules dédiés. Le fil rouge complet, le rythme et
+les règles d'XP sont décrits dans [`content/parcours.md`](../../content/parcours.md).
 
-> **Release `v4.0.2`** : la piscine couvre **M00–M39 + Rushes 0/1/2/3** (contenu cumulé depuis v1.0 :
-> tronc commun + palier avancé, **approfondissement C#/.NET** M24–M35, **plateformes & architecture**
-> M36–M39). L'**app de bureau** + les **installeurs** Windows/Linux (livrés en v3.0.0) ont été enrichis
-> jusqu'à la v4 (QoL recrue, chrome de fenêtre, isolation de l'exécution en processus enfant jetable). Voir
-> [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
->
-> **UX recrue** : le **contenu ci-dessous est inchangé**, accessible via une **app de bureau**
-> (**tableau de bord** · cours · **plan de travail + bouton Ouvrir** · vérification avec diff coloré ·
-> progression · **rapport exportable** · **réglages** · **terminal + coaching git** · résultat **riche**)
-> **ou** le **CLI** `piscine`. Le rendu reste un `git push` (cf.
-> [docs/mise-en-oeuvre.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/mise-en-oeuvre.md)).
+Chaque exercice affiche une difficulté, une durée active indicative, des XP, des compétences et son
+rôle dans la mission Asteria. Ces informations orientent l'apprenant sans verrouiller la navigation.
 
-## Tronc commun
-
-| # | Module | Notions clés | Git |
-|---|---|---|---|
-| 00 | Setup & Git | installer, lancer `piscine`, hello world | clone/add/commit/push, 1er rendu |
-| 01 | Bases C# | types, variables, I/O console, opérateurs, conditions | commits atomiques |
-| 02 | Boucles | `for`/`while`/`foreach`, itération | messages de commit clairs |
-| 03 | Méthodes | paramètres, portée, retour, récursion | — |
-| 04 | Tableaux & chaînes | `array`, manipulation de `string` | `.gitignore` |
-| 05 | ★ Git intermédiaire | (dédié) | branches, merge, conflits, historique |
-| 06 | Collections | `List`, `Dictionary`, intro LINQ | — |
-| 07 | POO 1 | classes, objets, encapsulation, propriétés | — |
-| 08 | POO 2 | héritage, interfaces, polymorphisme, abstrait | — |
-| 09 | Exceptions | `try/catch`, gestion d'erreurs, `Result` | — |
-| 10 | Génériques & lambdas | `T`, délégués, `Func`/`Action` | — |
-| 11 | LINQ | requêtes, projection, agrégation | — |
-| 12 | Async/await | `Task`, asynchrone, annulation | — |
-| 13 | Tests unitaires | xUnit, écrire ses propres tests ; `ex03-mutation` (`mutation`) : écrire des tests qui tuent des mutants | — |
-| 14 | ★ Git avancé / collab | (dédié) | rebase, workflow MR GitLab, revue de code |
-
-## Palier avancé
+## Acte I — Prise de quart (M00–M05)
 
 | # | Module | Notions clés |
 |---|---|---|
-| 15 | Regex | motifs, groupes, validation, `Regex` performant |
-| 16 | Sérialisation | `System.Text.Json`, (dé)sérialisation, converters |
-| 17 | Réflexion & attributs | `Type`, introspection, attributs custom |
-| 18 | Injection de dépendances | `Microsoft.Extensions.DependencyInjection`, durées de vie |
-| 19 | Logging | `Microsoft.Extensions.Logging`, niveaux, scopes, providers |
-| 20 | Generic Host & Worker | `HostBuilder`, `BackgroundService`, config & options |
-| 21 | Threading avancé | `Channel<T>`, producteur/consommateur, `Parallel`, synchro |
-| 22 | Réseau | sockets TCP/UDP, `HttpClient` |
-| 23 | Design patterns | GoF essentiels en C# (Strategy, Factory, Observer, Decorator…) |
+| 00 | Mise en place & Git | SDK/CLI, fichier C# .NET 10, premier rendu |
+| 01 | Bases C# | types, variables, I/O, opérateurs, conditions |
+| 02 | Boucles | `for`, `while`, `foreach`, invariants |
+| 03 | Méthodes | paramètres, retours, portée, récursion |
+| 04 | Tableaux & chaînes | indexation, transformations, parsing |
+| 05 | Git intermédiaire | branches, merge, conflits, historique réel auto-noté |
 
-## Rushes (solo, projets de synthèse)
+## Acte II — Cœur métier (M06–M14)
 
-- **Rush 0** (après ~M04) : programme console ludique (ASCII-art / mini-calculatrice / FizzBuzz avancé).
-- **Rush 1** (après POO, ~M08) : appli métier console (gestionnaire d'inventaire / bibliothèque).
-- **Rush 2** (après LINQ/async, ~M12) : CLI de traitement de données (parser, agréger, rapport).
-- **Rush 3** (`r3-traitement`, après palier avancé) : **Worker Service déterministe auto-noté** —
-  un `BackgroundService` single-shot consomme une file `Channel<Commande>` (réseau *simulé* en
-  mémoire) injectée par DI, journalise via `LogCapture`, dresse un bilan, puis `StopApplication()`.
-  La partie réseau réelle reste une pratique locale non notée.
-- **Rush 4** (`r4-clean-arch`, après M36) : **Clean Architecture auto-notée `projet`** — un catalogue
-  de produits découpé en couches `Domain` / `Application` / `Infrastructure` + composition root.
-  La moulinette compile tous les fichiers, compare la sortie **et** vérifie la **règle de dépendance**
-  par assertions Roslyn (`requires_types` + `forbidden_dependencies` namespace→namespace).
-
-## Cours & références externes
-
-Chaque `cours.md` : explications progressives en français + exemples + **références externes**
-(Microsoft Learn, freeCodeCamp, chaînes YouTube type Nick Chapsas / Tim Corey, docs officielles
-.NET). Ton pédagogique, jargon expliqué.
-
-## État de la notation par module
-
-- **Modules auto-notés (`io`)** : M00, M01, M02, M03, M04, M06, M07, M08, M09, M10, M11, M12, M13,
-  M15, M16, M17, M18, **M19 (Logging), M20 (Generic Host)**, M21, M23.
-- **Exos bonus du cœur débutant** (non bloquants, `difficulty: difficile`) : **M01** `ex03-fizzbuzz`,
-  **M02** `ex03-fibonacci`, **M03** `ex03-puissance`, **M04** `ex03-anagramme`, **M06** `ex03-top-k`,
-  **M07** `ex03-pile`, **M08** `ex03-vehicule`. (M05 = module git dédié, pas d'exo `io`.)
-- **Exos bonus intermédiaires** (non bloquants, `difficulty: difficile`) : **M09** `ex03-calculatrice-robuste`,
-  **M10** `ex03-reduce`, **M11** `ex03-mot-frequent`, **M12** `ex03-somme-carres`,
-  **M15** `ex03-compter-mot`, **M16** `ex03-stats-json`, **M17** `ex03-decrire-objet`,
-  **M18** `ex03-pipeline-di`, **M21** `ex03-somme-parallele-carres`, **M23** `ex03-decorator`.
-  (M05 = git, M14/M22 = lecture ; M13 a déjà un 4ᵉ exo `ex03-mutation`.)
-- **Modules de lecture/pratique guidée** (cours + checklist, sans auto-notation pour l'instant) :
-  M14 (git avancé), M22 (réseau). *(M05 est désormais auto-noté via le grader `git` — voir V3.)*
-- **Rushes auto-notés** : Rush 0, Rush 1, Rush 2, **Rush 3** (post-v1.0, worker déterministe),
-  **Rush 4** (`r4-clean-arch`, Clean Architecture, grader `projet` : io + assertions d'architecture).
-- **Module V3 (grader `git`)** : **M05 Git intermédiaire** — exo `ex00-branche-merge` (branches +
-  fusion) auto-noté : la moulinette inspecte l'état du dépôt (corrigé décrit par une *fixture*).
-- **Modules V3 (grader `projet`)** : **M36 Clean Architecture** (`ex00-couches` : couches
-  Domain/Application/Infrastructure + composition root ; noté io + assertions d'architecture).
-- **Modules V3 (lecture)** : **M37 Docker** (conteneurisation .NET 10 : Dockerfile multi-étapes,
-  `dotnet publish -t:PublishContainer` sans Dockerfile, images chiseled) ; **M38 Silk.NET**
-  (fenêtrage & rendu GPU : boucle Load/Update/Render, OpenGL, entrées ; guidé, non déterministe) ;
-  **M39 Blazor** (interfaces web en C# : composants, paramètres, `@bind`, cycle de vie, DI, modèles
-  de rendu .NET 10 ; guidé, web/DOM non déterministe).
-- **M19/M20 débloqués** (post-v1.0, en `io`) : un `ILoggerProvider` synchrone fourni rend la sortie
-  des logs déterministe (captée par le grader) — solution **contenu pur**, sans changement moteur.
-- **Hors périmètre v1.0** (drafts + design sur la branche `v1.0-blockers`, à traiter ensuite) :
-  Rush 3, et les graders dédiés git/réseau/élève-écrit-tests.
-  Détail : [docs/superpowers/BLOCKERS-v1.0.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/v1.0-blockers/docs/superpowers/BLOCKERS-v1.0.md).
-
-## Palier v2 — approfondissement C#/.NET (en cours)
-
-Modules au-delà du tronc spec §6 (numérotation M24+ ; M00–M23 figés depuis v1.0). Introduisent le
-**niveau de difficulté** (`difficulty: facile|moyen|difficile`) et des exercices **bonus** non bloquants.
-
-| # | Module | État |
+| # | Module | Notions clés |
 |---|---|---|
-| 24 | Switch & pattern matching (C# 14) | ✅ io |
-| 25 | Enums | ✅ io |
-| 26 | Static, const, readonly & immutabilité | ✅ io |
-| 27 | Opérations binaires | ✅ io |
-| 28 | Complexité (Big O) & tris | ✅ io |
-| 29 | Recherche de chemin (BFS, Dijkstra, A*) | ✅ io (+bonus) |
-| 30 | Design patterns (suite) : Singleton, Adapter, Decorator, Builder, Command | ✅ io (+bonus) |
-| 31 | Smelly code & refactoring | ✅ io (+bonus) |
-| 32 | Garbage collection & gestion des ressources | ✅ io (+bonus) |
-| 33 | Discriminated unions (hiérarchies scellées) | ✅ io (+bonus) |
-| 34 | Interopérabilité (P/Invoke & code natif) | ✅ lecture |
-| 35 | Entity Framework Core (SQLite in-memory) | ✅ io (+bonus) |
+| 06 | Collections | `List`, `Dictionary`, ensembles, agrégation |
+| 07–08 | POO 1 & 2 | encapsulation, héritage, interfaces, polymorphisme |
+| 09 | Exceptions | erreurs attendues, exceptions, `Result` |
+| 10 | Génériques & lambdas | `T`, délégués, `Func`/`Action` |
+| 11 | LINQ | filtrage, projection, groupement, agrégation |
+| 12 | Async/await | `Task`, annulation, concurrence asynchrone |
+| 13 | Tests unitaires | vrais tests xUnit et mutation testing sur quatre exercices |
+| 14 | Git avancé | rebase, revue, MR/PR et hotfix intégré sur deux branches |
 
-## Palier v3 — plateformes & architecture
+## Acte III — Services en production (M15–M23)
 
-Modules « plateforme » et architecture multi-fichiers, adossés aux nouveaux graders **`git`**,
-**`projet`**, **`reseau`** et **`mutation`**. Les modules dont la sortie n'est pas déterministe en
-console (web/DOM, GPU, conteneurs) sont livrés en **lecture guidée**, cohérent avec M14/M22/M34.
-
-| # | Module | État |
+| # | Module | Notions clés |
 |---|---|---|
-| 05 | Git intermédiaire (branches, merge) | ✅ auto-noté `git` (fixture) |
-| 36 | Clean Architecture (couches + composition root) | ✅ auto-noté `projet` (io + assertions d'archi) |
-| 37 | Docker (conteneurisation .NET 10) | ✅ lecture |
-| 38 | Silk.NET (fenêtrage & rendu GPU) | ✅ lecture |
-| 39 | Blazor (interfaces web en C#) | ✅ lecture |
+| 15 | Regex | motifs, groupes, validation |
+| 16 | Sérialisation | `System.Text.Json`, contrats et converters |
+| 17 | Réflexion & attributs | métadonnées, découverte de types |
+| 18 | Injection de dépendances | ports, composition et durées de vie |
+| 19 | Logging | logs structurés, niveaux, scopes, providers |
+| 20 | Generic Host & Worker | `BackgroundService`, config, options, arrêt |
+| 21 | Threading avancé | `Channel<T>`, parallélisme, synchronisation |
+| 22 | Réseau | TCP/UDP, HTTP et harnais loopback |
+| 23 | Design patterns | Strategy, Factory, Observer, Decorator |
 
-Graders introduits au palier v3 : **`git`** (état attendu du dépôt rendu, via fixture LibGit2Sharp),
-**`projet`** (compilation multi-fichiers + assertions d'architecture Roslyn), **`reseau`** (harnais
-d'écho TCP loopback), **`mutation`** (l'élève écrit des tests qui doivent tuer des mutants — pilote M13).
+## Acte IV — Algorithmes et langage avancé (M24–M33)
 
-> Historique d'avancement : voir le [CHANGELOG.md](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/CHANGELOG.md).
+| # | Module | Notions clés |
+|---|---|---|
+| 24 | Switch & patterns | expressions switch, propriétés et listes |
+| 25 | Enums | flags, parsing et domaine fermé |
+| 26 | Static/const/readonly | invariants et immutabilité |
+| 27 | Binaire | masques, bits, encodage |
+| 28 | Complexité & tris | Big O, tris et choix de structure |
+| 29 | Recherche de chemin | BFS, Dijkstra, A* |
+| 30 | Patterns (suite) | Singleton, Adapter, Chain, Builder, Command |
+| 31 | Refactoring | constantes, extractions, gardes, remplacement conditionnel |
+| 32 | Mémoire & GC | `IDisposable`, finalisation, pression mémoire |
+| 33 | Unions discriminées | hiérarchies scellées et exhaustivité |
+
+## Acte V — Frontières et interfaces (M34–M39)
+
+| # | Module | Validation déterministe |
+|---|---|---|
+| 34 | Interopérabilité | contrat `LibraryImport` inspecté sans charger de bibliothèque native |
+| 35 | EF Core | SQLite in-memory, requêtes et persistance |
+| 36 | Clean Architecture | compilation multi-fichiers et règle de dépendance Roslyn |
+| 37 | Docker | Dockerfile multi-stage et `.dockerignore` inspectés |
+| 38 | Silk.NET | vertex/fragment shaders inspectés sans GPU |
+| 39 | Blazor | composants `.razor`, état et chargement async inspectés sans navigateur |
+
+Les exercices d'inspection ne prétendent pas remplacer le test cible : le cours demande ensuite de
+construire l'image, compiler le shader ou ouvrir l'interface dans l'environnement réel.
+
+## Acte VI — Asteria distribué (M40–M43)
+
+| # | Module | Notions clés |
+|---|---|---|
+| 40 | Brokers & messaging | NATS/RabbitMQ/ZeroMQ, topologies, livraison, idempotence |
+| 41 | NATS .NET | Core NATS, queue groups, request/reply, JetStream et ACK |
+| 42 | Observabilité & résilience | OTel, corrélation, retry, circuit breaker, health |
+| 43 | .NET Aspire 13 | AppHost, références, `WaitFor`, Service Defaults et dashboard |
+
+## Acte VII — Applications d'entreprise hybrides (M44–M52)
+
+Le poste lourd reste le produit principal. Les technologies web servent ici de façades et de contrats
+pour les échanges avec les services, l'identité et l'exploitation du système distribué.
+
+| # | Module | Notions clés |
+|---|---|---|
+| 44 | Socle .NET d'entreprise | `.slnx`, projets, MSBuild, nullable, analyseurs, Options et configuration |
+| 45 | Desktop & MVVM | état observable, thread UI, dispatcher, annulation et résultat obsolète |
+| 46 | ASP.NET Core services | Minimal API, ProblemDetails, OpenAPI et intégration du client lourd |
+| 47 | Sécurité & identité | JWT/OIDC, policies, secrets, mTLS et modèle de menaces |
+| 48 | Données de production | SQL, index, migrations, concurrence, transactions et pagination |
+| 49 | gRPC & Protobuf | RPC typé, streaming, deadlines et compatibilité de schéma |
+| 50 | Tests d'intégration | WebApplicationFactory, dépendances conteneurisées et tests de contrats |
+| 51 | CI/CD & livraison | gates, builds déterministes, desktop signé, images et rollback |
+| 52 | Diagnostic & performance | counters, traces, dumps, cache distribué et budgets système |
+
+## Rushes — projets de synthèse
+
+| Rush | Synthèse |
+|---|---|
+| R0 — FizzBuzz | fondamentaux console et décomposition |
+| R1 — Inventaire | collections et modèle objet |
+| R2 — Rapport | parsing, LINQ, agrégation, async |
+| R3 — Traitement | Worker, DI, Channel, logging et arrêt propre |
+| R4 — Clean Architecture | domaine, application, infrastructure et composition root |
+| R5 — Event processor | JSON, async, inbox idempotente, audit et architecture |
+| R6 — Asteria distribué | AppHost Aspire, NATS, Service Defaults et runbook de reprise |
+| R7 — Poste d'entreprise | client lourd, façade sécurisée, gRPC, EF/outbox, tests, CI et runbook hybride |
+
+L'application expose ces missions dans la page **Rushes**, les recommande après leur module jalon et
+affiche leur progression séparément des 185 exercices. Les jalons conseillés restent non bloquants.
+
+## Graders et preuve pédagogique
+
+- `io` : comportement observable et cas limites ;
+- `unit` / `mutation` : tests écrits par l'apprenant et mutants réellement tués ;
+- `source` : technique requise ou interdite, commentaires exclus, occurrences possibles ;
+- `projet` : compilation multi-fichiers et dépendances entre couches ;
+- `git` : branches, commits, fusions et contenu du dépôt ;
+- `reseau` : serveur TCP/HTTP loopback contrôlé ;
+- `fichier` : contrat de livrables texte non compilables dans la moulinette ;
+- `norme` : diagnostics de forme, bloquants ou consultatifs selon l'exercice.
+
+`piscine validate-content` charge strictement tous les manifests et confronte chaque corrigé à ses
+graders. `piscine audit-content` signale en plus les modules vides, fuites de solution dans cours,
+indices ou starters, calibrages atypiques et objectifs trop proches.

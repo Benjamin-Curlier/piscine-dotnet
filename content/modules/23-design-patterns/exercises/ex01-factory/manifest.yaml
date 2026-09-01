@@ -1,6 +1,11 @@
 id: ex01-factory
 title: "Factory — fabrique d'animaux"
 objective: "Déléguer la création d'objets IAnimal à une fabrique centrale en fonction d'un type lu en entrée."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Factory — fabrique d'animaux d'Asteria."
 deliverables: [Factory.cs]
 starter: [Factory.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "4\nchat\nchat\nchat\nchat\n"
         expect_stdout: "Miaou\nMiaou\nMiaou\nMiaou\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["interface IAnimal", "class AnimalFactory"]
 feedback:
   hints:
     - when: io_mismatch

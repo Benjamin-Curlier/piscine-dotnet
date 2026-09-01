@@ -176,7 +176,7 @@ public class ReseauGraderTests
         using var harness = NetworkHarness.StartHttp(routes);
 
         using var http = new HttpClient();
-        var body = await http.GetStringAsync(harness.BaseUrl + "api/message");
+        var body = await http.GetStringAsync(harness.BaseUrl + "api/message", TestContext.Current.CancellationToken);
 
         Assert.Equal("bonjour", body);
     }
@@ -191,7 +191,7 @@ public class ReseauGraderTests
         using var harness = NetworkHarness.StartHttp(routes);
 
         using var http = new HttpClient();
-        var response = await http.GetAsync(harness.BaseUrl + "autre");
+        var response = await http.GetAsync(harness.BaseUrl + "autre", TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
