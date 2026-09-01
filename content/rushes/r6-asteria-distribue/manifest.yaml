@@ -11,6 +11,8 @@ manual_validation: true
 deliverables: [AppHost.cs, ServiceDefaults.cs, OPERATIONS.md]
 starter: [AppHost.cs, ServiceDefaults.cs, OPERATIONS.md]
 grading:
+  - type: unit
+    test_files: [R6ExecutableTests.cs]
   - type: fichier
     file:
       rules:
@@ -29,6 +31,10 @@ grading:
         - { fragment: "WaitFor(nats)", count: 2 }
 feedback:
   hints:
+    - when: compile_error
+      message: "AppHost.cs et ServiceDefaults.cs sont compilés ensemble avec un modèle Aspire : corrige d'abord les types, extensions et chaînages invalides."
+    - when: unit_failure
+      message: "La configuration ServiceDefaults est exécutée : télémétrie, découverte, résilience et routes /health + /alive doivent être effectivement enregistrées."
     - when: file_constraint
       message: "L'AppHost référence et attend NATS pour l'API et le worker ; ServiceDefaults couvre OTel, découverte, résilience et deux sondes ; le runbook décrit preuves nominales, coupures et reprise."
     - when: source_constraint

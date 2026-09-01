@@ -25,6 +25,11 @@ public sealed class CourseCatalogMetadataTests
         Assert.Equal(53, catalog.Modules.Count);
         Assert.Equal(185, exercises.Count);
         Assert.Equal(8, catalog.Rushes.Count);
+        Assert.Equal(
+            exercises.Sum(exercise => exercise.EstimatedMinutes)
+            + catalog.Rushes.Sum(rush => rush.EstimatedMinutes),
+            catalog.EstimatedMinutes);
+        Assert.True(catalog.EstimatedMinutes > 0);
         Assert.All(catalog.Rushes, rush =>
         {
             Assert.False(string.IsNullOrWhiteSpace(rush.RecommendedAfterModuleId));

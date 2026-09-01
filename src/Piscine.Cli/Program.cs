@@ -42,6 +42,9 @@ switch (command)
     case "grade-received":
         return GradeReceived(layout, args);
 
+    case "review":
+        return Review(layout, args);
+
     case "validate-content":
         return ValidateContent(layout);
 
@@ -66,7 +69,7 @@ switch (command)
 
 static void PrintCommands()
 {
-    Console.WriteLine("Commandes : list | start <exo> | check <exo> | check --replay-last | try <exo> | status | profile | doctor | init | grade-received <sha> | validate-content | audit-content | package-content <src> <dest> | new exercise <module> <id>");
+    Console.WriteLine("Commandes : list | start <exo> | check <exo> | check --replay-last | try <exo> | status | profile | doctor | init | grade-received <sha> | review complete <rush> --evidence <référence> --attest | review reopen <rush> --evidence <raison> | validate-content | audit-content | package-content <src> <dest> | new exercise <module> <id>");
 }
 
 static void ListModules(PiscineLayout layout)
@@ -352,6 +355,39 @@ static int GradeReceived(PiscineLayout layout, string[] args)
     }
 
     var result = new GradeReceivedCommand(layout, Graders.Default()).Run(args[1]);
+    Console.WriteLine(result.Output);
+    return result.ExitCode;
+}
+
+static int Review(PiscineLayout layout, string[] args)
+{
+    if (args.Length < 5 || args[1] is not ("complete" or "reopen"))
+    {
+        Console.WriteLine("Usage : piscine review complete <rush> --evidence <référence> --attest");
+        Console.WriteLine("        piscine review reopen <rush> --evidence <raison>");
+        return 64;
+    }
+
+    static string? Option(string[] values, string name)
+    {
+        var index = Array.IndexOf(values, name);
+        return index >= 0 && index + 1 < values.Length ? values[index + 1] : null;
+    }
+
+    var evidence = Option(args, "--evidence");
+    var completing = args[1] == "complete";
+    if (string.IsNullOrWhiteSpace(evidence) || (completing && !args.Contains("--attest", StringComparer.Ordinal)))
+    {
+        Console.WriteLine(completing
+            ? "--evidence et --attest sont obligatoires pour confirmer ton auto-relecture."
+            : "--evidence est obligatoire pour expliquer la réouverture.");
+        return 64;
+    }
+
+    var result = new ManualReviewCommand(layout).Run(
+        args[2],
+        approved: completing,
+        evidence);
     Console.WriteLine(result.Output);
     return result.ExitCode;
 }

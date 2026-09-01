@@ -15,8 +15,25 @@ grading:
         - path: Versioning.props
           required_fragments: ['<Project>', '<Deterministic>true</Deterministic>', '<ContinuousIntegrationBuild Condition="''$(CI)'' == ''true''">true</ContinuousIntegrationBuild>', '<VersionPrefix>', '<RepositoryUrl>', '<PublishRepositoryUrl>true</PublishRepositoryUrl>', '<EmbedUntrackedSources>true</EmbedUntrackedSources>', '<IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>']
           forbidden_fragments: ['<Deterministic>false', '<Version>1.0.0</Version>']
+          required_xml_elements:
+            - path: Project/PropertyGroup/Deterministic
+              value: "true"
+            - path: Project/PropertyGroup/ContinuousIntegrationBuild
+              value: "true"
+              attributes:
+                Condition: "'$(CI)' == 'true'"
+            - path: Project/PropertyGroup/VersionPrefix
+            - path: Project/PropertyGroup/RepositoryUrl
+            - path: Project/PropertyGroup/PublishRepositoryUrl
+              value: "true"
+            - path: Project/PropertyGroup/EmbedUntrackedSources
+              value: "true"
+            - path: Project/PropertyGroup/IncludeSourceRevisionInInformationalVersion
+              value: "true"
 feedback:
   hints:
+    - when: file_constraint
+      message: "Versioning.props doit être un XML bien formé : la moulinette parse les propriétés et la condition CI, pas seulement des fragments de texte."
     - when: file_constraint
       message: "Active Deterministic, le mode CI conditionnel, les métadonnées de dépôt et l'inclusion de la révision dans InformationalVersion."
   course_ref: "cours.md#determinisme"

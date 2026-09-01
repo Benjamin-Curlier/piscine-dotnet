@@ -43,6 +43,22 @@ public class ExerciseGraderTests
     }
 
     [Fact]
+    public void Grade_ManualMission_WaitsForReview_AfterAutomaticSuccess()
+    {
+        var manifest = Manifest();
+        manifest.ManualValidation = true;
+        var sources = new Dictionary<string, string>
+        {
+            ["Hello.cs"] = "System.Console.Write(\"Hello, Piscine!\");"
+        };
+
+        var result = Grader().Grade(manifest, new GradingContext(sources));
+
+        Assert.Equal(GraderStatus.EnAttenteRelecture, result.Status);
+        Assert.All(result.Results, item => Assert.Equal(GraderStatus.Reussi, item.Status));
+    }
+
+    [Fact]
     public void Grade_ARevoir_OnWrongOutput()
     {
         var sources = new Dictionary<string, string>

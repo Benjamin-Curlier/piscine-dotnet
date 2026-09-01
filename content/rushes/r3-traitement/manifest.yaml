@@ -32,11 +32,20 @@ grading:
       - stdin: "2\na -1\nb 0\n"
         expect_stdout: "Traitement [Warning] Commande rejetée : a\nTraitement [Warning] Commande rejetée : b\nTraitement [Information] Bilan : 0 acceptée(s), 2 rejetée(s), total 0\n"
         expect_exit: 0
+  - type: source
+    source:
+      require_compilation: true
+      required_syntax: ["await-foreach"]
+      required_invocations: ["Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder", "System.Threading.Channels.Channel.CreateUnbounded", "Microsoft.Extensions.DependencyInjection.ServiceCollectionHostedServiceExtensions.AddHostedService"]
+      required_declared_types: ["Validateur"]
+      required_base_types: ["Microsoft.Extensions.Hosting.BackgroundService"]
 feedback:
   hints:
     - when: io_mismatch
       message: "Channel.CreateUnbounded<Commande>() : écris toutes les commandes, Writer.Complete(), puis consomme via ReadAllAsync (FIFO). Accepte si montant > 0 (LogInformation \"Commande acceptée : {Nom} ({Montant})\"), sinon LogWarning \"Commande rejetée : {Nom}\". Termine par \"Bilan : {A} acceptée(s), {R} rejetée(s), total {T}\"."
     - when: runtime_error
       message: "Vérifie le format d'entrée : un entier N, puis N lignes \"nom montant\" séparés par un espace. Pense à StopApplication() pour que l'hôte se termine."
+    - when: source_constraint
+      message: "La sortie seule ne suffit pas : construis réellement le Host, enregistre un BackgroundService et le Validateur, puis consomme un Channel avec await foreach."
   course_ref: "subject.md"
 solution: [Traitement.cs, LogCapture.cs]

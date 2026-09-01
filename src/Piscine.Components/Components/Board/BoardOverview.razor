@@ -11,6 +11,10 @@
         </div>
         <div class="metric" data-testid="board-count-fait"><span class="metric-label">Fait</span><span class="metric-value">@Counts.Fait</span></div>
         <div class="metric" data-testid="board-count-encours"><span class="metric-label">En cours</span><span class="metric-value">@Counts.EnCours</span></div>
+        @if (Counts.EnAttenteRelecture > 0)
+        {
+            <div class="metric" data-testid="board-count-review"><span class="metric-label">À relire</span><span class="metric-value">@Counts.EnAttenteRelecture</span></div>
+        }
         <div class="metric" data-testid="board-count-arevoir"><span class="metric-label">À revoir</span><span class="metric-value">@Counts.ARevoir</span></div>
         <div class="metric" data-testid="board-count-restant"><span class="metric-label">Restant</span><span class="metric-value">@Counts.Restant</span></div>
     </div>

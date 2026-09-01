@@ -15,3 +15,4 @@
 .status-dot.status-commite-non-pousse { background-color: var(--dot-warn, #f59e0b); }
 .status-dot.status-pousse-note { background-color: var(--dot-success, #10b981); }
 .status-dot.status-a-revoir { background-color: var(--dot-error, #ef4444); }
+.status-dot.status-en-attente-relecture { background-color: #f59e0b; }

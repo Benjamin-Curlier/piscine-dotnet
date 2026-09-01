@@ -89,6 +89,7 @@ public sealed class CheckService
         var verdict = result.Status switch
         {
             GraderStatus.Reussi => CheckVerdict.Reussi,
+            GraderStatus.EnAttenteRelecture => CheckVerdict.EnAttenteRelecture,
             _ => CheckVerdict.ARevoir,
         };
 

@@ -5,7 +5,7 @@ using Xunit;
 namespace Piscine.DevHost.E2E;
 
 /// <summary>
-/// Smoke E2E de la palette de commande S3 : démarre le DevHost, ouvre la palette via ⌘K/Ctrl+K,
+/// Smoke E2E de la palette de commande S3 : démarre le DevHost, ouvre la palette par son bouton visible,
 /// filtre sur « Progression », sélectionne le résultat et vérifie que l'app navigue vers /progress.
 /// Skip propre sans Chromium. Port dédié 5263 (distinct de 5247/5249/5251/5253/5255/5257/5259/5261).
 /// </summary>
@@ -65,7 +65,7 @@ public sealed class CommandPaletteSmokeTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task CtrlK_opens_palette_and_selecting_a_result_navigates()
+    public async Task Visible_search_button_opens_palette_and_selecting_a_result_navigates()
     {
         using var pw = await Playwright.CreateAsync();
 
@@ -95,11 +95,8 @@ public sealed class CommandPaletteSmokeTests : IAsyncLifetime
                 "() => window.__cmdkReady === true",
                 new PageWaitForFunctionOptions { Timeout = 30_000 });
 
-            // S'assurer que le document a le focus pour que le keydown global soit délivré.
-            await page.ClickAsync("body");
-
-            // Ouvrir la palette via le raccourci global.
-            await page.Keyboard.PressAsync("Control+k");
+            // La recherche doit être découvrable sans connaître le raccourci clavier.
+            await page.ClickAsync("[data-testid='command-palette-trigger']");
             await page.WaitForSelectorAsync("[data-testid='command-palette']", new PageWaitForSelectorOptions { Timeout = 10_000 });
 
             // Filtrer puis sélectionner « Progression ».

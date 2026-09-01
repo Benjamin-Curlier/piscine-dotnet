@@ -9,6 +9,8 @@ story_beat: "Accélérer les lectures Asteria sans confondre cache et source de 
 deliverables: [CachedCommandReader.cs]
 starter: [CachedCommandReader.cs]
 grading:
+  - type: unit
+    test_files: [CachedCommandReaderTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["CancellationToken.None", "TimeSpan.MaxValue", "static Dictionary", ".Result"]
 feedback:
   hints:
+    - when: compile_error
+      message: "Le reader est compilé contre HybridCache réel : vérifie l'overload GetOrCreateAsync, les options, tags et le jeton."
+    - when: unit_failure
+      message: "Deux lectures de la même commande sont exécutées : le repository ne doit être appelé qu'une fois et doit recevoir le CancellationToken."
     - when: file_constraint
       message: "Injecte HybridCache et le repository, puis charge la source dans la factory asynchrone de GetOrCreateAsync."
     - when: file_constraint

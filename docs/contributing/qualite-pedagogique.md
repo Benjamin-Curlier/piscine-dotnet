@@ -43,8 +43,9 @@ Les XP récompensent la première réussite mais ne modifient jamais l'autorité
 
 Un Rush déclare en plus le module `recommended_after`. Ce jalon alimente la frise et la recommandation
 de l'application, mais ne verrouille jamais la mission. Utiliser `manual_validation: true` quand un
-runbook, une coupure réelle, une preuve visuelle ou un environnement externe doit être relu en plus
-des contrôles déterministes.
+runbook, une coupure réelle, une preuve visuelle ou un environnement externe doit faire l'objet d'une
+auto-relecture guidée après les contrôles déterministes. Cette attestation locale soutient la
+progression personnelle ; elle ne constitue pas une certification ni une revue externe.
 
 ## Validation auteur
 

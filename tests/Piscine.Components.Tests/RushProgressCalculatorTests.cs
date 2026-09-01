@@ -32,7 +32,7 @@ public sealed class RushProgressCalculatorTests
         {
             Exercises =
             {
-                ["r0-fizzbuzz"] = new ExerciseProgress
+                ["r0-diagnostic-balises"] = new ExerciseProgress
                 {
                     Status = ExerciseStatus.ARevoir,
                     Attempts = 2,
@@ -42,7 +42,7 @@ public sealed class RushProgressCalculatorTests
         };
 
         var items = RushProgressCalculator.Build(catalog, statuses, progress);
-        var r0 = Assert.Single(items, item => item.Rush.Id == "r0-fizzbuzz");
+        var r0 = Assert.Single(items, item => item.Rush.Id == "r0-diagnostic-balises");
         var r1 = Assert.Single(items, item => item.Rush.Id == "r1-inventaire");
 
         Assert.True(r0.MilestoneReached);

@@ -13,6 +13,8 @@ let _dotnet = null;
 let _previousFocus = null;
 let _trapHandler = null;
 let _trapPanel = null;
+let _trigger = null;
+let _triggerHandler = null;
 
 function isInTerminal(target) {
     return !!(target && target.closest && target.closest(".piscine-terminal"));
@@ -113,6 +115,13 @@ export function register(dotnet) {
 
     document.addEventListener("keydown", _handler, true);
 
+    // Point d'entrée visible : la recherche reste découvrable sans connaître Ctrl/⌘+K ou "/".
+    _trigger = document.getElementById("command-palette-trigger");
+    if (_trigger) {
+        _triggerHandler = () => _dotnet.invokeMethodAsync("OpenFromJs");
+        _trigger.addEventListener("click", _triggerHandler);
+    }
+
     // Marqueur de disponibilité : le handler global est attaché. Permet à un test E2E (ou à du code
     // d'orchestration) d'attendre que ⌘K soit réellement opérationnel avant de presser la touche
     // (le circuit interactif Blazor peut mettre un instant à monter l'îlot de la palette).
@@ -147,6 +156,11 @@ export function dispose() {
         document.removeEventListener("keydown", _handler, true);
         _handler = null;
     }
+    if (_trigger && _triggerHandler) {
+        _trigger.removeEventListener("click", _triggerHandler);
+    }
+    _trigger = null;
+    _triggerHandler = null;
     releaseTrap();
     _dotnet = null;
     _previousFocus = null;

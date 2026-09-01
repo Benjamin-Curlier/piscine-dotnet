@@ -100,7 +100,12 @@ public static class ReportBuilder
         var pushes = recent?.Changed
             .Select(c => new ReportPushEntry(
                 c.ExerciseId,
-                c.Verdict == PushVerdict.Reussi ? "Réussi" : "À revoir",
+                c.Verdict switch
+                {
+                    PushVerdict.Reussi => "Réussi",
+                    PushVerdict.EnAttenteRelecture => "En attente de relecture",
+                    _ => "À revoir",
+                },
                 c.Attempts))
             .ToList()
             ?? [];

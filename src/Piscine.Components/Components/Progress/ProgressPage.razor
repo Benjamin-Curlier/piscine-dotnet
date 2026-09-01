@@ -9,19 +9,48 @@
 
 <h1>Progression</h1>
 
+<section class="progress-workload" data-testid="progress-workload" aria-label="Charge de travail estimée">
+    <span><strong>@WorkloadText.Format(_remainingMinutes)</strong> restantes</span>
+    <span>@WorkloadText.Format(_completedMinutes) terminées sur @WorkloadText.Format(_totalMinutes)</span>
+    <small>Estimation indicative issue des exercices et Rushes ; adapte le rythme à ton apprentissage.</small>
+</section>
+
 <ProgressList Statuses="_statuses" />
 
 @code {
     private IReadOnlyList<ExerciseStatusInfo> _statuses = [];
+    private int _totalMinutes;
+    private int _completedMinutes;
+    private int _remainingMinutes;
 
     protected override void OnInitialized()
     {
-        var exos = Catalog.Modules
+        var exercises = Catalog.Modules
             .SelectMany(m => m.Groups)
             .SelectMany(g => g.Exercises)
+            .ToList();
+        var targets = exercises
             .Select(ex => (ex.ModuleId, ex.Id))
-            .Concat(Catalog.Rushes.Select(rush => (ContentLocator.RushesModuleId, rush.Id)));
+            .Concat(Catalog.Rushes.Select(rush => (ContentLocator.RushesModuleId, rush.Id)))
+            .ToList();
 
-        _statuses = Progress.SnapshotFor(exos);
+        _statuses = Progress.SnapshotFor(targets);
+        var byTarget = _statuses.ToDictionary(
+            status => (status.ModuleId, status.ExerciseId),
+            status => status.Status);
+        _totalMinutes = Catalog.EstimatedMinutes;
+        _completedMinutes = exercises
+            .Where(exercise => IsComplete(byTarget, exercise.ModuleId, exercise.Id))
+            .Sum(exercise => exercise.EstimatedMinutes)
+            + Catalog.Rushes
+                .Where(rush => IsComplete(byTarget, ContentLocator.RushesModuleId, rush.Id))
+                .Sum(rush => rush.EstimatedMinutes);
+        _remainingMinutes = Math.Max(0, _totalMinutes - _completedMinutes);
     }
+
+    private static bool IsComplete(
+        IReadOnlyDictionary<(string ModuleId, string ExerciseId), ExerciseProgressStatus> statuses,
+        string moduleId,
+        string exerciseId) =>
+        statuses.GetValueOrDefault((moduleId, exerciseId)) == ExerciseProgressStatus.PousseNote;
 }

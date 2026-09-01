@@ -3,6 +3,16 @@
    + bouton primaire façon « Enregistrer » des Réglages. */
 .check-page-title { margin: 0 0 1.25rem; }
 
+.check-trust {
+    margin: 0 0 1rem;
+    padding: .7rem .85rem;
+    border-left: 3px solid var(--warn-line);
+    border-radius: 6px;
+    background: var(--warn-bg);
+    color: var(--ink);
+    font-size: .84rem;
+}
+
 .check-controls {
     display: flex;
     align-items: center;
@@ -50,3 +60,10 @@
 
 .check-error { color: var(--danger, #cf222e); font-weight: 500; }
 .check-running { color: var(--ink-soft); font-style: italic; }
+
+@media (max-width: 620px) {
+    .check-controls { align-items: stretch; }
+    .check-label { flex-basis: 100%; }
+    .check-select { width: 100%; min-width: 0; }
+    .check-btn { width: 100%; }
+}

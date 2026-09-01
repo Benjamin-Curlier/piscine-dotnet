@@ -33,9 +33,12 @@ public static class ProgressRecorder
             entry.Attempts++;
             entry.LastAttempt = now;
             practiced = true;
-            entry.Status = result.Status == GraderStatus.Reussi
-                ? ExerciseStatus.Reussi
-                : ExerciseStatus.ARevoir;
+            entry.Status = result.Status switch
+            {
+                GraderStatus.Reussi => ExerciseStatus.Reussi,
+                GraderStatus.EnAttenteRelecture => ExerciseStatus.EnAttenteRelecture,
+                _ => ExerciseStatus.ARevoir,
+            };
 
             if (result.Status == GraderStatus.Reussi)
             {

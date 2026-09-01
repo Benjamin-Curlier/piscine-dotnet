@@ -18,3 +18,27 @@
 @media (max-width: 760px) {
     .rush-brief { grid-template-columns: 1fr; }
 }
+.self-review {
+    margin: 1rem 0;
+    padding: 1rem 1.2rem;
+    border: 1px solid color-mix(in srgb, #f59e0b 50%, transparent);
+    border-radius: .75rem;
+    background: color-mix(in srgb, #f59e0b 9%, transparent);
+}
+
+.self-review h2 {
+    margin-top: 0;
+}
+
+.self-review li + li {
+    margin-top: .35rem;
+}
+
+.self-review code {
+    overflow-wrap: anywhere;
+}
+
+.self-review-complete {
+    border-color: color-mix(in srgb, #10b981 50%, transparent);
+    background: color-mix(in srgb, #10b981 9%, transparent);
+}

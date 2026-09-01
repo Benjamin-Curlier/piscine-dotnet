@@ -62,6 +62,36 @@ public class SandboxExecutorTests
         Assert.Contains("Ko", result.Failures[0]);
     }
 
+    [Fact]
+    public void RunXunit_InjectsAndDisposesConstructorFixture()
+    {
+        var marker = Path.Combine(Path.GetTempPath(), $"sbx-class-fixture-{System.Guid.NewGuid():N}.txt");
+        var markerLiteral = marker.Replace("\\", "\\\\");
+        var source = $$"""
+            using System;
+            using System.IO;
+            using Xunit;
+
+            public sealed class SharedFixture : IDisposable
+            {
+                public int Value => 42;
+                public void Dispose() => File.WriteAllText("{{markerLiteral}}", "disposed");
+            }
+
+            public sealed class FixtureTests(SharedFixture fixture) : IClassFixture<SharedFixture>
+            {
+                [Fact] public void ReceivesFixture() => Assert.Equal(42, fixture.Value);
+            }
+            """;
+
+        var result = SandboxExecutor.Execute(new SandboxRequest { Mode = "xunit" }, CompileXunit(source));
+
+        Assert.Equal(1, result.FactCount);
+        Assert.Empty(result.Failures);
+        Assert.Equal("disposed", File.ReadAllText(marker));
+        File.Delete(marker);
+    }
+
     private static byte[] CompileIo(string source) =>
         CompilationService.Compile(
             new Dictionary<string, string> { ["P.cs"] = source },

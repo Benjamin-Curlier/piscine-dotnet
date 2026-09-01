@@ -9,6 +9,8 @@ story_beat: "Tester la passerelle Asteria comme la voit réellement le poste op�
 deliverables: [CommandApiTests.cs]
 starter: [CommandApiTests.cs]
 grading:
+  - type: unit
+    test_files: [CommandApiTestHost.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["localhost", "Thread.Sleep", ".Result", "Assert.True(true)"]
 feedback:
   hints:
+    - when: compile_error
+      message: "Tes tests sont compilés avec un hôte HTTP en mémoire : vérifie la fixture, les appels JSON et les assertions xUnit."
+    - when: unit_failure
+      message: "Les Facts sont réellement exécutés contre le pipeline fourni : couvre et affirme séparément 202, 400 et 401."
     - when: file_constraint
       message: "Réutilise une WebApplicationFactory, crée son HttpClient et écris trois Facts pour 202, 400 et 401."
   course_ref: "cours.md#webapplicationfactory"

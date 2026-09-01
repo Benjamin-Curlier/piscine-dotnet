@@ -116,12 +116,11 @@ jobs:
   # navigateur contre le DevHost (onboarding, /init, /check, /reglages, terminal, palette…). Ils tournent
   # deja dans build-test mais s'y SAUTENT proprement, faute de navigateur (aucune couverture UI reelle).
   # Ce job installe Chromium via Playwright pour qu'ils s'executent pour de bon.
-  # Marque INFORMATIF (continue-on-error) : verifie vert en local (Chromium installe), mais jamais encore
-  # exerce sur runner Linux (PTY, timing, chromium headless) — a promouvoir en check REQUIS une fois vert
-  # de facon repetee sur CI, pour ne pas rougir la CI sur une difference de plateforme non reproduite.
+  # Gate REQUISE : une regression de navigation, onboarding, correction, terminal ou palette bloque
+  # la livraison au meme titre que les tests unitaires. Les smokes savent se passer proprement quand
+  # Chromium est absent en local ; ce job l'installe explicitement, donc aucun skip global n'est attendu.
   e2e:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
 

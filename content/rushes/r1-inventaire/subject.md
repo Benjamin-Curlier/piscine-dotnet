@@ -4,6 +4,10 @@
 > sur les **collections** (modules 05/06) et les **classes/objets** (modules 07/08) pour construire
 > un petit **interpréteur de commandes**.
 
+Le Rush vérifie les deux dimensions : le comportement en console et une vraie séparation objet.
+La classe publique `Inventory` porte la logique métier ; le code de lecture/écriture console ne fait
+que traduire les commandes.
+
 ## Le contexte
 
 Tu gères le **stock d'un magasin**. Un programme reçoit une suite de commandes (ajouter du stock,
@@ -61,9 +65,19 @@ Déroulé : `pomme` passe à 10 puis redescend à 7 ; `poire` vaut 5 ; `afficher
 
 - `Inventaire.cs`
 
+Ton fichier doit déclarer une classe publique `Inventory` avec les membres suivants :
+
+- `void Add(string name, int quantity)` ;
+- `void Remove(string name, int quantity)` ;
+- `int Quantity(string name)` ;
+- `int Total()`.
+
+L'interpréteur console instancie ensuite cette classe pour traiter les quatre commandes. Cette
+frontière rend ton inventaire testable sans simuler la console.
+
 ## Conseils
 
-- Stocke l'inventaire dans un **`Dictionary<string, int>`** : la clé est le nom de l'article, la
+- Dans `Inventory`, stocke les quantités dans un **`Dictionary<string, int>`** : la clé est le nom de l'article, la
   valeur sa quantité. Pense à `using System.Collections.Generic;`.
 - **Découpe** chaque ligne en morceaux avec un `Split(' ')` : le 1er mot est la commande, les
   suivants sont les arguments.

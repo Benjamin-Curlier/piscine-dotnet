@@ -3,7 +3,7 @@
 - `modules/<NN-slug>/` : un module = un dossier ordonné par `order` dans `module.yaml` ; les champs
   `prerequisites`, `arc` et `mission` décrivent sa place dans le parcours.
 - `rushes/<slug>/` : projets de synthèse solo. Leur manifest ajoute `recommended_after` pour le
-  jalon conseillé et `manual_validation: true` lorsqu'une revue de preuves terrain complète la
+  jalon conseillé et `manual_validation: true` lorsqu'une auto-relecture guidée des preuves complète la
   moulinette automatique.
 
 Chaque module contient `module.yaml`, `cours.md`, et `exercises/<id>/`.

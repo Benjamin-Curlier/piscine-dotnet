@@ -56,4 +56,65 @@ public sealed class FileGraderTests
 
         Assert.Equal(GraderStatus.Reussi, new FileGrader().Grade(context, step).Status);
     }
+
+    [Fact]
+    public void Grade_XmlAssertions_ParseStructureValuesAndAttributes()
+    {
+        var context = new GradingContext(new Dictionary<string, string>
+        {
+            ["Versioning.props"] = """
+                <Project>
+                  <PropertyGroup>
+                    <Deterministic>true</Deterministic>
+                    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">
+                      true
+                    </ContinuousIntegrationBuild>
+                  </PropertyGroup>
+                </Project>
+                """
+        });
+        var rule = new FileRule { Path = "Versioning.props" };
+        rule.RequiredXmlElements.Add(new XmlElementAssertion
+        {
+            Path = "Project/PropertyGroup/Deterministic",
+            Value = "true"
+        });
+        rule.RequiredXmlElements.Add(new XmlElementAssertion
+        {
+            Path = "Project/PropertyGroup/ContinuousIntegrationBuild",
+            Value = "true",
+            Attributes = { ["Condition"] = "'$(CI)' == 'true'" }
+        });
+        var step = new GradingStep
+        {
+            Type = "fichier",
+            File = new FileAssertions { Rules = { rule } }
+        };
+
+        Assert.Equal(GraderStatus.Reussi, new FileGrader().Grade(context, step).Status);
+    }
+
+    [Theory]
+    [InlineData("<Project><PropertyGroup>", 1)]
+    [InlineData("<Project><PropertyGroup><Deterministic>false</Deterministic></PropertyGroup></Project>", 1)]
+    public void Grade_InvalidOrWrongXml_Fails(string xml, int expectedMessageCount)
+    {
+        var context = new GradingContext(new Dictionary<string, string> { ["Versioning.props"] = xml });
+        var rule = new FileRule { Path = "Versioning.props" };
+        rule.RequiredXmlElements.Add(new XmlElementAssertion
+        {
+            Path = "Project/PropertyGroup/Deterministic",
+            Value = "true"
+        });
+        var step = new GradingStep
+        {
+            Type = "fichier",
+            File = new FileAssertions { Rules = { rule } }
+        };
+
+        var result = new FileGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Equal(expectedMessageCount, result.Messages.Count);
+    }
 }

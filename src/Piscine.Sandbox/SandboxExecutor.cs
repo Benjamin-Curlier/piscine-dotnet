@@ -312,9 +312,10 @@ public static class SandboxExecutor
     private static string? RunOne(MethodInfo method, object?[] args)
     {
         object? instance = null;
+        var fixtures = new List<object>();
         try
         {
-            instance = Activator.CreateInstance(method.DeclaringType!);
+            instance = CreateTestInstance(method.DeclaringType!, fixtures);
             var result = method.Invoke(instance, args);
             if (result is Task task)
             {
@@ -333,15 +334,53 @@ public static class SandboxExecutor
         }
         finally
         {
-            // Hygiène : disposer la fixture (recrues tenant fichiers/sockets fuyaient avant).
-            if (instance is IDisposable d)
+            // Hygiène : disposer d'abord la classe de tests puis les fixtures injectées, même si le
+            // Fact échoue. Le runner reste volontairement minimal mais prend en charge le pattern
+            // xUnit IClassFixture<T>, indispensable aux exercices d'intégration.
+            Dispose(instance);
+            for (var index = fixtures.Count - 1; index >= 0; index--)
             {
-                d.Dispose();
+                Dispose(fixtures[index]);
             }
-            else if (instance is IAsyncDisposable ad)
-            {
-                ad.DisposeAsync().AsTask().GetAwaiter().GetResult();
-            }
+        }
+    }
+
+    private static object CreateTestInstance(Type testType, List<object> fixtures)
+    {
+        var constructors = testType.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
+        var constructor = constructors
+            .OrderBy(candidate => candidate.GetParameters().Length)
+            .FirstOrDefault()
+            ?? throw new InvalidOperationException($"Aucun constructeur public pour {testType.Name}.");
+
+        var parameters = constructor.GetParameters();
+        if (parameters.Length == 0)
+        {
+            return constructor.Invoke(null);
+        }
+
+        var arguments = new object[parameters.Length];
+        for (var index = 0; index < parameters.Length; index++)
+        {
+            var fixture = Activator.CreateInstance(parameters[index].ParameterType)
+                ?? throw new InvalidOperationException(
+                    $"Impossible de créer la fixture {parameters[index].ParameterType.Name}.");
+            fixtures.Add(fixture);
+            arguments[index] = fixture;
+        }
+
+        return constructor.Invoke(arguments);
+    }
+
+    private static void Dispose(object? value)
+    {
+        if (value is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+        else if (value is IAsyncDisposable asyncDisposable)
+        {
+            asyncDisposable.DisposeAsync().AsTask().GetAwaiter().GetResult();
         }
     }
 }

@@ -7,7 +7,8 @@
     <h1>Cours <span class="accent">.NET</span></h1>
     <p class="hero-sub">
         Bootcamp intensif C# / .NET 10. @Catalog.Modules.Count modules,
-        @Catalog.Modules.Sum(m => m.ExerciseCount) exercices auto-corrigés.
+        @Catalog.Modules.Sum(m => m.ExerciseCount) exercices auto-corrigés et @Catalog.Rushes.Count Rushes,
+        pour une charge annoncée d’environ @WorkloadText.Format(Catalog.EstimatedMinutes).
         Parcours le cours module par module ; ouvre un exercice pour commencer.
     </p>
 </section>
@@ -24,13 +25,15 @@
 <div class="course-acts" data-testid="module-grid">
     @foreach (var act in Catalog.Modules.GroupBy(module => module.Arc))
     {
+        var actModules = act.ToList();
+        var actMinutes = actModules.Sum(module => module.EstimatedMinutes);
         <section class="course-act">
             <header>
-                <span>@act.Count() modules</span>
+                <span>@actModules.Count modules · @WorkloadText.Format(actMinutes)</span>
                 <h2>@act.Key</h2>
             </header>
             <div class="module-grid">
-                @foreach (var m in act)
+                @foreach (var m in actModules)
                 {
                     <a class="module-card" href="/module/@m.Id">
                         <div class="module-card-num">@m.Number</div>
@@ -39,7 +42,7 @@
                             <p>
                                 @if (m.HasExercises)
                                 {
-                                    @($"{m.ExerciseCount} exercice{(m.ExerciseCount > 1 ? "s" : "")}")
+                                    @($"{m.ExerciseCount} exercice{(m.ExerciseCount > 1 ? "s" : "")} · {WorkloadText.Format(m.EstimatedMinutes)}")
                                 }
                                 else
                                 {

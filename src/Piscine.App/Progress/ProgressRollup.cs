@@ -22,6 +22,11 @@ public static class ProgressRollup
             return ExerciseProgressStatus.ARevoir;
         }
 
+        if (statuses.Any(s => s == ExerciseProgressStatus.EnAttenteRelecture))
+        {
+            return ExerciseProgressStatus.EnAttenteRelecture;
+        }
+
         if (statuses.All(s => s == ExerciseProgressStatus.PousseNote))
         {
             return ExerciseProgressStatus.PousseNote;
@@ -30,6 +35,7 @@ public static class ProgressRollup
         var anyStarted = statuses.Any(s =>
             s is ExerciseProgressStatus.EnCours
               or ExerciseProgressStatus.CommiteNonPousse
+              or ExerciseProgressStatus.EnAttenteRelecture
               or ExerciseProgressStatus.PousseNote);
 
         return anyStarted ? ExerciseProgressStatus.EnCours : ExerciseProgressStatus.NonCommence;

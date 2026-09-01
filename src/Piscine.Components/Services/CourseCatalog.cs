@@ -16,6 +16,12 @@ public sealed class CourseCatalog
 
     public IReadOnlyList<CourseRush> Rushes { get; }
 
+    public int ExerciseEstimatedMinutes => Modules.Sum(module => module.EstimatedMinutes);
+
+    public int RushEstimatedMinutes => Rushes.Sum(rush => rush.EstimatedMinutes);
+
+    public int EstimatedMinutes => ExerciseEstimatedMinutes + RushEstimatedMinutes;
+
     private readonly Dictionary<string, CourseModule> _byId;
 
     public CourseCatalog(IConfiguration config)

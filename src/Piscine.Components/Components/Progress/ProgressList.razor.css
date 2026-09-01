@@ -10,6 +10,7 @@
 .progress-exo-item:first-child { border-top: 0; }
 .progress-exo-title { flex: 1 1 240px; font-weight: 550; }
 .progress-milestone { color: var(--ink-soft); font-size: .78rem; }
+.progress-duration { color: var(--ink-soft); font-size: .78rem; white-space: nowrap; }
 .progress-exo-link { font-size: .82rem; }
 
 @media (max-width: 620px) {

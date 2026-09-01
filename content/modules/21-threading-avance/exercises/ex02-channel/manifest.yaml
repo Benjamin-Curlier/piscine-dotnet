@@ -32,10 +32,14 @@ grading:
         expect_exit: 0
   - type: source
     source:
-      required_fragments: ["Channel.CreateUnbounded", "ReadAllAsync"]
+      require_compilation: true
+      required_syntax: ["await-foreach"]
+      required_invocations: ["System.Threading.Channels.Channel.CreateUnbounded"]
 feedback:
   hints:
     - when: io_mismatch
       message: "Crée un Channel<int>, écris les N entiers de façon asynchrone, appelle Writer.Complete(), puis parcours Reader.ReadAllAsync() avec await foreach et affiche le double. Ajoute les namespaces Channels et Tasks."
+    - when: source_constraint
+      message: "La solution doit créer un vrai Channel et le consommer avec await foreach ; une boucle directe ne valide pas l'objectif."
   course_ref: "cours.md#channel"
 solution: [Channel.cs]

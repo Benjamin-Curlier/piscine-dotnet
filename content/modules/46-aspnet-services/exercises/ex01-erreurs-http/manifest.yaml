@@ -9,6 +9,8 @@ story_beat: "Donner au pupitre Asteria des erreurs actionnables plutôt que des 
 deliverables: [CommandErrors.cs]
 starter: [CommandErrors.cs]
 grading:
+  - type: unit
+    test_files: [CommandErrorsTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["exception.ToString", "StackTrace", "ConnectionString"]
 feedback:
   hints:
+    - when: compile_error
+      message: "La réponse typée est compilée contre ASP.NET Core : garde une union Results cohérente sur toutes les branches."
+    - when: unit_failure
+      message: "Chaque erreur est exécutée et inspectée : vérifie StatusCode et l'extension traceId du ProblemDetails."
     - when: file_constraint
       message: "Mappe chaque erreur métier sur un statut distinct avec TypedResults.Problem et ajoute traceId aux extensions."
   course_ref: "cours.md#problem-details"

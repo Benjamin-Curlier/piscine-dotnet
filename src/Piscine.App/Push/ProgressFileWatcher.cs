@@ -218,7 +218,12 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
             {
                 delta.Add(new PushResultEntry(
                     ExerciseId: id,
-                    Verdict: ep.Status == ExerciseStatus.Reussi ? PushVerdict.Reussi : PushVerdict.ARevoir,
+                    Verdict: ep.Status switch
+                    {
+                        ExerciseStatus.Reussi => PushVerdict.Reussi,
+                        ExerciseStatus.EnAttenteRelecture => PushVerdict.EnAttenteRelecture,
+                        _ => PushVerdict.ARevoir,
+                    },
                     Attempts: ep.Attempts,
                     LastAttempt: ep.LastAttempt));
             }

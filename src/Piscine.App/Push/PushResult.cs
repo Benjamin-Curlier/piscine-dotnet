@@ -5,6 +5,7 @@ public enum PushVerdict
 {
     Reussi,
     ARevoir,
+    EnAttenteRelecture,
 }
 
 /// <summary>Résultat de statut d'un exercice ayant changé depuis le dernier snapshot.</summary>

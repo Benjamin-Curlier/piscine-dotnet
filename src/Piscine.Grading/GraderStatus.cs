@@ -5,5 +5,6 @@ public enum GraderStatus
 {
     Reussi,
     ARevoir,
+    EnAttenteRelecture,
     NonCorrige
 }
