@@ -33,6 +33,20 @@ public class ContentLocatorTests
         Assert.Null(location);
     }
 
+    [Theory]
+    [InlineData("../ex00-hello")]
+    [InlineData("..\\ex00-hello")]
+    [InlineData("nested/ex00-hello")]
+    [InlineData("nested\\ex00-hello")]
+    public void FindExercise_RejectsPathLikeIdentifiers(string exerciseId)
+    {
+        using var dir = new TempDir();
+
+        var location = ContentLocator.FindExercise(new PiscinePaths(dir.Path), exerciseId);
+
+        Assert.Null(location);
+    }
+
     [Fact]
     public void FindExercise_FindsRush_UnderRushesModuleId()
     {

@@ -94,6 +94,21 @@ public sealed class WorkspaceLauncherTests
         Assert.Null(rec.Last);
     }
 
+    [Theory]
+    [InlineData("../ex00-hello")]
+    [InlineData("..\\ex00-hello")]
+    [InlineData("nested/ex00-hello")]
+    [InlineData("nested\\ex00-hello")]
+    public void Path_like_exercise_id_is_rejected(string exerciseId)
+    {
+        using var tmp = new TempDir();
+        var (launcher, rec, workspaceRoot) = Create(tmp);
+
+        Assert.Null(launcher.PrepareWorkspace(exerciseId));
+        Assert.False(Directory.Exists(workspaceRoot));
+        Assert.Null(rec.Last);
+    }
+
     private static string FindRepoRoot()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
