@@ -2,6 +2,10 @@ id: ex00-et-ou-xor
 title: "ET, OU, XOR"
 objective: "Appliquer les opérateurs bit à bit & | ^ sur deux entiers et afficher chaque résultat."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité ET, OU, XOR d'Asteria."
 deliverables: [EtOuXor.cs]
 starter: [EtOuXor.cs]
 grading:

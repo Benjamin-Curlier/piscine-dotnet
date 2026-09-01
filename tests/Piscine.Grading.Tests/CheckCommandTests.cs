@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using Piscine.Core;
-using Piscine.Core.Progression;
 using Piscine.Core.Model;
+using Piscine.Core.Progression;
 using Piscine.Grading;
 using Xunit;
 
@@ -52,6 +52,37 @@ public class CheckCommandTests
 
         Assert.Equal(1, result.ExitCode);
         Assert.Contains("cours.md#hello", result.Output);
+        var failure = new LastCheckFailureStore(layout.LastCheckFailurePath).Load();
+        Assert.NotNull(failure);
+        Assert.Equal("ex00", failure.ExerciseId);
+        Assert.Equal(result.Output, failure.Output);
+    }
+
+    [Fact]
+    public void ReplayLast_RunsTheRecordedExerciseAgainstCurrentCode()
+    {
+        using var dir = new TempDir();
+        var layout = Setup(dir, "System.Console.Write(\"non\");");
+        new CheckCommand(layout, Graders.Default()).Run("ex00");
+        dir.WriteFile(Path.Combine("ws", "00-setup", "ex00", "Hello.cs"), "System.Console.Write(\"ok\");");
+
+        var result = new ReplayCheckCommand(layout, Graders.Default()).Run();
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Rejeu de ex00", result.Output);
+        Assert.Contains("Réussi", result.Output);
+    }
+
+    [Fact]
+    public void ReplayLast_WithoutRecordedFailure_ReturnsEducationalMessage()
+    {
+        using var dir = new TempDir();
+        var layout = Setup(dir, "System.Console.Write(\"ok\");");
+
+        var result = new ReplayCheckCommand(layout, Graders.Default()).Run();
+
+        Assert.Equal(2, result.ExitCode);
+        Assert.Contains("Aucun échec local enregistré", result.Output);
     }
 
     [Fact]

@@ -2,6 +2,10 @@ id: ex00-using
 title: "using & Dispose — libérer une ressource"
 objective: "Utiliser un bloc using pour garantir l'appel à Dispose() à la sortie de portée."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [runtime,resources]
+story_beat: "Sécuriser la capacité using & Dispose — libérer une ressource d'Asteria."
 deliverables: [Fichier.cs]
 starter: [Fichier.cs]
 grading:
@@ -21,6 +25,9 @@ grading:
       - stdin: "42\n"
         expect_stdout: "ouvre 42\nutilise 42\nferme 42\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["using"]
 feedback:
   hints:
     - when: io_mismatch

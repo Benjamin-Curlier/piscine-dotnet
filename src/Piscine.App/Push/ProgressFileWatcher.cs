@@ -62,7 +62,11 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     {
         lock (_lock)
         {
-            if (_started) return;
+            if (_started)
+            {
+                return;
+            }
+
             _started = true;
         }
 
@@ -131,7 +135,10 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         {
             lock (_lock)
             {
-                if (_disposed) return;
+                if (_disposed)
+                {
+                    return;
+                }
 
                 // Réessai borné : au-delà du plafond on abandonne ce cycle (un prochain événement FSW
                 // relancera ArmDebounce, qui réarme le budget) — pas de boucle 4 Hz infinie.
@@ -152,12 +159,18 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         {
             // Un callback de timer déjà déclenché peut courir après DisposeAsync (Timer.Dispose
             // n'attend pas un callback en vol) → ne pas publier si on est disposé.
-            if (_disposed) return;
+            if (_disposed)
+            {
+                return;
+            }
 
             _settleRetries = 0; // lecture réussie : budget de réessai réarmé.
 
             var delta = ComputeDelta(_last, current);
-            if (delta.Count == 0) return;
+            if (delta.Count == 0)
+            {
+                return;
+            }
 
             _latest = new PushResult(delta, _timeProvider.GetLocalNow());
             _last = current;

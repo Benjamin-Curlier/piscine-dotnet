@@ -1,6 +1,9 @@
 id: 32-garbage-collection
 title: "Garbage collection & gestion des ressources"
 order: 32
+prerequisites: [07-poo-1, 09-exceptions]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Libérer à temps mémoire, handles et ressources rares des services longue durée."
 course: cours.md
 groups:
   - id: ressources

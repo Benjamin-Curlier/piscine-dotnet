@@ -1,0 +1,23 @@
+id: ex00-contrat-protobuf
+title: "Définir un contrat Protobuf stable"
+objective: "Décrire un service de commande gRPC avec champs numérotés, statuts et retrait réservé."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [grpc, protobuf, contracts]
+story_beat: "Donner aux postes et services Asteria un protocole typé commun."
+deliverables: [commands.proto]
+starter: [commands.proto]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: commands.proto
+          required_fragments: ['syntax = "proto3";', 'package asteria.commands.v1;', 'option csharp_namespace', 'service CommandService', 'rpc Submit', 'rpc Watch', 'returns (stream CommandStatus)', 'message SubmitCommandRequest', 'string idempotency_key = 1;', 'reserved 4;', 'reserved "legacy_operator";']
+          forbidden_fragments: ["password", "secret", "bytes entity"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Déclare le package v1, un appel unaire Submit, un streaming Watch et réserve numéro/nom de l'ancien champ."
+  course_ref: "cours.md#proto"
+solution: [commands.proto]

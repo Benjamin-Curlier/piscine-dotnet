@@ -1,0 +1,38 @@
+id: ex00-hotfix-multi-branches
+title: "Reporter un hotfix sur deux lignes de livraison"
+objective: "Créer un correctif isolé et l'intégrer dans main ainsi que dans une branche de release."
+difficulty: moyen
+estimated_minutes: 50
+xp: 100
+tags: [git, collaboration, release]
+story_beat: "Propager un correctif critique sans perdre la ligne stable d'Asteria."
+deliverables: []
+starter: []
+grading:
+  - type: git
+    git:
+      branches: [main, release-1.0, hotfix-alerte]
+      min_commits: 4
+      no_conflict_markers: true
+      merged:
+        - { into: main, branch: hotfix-alerte }
+        - { into: release-1.0, branch: hotfix-alerte }
+      files:
+        - { path: alertes.txt, ref: main, contains: "seuil=90" }
+        - { path: alertes.txt, ref: release-1.0, contains: "seuil=90" }
+      attempt:
+        branch: hotfix-alerte
+      fixture:
+        - { branch: main, message: "Initialise les alertes", files: { "README.md": "Asteria\n", "alertes.txt": "seuil=100\n" } }
+        - { branch: release-1.0, base: main }
+        - { branch: hotfix-alerte, base: main }
+        - { branch: hotfix-alerte, message: "Abaisse le seuil critique", files: { "alertes.txt": "seuil=90\n" } }
+        - { branch: release-1.0, message: "Prépare la release 1.0", files: { "release.txt": "1.0\n" } }
+        - { merge_into: main, merge_from: hotfix-alerte }
+        - { merge_into: release-1.0, merge_from: hotfix-alerte }
+feedback:
+  hints:
+    - when: git_state
+      message: "Crée release-1.0 depuis main, puis hotfix-alerte. Sur hotfix-alerte, remplace le seuil par 90 et commite. Fusionne ensuite hotfix-alerte dans main puis dans release-1.0, et pousse les trois branches."
+  course_ref: "cours.md#outils"
+solution: []

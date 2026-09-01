@@ -19,9 +19,10 @@ internal static class SmokeProbe
     {
         var received = 0;
 
-        app.MainWindow.RegisterWebMessageReceivedHandler((_, message) =>
+        app.MainWindow.RegisterWebMessageReceivedHandler((_, eventArgs) =>
         {
-            if (message is null || !message.StartsWith(Prefix, StringComparison.Ordinal))
+            var message = eventArgs.Message;
+            if (!message.StartsWith(Prefix, StringComparison.Ordinal))
             {
                 return;
             }

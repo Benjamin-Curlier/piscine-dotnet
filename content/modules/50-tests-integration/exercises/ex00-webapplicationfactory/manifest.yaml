@@ -1,0 +1,23 @@
+id: ex00-webapplicationfactory
+title: "Tester l'API dans son vrai pipeline"
+objective: "Démarrer l'application avec WebApplicationFactory et vérifier succès, validation et authentification."
+difficulty: moyen
+estimated_minutes: 75
+xp: 140
+tags: [testing, aspnet, integration]
+story_beat: "Tester la passerelle Asteria comme la voit réellement le poste opérateur."
+deliverables: [CommandApiTests.cs]
+starter: [CommandApiTests.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: CommandApiTests.cs
+          required_fragments: ["IClassFixture<WebApplicationFactory<Program>>", "WebApplicationFactory<Program>", "CreateClient()", "PostAsJsonAsync", "HttpStatusCode.Accepted", "HttpStatusCode.BadRequest", "HttpStatusCode.Unauthorized", "[Fact]", "CancellationToken"]
+          forbidden_fragments: ["localhost", "Thread.Sleep", ".Result", "Assert.True(true)"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Réutilise une WebApplicationFactory, crée son HttpClient et écris trois Facts pour 202, 400 et 401."
+  course_ref: "cours.md#webapplicationfactory"
+solution: [CommandApiTests.cs]

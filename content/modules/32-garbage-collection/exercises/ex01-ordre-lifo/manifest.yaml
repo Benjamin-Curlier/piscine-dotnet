@@ -2,6 +2,10 @@ id: ex01-ordre-lifo
 title: "Ordre de libération (LIFO)"
 objective: "Comprendre que plusieurs using declarations sont libérées en ordre inverse (pile)."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [runtime,resources]
+story_beat: "Sécuriser la capacité Ordre de libération (LIFO) d'Asteria."
 deliverables: [Ressources.cs]
 starter: [Ressources.cs]
 grading:
@@ -21,6 +25,9 @@ grading:
       - stdin: "x y z\n"
         expect_stdout: "ouvre x\nouvre y\nouvre z\ntravail\nferme z\nferme y\nferme x\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["using"]
 feedback:
   hints:
     - when: io_mismatch

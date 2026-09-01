@@ -1,3 +1,5 @@
+#:include ..\Domain\IDepotLivres.cs
+
 using System.Collections.Generic;
 using Domain;
 

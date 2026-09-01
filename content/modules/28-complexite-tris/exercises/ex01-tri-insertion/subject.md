@@ -2,11 +2,11 @@
 
 ## Objectif
 
-Lis un entier **N** (nombre d'éléments), puis **N entiers séparés par des espaces** sur la
-deuxième ligne. Trie le tableau par ordre **croissant** en utilisant le **tri par insertion**
+Lis des **entiers séparés par des espaces sur une seule ligne**. Trie le tableau par ordre
+**croissant** en utilisant le **tri par insertion**
 implémenté à la main. Affiche le résultat : les entiers séparés par un espace.
 
-Exemple : `5` puis `5 3 1 4 2` → `1 2 3 4 5`
+Exemple : `5 3 1 4 2` → `1 2 3 4 5`. Utilise `t.Length` pour connaître la taille.
 
 ## Livrable
 

@@ -19,7 +19,7 @@ public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
     private string? _tempHome;
     private string? _tempWorkspace;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -47,7 +47,7 @@ public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -62,7 +62,7 @@ public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -77,7 +77,8 @@ public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            return; // Chromium absent (CI sans playwright install) : skip propre.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
         }
 
         await using (browser)
@@ -85,6 +86,7 @@ public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
             var page = await browser.NewPageAsync();
 
             await page.GotoAsync($"{BaseUrl}/module/00-setup-git/ex00-hello", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
             await page.WaitForSelectorAsync("[data-testid='exercise-actions']", new PageWaitForSelectorOptions { Timeout = 30_000 });
 
             var openFolderCount = await page.Locator("[data-testid='ex-open-folder']").CountAsync();

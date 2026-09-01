@@ -1,6 +1,9 @@
 id: 29-recherche-chemin
 title: "Recherche de chemin (BFS, Dijkstra, A*)"
 order: 29
+prerequisites: [04-tableaux-chaines, 06-collections, 28-complexite-tris]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Retrouver des routes sûres entre les secteurs sur une carte partiellement reconstruite."
 course: cours.md
 groups:
   - id: pathfinding

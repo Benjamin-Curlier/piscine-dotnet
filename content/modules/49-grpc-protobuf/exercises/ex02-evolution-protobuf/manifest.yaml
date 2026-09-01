@@ -1,0 +1,25 @@
+id: ex02-evolution-protobuf
+title: "Planifier une évolution compatible"
+objective: "Établir les règles et la matrice de test d'un contrat Protobuf déployé progressivement."
+difficulty: difficile
+estimated_minutes: 85
+xp: 170
+tags: [protobuf, compatibility, delivery]
+story_beat: "Faire évoluer le protocole Asteria sans immobiliser les anciens postes."
+deliverables: [COMPATIBILITY.md]
+starter: [COMPATIBILITY.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: COMPATIBILITY.md
+          required_fragments: ["## Règles de schéma", "ne jamais réutiliser", "reserved", "champ optionnel", "## Matrice de test", "ancien client / nouveau serveur", "nouveau client / ancien serveur", "## Déploiement progressif", "## Retrait", "télémétrie"]
+          forbidden_fragments: ["déployer simultanément", "ignorer les anciens clients"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Pose les invariants de numéros/champs et une matrice croisant anciennes et nouvelles versions."
+    - when: file_constraint
+      message: "Décris ajout compatible, mesure d'usage, période de coexistence puis retrait réservé."
+  course_ref: "cours.md#compatibilite"
+solution: [COMPATIBILITY.md]

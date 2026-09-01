@@ -1,6 +1,11 @@
 id: ex00-rectangle
 title: "Rectangle"
 objective: "Définir une classe Rectangle avec des propriétés et une méthode Aire()."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Rectangle d'Asteria."
 deliverables: [Rectangle.cs]
 starter: [Rectangle.cs]
 grading:
@@ -31,6 +36,9 @@ grading:
       - stdin: "12\n11\n"
         expect_stdout: "132\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class Rectangle", "Aire("]
 feedback:
   hints:
     - when: io_mismatch

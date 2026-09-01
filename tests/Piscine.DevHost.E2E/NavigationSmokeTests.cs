@@ -23,7 +23,7 @@ public sealed class NavigationSmokeTests : IAsyncLifetime
     private string? _tempHome;
     private string? _tempWorkspace;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -56,7 +56,7 @@ public sealed class NavigationSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -71,7 +71,7 @@ public sealed class NavigationSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -86,7 +86,8 @@ public sealed class NavigationSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            return; // Chromium absent (CI sans playwright install) : skip propre.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
         }
 
         await using (browser)
@@ -94,6 +95,7 @@ public sealed class NavigationSmokeTests : IAsyncLifetime
             var page = await browser.NewPageAsync();
 
             await page.GotoAsync(BaseUrl, new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
             await page.WaitForSelectorAsync("[data-testid='dashboard']", new PageWaitForSelectorOptions { Timeout = 30_000 });
 
             var dashHref = await page.Locator("[data-testid='nav-dashboard']").First.GetAttributeAsync("href");

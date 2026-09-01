@@ -2,6 +2,10 @@ id: ex00-singleton
 title: "Singleton — instance unique partagée"
 objective: "Garantir qu'une classe n'a qu'une seule instance, accessible globalement."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Singleton — instance unique partagée d'Asteria."
 deliverables: [Compteur.cs]
 starter: [Compteur.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "4\n4\n"
         expect_stdout: "8\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["private Compteur", "static Compteur"]
 feedback:
   hints:
     - when: io_mismatch

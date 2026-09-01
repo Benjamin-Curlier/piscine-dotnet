@@ -1,6 +1,9 @@
 id: 10-generiques-lambdas
 title: "Génériques & lambdas"
 order: 10
+prerequisites: [03-methodes, 06-collections]
+arc: "Acte II — Cœur métier"
+mission: "Généraliser les traitements sans abandonner la sûreté des types."
 course: cours.md
 groups:
   - id: generiques-lambdas

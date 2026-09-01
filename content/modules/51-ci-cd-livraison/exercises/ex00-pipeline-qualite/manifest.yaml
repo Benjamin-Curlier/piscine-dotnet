@@ -1,0 +1,23 @@
+id: ex00-pipeline-qualite
+title: "Construire la gate de Merge Request"
+objective: "Définir un pipeline bloquant qui restaure, compile, teste et audite la solution."
+difficulty: moyen
+estimated_minutes: 75
+xp: 140
+tags: [ci, gitlab, quality]
+story_beat: "Automatiser la revue technique de chaque modification Asteria."
+deliverables: [.gitlab-ci.yml]
+starter: [.gitlab-ci.yml]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: .gitlab-ci.yml
+          required_fragments: ["stages:", "- build", "- test", "dotnet restore", "--locked-mode", "dotnet build", "--no-restore", "dotnet test", "--no-build", "dotnet format", "--verify-no-changes", "package --vulnerable", "artifacts:", "when: always"]
+          forbidden_fragments: ["allow_failure: true", "|| true", "latest", "dotnet clean"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Sépare build et test, restaure une seule fois en mode verrouillé, puis réutilise les artefacts pour tests, format et audit."
+  course_ref: "cours.md#ci"
+solution: [.gitlab-ci.yml]

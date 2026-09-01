@@ -42,10 +42,14 @@ public static class FeedbackTriggers
     /// <summary>L'architecture de la solution diffère de l'attendu (grader <c>projet</c>).</summary>
     public const string ProjectStructure = "project_structure";
 
+    /// <summary>Une contrainte déclarée sur le code source n'est pas respectée.</summary>
+    public const string SourceConstraint = "source_constraint";
+    public const string FileConstraint = "file_constraint";
+
     /// <summary>Ensemble des déclencheurs reconnus (pour validation du contenu).</summary>
     public static readonly IReadOnlySet<string> All = new HashSet<string>
     {
         CompileError, IoMismatch, ExitCode, Timeout, RuntimeError, UnitFailure, NormeViolation,
-        TestsFailOnReference, MutantSurvived, GitState, ProjectStructure,
+        TestsFailOnReference, MutantSurvived, GitState, ProjectStructure, SourceConstraint, FileConstraint,
     };
 }

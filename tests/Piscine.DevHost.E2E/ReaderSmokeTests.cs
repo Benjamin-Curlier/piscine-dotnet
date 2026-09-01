@@ -29,7 +29,7 @@ public sealed class ReaderSmokeTests : IAsyncLifetime
 
     private Process? _host;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -49,7 +49,7 @@ public sealed class ReaderSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -57,7 +57,7 @@ public sealed class ReaderSmokeTests : IAsyncLifetime
             catch { /* le processus a déjà rendu l'âme */ }
         }
         _host?.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -72,8 +72,7 @@ public sealed class ReaderSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Navigateur non installé (CI sans `playwright install chromium`) : skip propre.
-            // xUnit 2.x n'a pas d'API Assert.Skip ; le retour anticipé fait office de skip.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
             return;
         }
 
@@ -81,6 +80,7 @@ public sealed class ReaderSmokeTests : IAsyncLifetime
         {
             var page = await browser.NewPageAsync();
             await page.GotoAsync($"{BaseUrl}/module/{ModuleId}", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
 
             // ── (1) Cours rendu : le h1 du cours est présent ──────────────────────────────────────
             await page.WaitForSelectorAsync("h1", new PageWaitForSelectorOptions { Timeout = 30_000 });

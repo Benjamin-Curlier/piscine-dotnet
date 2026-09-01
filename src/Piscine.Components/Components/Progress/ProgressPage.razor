@@ -3,6 +3,7 @@
 @namespace Piscine.Components.Components.Progress
 @using Piscine.App.Progress
 @using Piscine.Components.Services
+@using Piscine.Core.Content
 @inject CourseCatalog Catalog
 @inject ProgressService Progress
 
@@ -18,7 +19,8 @@
         var exos = Catalog.Modules
             .SelectMany(m => m.Groups)
             .SelectMany(g => g.Exercises)
-            .Select(ex => (ex.ModuleId, ex.Id));
+            .Select(ex => (ex.ModuleId, ex.Id))
+            .Concat(Catalog.Rushes.Select(rush => (ContentLocator.RushesModuleId, rush.Id)));
 
         _statuses = Progress.SnapshotFor(exos);
     }

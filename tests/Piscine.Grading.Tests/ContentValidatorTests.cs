@@ -16,6 +16,8 @@ public class ContentValidatorTests
         dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"), """
             id: 00-setup
             order: 0
+            arc: Test
+            mission: Valider le contenu de test.
             groups:
               - id: g1
                 exercises: [ex00]
@@ -30,6 +32,11 @@ public class ContentValidatorTests
 
     private const string IoManifest = """
         id: ex00
+        difficulty: facile
+        estimated_minutes: 20
+        xp: 40
+        tags: [bases]
+        story_beat: Valider la fixture IO.
         deliverables: [Hello.cs]
         grading:
           - type: io
@@ -409,6 +416,11 @@ public class ContentValidatorTests
 
     private const string MutationManifest = """
         id: ex00
+        difficulty: difficile
+        estimated_minutes: 60
+        xp: 120
+        tags: [tests]
+        story_beat: Valider la fixture mutation.
         deliverables: [CompteTests.cs]
         grading:
           - type: mutation
@@ -445,6 +457,8 @@ public class ContentValidatorTests
         dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"), """
             id: 00-setup
             order: 0
+            arc: Test
+            mission: Valider le contenu de test.
             groups:
               - id: g1
                 exercises: [ex00]
@@ -482,6 +496,11 @@ public class ContentValidatorTests
 
     private const string GitValidManifest = """
         id: ex00
+        difficulty: moyen
+        estimated_minutes: 45
+        xp: 90
+        tags: [git]
+        story_beat: Valider la fixture Git.
         deliverables: []
         grading:
           - type: git
@@ -590,5 +609,89 @@ public class ContentValidatorTests
 
         Assert.False(report.IsValid);
         Assert.Contains(report.Issues, i => i.ExerciseId == "ex99" && i.Message.Contains("introuvable"));
+    }
+
+    [Fact]
+    public void Validate_ModulePrerequisiteMustExistAndBeEarlier()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("content", "modules", "01-bases", "module.yaml"), """
+            id: 01-bases
+            order: 1
+            prerequisites: [02-suite, absent]
+            groups: []
+            """);
+        dir.WriteFile(Path.Combine("content", "modules", "02-suite", "module.yaml"), """
+            id: 02-suite
+            order: 2
+            groups: []
+            """);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, issue => issue.ExerciseId == "01-bases" && issue.Message.Contains("non antérieur"));
+        Assert.Contains(report.Issues, issue => issue.ExerciseId == "01-bases" && issue.Message.Contains("introuvable"));
+    }
+
+    [Fact]
+    public void Validate_RushRecommendedAfterMustReferenceExistingModule()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"), """
+            id: 00-setup
+            order: 0
+            arc: Test
+            mission: Tester un jalon.
+            groups: []
+            """);
+        var rushDir = Path.Combine("content", "rushes", "r0-test");
+        dir.WriteFile(Path.Combine(rushDir, "manifest.yaml"), """
+            id: r0-test
+            difficulty: facile
+            estimated_minutes: 20
+            xp: 40
+            tags: [capstone]
+            story_beat: Tester la mission.
+            recommended_after: 99-absent
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """);
+        dir.WriteFile(Path.Combine(rushDir, "subject.md"), "énoncé");
+        dir.WriteFile(Path.Combine(rushDir, "solution", "Hello.cs"), "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, issue =>
+            issue.ExerciseId == "r0-test" && issue.Message.Contains("recommended_after introuvable"));
+    }
+
+    [Fact]
+    public void Validate_FileBasedIncludeMustResolveInsideStarter()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, """
+            id: ex00
+            deliverables: [Hello.cs]
+            starter: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+            """, "System.Console.Write(\"ok\");");
+        dir.WriteFile(Path.Combine(ExerciseDir, "starter", "Hello.cs"), """
+            #!
+            #:include .\Missing.cs
+            #:package Exemple
+            System.Console.Write("ok");
+            """);
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, issue => issue.Message.Contains("include introuvable"));
+        Assert.Contains(report.Issues, issue => issue.Message.Contains("package non épinglé"));
     }
 }

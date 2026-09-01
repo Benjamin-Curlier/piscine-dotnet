@@ -1,6 +1,9 @@
 id: 31-refactoring
 title: "Smelly code & refactoring"
 order: 31
+prerequisites: [07-poo-1, 13-tests-unitaires]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Simplifier le code hérité tout en préservant son comportement observable."
 course: cours.md
 groups:
   - id: refactoring

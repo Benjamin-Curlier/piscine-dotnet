@@ -30,6 +30,9 @@ Zola: Germinal
 ## Indices
 
 - Mémorise les auteurs déjà vus dans un `Dictionary<string, Auteur>`.
+- Variante EF Core : `db.Auteurs.Local.FirstOrDefault(a => a.Nom == nomAuteur)` cherche parmi les
+  entités déjà suivies, même avant `SaveChanges()`. `Local` ne représente pas toute la base : utilise-le
+  ici uniquement parce que les auteurs viennent d'être ajoutés au même `DbContext`.
 - `db.Auteurs.Include(a => a.Livres).OrderBy(a => a.Nom)` ; pour chaque auteur,
   `string.Join(", ", auteur.Livres.OrderBy(l => l.Titre).Select(l => l.Titre))`.
 - EF crée automatiquement la table `Livre` avec la colonne `AuteurId` (convention de nommage).

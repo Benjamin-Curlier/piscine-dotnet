@@ -2,6 +2,10 @@ id: ex02-flags
 title: "Combiner des permissions"
 objective: "Combiner plusieurs membres d'un enum [Flags] avec l'opérateur | et afficher la valeur entière obtenue."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Combiner des permissions d'Asteria."
 deliverables: [Flags.cs]
 starter: [Flags.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "2\nEcriture\nExecution\n"
         expect_stdout: "6\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["[Flags]", "enum Permission"]
 feedback:
   hints:
     - when: io_mismatch

@@ -1,0 +1,11 @@
+id: 47-securite-identite
+title: "Sécurité et identité des postes et services"
+order: 47
+prerequisites: [46-aspnet-services]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Authentifier les opérateurs et réduire les frontières de confiance d'Asteria."
+course: cours.md
+groups:
+  - id: defense-en-profondeur
+    title: "Identité, secrets et menaces"
+    exercises: [ex00-politiques-acces, ex01-secrets-configuration, ex02-modele-menaces]

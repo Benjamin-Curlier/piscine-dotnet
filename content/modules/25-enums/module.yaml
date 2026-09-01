@@ -1,6 +1,9 @@
 id: 25-enums
 title: "Enums"
 order: 25
+prerequisites: [01-bases-csharp]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Nommer les états et combinaisons autorisés plutôt que manipuler des nombres opaques."
 course: cours.md
 groups:
   - id: enums

@@ -2,6 +2,10 @@ id: ex03-pile
 title: "Pile (LIFO)"
 objective: "Concevoir une classe pile (Empiler/Depiler/EstVide) et dépiler des entiers dans l'ordre inverse de leur empilement."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Pile (LIFO) d'Asteria."
 bonus: true
 deliverables: [Pile.cs]
 starter: [Pile.cs]
@@ -26,9 +30,14 @@ grading:
       - stdin: "5\n10\n20\n30\n40\n50\n"
         expect_stdout: "50\n40\n30\n20\n10\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class MaPile", "Empiler(", "Depiler("]
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Une pile est LIFO : le dernier empilé sort en premier. Empiler ajoute en fin de liste, Depiler retire et renvoie le dernier élément. Dépile tant que la pile n'est pas vide."
+      - when: io_mismatch
+        message: "Une pile est LIFO : le dernier empilé sort en premier. Empiler ajoute en fin de liste, Depiler retire et renvoie le dernier élément. Dépile tant que la pile n'est pas vide."
+      - when: compile_error
+        message: "MaPile encapsule une List<int> ; Empiler reçoit un int, Depiler retourne un int et EstVide expose un bool."
   course_ref: "cours.md#pile"
 solution: [Pile.cs]

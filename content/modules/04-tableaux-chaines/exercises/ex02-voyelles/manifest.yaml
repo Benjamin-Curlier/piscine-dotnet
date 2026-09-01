@@ -1,6 +1,11 @@
 id: ex02-voyelles
 title: "Compter les voyelles"
 objective: "Compter le nombre de voyelles (a e i o u) d'un mot, majuscules comprises."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Compter les voyelles d'Asteria."
 deliverables: [Voyelles.cs]
 starter: [Voyelles.cs]
 grading:

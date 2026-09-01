@@ -2,6 +2,10 @@ id: ex03-top-k
 title: "Top K des mots fréquents"
 objective: "Afficher les K mots les plus fréquents d'une ligne, triés par fréquence décroissante puis ordre alphabétique."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Top K des mots fréquents d'Asteria."
 bonus: true
 deliverables: [TopK.cs]
 starter: [TopK.cs]
@@ -32,7 +36,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Compte chaque mot dans un Dictionary<string,int>, puis OrderByDescending(fréquence).ThenBy(mot).Take(K). Le ThenBy garantit un ordre déterministe en cas d'égalité."
+      - when: io_mismatch
+        message: "Compte chaque mot dans un Dictionary<string,int>, trie les paires par fréquence décroissante puis par mot croissant, et ne conserve que K résultats. Le second critère rend les égalités déterministes."
+      - when: compile_error
+        message: "Un Dictionary<string,int> stocke les comptes ; les opérateurs de tri et Take viennent de System.Linq."
   course_ref: "cours.md#top-k"
 solution: [TopK.cs]

@@ -2,6 +2,10 @@ id: ex03-reduce
 title: "Réduction générique (fold)"
 objective: "Implémenter une méthode générique Reduce<T, R> (fold) et l'appeler avec deux lambdas pour calculer somme et produit."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,functional]
+story_beat: "Sécuriser la capacité Réduction générique (fold) d'Asteria."
 bonus: true
 deliverables: [Reduce.cs]
 starter: [Reduce.cs]
@@ -26,6 +30,9 @@ grading:
       - stdin: "7\n0\n3\n"
         expect_stdout: "somme=10\nproduit=0\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Reduce<T, R>"]
 feedback:
   hints:
     - when: io_mismatch

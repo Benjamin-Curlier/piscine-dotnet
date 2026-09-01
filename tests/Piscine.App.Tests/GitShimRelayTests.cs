@@ -36,7 +36,7 @@ public sealed class GitShimRelayTests
             fakeGit = temp.WriteFile("fakegit.sh", "#!/bin/sh\nexit 3\n");
             var psi = new ProcessStartInfo("chmod", $"+x \"{fakeGit}\"") { UseShellExecute = false };
             using var chmod = Process.Start(psi);
-            await chmod!.WaitForExitAsync();
+            await chmod!.WaitForExitAsync(TestContext.Current.CancellationToken);
         }
 
         await using var channel = new NamedPipeCoachingChannel();
@@ -56,13 +56,13 @@ public sealed class GitShimRelayTests
 
         using var proc = new Process { StartInfo = run };
         proc.Start();
-        await proc.WaitForExitAsync();
+        await proc.WaitForExitAsync(TestContext.Current.CancellationToken);
 
         // (a) Relais transparent : le shim renvoie le code de sortie du vrai git, inchange.
         Assert.Equal(3, proc.ExitCode);
 
         // (b) Emission named pipe : l'evenement structure est arrive cote App.
-        var gotEvent = await received.WaitAsync(TimeSpan.FromSeconds(10));
+        var gotEvent = await received.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
         Assert.True(gotEvent, "Aucun evenement recu sur le canal de coaching dans le delai imparti.");
         Assert.NotNull(captured);
         Assert.Equal("status", captured!.Subcommand);
@@ -95,13 +95,13 @@ public sealed class GitShimRelayTests
         // plafond et fermer le pipe ; l'ecriture cote client peut donc se terminer par un IOException.
         await using (var hostile = new NamedPipeClientStream(".", channel.Endpoint, PipeDirection.Out))
         {
-            await hostile.ConnectAsync(10_000);
+            await hostile.ConnectAsync(10_000, TestContext.Current.CancellationToken);
             var giant = new byte[256 * 1024];
             Array.Fill(giant, (byte)'a');
             try
             {
-                await hostile.WriteAsync(giant);
-                await hostile.FlushAsync();
+                await hostile.WriteAsync(giant, TestContext.Current.CancellationToken);
+                await hostile.FlushAsync(TestContext.Current.CancellationToken);
             }
             catch (IOException)
             {
@@ -112,13 +112,13 @@ public sealed class GitShimRelayTests
         // (2) Connexion legitime ensuite : preuve que la boucle a survecu au message geant.
         await using (var client = new NamedPipeClientStream(".", channel.Endpoint, PipeDirection.Out))
         {
-            await client.ConnectAsync(10_000);
+            await client.ConnectAsync(10_000, TestContext.Current.CancellationToken);
             var json = "{\"argv\":[\"status\"],\"exitCode\":0,\"cwd\":\"/tmp\"}\n";
-            await client.WriteAsync(Encoding.UTF8.GetBytes(json));
-            await client.FlushAsync();
+            await client.WriteAsync(Encoding.UTF8.GetBytes(json), TestContext.Current.CancellationToken);
+            await client.FlushAsync(TestContext.Current.CancellationToken);
         }
 
-        var got = await received.WaitAsync(TimeSpan.FromSeconds(10));
+        var got = await received.WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
         Assert.True(got, "L'evenement legitime posterieur au message geant n'a pas ete recu (boucle morte ?).");
         lock (events)
         {

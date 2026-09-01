@@ -16,13 +16,37 @@ public sealed class WorkspaceLauncher(PiscineLayout layout, IProcessLauncher lau
     /// <summary>Dossier de travail de l'exo, scaffoldé si vide/absent. null si exo introuvable.</summary>
     public string? PrepareWorkspace(string exerciseId)
     {
+        // ExerciseId provient de la route. Il doit rester un composant de chemin unique : sans cette
+        // garde, une valeur telle que ../../ailleurs pourrait sortir des racines contenu/workspace.
+        if (string.IsNullOrWhiteSpace(exerciseId)
+            || exerciseId.Contains("..", StringComparison.Ordinal)
+            || exerciseId.Contains('/')
+            || exerciseId.Contains('\\'))
+        {
+            return null;
+        }
+
         var loc = ContentLocator.FindExercise(layout.Content, exerciseId);
         if (loc is null)
         {
             return null;
         }
 
-        var dir = layout.WorkspaceExerciseDir(loc.ModuleId, exerciseId);
+        // Les identifiants du manifeste sont eux aussi des données de contenu : un pack altéré ne
+        // doit pas pouvoir écrire en dehors du workspace configuré.
+        if (string.IsNullOrWhiteSpace(loc.ModuleId)
+            || loc.ModuleId.Contains("..", StringComparison.Ordinal)
+            || loc.ModuleId.Contains('/')
+            || loc.ModuleId.Contains('\\')
+            || string.IsNullOrWhiteSpace(loc.ExerciseId)
+            || loc.ExerciseId.Contains("..", StringComparison.Ordinal)
+            || loc.ExerciseId.Contains('/')
+            || loc.ExerciseId.Contains('\\'))
+        {
+            return null;
+        }
+
+        var dir = layout.WorkspaceExerciseDir(loc.ModuleId, loc.ExerciseId);
         if (!Directory.Exists(dir) || !Directory.EnumerateFileSystemEntries(dir).Any())
         {
             StarterInstaller.Install(loc.ContentDir, dir);

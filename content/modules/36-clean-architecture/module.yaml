@@ -1,8 +1,14 @@
 id: 36-clean-architecture
 title: "Clean Architecture (couches & dépendances)"
 order: 36
+prerequisites: [08-poo-2, 18-injection-dependances]
+arc: "Acte V — Frontières et interfaces"
+mission: "Isoler le domaine d'Asteria derrière des ports et repousser la technique vers l'extérieur."
 course: cours.md
 groups:
-  - id: clean-architecture
-    title: "Architecture en couches"
-    exercises: [ex00-couches, ex01-ports-adaptateurs]
+  - id: atelier-guide
+    title: "Atelier guidé — une dépendance"
+    exercises: [ex00-couches]
+  - id: mise-en-pratique
+    title: "Mise en pratique autonome — deux dépendances"
+    exercises: [ex01-ports-adaptateurs]

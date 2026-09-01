@@ -1,0 +1,23 @@
+id: ex00-politiques-acces
+title: "Protéger une commande par policy"
+objective: "Configurer une authentification JWT et une autorisation fondée sur un scope métier."
+difficulty: moyen
+estimated_minutes: 70
+xp: 140
+tags: [security, authentication, authorization]
+story_beat: "Réserver l'émission de commandes Asteria aux identités autorisées."
+deliverables: [SecuritySetup.cs]
+starter: [SecuritySetup.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: SecuritySetup.cs
+          required_fragments: ["AddAuthentication", "JwtBearerDefaults.AuthenticationScheme", "AddJwtBearer", "Authority", "Audience", "RequireHttpsMetadata = true", "AddAuthorization", "AddPolicy(\"send-command\"", "RequireAuthenticatedUser", "RequireClaim(\"scope\", \"asteria.command.send\")", "RequireAuthorization(\"send-command\")"]
+          forbidden_fragments: ["ValidateIssuer = false", "ValidateAudience = false", "RequireHttpsMetadata = false", "AllowAnonymous"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Configure le schéma JwtBearer avec Authority/Audience, puis une policy exigeant le scope asteria.command.send."
+  course_ref: "cours.md#policies"
+solution: [SecuritySetup.cs]

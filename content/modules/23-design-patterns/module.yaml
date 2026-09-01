@@ -1,6 +1,9 @@
 id: 23-design-patterns
 title: "Design patterns — Patrons GoF essentiels"
 order: 23
+prerequisites: [07-poo-1, 18-injection-dependances]
+arc: "Acte III — Services en production"
+mission: "Rendre les comportements des services extensibles sans multiplier les dépendances."
 course: cours.md
 groups:
   - id: design-patterns

@@ -1,8 +1,11 @@
 id: 30-design-patterns-2
-title: "Design patterns (suite) : Singleton, Adapter, Decorator, Builder, Command"
+title: "Design patterns (suite) : Singleton, Adapter, Chain, Builder, Command"
 order: 30
+prerequisites: [23-design-patterns]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Structurer les mécanismes de collaboration entre objets du centre Asteria."
 course: cours.md
 groups:
   - id: patterns-avances
     title: "Patrons de conception (suite)"
-    exercises: [ex00-singleton, ex01-adapter, ex02-decorator, ex03-builder, ex04-command]
+    exercises: [ex00-singleton, ex01-adapter, ex02-chain-responsabilite, ex03-builder, ex04-command]

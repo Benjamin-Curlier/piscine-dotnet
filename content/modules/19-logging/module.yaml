@@ -1,6 +1,9 @@
 id: 19-logging
 title: "Logging"
 order: 19
+prerequisites: [18-injection-dependances]
+arc: "Acte III — Services en production"
+mission: "Éclairer chaque opération avec des événements structurés et corrélables."
 course: cours.md
 groups:
   - id: logging

@@ -1,0 +1,23 @@
+id: ex00-dockerfile-multistage
+title: "Écrire un Dockerfile .NET multi-étapes"
+objective: "Séparer build SDK et exécution minimale, avec cache de restore et utilisateur non-root."
+difficulty: moyen
+estimated_minutes: 55
+xp: 110
+tags: [docker, deployment, security]
+story_beat: "Emballer l'API Asteria dans une image reproductible et réduite."
+deliverables: [Dockerfile]
+starter: [Dockerfile]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Dockerfile
+          required_fragments: ["FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build", "WORKDIR /src", "COPY Asteria.Api.csproj", "RUN dotnet restore", "RUN dotnet publish", "--no-restore", "FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble-chiseled", "WORKDIR /app", "COPY --from=build", "USER $APP_UID", "ENTRYPOINT [\"dotnet\", \"Asteria.Api.dll\"]"]
+          forbidden_fragments: [":latest", "apt-get", "PASSWORD="]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Utilise un stage sdk nommé build, restaure après la copie du csproj, publie avec --no-restore, puis copie le résultat dans aspnet:10.0-noble-chiseled et exécute comme $APP_UID."
+  course_ref: "cours.md#dockerfile"
+solution: [Dockerfile]

@@ -9,5 +9,5 @@ public sealed record LaunchSpec(string FileName, IReadOnlyList<string> Arguments
 public interface IProcessLauncher
 {
     /// <summary>Lance le processus détaché (best-effort). Renvoie true si démarré.</summary>
-    bool Launch(LaunchSpec spec);
+    public bool Launch(LaunchSpec spec);
 }

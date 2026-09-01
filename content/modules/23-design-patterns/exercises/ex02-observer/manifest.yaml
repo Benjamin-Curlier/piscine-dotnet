@@ -1,6 +1,11 @@
 id: ex02-observer
 title: "Observer — diffusion de messages"
 objective: "Un sujet diffuse chaque message à plusieurs observateurs abonnés, dans l'ordre d'abonnement."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Observer — diffusion de messages d'Asteria."
 deliverables: [Observer.cs]
 starter: [Observer.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "1\n\n"
         expect_stdout: "[A] \n[B] \n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["interface IObservateur", "Abonner("]
 feedback:
   hints:
     - when: io_mismatch

@@ -2,6 +2,10 @@ id: ex03-categories
 title: "Filtrer par catégorie"
 objective: "Régler des niveaux différents par catégorie via AddFilter : la catégorie \"Db\" n'émet qu'à partir de Warning, \"App\" dès Information."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [observability,csharp]
+story_beat: "Sécuriser la capacité Filtrer par catégorie d'Asteria."
 bonus: true
 deliverables: [Categories.cs, LogCapture.cs]
 starter: [Categories.cs, LogCapture.cs]
@@ -13,6 +17,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/CategoriesTests.cs]
+  - type: source
+    source:
+      required_fragments: ["AddFilter"]
 feedback:
   hints:
     - when: io_mismatch

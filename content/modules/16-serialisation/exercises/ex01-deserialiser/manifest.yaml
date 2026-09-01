@@ -1,6 +1,11 @@
 id: ex01-deserialiser
 title: "Désérialiser une personne"
 objective: "Reconstruire un objet Personne à partir d'une ligne JSON avec JsonSerializer.Deserialize<T>."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,serialization]
+story_beat: "Sécuriser la capacité Désérialiser une personne d'Asteria."
 deliverables: [Deserialiser.cs]
 starter: [Deserialiser.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "{\"Age\":42,\"Nom\":\"Zoe\"}\n"
         expect_stdout: "Nom: Zoe, Age: 42\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["JsonSerializer.Deserialize"]
 feedback:
   hints:
     - when: io_mismatch

@@ -1,0 +1,41 @@
+@namespace Piscine.Components.Components.Board
+@using Piscine.Core.Progression
+
+<section class="game-panel" data-testid="gamification-panel">
+    <div class="game-level">
+        <span class="game-kicker">Niveau @Summary.Level</span>
+        <strong>@Summary.TotalXp XP</strong>
+        <div class="bar" aria-label="Progression vers le niveau suivant">
+            <div class="bar-fill" style="width:@(Summary.LevelPercent)%"></div>
+        </div>
+        <small>@Summary.XpIntoLevel / @Summary.XpForNextLevel XP vers le niveau suivant</small>
+    </div>
+    <div class="game-stat">
+        <span>🔥</span>
+        <strong>@Summary.StreakDays jour(s)</strong>
+        <small>Série d'entraînement</small>
+    </div>
+    <div class="game-stat">
+        <span>✓</span>
+        <strong>@Summary.CompletedCount</strong>
+        <small>Validations acquises</small>
+    </div>
+    <div class="game-badges">
+        <small>Badges</small>
+        @if (Summary.Badges.Count == 0)
+        {
+            <span class="game-empty">Valide un exercice ou un Rush pour débloquer le premier.</span>
+        }
+        else
+        {
+            @foreach (var badge in Summary.Badges)
+            {
+                <span class="game-badge" title="@badge.Description">@badge.Label</span>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired] public GamificationSummary Summary { get; set; } = default!;
+}

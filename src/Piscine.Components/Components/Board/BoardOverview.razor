@@ -14,19 +14,49 @@
         <div class="metric" data-testid="board-count-arevoir"><span class="metric-label">À revoir</span><span class="metric-value">@Counts.ARevoir</span></div>
         <div class="metric" data-testid="board-count-restant"><span class="metric-label">Restant</span><span class="metric-value">@Counts.Restant</span></div>
     </div>
-    <ul class="board-modules">
-        @foreach (var m in Modules)
+    <div class="board-acts" data-testid="board-acts">
+        @foreach (var act in Acts)
         {
-            <li class="board-module" data-testid="board-module">
-                <span class="bm-title">@m.Number · @m.Title</span>
-                <div class="bar"><div class="bar-fill" style="width:@(m.Percent)%"></div></div>
-                <span class="bm-count">@m.Done/@m.Total</span>
-            </li>
+            var done = act.Sum(module => module.Done);
+            var total = act.Sum(module => module.Total);
+            var percent = total == 0 ? 0 : (int)Math.Round(100d * done / total);
+            <details class="board-act" open="@(act.Key == CurrentArc)">
+                <summary>
+                    <span class="board-act-title">@act.Key</span>
+                    <div class="bar" aria-label="@percent %"><div class="bar-fill" style="width:@percent%"></div></div>
+                    <span class="bm-count">@done/@total</span>
+                </summary>
+                <ul class="board-modules">
+                    @foreach (var m in act)
+                    {
+                        <li class="board-module" data-testid="board-module">
+                            @if (m.Id.Length > 0)
+                            {
+                                <a class="bm-title" href="/module/@m.Id">@m.Number · @m.Title</a>
+                            }
+                            else
+                            {
+                                <span class="bm-title">@m.Number · @m.Title</span>
+                            }
+                            <div class="bar"><div class="bar-fill" style="width:@(m.Percent)%"></div></div>
+                            <span class="bm-count">@m.Done/@m.Total</span>
+                        </li>
+                    }
+                </ul>
+            </details>
         }
-    </ul>
+    </div>
 </section>
 
 @code {
     [Parameter, EditorRequired] public BoardCounts Counts { get; set; } = default!;
     [Parameter, EditorRequired] public IReadOnlyList<ModuleProgress> Modules { get; set; } = [];
+
+    private IReadOnlyList<IGrouping<string, ModuleProgress>> Acts => Modules
+        .GroupBy(module => module.Arc.Length > 0 ? module.Arc : "Modules")
+        .ToList();
+
+    private string CurrentArc => Modules.FirstOrDefault(module => module.Done < module.Total)?.Arc
+        ?? Modules.FirstOrDefault()?.Arc
+        ?? "Modules";
 }

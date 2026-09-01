@@ -33,8 +33,7 @@ public sealed class DesktopRenderSmokeTests
     {
         if (Environment.GetEnvironmentVariable("PISCINE_DESKTOP_SMOKE") != "1")
         {
-            // Skip : requiert un affichage. xUnit 2.x n'a pas d'Assert.Skip → retour anticipé.
-            return;
+            Assert.Skip("PISCINE_DESKTOP_SMOKE=1 et un affichage sont requis.");
         }
 
         var repoRoot = FindRepoRoot();

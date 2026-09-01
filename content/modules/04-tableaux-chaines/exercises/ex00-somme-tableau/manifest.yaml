@@ -1,6 +1,11 @@
 id: ex00-somme-tableau
 title: "Somme d'un tableau"
 objective: "Additionner une liste de nombres séparés par des espaces sur une seule ligne."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Somme d'un tableau d'Asteria."
 deliverables: [SommeTableau.cs]
 starter: [SommeTableau.cs]
 grading:

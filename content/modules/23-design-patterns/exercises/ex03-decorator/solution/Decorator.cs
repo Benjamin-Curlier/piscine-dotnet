@@ -3,7 +3,7 @@ using System;
 string texte = System.Console.ReadLine();
 string decorations = System.Console.ReadLine();
 
-ITexte resultat = new TexteBrut(texte);
+ITexte resultat = new TexteSimple(texte);
 foreach (string deco in decorations.Split(','))
 {
     resultat = deco switch
@@ -21,10 +21,10 @@ interface ITexte
     string Rendu();
 }
 
-sealed class TexteBrut : ITexte
+sealed class TexteSimple : ITexte
 {
     private readonly string _texte;
-    public TexteBrut(string texte) => _texte = texte;
+    public TexteSimple(string texte) => _texte = texte;
     public string Rendu() => _texte;
 }
 

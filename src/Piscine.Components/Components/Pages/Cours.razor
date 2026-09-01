@@ -12,24 +12,44 @@
     </p>
 </section>
 
-<section class="module-grid" data-testid="module-grid">
-    @foreach (var m in Catalog.Modules)
+<a class="course-rush-callout" href="/rushes">
+    <span class="course-rush-star">★</span>
+    <span>
+        <strong>@Catalog.Rushes.Count missions de synthèse</strong>
+        <small>Découvre les Rushes placés aux jalons du parcours Asteria.</small>
+    </span>
+    <span aria-hidden="true">→</span>
+</a>
+
+<div class="course-acts" data-testid="module-grid">
+    @foreach (var act in Catalog.Modules.GroupBy(module => module.Arc))
     {
-        <a class="module-card" href="/module/@m.Id">
-            <div class="module-card-num">@m.Number</div>
-            <div class="module-card-body">
-                <h3>@m.Title</h3>
-                <p>
-                    @if (m.HasExercises)
-                    {
-                        @($"{m.ExerciseCount} exercice{(m.ExerciseCount > 1 ? "s" : "")}")
-                    }
-                    else
-                    {
-                        <span>Lecture guidée</span>
-                    }
-                </p>
+        <section class="course-act">
+            <header>
+                <span>@act.Count() modules</span>
+                <h2>@act.Key</h2>
+            </header>
+            <div class="module-grid">
+                @foreach (var m in act)
+                {
+                    <a class="module-card" href="/module/@m.Id">
+                        <div class="module-card-num">@m.Number</div>
+                        <div class="module-card-body">
+                            <h3>@m.Title</h3>
+                            <p>
+                                @if (m.HasExercises)
+                                {
+                                    @($"{m.ExerciseCount} exercice{(m.ExerciseCount > 1 ? "s" : "")}")
+                                }
+                                else
+                                {
+                                    <span>Lecture guidée</span>
+                                }
+                            </p>
+                        </div>
+                    </a>
+                }
             </div>
-        </a>
+        </section>
     }
-</section>
+</div>

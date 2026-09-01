@@ -2,6 +2,10 @@ id: ex02-bfs
 title: "BFS — plus court chemin"
 objective: "Trouver le nombre minimal de pas entre S et E sur une grille non pondérée via un parcours en largeur."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [algorithms,pathfinding]
+story_beat: "Sécuriser la capacité BFS — plus court chemin d'Asteria."
 deliverables: [Bfs.cs]
 starter: [Bfs.cs]
 grading:

@@ -1,36 +1,39 @@
 id: ex03-etat
 title: "Machine à états comme union"
-objective: "Chaque état porte ses propres données — fini les champs nuls inutilisés."
+objective: "Modéliser les états et les transitions autorisées sans drapeaux ni champs nuls."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Machine à états comme union d'Asteria."
 deliverables: [Etat.cs]
 starter: [Etat.cs]
 grading:
   - type: io
     cases:
-      - stdin: "attente\n"
-        expect_stdout: "en attente\n"
+      - stdin: "3\ndemarrer\nprogres 50\nterminer ok\n"
+        expect_stdout: "en cours a 0%\nen cours a 50%\ntermine: ok\n"
         expect_exit: 0
-      - stdin: "cours 50\n"
-        expect_stdout: "en cours a 50%\n"
+      - stdin: "2\nprogres 50\ndemarrer\n"
+        expect_stdout: "transition refusee\nen cours a 0%\n"
         expect_exit: 0
-      - stdin: "termine ok\n"
-        expect_stdout: "termine: ok\n"
+      - stdin: "3\ndemarrer\nterminer fini\nprogres 80\n"
+        expect_stdout: "en cours a 0%\ntermine: fini\ntransition refusee\n"
         expect_exit: 0
-      # anti-hardcode : cours 0% (cas limite bas)
-      - stdin: "cours 0\n"
-        expect_stdout: "en cours a 0%\n"
+      # bornes de progression acceptées
+      - stdin: "3\ndemarrer\nprogres 0\nprogres 100\n"
+        expect_stdout: "en cours a 0%\nen cours a 0%\nen cours a 100%\n"
         expect_exit: 0
-      # cours 100% (cas limite haut)
-      - stdin: "cours 100\n"
-        expect_stdout: "en cours a 100%\n"
+      # progression hors bornes refusée, état inchangé
+      - stdin: "3\ndemarrer\nprogres 101\nterminer echec\n"
+        expect_stdout: "en cours a 0%\ntransition refusee\ntermine: echec\n"
         expect_exit: 0
-      # termine avec un résultat différent
-      - stdin: "termine echec\n"
-        expect_stdout: "termine: echec\n"
-        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract record Etat"]
 feedback:
   hints:
     - when: io_mismatch
-      message: "EnAttente (sans donnée), EnCours(int Pourcent), Termine(string Resultat). Affiche selon l'état : 'en attente', 'en cours a N%', 'termine: X'. EnAttente n'a pas de donnée donc pas de variable dans le pattern."
+      message: "Fais dépendre la transition du couple (état courant, commande). Seuls EnAttente+demarrer, EnCours+progres P (0..100) et EnCours+terminer X sont acceptés ; sinon affiche 'transition refusee'."
   course_ref: "cours.md#etat"
 solution: [Etat.cs]

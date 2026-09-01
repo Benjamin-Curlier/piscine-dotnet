@@ -1,0 +1,24 @@
+id: ex00-shaders
+title: "Écrire le couple vertex/fragment shader"
+objective: "Distinguer transformation des sommets et calcul de la couleur dans le pipeline OpenGL."
+difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [graphics, opengl, silk-net]
+story_beat: "Rallumer le premier affichage du centre de contrôle Asteria."
+deliverables: [triangle.vert, triangle.frag]
+starter: [triangle.vert, triangle.frag]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: triangle.vert
+          required_fragments: ["#version 330 core", "layout (location = 0) in vec3 position", "void main()", "gl_Position", "vec4(position, 1.0)"]
+        - path: triangle.frag
+          required_fragments: ["#version 330 core", "out vec4 FragColor", "uniform vec4 tint", "void main()", "FragColor = tint"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Le vertex shader lit position à location 0 et écrit gl_Position ; le fragment shader expose FragColor et lui affecte l'uniform tint. Les deux ciblent GLSL 330 core."
+  course_ref: "cours.md#opengl"
+solution: [triangle.vert, triangle.frag]

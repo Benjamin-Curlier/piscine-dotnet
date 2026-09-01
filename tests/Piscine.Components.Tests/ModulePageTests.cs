@@ -68,6 +68,16 @@ public sealed class ModulePageTests : BunitContext, IDisposable
         Assert.Equal(exerciseCount, cut.FindAll("[data-testid='status-dot']").Count);
     }
 
+    [Fact]
+    public void Renders_links_to_declared_prerequisites()
+    {
+        var cut = Render<Module>(parameters => parameters.Add(p => p.Id, "36-clean-architecture"));
+
+        var prerequisites = cut.Find("[data-testid='module-prerequisites']");
+        Assert.Contains("Injection de dépendances", prerequisites.TextContent);
+        Assert.Contains("/module/18-injection-dependances", prerequisites.InnerHtml);
+    }
+
     public new void Dispose()
     {
         base.Dispose();

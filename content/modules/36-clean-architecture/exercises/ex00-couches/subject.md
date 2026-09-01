@@ -4,6 +4,17 @@ Tu vas écrire une petite application **structurée en couches** (Clean Architec
 gestionnaire de tâches piloté en ligne de commande. L'enjeu n'est pas l'algorithme — il est
 **simple** — mais le **respect de la règle de dépendance** entre les couches.
 
+Cet exercice est un **atelier guidé**. Avance dans l'ordre suivant et lance `piscine check
+ex00-couches` après chaque étape qui compile :
+
+1. complète l'entité `Tache`, sans aucune référence aux autres couches ;
+2. définis le port `IDepotTaches` dans Domain ;
+3. implémente ce port dans `DepotMemoire` ;
+4. écris `GestionTaches` uniquement contre l'interface ;
+5. termine par `Program`, la composition root qui construit et relie les objets.
+
+L'exercice suivant retirera une partie de ce guidage et ajoutera un second port.
+
 ## Les couches attendues
 
 | Couche | Fichier | Rôle | Dépend de |
@@ -31,6 +42,9 @@ Lis un entier `N`, puis `N` lignes de commandes :
 
 À la fin (après les `N` commandes), affiche toujours :
 `Résumé : <total> tâche(s), <faites> faite(s)`.
+
+La méthode `Tache.Terminer()` ne renvoie rien (`void`) : elle fait passer la propriété `Faite` à
+`true`. Un second appel laisse simplement la tâche faite ; la méthode est donc idempotente.
 
 ### Exemple
 
@@ -64,6 +78,8 @@ Résumé : 2 tâche(s), 1 faite(s)
   `new GestionTaches(new DepotMemoire())`. Si tu te retrouves à écrire `new DepotMemoire()` ailleurs
   que dans `Program`, c'est que tu casses la règle de dépendance.
 - Chaque fichier dans **son sous-dossier et son namespace** ; `using Domain;` explicite là où il faut.
+  Dans `Program`, ce `using` est autorisé : la composition root est précisément la couche qui câble
+  Domain, Application et Infrastructure.
 
 ## Livrables
 

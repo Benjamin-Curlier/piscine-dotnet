@@ -1,0 +1,13 @@
+contracts:
+  stage: test
+  image: registry.example/contract-tools:1.4.2
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - buf breaking proto --against contracts/baseline/proto
+    - oasdiff breaking contracts/baseline/openapi.json artifacts/openapi/asteria.json
+  artifacts:
+    when: always
+    paths:
+      - artifacts/openapi/
+      - artifacts/contracts/

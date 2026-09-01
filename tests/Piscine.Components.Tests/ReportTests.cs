@@ -80,6 +80,7 @@ public sealed class ReportTests : BunitContext
         cut.Find("[data-testid='report-print']");
         cut.Find("[data-testid='report-copy-md']");
         cut.Find("[data-testid='report-save-md']");
+        Assert.Equal(8, cut.FindAll("[data-testid='report-rush-row']").Count);
     }
 
     [Fact]

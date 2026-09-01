@@ -17,7 +17,7 @@ Pomme 1
 
 ## Livrable
 
-- `Catalogue.cs`
+- `TriProduits.cs`
 
 ## Contraintes
 

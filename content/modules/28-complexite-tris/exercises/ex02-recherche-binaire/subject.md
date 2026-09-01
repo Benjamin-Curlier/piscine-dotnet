@@ -3,17 +3,16 @@
 ## Objectif
 
 Lis :
-1. Un entier **N** (nombre d'éléments),
-2. **N entiers séparés par des espaces**, déjà triés par ordre croissant,
-3. Une **cible** (entier).
+1. des **entiers séparés par des espaces**, déjà triés par ordre croissant ;
+2. une **cible** (entier) sur la ligne suivante.
 
 Affiche l'**indice 0-based** de la cible dans le tableau, ou **`-1`** si elle est absente.
 Implémente la **recherche binaire** à la main.
 
 Exemples :
-- `5`, `1 2 3 4 5`, cible `3` → `2`
-- `5`, `1 2 3 4 5`, cible `6` → `-1`
-- `3`, `10 20 30`, cible `10` → `0`
+- `1 2 3 4 5`, cible `3` → `2`
+- `1 2 3 4 5`, cible `6` → `-1`
+- `10 20 30`, cible `10` → `0`
 
 ## Livrable
 
@@ -27,7 +26,7 @@ Exemples :
 
 ## Indices
 
-- Initialise `gauche = 0` et `droite = n - 1`.
+- Initialise `gauche = 0` et `droite = t.Length - 1`.
 - Dans une boucle `while (gauche <= droite)` :
   - Calcule `milieu = (gauche + droite) / 2`.
   - Si `t[milieu] == cible` : tu as trouvé → affiche `milieu` et termine.

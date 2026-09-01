@@ -11,7 +11,7 @@ using System.Collections.Generic;
 int n = int.Parse(System.Console.ReadLine());
 
 // TODO : crée une List<Task<int>>, lance CarreAsync(x) pour chaque entier.
-// TODO : int[] carres = await Task.WhenAll(taches);
+// TODO : attends toutes les tâches en une fois, puis additionne leurs résultats.
 // TODO : affiche la somme.
 
 // TODO : static async Task<int> CarreAsync(int x) { await Task.Yield(); return x * x; }

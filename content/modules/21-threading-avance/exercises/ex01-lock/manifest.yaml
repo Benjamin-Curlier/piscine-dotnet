@@ -1,6 +1,11 @@
 id: ex01-lock
 title: "Compteur protégé par lock"
 objective: "Incrémenter un compteur partagé N fois depuis plusieurs threads en protégeant l'accès avec lock."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [concurrency,csharp]
+story_beat: "Sécuriser la capacité Compteur protégé par lock d'Asteria."
 deliverables: [Lock.cs]
 starter: [Lock.cs]
 grading:
@@ -25,6 +30,9 @@ grading:
       - stdin: "500\n"
         expect_stdout: "500\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["lock"]
 feedback:
   hints:
     - when: io_mismatch

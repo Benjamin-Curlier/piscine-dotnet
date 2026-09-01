@@ -2,6 +2,10 @@ id: ex01-merge-commit
 title: "Fusion avec commit de merge"
 objective: "Faire diverger deux branches (chacune un commit sur un fichier différent) puis les fusionner : git crée un commit de merge à deux parents. La moulinette inspecte l'état de ton dépôt."
 difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [git,collaboration]
+story_beat: "Sécuriser la capacité Fusion avec commit de merge d'Asteria."
 deliverables: []
 starter: []
 grading:

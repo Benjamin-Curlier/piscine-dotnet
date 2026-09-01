@@ -1,6 +1,11 @@
 id: ex00-division-securisee
 title: "Division sécurisée"
 objective: "Gérer une DivideByZeroException avec try/catch."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,resilience]
+story_beat: "Sécuriser la capacité Division sécurisée d'Asteria."
 deliverables: [Division.cs]
 starter: [Division.cs]
 grading:

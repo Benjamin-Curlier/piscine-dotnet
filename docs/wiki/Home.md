@@ -36,11 +36,12 @@ le commit reçu, dont le verdict riche s'affiche dans **Résultat** (+ toast glo
 
 ## Sommaire
 
-- **[Fonctionnement de la moulinette](Moulinette)** — Roslyn, graders `io`/`unit`/`norme`/`mutation`/`git`/`projet`/`reseau`, correction par groupe.
+- **[Fonctionnement de la moulinette](Moulinette)** — Roslyn, graders `io`/`unit`/`norme`/`mutation`/`git`/`projet`/`reseau`/`source`, correction par groupe.
 - **[Workflow de rendu](Workflow-de-rendu)** — dépôt bare local, hook `post-receive`, `check` vs `git push`, app de bureau.
 - **[Ajouter un exercice](Ajouter-un-exercice)** — format `manifest.yaml`/`module.yaml`, `validate-content`.
 - **[Curriculum](Curriculum)** — carte des modules et Rushes, références externes.
 - **[Mise en œuvre](Mise-en-oeuvre)** — préparer le poste de la recrue.
+- **[Qualité pédagogique](https://github.com/Benjamin-Curlier/piscine-dotnet/blob/main/docs/contributing/qualite-pedagogique.md)** — indices progressifs, validation et audit consultatif.
 
 ## Liens
 

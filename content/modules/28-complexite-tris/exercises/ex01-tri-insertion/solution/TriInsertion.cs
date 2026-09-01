@@ -1,9 +1,8 @@
-var n = int.Parse(System.Console.ReadLine());
 var t = System.Array.ConvertAll(
     System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries),
     int.Parse);
 
-for (var i = 1; i < n; i++)
+for (var i = 1; i < t.Length; i++)
 {
     var cle = t[i];
     var j   = i - 1;

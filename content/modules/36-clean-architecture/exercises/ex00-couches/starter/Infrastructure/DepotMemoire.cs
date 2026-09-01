@@ -1,3 +1,5 @@
+#:include ..\Domain\IDepotTaches.cs
+
 using System.Collections.Generic;
 using Domain;
 

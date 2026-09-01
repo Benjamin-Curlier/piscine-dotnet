@@ -1,0 +1,33 @@
+id: ex01-routage-sujets
+title: "Router des subjects avec * et >"
+objective: "Implémenter le matching hiérarchique des subjects NATS."
+difficulty: moyen
+estimated_minutes: 50
+xp: 100
+tags: [messaging, algorithms, nats]
+story_beat: "Acheminer chaque télémétrie vers le bon poste de contrôle."
+deliverables: [Subjects.cs]
+starter: [Subjects.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "asteria.*.temperature\n5\nasteria.nord.temperature\nasteria.sud.temperature\nasteria.nord.humidite\nasteria.nord.salle.temperature\nautre.nord.temperature\n"
+        expect_stdout: "asteria.nord.temperature\nasteria.sud.temperature\n"
+        expect_exit: 0
+      - stdin: "asteria.>\n4\nasteria\nasteria.nord\nasteria.nord.temperature\nautre.nord\n"
+        expect_stdout: "asteria.nord\nasteria.nord.temperature\n"
+        expect_exit: 0
+      - stdin: "orders.created\n3\norders.created\norders.updated\norders.created.eu\n"
+        expect_stdout: "orders.created\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Split('.')", "bool Correspond("]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Compare les segments : * consomme exactement un segment ; > n'est valide qu'en dernier et consomme au moins un segment restant."
+    - when: source_constraint
+      message: "Isole la règle dans bool Correspond(string abonnement, string sujet) et découpe les deux valeurs sur '.'."
+  course_ref: "cours.md#routage"
+solution: [Subjects.cs]

@@ -1,6 +1,11 @@
 id: ex00-somme
 title: "Somme"
 objective: "Lire deux entiers sur l'entrée standard et afficher leur somme."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,fundamentals]
+story_beat: "Sécuriser la capacité Somme d'Asteria."
 deliverables: [Somme.cs]
 starter: [Somme.cs]
 grading:

@@ -1,6 +1,11 @@
 id: ex02-factorielle
 title: "Factorielle"
 objective: "Calculer la factorielle d'un entier par récursion."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,design]
+story_beat: "Sécuriser la capacité Factorielle d'Asteria."
 deliverables: [Factorielle.cs]
 starter: [Factorielle.cs]
 grading:

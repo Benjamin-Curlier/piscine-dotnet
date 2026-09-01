@@ -20,7 +20,7 @@ data-driven** (ajouter un exercice = déposer des fichiers, sans recompiler) ; *
 
 ```bash
 dotnet build Piscine.slnx -c Release            # build (TreatWarningsAsErrors=true — voir gotcha)
-dotnet test  Piscine.slnx -c Release            # tous les tests (xUnit + bUnit + Playwright E2E)
+dotnet test --solution Piscine.slnx -c Release  # tous les tests (xUnit + bUnit + Playwright E2E)
 dotnet format Piscine.slnx                       # DOIT être propre avant toute PR
 dotnet run --project src/Piscine.Cli -- <cmd>    # CLI : list|start|check|try|status|init|
                                                  #   grade-received <sha>|validate-content|

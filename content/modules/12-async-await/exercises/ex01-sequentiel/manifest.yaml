@@ -1,6 +1,11 @@
 id: ex01-sequentiel
 title: "Carrés en séquence"
 objective: "Attendre plusieurs tâches asynchrones une par une dans une boucle (séquentiel)."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,async]
+story_beat: "Sécuriser la capacité Carrés en séquence d'Asteria."
 deliverables: [Sequentiel.cs]
 starter: [Sequentiel.cs]
 grading:
@@ -25,6 +30,9 @@ grading:
       - stdin: "3\n0\n6\n7\n"
         expect_stdout: "0\n36\n49\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["await"]
 feedback:
   hints:
     - when: io_mismatch

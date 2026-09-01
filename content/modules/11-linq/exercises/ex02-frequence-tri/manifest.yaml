@@ -1,6 +1,11 @@
 id: ex02-frequence-tri
 title: "Fréquence triée"
 objective: "Regrouper (GroupBy) et trier par fréquence décroissante puis ordre alphabétique."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Fréquence triée d'Asteria."
 deliverables: [Frequence.cs]
 starter: [Frequence.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "beta alpha gamma\n"
         expect_stdout: "alpha: 1\nbeta: 1\ngamma: 1\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: [".GroupBy(", ".OrderByDescending("]
 feedback:
   hints:
     - when: io_mismatch

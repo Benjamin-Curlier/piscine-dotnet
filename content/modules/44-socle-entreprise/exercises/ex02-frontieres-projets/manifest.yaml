@@ -1,0 +1,28 @@
+id: ex02-frontieres-projets
+title: "Matérialiser les frontières de projets"
+objective: "Déclarer les ProjectReference d'une architecture desktop en couches sans inversion de dépendance."
+difficulty: moyen
+estimated_minutes: 55
+xp: 110
+tags: [msbuild, architecture, desktop]
+story_beat: "Verrouiller les dépendances du poste Asteria au niveau du compilateur."
+deliverables: [Application.csproj, Infrastructure.csproj, Desktop.csproj]
+starter: [Application.csproj, Infrastructure.csproj, Desktop.csproj]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Application.csproj
+          required_fragments: ['<Project Sdk="Microsoft.NET.Sdk">', '<ProjectReference Include="../Domain/Domain.csproj" />']
+          forbidden_fragments: ['Infrastructure.csproj', 'Desktop.csproj']
+        - path: Infrastructure.csproj
+          required_fragments: ['<Project Sdk="Microsoft.NET.Sdk">', '<ProjectReference Include="../Application/Application.csproj" />']
+          forbidden_fragments: ['Desktop.csproj']
+        - path: Desktop.csproj
+          required_fragments: ['<Project Sdk="Microsoft.NET.Sdk">', '<ProjectReference Include="../Application/Application.csproj" />', '<ProjectReference Include="../Infrastructure/Infrastructure.csproj" />']
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Application référence Domain, Infrastructure référence Application, et Desktop compose Application avec Infrastructure."
+  course_ref: "cours.md#projets"
+solution: [Application.csproj, Infrastructure.csproj, Desktop.csproj]

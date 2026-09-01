@@ -1,9 +1,31 @@
+.nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    min-width: 0;
+}
+
 .nav-tab {
     color: var(--nav-fg, inherit);
     text-decoration: none;
     padding: 0.25rem 0.6rem;
     border-radius: 6px;
     font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+    .nav-tabs { gap: .9rem; }
+}
+
+@media (max-width: 768px) {
+    .nav-tabs {
+        flex: 1;
+        overflow-x: auto;
+        gap: .7rem;
+        padding-bottom: .15rem;
+        scrollbar-width: thin;
+    }
 }
 
 .nav-tab:hover {

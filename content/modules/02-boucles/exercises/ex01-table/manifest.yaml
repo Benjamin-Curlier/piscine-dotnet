@@ -1,6 +1,11 @@
 id: ex01-table
 title: "Table de multiplication"
 objective: "Afficher la table de multiplication d'un entier, de 1 à 10."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Table de multiplication d'Asteria."
 deliverables: [Table.cs]
 starter: [Table.cs]
 grading:

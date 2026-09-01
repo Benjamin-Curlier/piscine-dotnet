@@ -21,7 +21,7 @@ public sealed class BoardSmokeTests : IAsyncLifetime
     private string? _tempHome;
     private string? _tempWorkspace;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -54,7 +54,7 @@ public sealed class BoardSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -69,7 +69,7 @@ public sealed class BoardSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -84,13 +84,15 @@ public sealed class BoardSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            return; // Chromium absent : skip propre.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
         }
 
         await using (browser)
         {
             var page = await browser.NewPageAsync();
             await page.GotoAsync(BaseUrl, new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
             await page.WaitForSelectorAsync("[data-testid='dashboard']", new PageWaitForSelectorOptions { Timeout = 30_000 });
 
             Assert.Equal(1, await page.Locator("[data-testid='board-percent']").CountAsync());

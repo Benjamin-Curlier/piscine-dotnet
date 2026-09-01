@@ -20,7 +20,7 @@ L'idée centrale tient en une comparaison : on a un résultat **attendu** et un 
 et on vérifie qu'ils sont **égaux**. Si oui, le test **passe** ; sinon, il **échoue** et te dit
 quoi.
 
-## 2. xUnit : la boîte à outils des tests en .NET
+## 2. xUnit : la boîte à outils des tests en .NET {#premier-test-xunit}
 
 En .NET, on écrit le plus souvent les tests avec **xUnit**. Tu n'as pas à l'installer pour ce
 module : retiens d'abord la forme. Un test est une **méthode** marquée par un **attribut**.
@@ -73,7 +73,7 @@ public void Addition_DonneLaSomme(int a, int b, int attendu)
 }
 ```
 
-### `Assert.Throws` : vérifier qu'une exception part bien
+### `Assert.Throws` : vérifier qu'une exception part bien {#tester-les-exceptions}
 
 Parfois, le bon comportement est de **lever une exception** (vu au module 09). On le vérifie ainsi :
 
@@ -85,7 +85,7 @@ public void Division_ParZero_Leve()
 }
 ```
 
-## 3. Le patron Arrange-Act-Assert (AAA) {#aaa}
+## 3. Le patron Arrange-Act-Assert (AAA) {#arrange-act-assert}
 
 Un bon test se lit en **trois temps**, toujours dans le même ordre :
 
@@ -150,31 +150,22 @@ C'est un indicateur utile mais **pas une garantie** : du code parcouru n'est pas
 bien vérifié. Mieux vaut quelques tests qui visent les bons **cas limites** qu'une foule de tests
 qui ne posent aucune vraie question. La qualité des `Assert` compte plus que le pourcentage.
 
-## 7. Dans cette piscine : raisonner comme un test
+## 7. Dans cette piscine : tes tests affrontent des mutants
 
-Le moteur qui exécute de **vrais** fichiers de tests xUnit que **tu** écrirais n'est pas encore en
-place — il arrivera. En attendant, ce module te fait **acquérir le réflexe du test** : les
-exercices ci-dessous sont des programmes `io` classiques (lecture au clavier, affichage), mais leur
-logique est exactement celle d'un test.
+Les exercices exécutent les **vrais fichiers xUnit que tu écris**. Le moteur commence par lancer ta
+suite contre l'implémentation correcte : tout doit être vert. Il introduit ensuite, un par un, de
+petits bugs intentionnels. Un exercice est réussi lorsque tes tests détectent chacun de ces mutants.
 
-Tu vas y **comparer un attendu à un obtenu**, dérouler le patron **Arrange-Act-Assert**, et
-n'oublier aucun **cas limite**. C'est précisément la pensée que tu réutiliseras le jour où tu
-écriras des `[Fact]` et des `Assert.Equal` notés automatiquement.
+Cette boucle évite les tests décoratifs : un `[Fact]` présent ne suffit pas, il doit défendre un
+comportement précis. Tu travailleras successivement une opération simple, une frontière métier,
+une exception, puis un objet avec état.
 
 ### Exercices du module
 
-- **[ex00-assertion](#assertion)** : comparer un attendu et un obtenu, comme un `Assert.Equal`.
-- **[ex01-aaa](#aaa)** : dérouler Arrange-Act-Assert pour vérifier une somme.
-- **[ex02-cas-limites](#cas-limites)** : classer des nombres sans oublier le cas limite `0`.
-
-#### assertion {#assertion}
-Lis l'**attendu** puis l'**obtenu** ; affiche `OK` s'ils sont égaux, sinon `KO`.
-
-#### aaa {#aaa}
-Lis `a`, `b` et un attendu ; calcule la somme (Act), compare (Assert) : `PASS` ou `FAIL`.
-
-#### cas-limites {#cas-limites}
-Lis N nombres ; pour chacun, affiche `positif`, `negatif` ou `zero` (n'oublie pas le `0`).
+- **ex00-assertion** : écrire un premier `[Fact]` qui distingue addition et soustraction.
+- **ex01-aaa** : organiser AAA autour de la frontière exacte de 18 ans.
+- **ex02-cas-limites** : vérifier à la fois un résultat et une exception.
+- **ex03-mutation** : couvrir bornes et effets de bord d'un objet mutable.
 
 ## La mutation : écrire des tests qui attrapent les bugs {#mutation}
 

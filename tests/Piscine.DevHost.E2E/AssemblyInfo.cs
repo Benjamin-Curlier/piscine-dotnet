@@ -4,4 +4,4 @@ using Xunit;
 // Piscine.DevHost). Lancés en parallèle, plusieurs `dotnet run` simultanés se disputent la même
 // sortie bin/ et les verrous de build → démarrages qui expirent. On sérialise donc les collections
 // de ce projet : chaque serveur démarre seul, sans contention.
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: Xunit.v3.Parallelization(Mode = Xunit.Sdk.ParallelMode.None)]

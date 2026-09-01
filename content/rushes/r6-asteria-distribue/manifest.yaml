@@ -1,0 +1,37 @@
+id: r6-asteria-distribue
+title: "Rush 6 — Asteria distribué avec Aspire"
+objective: "Composer API, worker et NATS, standardiser l'observabilité et écrire un protocole de preuve de résilience."
+difficulty: difficile
+estimated_minutes: 180
+xp: 420
+tags: [aspire, nats, observability, resilience, capstone]
+story_beat: "Réunifier Asteria et prouver que le système survit aux coupures prévues."
+recommended_after: "43-aspire"
+manual_validation: true
+deliverables: [AppHost.cs, ServiceDefaults.cs, OPERATIONS.md]
+starter: [AppHost.cs, ServiceDefaults.cs, OPERATIONS.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: AppHost.cs
+          required_fragments: ["DistributedApplication.CreateBuilder", "AddContainer(\"nats\"", "WithArgs(\"-js\")", "WithDataVolume", "AddProject<Projects.Api>", "AddProject<Projects.Worker>", "WithReference(nats)", "WaitFor(nats)", "WithHttpHealthCheck(\"/health\")", "Build().Run()"]
+          forbidden_fragments: ["localhost", "password="]
+        - path: ServiceDefaults.cs
+          required_fragments: ["AddServiceDefaults", "AddOpenTelemetry", "AddServiceDiscovery", "AddStandardResilienceHandler", "AddHealthChecks", "MapHealthChecks(\"/health\")", "MapHealthChecks(\"/alive\")"]
+          forbidden_fragments: ["Thread.Sleep"]
+        - path: OPERATIONS.md
+          required_fragments: ["## Scénario nominal", "## Coupure du worker", "## Coupure de NATS", "## Reprise", "correlationId", "redelivery", "duplicate", "readiness", "trace"]
+  - type: source
+    source:
+      required_occurrences:
+        - { fragment: "WithReference(nats)", count: 2 }
+        - { fragment: "WaitFor(nats)", count: 2 }
+feedback:
+  hints:
+    - when: file_constraint
+      message: "L'AppHost référence et attend NATS pour l'API et le worker ; ServiceDefaults couvre OTel, découverte, résilience et deux sondes ; le runbook décrit preuves nominales, coupures et reprise."
+    - when: source_constraint
+      message: "Les deux projets, API et worker, doivent chacun porter WithReference(nats) et WaitFor(nats)."
+  course_ref: "subject.md"
+solution: [AppHost.cs, ServiceDefaults.cs, OPERATIONS.md]

@@ -21,7 +21,7 @@ public sealed class CheckSmokeTests : IAsyncLifetime
     private Process? _host;
     private string? _tempWorkspace;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -58,7 +58,7 @@ public sealed class CheckSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -74,7 +74,7 @@ public sealed class CheckSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -89,8 +89,7 @@ public sealed class CheckSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Navigateur non installé (CI sans `playwright install chromium`) : skip propre.
-            // xUnit 2.x n'a pas d'API Assert.Skip ; le retour anticipé fait office de skip.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
             return;
         }
 
@@ -127,7 +126,7 @@ public sealed class CheckSmokeTests : IAsyncLifetime
                     break;
                 }
 
-                await Task.Delay(500);
+                await Task.Delay(500, TestContext.Current.CancellationToken);
             }
 
             // Vérifier que le circuit a bien reçu le clic (check-running ou check-verdict présent).
@@ -153,7 +152,7 @@ public sealed class CheckSmokeTests : IAsyncLifetime
                     break;
                 }
 
-                await Task.Delay(1_000);
+                await Task.Delay(1_000, TestContext.Current.CancellationToken);
             }
 
             if (error is not null)
@@ -177,6 +176,19 @@ public sealed class CheckSmokeTests : IAsyncLifetime
                 diffCount > 0,
                 "Aucun élément data-testid='diff-expected' trouvé : le diff attendu/obtenu n'a pas été rendu.");
         }
+    }
+
+    [Fact]
+    public async Task Rush_route_preselects_requested_rush()
+    {
+        using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+
+        var html = await http.GetStringAsync($"{BaseUrl}/check/rushes/r7-poste-entreprise", TestContext.Current.CancellationToken);
+
+        Assert.Matches(
+            "<option(?=[^>]*value=\"r7-poste-entreprise\")(?=[^>]*selected)[^>]*>",
+            html);
+        Assert.Contains("Poste Asteria", html, StringComparison.Ordinal);
     }
 
     /// <summary>Sonde l'URL racine en boucle jusqu'à ce qu'elle réponde (ou expiration).</summary>

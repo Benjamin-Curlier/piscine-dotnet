@@ -128,4 +128,27 @@ public sealed class ReportBuilderTests
         Assert.Equal("À revoir", model.RecentPushes.First(p => p.ExerciseId == "ex01").Verdict);
         Assert.Equal(3, model.RecentPushes.First(p => p.ExerciseId == "ex01").Attempts);
     }
+
+    [Fact]
+    public void Builds_rush_rows_without_adding_them_to_exercise_totals()
+    {
+        var statuses = new Dictionary<(string, string), ExerciseProgressStatus>
+        {
+            [("01-bases", "ex00")] = ExerciseProgressStatus.PousseNote,
+            [("rushes", "r0")] = ExerciseProgressStatus.ARevoir,
+        };
+
+        var model = ReportBuilder.Build(
+            new RepoState(),
+            At,
+            [new ReportModuleHeader("01-bases", "01", "Bases")],
+            [new ReportExercise("01-bases", "ex00", false)],
+            statuses,
+            recent: null,
+            rushes: [new ReportRushHeader("rushes", "r0", "FizzBuzz")]);
+
+        Assert.Equal(1, model.Total);
+        Assert.Equal(1, model.Fait);
+        Assert.Equal(ExerciseProgressStatus.ARevoir, Assert.Single(model.Rushes).Status);
+    }
 }

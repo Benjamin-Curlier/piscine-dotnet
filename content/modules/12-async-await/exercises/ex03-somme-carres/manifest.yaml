@@ -2,6 +2,10 @@ id: ex03-somme-carres
 title: "Somme des carrés en parallèle"
 objective: "Lancer une tâche asynchrone par entier (carré), les agréger avec Task.WhenAll, et sommer — résultat déterministe."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,async]
+story_beat: "Sécuriser la capacité Somme des carrés en parallèle d'Asteria."
 bonus: true
 deliverables: [SommeCarres.cs]
 starter: [SommeCarres.cs]
@@ -26,6 +30,9 @@ grading:
       - stdin: "1\n0\n"
         expect_stdout: "somme des carres = 0\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Task.WhenAll"]
 feedback:
   hints:
     - when: io_mismatch

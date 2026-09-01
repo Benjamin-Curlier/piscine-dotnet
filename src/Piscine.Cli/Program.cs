@@ -1,6 +1,7 @@
 using System.Reflection;
 using Piscine.Core;
 using Piscine.Core.Content;
+using Piscine.Core.Progression;
 using Piscine.Git;
 using Piscine.Grading;
 
@@ -28,6 +29,13 @@ switch (command)
         Status(version, layout);
         return 0;
 
+    case "profile":
+        Profile(layout);
+        return 0;
+
+    case "doctor":
+        return Doctor(layout);
+
     case "init":
         return Init(layout);
 
@@ -36,6 +44,9 @@ switch (command)
 
     case "validate-content":
         return ValidateContent(layout);
+
+    case "audit-content":
+        return AuditContent(layout);
 
     case "package-content":
         return PackageContent(args);
@@ -55,7 +66,7 @@ switch (command)
 
 static void PrintCommands()
 {
-    Console.WriteLine("Commandes : list | start <exo> | check <exo> | try <exo> | status | init | grade-received <sha> | validate-content | package-content <src> <dest> | new exercise <module> <id>");
+    Console.WriteLine("Commandes : list | start <exo> | check <exo> | check --replay-last | try <exo> | status | profile | doctor | init | grade-received <sha> | validate-content | audit-content | package-content <src> <dest> | new exercise <module> <id>");
 }
 
 static void ListModules(PiscineLayout layout)
@@ -104,12 +115,54 @@ static string ExerciseDisplay(PiscineLayout layout, string exerciseId, string? t
     try
     {
         var manifest = ExerciseManifestLoader.Load(location.ContentDir);
-        return ExerciseLabel.Format(prefix, manifest.Difficulty, manifest.Bonus);
+        return ExerciseLabel.Format(
+            prefix,
+            manifest.Difficulty,
+            manifest.Bonus,
+            manifest.EstimatedMinutes,
+            manifest.Xp);
     }
     catch (Exception)
     {
         return prefix;
     }
+}
+
+static void Profile(PiscineLayout layout)
+{
+    var exercises = new List<GamificationExercise>();
+    foreach (var module in ContentDiscovery.DiscoverModules(layout.Content))
+    {
+        foreach (var exerciseId in module.Groups.SelectMany(group => group.Exercises))
+        {
+            var location = ContentLocator.FindExercise(layout.Content, exerciseId);
+            if (location is null)
+            {
+                continue;
+            }
+
+            var manifest = ExerciseManifestLoader.Load(location.ContentDir);
+            exercises.Add(new GamificationExercise(module.Id, manifest.Id, manifest.Xp, manifest.Bonus, manifest.Tags));
+        }
+    }
+
+    foreach (var rush in ContentDiscovery.DiscoverRushes(layout.Content))
+    {
+        var manifest = ExerciseManifestLoader.Load(rush.ContentDir);
+        exercises.Add(new GamificationExercise(ContentLocator.RushesModuleId, manifest.Id, manifest.Xp, manifest.Bonus, manifest.Tags));
+    }
+
+    var progress = new ProgressStore(layout.ProgressPath).Load();
+    var summary = GamificationCalculator.Calculate(
+        exercises,
+        progress,
+        DateOnly.FromDateTime(DateTime.Now));
+    Console.WriteLine($"Niveau {summary.Level} — {summary.TotalXp} XP");
+    Console.WriteLine($"Prochain niveau : {summary.XpIntoLevel}/{summary.XpForNextLevel} XP");
+    Console.WriteLine($"Série : {summary.StreakDays} jour(s) · Missions validées : {summary.CompletedCount}");
+    Console.WriteLine(summary.Badges.Count == 0
+        ? "Badges : aucun pour le moment"
+        : $"Badges : {string.Join(", ", summary.Badges.Select(badge => badge.Label))}");
 }
 
 static int Start(PiscineLayout layout, string[] args)
@@ -147,8 +200,15 @@ static int Check(PiscineLayout layout, string[] args)
 {
     if (args.Length < 2)
     {
-        Console.WriteLine("Usage : piscine check <exo>");
+        Console.WriteLine("Usage : piscine check <exo> | piscine check --replay-last");
         return 64;
+    }
+
+    if (args[1] == "--replay-last")
+    {
+        var replay = new ReplayCheckCommand(layout, Graders.Default()).Run();
+        Console.WriteLine(replay.Output);
+        return replay.ExitCode;
     }
 
     var result = new CheckCommand(layout, Graders.Default()).Run(args[1]);
@@ -234,6 +294,24 @@ static int ValidateContent(PiscineLayout layout)
     return 1;
 }
 
+static int AuditContent(PiscineLayout layout)
+{
+    var issues = ContentQualityAnalyzer.Analyze(layout);
+    if (issues.Count == 0)
+    {
+        Console.WriteLine("Aucune alerte pédagogique déterministe.");
+        return 0;
+    }
+
+    foreach (var issue in issues)
+    {
+        Console.WriteLine($"[AVIS] [{issue.Rule}] {issue.Scope} — {issue.Message}");
+    }
+
+    Console.WriteLine($"{issues.Count} alerte(s) consultative(s) ; validate-content reste l'autorité bloquante.");
+    return 0;
+}
+
 static int Init(PiscineLayout layout)
 {
     var exe = Environment.ProcessPath ?? "piscine";
@@ -243,6 +321,26 @@ static int Init(PiscineLayout layout)
     Console.WriteLine($"  origin    : {layout.RemoteRepoPath}");
     Console.WriteLine("Travaille dans le workspace, puis : git add/commit/push origin main");
     return 0;
+}
+
+static int Doctor(PiscineLayout layout)
+{
+    var report = PiscineDoctor.Inspect(layout);
+    foreach (var check in report.Checks)
+    {
+        var label = check.Status switch
+        {
+            DoctorCheckStatus.Ok => "OK",
+            DoctorCheckStatus.Warning => "ATTENTION",
+            _ => "ERREUR"
+        };
+        Console.WriteLine($"[{label}] {check.Name} — {check.Detail}");
+    }
+
+    Console.WriteLine(report.IsHealthy
+        ? "Environnement prêt."
+        : "Environnement incomplet : corrige les erreurs ci-dessus puis relance piscine doctor.");
+    return report.IsHealthy ? 0 : 1;
 }
 
 static int GradeReceived(PiscineLayout layout, string[] args)

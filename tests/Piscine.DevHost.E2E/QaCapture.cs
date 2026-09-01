@@ -43,7 +43,11 @@ public sealed class QaCapture
         using var pw = await Playwright.CreateAsync();
         IBrowser browser;
         try { browser = await pw.Chromium.LaunchAsync(); }
-        catch (PlaywrightException) { return; } // Chromium absent : skip propre
+        catch (PlaywrightException)
+        {
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
+        }
         await using (browser)
         {
             var log = new List<string>();
@@ -53,7 +57,7 @@ public sealed class QaCapture
                 {
                     var page = await browser.NewPageAsync(new() { ViewportSize = new() { Width = width, Height = 900 } });
                     var errors = new List<string>();
-                    page.Console += (_, m) => { if (m.Type == "error") errors.Add(m.Text); };
+                    page.Console += (_, m) => { if (m.Type == "error") { errors.Add(m.Text); } };
                     page.PageError += (_, e) => errors.Add(e);
 
                     // Fixer le thème AVANT le rendu Blazor : poser localStorage puis charger la route.
@@ -82,7 +86,7 @@ public sealed class QaCapture
                 }
             }
 
-            await File.WriteAllLinesAsync(Path.Combine(outDir, $"{tag}-console.txt"), log);
+            await File.WriteAllLinesAsync(Path.Combine(outDir, $"{tag}-console.txt"), log, TestContext.Current.CancellationToken);
         }
     }
 }

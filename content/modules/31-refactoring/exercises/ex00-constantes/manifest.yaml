@@ -2,6 +2,10 @@ id: ex00-constantes
 title: "Nombres magiques → constantes nommées"
 objective: "Remplacer les nombres magiques par des constantes nommées, sans changer le comportement."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [quality,refactoring]
+story_beat: "Sécuriser la capacité Nombres magiques → constantes nommées d'Asteria."
 deliverables: [Prix.cs]
 starter: [Prix.cs]
 grading:
@@ -28,9 +32,14 @@ grading:
       - stdin: "1000\n"
         expect_stdout: "1080\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["const int SeuilRemise", "const int TauxRemisePourcent", "const int TauxTvaPourcent"]
 feedback:
   hints:
     - when: io_mismatch
       message: "Donne un nom aux 100 (seuil de remise), 10 (% remise) et 20 (% TVA). La logique reste identique : remise si prix > 100, puis TVA sur le net. Les tests doivent rester verts."
+    - when: source_constraint
+      message: "Le comportement était déjà correct : la mission exige trois constantes nommées pour rendre les règles métier explicites."
   course_ref: "cours.md#constantes"
 solution: [Prix.cs]

@@ -33,7 +33,7 @@ internal static class Program
         // Doit précéder toute construction/rendu de composant.
         InteractiveRenderSettings.ConfigureBlazorHybridRenderModes();
 
-        var builder = PhotinoBlazorAppBuilder.CreateDefault(args);
+        var builder = PhotinoBlazorApp.CreateBuilder(args);
 
         // PhotinoBlazorAppBuilder n'enregistre PAS d'IConfiguration (contrairement à WebApplication du
         // DevHost) ; CourseCatalog en dépend (ContentRootResolver lit PISCINE_CONTENT). On en fournit une
@@ -121,7 +121,7 @@ internal static class Program
         }
         else
         {
-            // PhotinoX 4.2.0 : « Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize
+            // PhotinoX 5.x : « Chromeless cannot be used with UseOsDefaultLocation or UseOsDefaultSize
             // on Windows. Size and location must be specified. » → on fixe la taille/position NORMALE
             // (état restauré). Le PLEIN ÉCRAN au lancement est ensuite déclenché par la page une fois
             // affichée (message "maximizeonstart") : c'est l'OS qui maximise (agrandissement fiable et

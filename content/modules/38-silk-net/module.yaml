@@ -1,8 +1,11 @@
 id: 38-silk-net
 title: "Silk.NET (fenêtrage & rendu graphique)"
 order: 38
+prerequisites: [07-poo-1]
+arc: "Acte V — Frontières et interfaces"
+mission: "Rallumer le pipeline graphique du poste de visualisation."
 course: cours.md
 groups:
-  - id: silk-net-lecture
-    title: "À lire et pratiquer"
-    exercises: []
+  - id: pipeline-graphique
+    title: "Pipeline graphique testable sans GPU"
+    exercises: [ex00-shaders]

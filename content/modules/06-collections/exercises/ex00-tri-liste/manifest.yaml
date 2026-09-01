@@ -1,6 +1,11 @@
 id: ex00-tri-liste
 title: "Trier une liste"
 objective: "Lire des nombres et les afficher triés par ordre croissant, via une List."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Trier une liste d'Asteria."
 deliverables: [TriListe.cs]
 starter: [TriListe.cs]
 grading:

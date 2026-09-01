@@ -86,6 +86,11 @@ public static class ExerciseScaffolder
         sb.Append("id: ").Append(exerciseId).Append('\n');
         sb.Append("title: \"").Append(title).Append("\"\n");
         sb.Append("objective: \"TODO : décris en une phrase ce que l'exercice attend.\"\n");
+        sb.Append("difficulty: moyen\n");
+        sb.Append("estimated_minutes: 35\n");
+        sb.Append("xp: 70\n");
+        sb.Append("tags: [csharp]\n");
+        sb.Append("story_beat: \"TODO : relie l'exercice à la mission Asteria.\"\n");
         sb.Append("deliverables: [").Append(deliverable).Append("]\n");
         sb.Append("starter: [").Append(deliverable).Append("]\n");
         sb.Append("grading:\n");

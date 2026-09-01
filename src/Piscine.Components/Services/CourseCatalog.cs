@@ -14,12 +14,15 @@ public sealed class CourseCatalog
 
     public IReadOnlyList<CourseModule> Modules { get; }
 
+    public IReadOnlyList<CourseRush> Rushes { get; }
+
     private readonly Dictionary<string, CourseModule> _byId;
 
     public CourseCatalog(IConfiguration config)
     {
         ContentRoot = ContentRootResolver.Resolve(config);
         Modules = Load(ContentRoot);
+        Rushes = LoadRushes(ContentRoot);
         _byId = Modules.ToDictionary(m => m.Id, StringComparer.OrdinalIgnoreCase);
     }
 
@@ -30,6 +33,12 @@ public sealed class CourseCatalog
         => GetModule(moduleId)?.Groups
             .SelectMany(g => g.Exercises)
             .FirstOrDefault(e => string.Equals(e.Id, exerciseId, StringComparison.OrdinalIgnoreCase));
+
+    public CourseRush? GetRush(string id)
+        => Rushes.FirstOrDefault(rush => string.Equals(rush.Id, id, StringComparison.OrdinalIgnoreCase));
+
+    public CourseModule? GetRecommendedModule(CourseRush rush)
+        => GetModule(rush.RecommendedAfterModuleId);
 
     private static IReadOnlyList<CourseModule> Load(string contentRoot)
     {
@@ -77,6 +86,10 @@ public sealed class CourseCatalog
                         manifest.Title,
                         manifest.Objective,
                         manifest.Difficulty,
+                        manifest.EstimatedMinutes,
+                        manifest.Xp,
+                        manifest.Tags,
+                        manifest.StoryBeat,
                         manifest.Bonus,
                         manifest.Deliverables,
                         subject));
@@ -85,12 +98,50 @@ public sealed class CourseCatalog
                 groups.Add(new CourseGroup(group.Id, group.Title, exercises));
             }
 
-            modules.Add(new CourseModule(module.Id, module.Order, module.Title, courseMarkdown, groups));
+            modules.Add(new CourseModule(
+                module.Id,
+                module.Order,
+                module.Title,
+                module.Prerequisites,
+                module.Arc,
+                module.Mission,
+                courseMarkdown,
+                groups));
         }
 
         return modules
             .OrderBy(m => m.Order)
             .ThenBy(m => m.Id, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    private static IReadOnlyList<CourseRush> LoadRushes(string contentRoot)
+    {
+        var paths = new PiscinePaths(contentRoot);
+        return ContentDiscovery.DiscoverRushes(paths)
+            .Select(rush =>
+            {
+                var manifest = ExerciseManifestLoader.Load(rush.ContentDir);
+                var subjectPath = Path.Combine(rush.ContentDir, "subject.md");
+                var subject = File.Exists(subjectPath)
+                    ? StripLeadingH1(File.ReadAllText(subjectPath))
+                    : null;
+                return new CourseRush(
+                    manifest.Id,
+                    manifest.Title,
+                    manifest.Objective,
+                    manifest.Difficulty,
+                    manifest.EstimatedMinutes,
+                    manifest.Xp,
+                    manifest.Tags,
+                    manifest.StoryBeat,
+                    manifest.RecommendedAfter,
+                    manifest.ManualValidation,
+                    manifest.Grading.Select(step => step.Type).Where(type => type.Length > 0).Distinct().ToList(),
+                    manifest.Bonus,
+                    manifest.Deliverables,
+                    subject);
+            })
             .ToList();
     }
 

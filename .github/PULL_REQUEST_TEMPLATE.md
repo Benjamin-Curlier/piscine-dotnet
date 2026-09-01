@@ -23,7 +23,7 @@ Le titre de la PR doit suivre les Conventional Commits (en français), p.ex. :
 - [ ] Ma branche suit une convention de nommage (`feat/…`, `fix/…`, `docs/…`, `chore/…`).
 - [ ] Mes commits suivent les **Conventional Commits** (en français).
 - [ ] `dotnet build Piscine.slnx` passe en local.
-- [ ] `dotnet test Piscine.slnx` passe en local.
+- [ ] `dotnet test --solution Piscine.slnx` passe en local.
 - [ ] Aucun avertissement d'analyseur (`TreatWarningsAsErrors`) et `dotnet format` est propre.
 - [ ] La CI est verte (`build-test` + `validate-content`, et **CodeQL**).
 - [ ] J'ai mis à jour le `CHANGELOG.md` si le changement est pertinent pour les utilisateurs.

@@ -1,6 +1,11 @@
 id: ex01-personne
 title: "Personne"
 objective: "Définir une classe Personne avec des propriétés et une méthode de présentation."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Personne d'Asteria."
 deliverables: [Personne.cs]
 starter: [Personne.cs]
 grading:
@@ -24,6 +29,9 @@ grading:
       - stdin: "Henri\n100\n"
         expect_stdout: "Je m'appelle Henri, j'ai 100 ans.\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["class Personne"]
 feedback:
   hints:
     - when: io_mismatch

@@ -1,0 +1,23 @@
+id: ex00-migration-commandes
+title: "Relire une migration de commandes"
+objective: "Écrire un schéma SQL transactionnel avec contraintes et index justifiés."
+difficulty: moyen
+estimated_minutes: 65
+xp: 130
+tags: [sql, migrations, database]
+story_beat: "Créer le journal durable des commandes Asteria sans doublon."
+deliverables: [001_create_commands.sql]
+starter: [001_create_commands.sql]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: 001_create_commands.sql
+          required_fragments: ["BEGIN;", "CREATE TABLE commands", "PRIMARY KEY", "idempotency_key", "NOT NULL", "version BIGINT", "created_at TIMESTAMPTZ", "CREATE UNIQUE INDEX ux_commands_idempotency_key", "CREATE INDEX ix_commands_status_created_at", "COMMIT;"]
+          forbidden_fragments: ["DROP DATABASE", "GRANT ALL", "PASSWORD"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Crée la table dans une transaction, rends la clé d'idempotence unique et indexe le parcours status/date."
+  course_ref: "cours.md#migrations"
+solution: [001_create_commands.sql]

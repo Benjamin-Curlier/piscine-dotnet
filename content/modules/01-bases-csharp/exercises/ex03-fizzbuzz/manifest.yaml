@@ -2,6 +2,10 @@ id: ex03-fizzbuzz
 title: "FizzBuzz"
 objective: "Afficher les entiers de 1 à N en remplaçant les multiples de 3 par Fizz, de 5 par Buzz, des deux par FizzBuzz."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,fundamentals]
+story_beat: "Sécuriser la capacité FizzBuzz d'Asteria."
 bonus: true
 deliverables: [FizzBuzz.cs]
 starter: [FizzBuzz.cs]
@@ -27,7 +31,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Teste d'ABORD i % 15 == 0 (les deux), puis i % 3 == 0, puis i % 5 == 0, sinon affiche i. L'ordre des tests est crucial."
+      - when: io_mismatch
+        message: "Teste d'ABORD i % 15 == 0 (les deux), puis i % 3 == 0, puis i % 5 == 0, sinon affiche i. L'ordre des tests est crucial."
+      - when: compile_error
+        message: "Place la décision dans la boucle for ; chaque branche if/else if écrit soit un mot, soit la valeur courante."
   course_ref: "cours.md#fizzbuzz"
 solution: [FizzBuzz.cs]

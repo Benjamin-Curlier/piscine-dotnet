@@ -83,7 +83,24 @@ D'autres masques classiques : `n | (1 << k)` **positionne** le bit `k` à 1, et 
 
 ## 5. Conversions en base 2 {#base2}
 
-La classe `Convert` (dans `System`) traduit entre un entier et sa chaîne dans une base donnée :
+Pour convertir manuellement un entier, répète deux opérations :
+
+1. le **reste** de la division par 2 (`n % 2`) donne le prochain bit, en partant de la droite ;
+2. la division entière (`n / 2`) fournit la valeur à traiter ensuite ;
+3. arrête-toi quand le quotient atteint zéro, puis lis les restes dans l'ordre inverse.
+
+Pour `13` :
+
+| Valeur | Quotient | Reste |
+|---:|---:|---:|
+| 13 | 6 | 1 |
+| 6 | 3 | 0 |
+| 3 | 1 | 1 |
+| 1 | 0 | 1 |
+
+Les restes lus du bas vers le haut donnent `1101`. Le cas `0` doit être traité séparément.
+
+En production, la classe `Convert` (dans `System`) sait aussi traduire entre un entier et sa chaîne :
 
 ```csharp
 using System;
@@ -93,15 +110,15 @@ System.Console.WriteLine(Convert.ToInt32("1101", 2)); // 13
 ```
 
 `Convert.ToString(n, 2)` produit la représentation binaire **sans zéros de tête**, et
-`Convert.ToInt32(s, 2)` fait l'inverse. Comme `Convert` vit dans `System`, ajoute `using System;`
-en haut dès que tu l'utilises.
+`Convert.ToInt32(s, 2)` fait l'inverse. L'exercice bonus demande volontairement d'implémenter les
+divisions successives pour vérifier la compréhension de la base 2.
 
 ### Exercices du module
 
 - **[ex00-et-ou-xor](#et-ou-xor)** : appliquer `&`, `|`, `^` sur deux entiers.
 - **[ex01-decalage](#decalage)** : décalages `<<` et `>>` et leur effet ×2/÷2.
 - **[ex02-compte-bits](#compte-bits)** : compter à la main les bits à 1 (masque + décalage).
-- **[ex03-base2](#base2)** *(bonus)* : afficher la représentation binaire avec `Convert.ToString`.
+- **[ex03-base2](#base2)** *(bonus)* : construire manuellement la représentation binaire.
 
 #### et-ou-xor {#et-ou-xor}
 Lis deux entiers `a` et `b`, affiche `a & b`, `a | b` puis `a ^ b`.
@@ -113,7 +130,7 @@ Lis `n` et `k`, affiche `n << k` puis `n >> k`.
 Lis un entier `n` (≥ 0), affiche son nombre de bits à 1 sans utiliser `BitOperations`.
 
 #### base2 {#base2}
-Lis un entier `n` (≥ 0), affiche sa représentation binaire (`Convert.ToString(n, 2)`).
+Lis un entier `n` (≥ 0), affiche sa représentation binaire par divisions successives.
 
 ## Références externes
 

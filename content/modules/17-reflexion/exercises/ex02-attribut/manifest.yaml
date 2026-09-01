@@ -1,6 +1,11 @@
 id: ex02-attribut
 title: "Un attribut personnalisé"
 objective: "Définir un attribut personnalisé, l'appliquer à une classe et lire sa valeur par réflexion."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,metaprogramming]
+story_beat: "Sécuriser la capacité Un attribut personnalisé d'Asteria."
 deliverables: [Attribut.cs]
 starter: [Attribut.cs]
 grading:
@@ -11,6 +16,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/AttributTests.cs]
+  - type: source
+    source:
+      required_fragments: ["Attribute", "GetCustomAttribute"]
 feedback:
   hints:
     - when: io_mismatch

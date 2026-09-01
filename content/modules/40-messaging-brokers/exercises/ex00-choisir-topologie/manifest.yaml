@@ -1,0 +1,30 @@
+id: ex00-choisir-topologie
+title: "Choisir une topologie de messagerie"
+objective: "Relier une contrainte dominante à une famille de solution sans confondre broker, stream et transport pair-à-pair."
+difficulty: facile
+estimated_minutes: 25
+xp: 50
+tags: [messaging, architecture]
+story_beat: "Dessiner les premières liaisons entre les secteurs isolés d'Asteria."
+deliverables: [Topologie.cs]
+starter: [Topologie.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "4\ndiffusion-ephemere\nfile-metier-durable\npair-a-pair-embarque\nstream-rejouable\n"
+        expect_stdout: "NATS_CORE\nRABBITMQ\nZEROMQ\nNATS_JETSTREAM\n"
+        expect_exit: 0
+      - stdin: "3\nstream-rejouable\ndiffusion-ephemere\nfile-metier-durable\n"
+        expect_stdout: "NATS_JETSTREAM\nNATS_CORE\nRABBITMQ\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["switch"]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Associe la contrainte dominante : diffusion éphémère à Core NATS, file durable à RabbitMQ, pair-à-pair sans broker à ZeroMQ, rejeu à JetStream."
+    - when: source_constraint
+      message: "Exprime la table de décision par un switch : elle doit rester lisible et exhaustive."
+  course_ref: "cours.md#comparaison"
+solution: [Topologie.cs]

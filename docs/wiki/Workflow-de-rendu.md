@@ -16,7 +16,8 @@ Au premier lancement, `piscine init` crée :
 
 | Commande | Rôle | Effet |
 |---|---|---|
-| `piscine check [exo]` | Itération rapide, sans commit | Feedback éducatif instantané. **Ne compte pas** comme rendu. |
+| `piscine check <exo>` | Itération rapide, sans commit | Feedback éducatif instantané. **Ne compte pas** comme rendu. |
+| `piscine check --replay-last` | Rejoue le dernier exercice en échec | Permet de vérifier un correctif contre le même jeu de tests. |
 | `git push origin main` | **Rendu officiel** (vrai geste GitLab) | Le hook lance la moulinette sur le commit reçu, affiche le feedback **et enregistre la progression**. |
 
 > **Dans l'app de bureau**, ces deux boucles existent sans la ligne de commande : le **plan de
@@ -44,7 +45,8 @@ Au premier lancement, `piscine init` crée :
 ```bash
 piscine start ex00-hello   # copie le starter dans le workspace
 # ... la recrue code ...
-piscine check              # feedback instantané, autant de fois qu'elle veut
+piscine check ex00-hello   # feedback instantané, autant de fois qu'elle veut
+piscine check --replay-last # après une correction, rejoue le dernier échec
 git add .
 git commit -m "ex00"
 git push origin main       # rendu officiel → moulinette

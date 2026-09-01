@@ -1,6 +1,9 @@
 id: 04-tableaux-chaines
 title: "Tableaux & chaînes"
 order: 4
+prerequisites: [01-bases-csharp, 02-boucles]
+arc: "Acte I — Prise de quart"
+mission: "Reconstituer les messages et séries de mesures reçus par le poste."
 course: cours.md
 groups:
   - id: tableaux-chaines

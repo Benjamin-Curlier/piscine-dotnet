@@ -1,0 +1,23 @@
+id: ex00-viewmodel-notifiable
+title: "Construire un ViewModel asynchrone"
+objective: "Exposer un état observable et charger les données sans bloquer le thread UI."
+difficulty: moyen
+estimated_minutes: 65
+xp: 120
+tags: [desktop, mvvm, async]
+story_beat: "Rendre l'écran d'état Asteria réactif pendant la synchronisation."
+deliverables: [StationViewModel.cs]
+starter: [StationViewModel.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: StationViewModel.cs
+          required_fragments: ["INotifyPropertyChanged", "event PropertyChangedEventHandler? PropertyChanged", "bool IsBusy", "string Status", "async Task RefreshAsync", "CancellationToken cancellationToken", "OnPropertyChanged"]
+          forbidden_fragments: [".Result", ".Wait(", "Thread.Sleep"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Encadre l'appel asynchrone par IsBusy, propage le CancellationToken et notifie les propriétés modifiées."
+  course_ref: "cours.md#mvvm"
+solution: [StationViewModel.cs]

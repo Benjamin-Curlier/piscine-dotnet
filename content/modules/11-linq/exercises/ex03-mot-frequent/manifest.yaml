@@ -2,6 +2,10 @@ id: ex03-mot-frequent
 title: "Le mot le plus fréquent"
 objective: "Trouver le mot le plus fréquent (égalités départagées par ordre ordinal) avec GroupBy + tri composé LINQ."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Le mot le plus fréquent d'Asteria."
 bonus: true
 deliverables: [MotFrequent.cs]
 starter: [MotFrequent.cs]
@@ -26,6 +30,9 @@ grading:
       - stdin: "b\na\nb\na\n"
         expect_stdout: "a 2\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: [".GroupBy(", ".First("]
 feedback:
   hints:
     - when: io_mismatch

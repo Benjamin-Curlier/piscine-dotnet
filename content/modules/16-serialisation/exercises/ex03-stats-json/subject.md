@@ -20,7 +20,8 @@ Sortie :
 
 ## Indications
 
-- `int[] nombres = JsonSerializer.Deserialize<int[]>(json);`
+- Désérialise la ligne JSON vers un tableau d'entiers et vérifie le résultat nullable avant de
+  calculer les statistiques.
 - Crée une petite classe `Stats { Min, Max, Somme }`, remplis-la (`nombres.Min()`, `.Max()`,
   `.Sum()`), puis `JsonSerializer.Serialize(stats)`.
 - La sérialisation par défaut conserve l'ordre de déclaration des propriétés et les noms exacts —

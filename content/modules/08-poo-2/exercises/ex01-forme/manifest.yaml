@@ -1,6 +1,11 @@
 id: ex01-forme
 title: "Aire des formes"
 objective: "Définir une interface IForme et l'implémenter dans Carre et Rectangle (polymorphisme)."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,oop]
+story_beat: "Sécuriser la capacité Aire des formes d'Asteria."
 deliverables: [Forme.cs]
 starter: [Forme.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "7\n7\n7\n"
         expect_stdout: "49\n49\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["interface IForme"]
 feedback:
   hints:
     - when: io_mismatch

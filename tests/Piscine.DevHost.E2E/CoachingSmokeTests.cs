@@ -20,7 +20,7 @@ public sealed class CoachingSmokeTests : IAsyncLifetime
 
     private Process? _host;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -35,7 +35,7 @@ public sealed class CoachingSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(60));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -43,7 +43,7 @@ public sealed class CoachingSmokeTests : IAsyncLifetime
             catch { /* le processus a déjà rendu l'âme */ }
         }
         _host?.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -58,8 +58,7 @@ public sealed class CoachingSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Navigateur non installé (CI sans `playwright install chromium`) : skip propre.
-            // xUnit 2.x n'a pas d'API Assert.Skip ; le retour anticipé fait office de skip.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
             return;
         }
 
@@ -67,6 +66,7 @@ public sealed class CoachingSmokeTests : IAsyncLifetime
         {
             var page = await browser.NewPageAsync();
             await page.GotoAsync($"{BaseUrl}/terminal", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
 
             // xterm est monté côté JS une fois le circuit interactif établi.
             await page.WaitForSelectorAsync(".xterm", new PageWaitForSelectorOptions { Timeout = 30_000 });

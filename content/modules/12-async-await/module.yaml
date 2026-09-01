@@ -1,6 +1,9 @@
 id: 12-async-await
 title: "Async/await — Programmation asynchrone"
 order: 12
+prerequisites: [03-methodes, 09-exceptions]
+arc: "Acte II — Cœur métier"
+mission: "Coordonner les opérations lentes sans bloquer le poste de contrôle."
 course: cours.md
 groups:
   - id: async-await

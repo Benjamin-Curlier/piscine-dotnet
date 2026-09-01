@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Piscine.App.Progress;
 
 namespace Piscine.App.Report;
 
@@ -25,6 +26,9 @@ public sealed record ReportModuleRow(
 /// <summary>Verdict d'un exercice dans l'historique des push récents du rapport.</summary>
 public sealed record ReportPushEntry(string ExerciseId, string Verdict, int Attempts);
 
+/// <summary>État d'une mission de synthèse dans le rapport, séparé des exercices de modules.</summary>
+public sealed record ReportRushRow(string Id, string Title, ExerciseProgressStatus Status);
+
 /// <summary>
 /// Modèle <b>pur</b> et autonome de la page de rapport : identité git, date de génération,
 /// avancement global, lignes par module et historique de push. Aucune dépendance UI →
@@ -42,4 +46,5 @@ public sealed record ReportModel(
     int Restant,
     int Total,
     IReadOnlyList<ReportModuleRow> Modules,
-    IReadOnlyList<ReportPushEntry> RecentPushes);
+    IReadOnlyList<ReportPushEntry> RecentPushes,
+    IReadOnlyList<ReportRushRow> Rushes);

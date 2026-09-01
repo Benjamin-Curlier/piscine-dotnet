@@ -24,7 +24,7 @@ public sealed class ToastSmokeTests : IAsyncLifetime
     private string? _tempWorkspace;
     private string? _stateDir;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -52,7 +52,7 @@ public sealed class ToastSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -67,7 +67,7 @@ public sealed class ToastSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -82,7 +82,8 @@ public sealed class ToastSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            return; // Chromium absent (CI sans playwright install) : skip propre.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
         }
 
         await using (browser)
@@ -91,9 +92,15 @@ public sealed class ToastSmokeTests : IAsyncLifetime
 
             // 1. Naviguer vers /cours (PAS /resultat) : le ToastHost de MainLayout démarre le watcher.
             await page.GotoAsync($"{BaseUrl}/cours", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
             await page.WaitForSelectorAsync(
                 "[data-testid='module-grid']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });
+            await page.WaitForFunctionAsync(
+                "document.querySelector('[data-testid=\"nav-menu\"]')" +
+                "?.getAttribute('data-interactive-ready')?.toLowerCase() === 'true'",
+                null,
+                new PageWaitForFunctionOptions { Timeout = 30_000 });
 
             // Pas de toast au repos.
             Assert.Equal(0, await page.Locator("[data-testid='push-toast']").CountAsync());
@@ -118,6 +125,11 @@ public sealed class ToastSmokeTests : IAsyncLifetime
 
             var link = await page.Locator("[data-testid='toast-link']").First.GetAttributeAsync("href");
             Assert.Equal("/resultat", link);
+
+            // La même notification doit rafraîchir les pastilles du menu sans redémarrer l'app.
+            await page.WaitForSelectorAsync(
+                "a[href='/module/00-setup-git'] [data-status='ARevoir']",
+                new PageWaitForSelectorOptions { Timeout = 15_000 });
         }
     }
 

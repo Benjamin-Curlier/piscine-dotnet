@@ -1,0 +1,23 @@
+id: ex01-service-grpc
+title: "Implémenter un service gRPC annulable"
+objective: "Traduire une requête gRPC vers un cas d'usage avec validation, deadline et annulation."
+difficulty: moyen
+estimated_minutes: 75
+xp: 140
+tags: [grpc, aspnet, cancellation]
+story_beat: "Rendre le canal RPC Asteria coopératif face aux coupures du poste."
+deliverables: [CommandGrpcService.cs]
+starter: [CommandGrpcService.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: CommandGrpcService.cs
+          required_fragments: ["CommandService.CommandServiceBase", "override async Task<SubmitCommandReply> Submit", "ServerCallContext context", "context.CancellationToken", "context.Deadline", "string.IsNullOrWhiteSpace", "RpcException", "StatusCode.InvalidArgument", "await handler.SubmitAsync", "new SubmitCommandReply"]
+          forbidden_fragments: ["CancellationToken.None", "Thread.Sleep", ".Result", "catch (Exception)"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Valide la clé, observe deadline et CancellationToken du contexte, puis appelle le handler applicatif."
+  course_ref: "cours.md#service"
+solution: [CommandGrpcService.cs]

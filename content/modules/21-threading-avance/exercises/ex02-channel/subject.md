@@ -15,9 +15,9 @@ Exemple : `3` puis `2`, `3`, `4` → `4`, `6`, `8`.
 ## Indices
 
 - Crée le canal : `var channel = System.Threading.Channels.Channel.CreateUnbounded<int>();`.
-- **Producteur** : lis N entiers et, pour chacun, `await channel.Writer.WriteAsync(x);`. Quand
+- **Producteur** : lis N entiers et écris chacun de façon asynchrone dans le writer. Quand
   tout est écrit, signale la fin : `channel.Writer.Complete();`.
-- **Consommateur** : `await foreach (var x in channel.Reader.ReadAllAsync()) { ... }` lit chaque
+- **Consommateur** : parcours asynchroniquement `channel.Reader.ReadAllAsync()` pour lire chaque
   valeur dès qu'elle arrive et s'arrête à la complétion. Affiche `x * 2`.
 - Le canal préserve l'ordre d'écriture (FIFO) : la sortie est donc **déterministe**.
 - `using System.Threading.Channels;` (pour `Channel`) et `using System.Threading.Tasks;` sont

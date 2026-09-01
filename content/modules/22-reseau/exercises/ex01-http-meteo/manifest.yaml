@@ -2,6 +2,10 @@ id: ex01-http-meteo
 title: "Lire une API météo JSON"
 objective: "Appeler une route HTTP qui renvoie du JSON, le désérialiser, et afficher une synthèse formatée (pas le corps brut)."
 difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [network,http]
+story_beat: "Sécuriser la capacité Lire une API météo JSON d'Asteria."
 deliverables: [Meteo.cs]
 starter: [Meteo.cs]
 grading:

@@ -2,8 +2,12 @@ id: ex03-groupby
 title: "Agrégation (GroupBy)"
 objective: "Regrouper des entités par un champ et compter chaque groupe."
 difficulty: moyen
-deliverables: [Catalogue.cs]
-starter: [Catalogue.cs]
+estimated_minutes: 45
+xp: 90
+tags: [data,ef-core]
+story_beat: "Sécuriser la capacité Agrégation (GroupBy) d'Asteria."
+deliverables: [ComptageCategories.cs]
+starter: [ComptageCategories.cs]
 grading:
   - type: io
     cases:
@@ -21,9 +25,14 @@ grading:
       - stdin: "3\nbio Carotte\nbio Courgette\nbio Tomate\n"
         expect_stdout: "bio: 3\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["DbContext", ".GroupBy("]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Insère 'categorie nom'. Regroupe : db.Articles.GroupBy(a => a.Categorie).Select(g => new { g.Key, N = g.Count() }).OrderBy(x => x.Key). Affiche 'categorie: nombre'."
+      message: "Vérifie séparément les quatre étapes : les entités sont-elles enregistrées, les catégories forment-elles les clés des groupes, la projection contient-elle clé et Count(), puis le résultat est-il trié avant affichage ?"
+    - when: source_constraint
+      message: "Le comptage doit être produit par une vraie requête EF Core GroupBy, pas par un dictionnaire calculé à côté du DbContext."
   course_ref: "cours.md#agregation"
-solution: [Catalogue.cs]
+solution: [ComptageCategories.cs]

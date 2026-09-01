@@ -17,7 +17,7 @@ public static class SubmissionLoader
             var path = Path.Combine(workspaceExerciseDir, deliverable);
             if (File.Exists(path))
             {
-                sources[deliverable] = File.ReadAllText(path);
+                sources[deliverable] = RemoveFileBasedDirectives(File.ReadAllText(path));
             }
         }
 
@@ -45,5 +45,34 @@ public static class SubmissionLoader
 
         // Le dossier rendu peut être un dépôt git (grader `git`) : on le transmet tel quel.
         return new ExerciseSubmission(manifest, new GradingContext(sources, graderFiles, workspaceExerciseDir));
+    }
+
+    /// <summary>
+    /// Les directives <c>#!</c> et <c>#:</c> appartiennent au mode « fichier C# » de <c>dotnet run</c>
+    /// et de Rider, pas à la syntaxe compilée directement par Roslyn. La Piscine fournit déjà les
+    /// références et assemble déjà tous les livrables : on retire donc ces directives en conservant
+    /// une ligne vide, afin que les numéros de ligne des diagnostics restent exacts.
+    /// </summary>
+    internal static string RemoveFileBasedDirectives(string source)
+    {
+        var lines = source.Split('\n');
+        var changed = false;
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var hasCarriageReturn = lines[i].EndsWith('\r');
+            var content = hasCarriageReturn ? lines[i][..^1] : lines[i];
+            var trimmed = content.TrimStart();
+            if (!trimmed.StartsWith("#!", StringComparison.Ordinal)
+                && !trimmed.StartsWith("#:", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            // Préserve le séparateur CRLF de la ligne et la présence/absence du saut final.
+            lines[i] = hasCarriageReturn ? "\r" : string.Empty;
+            changed = true;
+        }
+
+        return changed ? string.Join('\n', lines) : source;
     }
 }

@@ -1,0 +1,11 @@
+id: 46-aspnet-services
+title: "ASP.NET Core : façades HTTP pour clients lourds"
+order: 46
+prerequisites: [16-serialisation, 20-generic-host, 22-reseau, 44-socle-entreprise]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Exposer aux postes Asteria une façade HTTP stable, observable et documentée."
+course: cours.md
+groups:
+  - id: facade-http
+    title: "Minimal API, erreurs et contrat OpenAPI"
+    exercises: [ex00-api-commandes, ex01-erreurs-http, ex02-contrat-openapi]

@@ -2,6 +2,10 @@ id: ex00-const
 title: "Multiplication par une constante"
 objective: "Déclarer une constante de compilation avec const et l'utiliser pour multiplier une entrée."
 difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [csharp,immutability]
+story_beat: "Sécuriser la capacité Multiplication par une constante d'Asteria."
 deliverables: [Const.cs]
 starter: [Const.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "1\n"
         expect_stdout: "10\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["const int"]
 feedback:
   hints:
     - when: io_mismatch

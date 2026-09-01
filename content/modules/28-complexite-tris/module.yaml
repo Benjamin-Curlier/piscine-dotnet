@@ -1,6 +1,9 @@
 id: 28-complexite-tris
 title: "Complexité (Big O) & tris"
 order: 28
+prerequisites: [04-tableaux-chaines, 06-collections]
+arc: "Acte IV — Algorithmes et langage avancé"
+mission: "Choisir des algorithmes qui tiennent lorsque le volume de télémétrie augmente."
 course: cours.md
 groups:
   - id: tris-complexite

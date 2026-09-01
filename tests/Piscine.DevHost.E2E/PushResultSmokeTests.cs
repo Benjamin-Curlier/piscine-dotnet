@@ -25,7 +25,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
     private string? _tempWorkspace;
     private string? _stateDir;
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         var repoRoot = FindRepoRoot();
         var devHostProject = Path.Combine(repoRoot, "src", "Piscine.DevHost");
@@ -56,7 +56,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
         await WaitForServerAsync(TimeSpan.FromSeconds(90));
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         if (_host is { HasExited: false })
         {
@@ -71,7 +71,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
             catch { /* pas critique */ }
         }
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            // Navigateur non installé (CI sans `playwright install chromium`) : skip propre.
+            Assert.Skip("Chromium Playwright n'est pas installé.");
             return;
         }
 
@@ -97,6 +97,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
             // 1. Naviguer vers /resultat — le composant démarre le watcher et prend un snapshot
             //    initial (fichier absent → état vide). Attendre le placeholder.
             await page.GotoAsync($"{BaseUrl}/resultat", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
             await page.WaitForSelectorAsync(
                 "[data-testid='push-empty']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });
@@ -150,7 +151,8 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
         }
         catch (PlaywrightException)
         {
-            return; // navigateur non installé : skip propre
+            Assert.Skip("Chromium Playwright n'est pas installé.");
+            return;
         }
 
         await using (browser)
@@ -158,6 +160,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
             var page = await browser.NewPageAsync();
 
             await page.GotoAsync($"{BaseUrl}/resultat", new PageGotoOptions { Timeout = 30_000 });
+            await OnboardingOverlay.DismissIfPresentAsync(page);
             await page.WaitForSelectorAsync(
                 "[data-testid='push-empty']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });

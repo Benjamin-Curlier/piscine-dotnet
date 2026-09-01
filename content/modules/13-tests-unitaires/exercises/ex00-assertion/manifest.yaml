@@ -1,23 +1,26 @@
 id: ex00-assertion
-title: "L'assertion"
-objective: "Comparer un resultat attendu a un resultat obtenu, comme le ferait un Assert.Equal."
-deliverables: [Assertion.cs]
-starter: [Assertion.cs]
+title: "Premier vrai test xUnit"
+objective: "Écrire des tests xUnit avec Fact et Assert.Equal contre une API fournie."
+difficulty: facile
+estimated_minutes: 25
+xp: 50
+tags: [testing, quality]
+story_beat: "Installer le premier filet de sécurité automatisé d'Asteria."
+deliverables: [CalculatriceTests.cs]
+starter: [CalculatriceTests.cs]
 grading:
-  - type: io
-    cases:
-      - stdin: "5\n5\n"
-        expect_stdout: "OK\n"
-        expect_exit: 0
-      - stdin: "5\n6\n"
-        expect_stdout: "KO\n"
-        expect_exit: 0
-      - stdin: "0\n0\n"
-        expect_stdout: "OK\n"
-        expect_exit: 0
+  - type: mutation
+    reference: reference/Calculatrice.cs
+    mutants:
+      - id: mauvaise-operation
+        label: "Les tests ne distinguent pas une addition d'une soustraction."
+        find: "a + b"
+        replace: "a - b"
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Lis attendu puis obtenu. Si attendu == obtenu affiche OK, sinon KO. C'est l'idee d'un Assert.Equal."
-  course_ref: "cours.md#assertion"
-solution: [Assertion.cs]
+    - when: mutant_survived
+      message: "Le cas 0 + 0 passe pour trop d'implémentations. Choisis des valeurs qui distinguent clairement + de -."
+    - when: tests_fail_on_reference
+      message: "Arrange les valeurs, appelle Calculatrice.Additionner, puis compare le résultat attendu avec Assert.Equal."
+  course_ref: "cours.md#premier-test-xunit"
+solution: [CalculatriceTests.cs]

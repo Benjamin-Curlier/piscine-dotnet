@@ -31,4 +31,12 @@ public class ExerciseLabelTests
     {
         Assert.Equal("ex00 (bonus)", ExerciseLabel.Format("ex00", null, bonus: true));
     }
+
+    [Fact]
+    public void Format_WithDurationAndXp()
+    {
+        Assert.Equal(
+            "ex00 — moyen · ≈ 45 min · 90 XP",
+            ExerciseLabel.Format("ex00", "moyen", bonus: false, estimatedMinutes: 45, xp: 90));
+    }
 }

@@ -2,6 +2,10 @@ id: ex03-anagramme
 title: "Anagrammes"
 objective: "Déterminer si deux mots sont anagrammes l'un de l'autre (mêmes lettres, ordre différent), insensible à la casse."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Anagrammes d'Asteria."
 bonus: true
 deliverables: [Anagramme.cs]
 starter: [Anagramme.cs]
@@ -32,7 +36,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Passe les deux mots en minuscules (ToLower), trie leurs caractères (OrderBy), compare avec SequenceEqual. Deux mots identiques ne comptent pas comme anagrammes."
+      - when: io_mismatch
+        message: "Passe les deux mots en minuscules (ToLower), trie leurs caractères (OrderBy), compare avec SequenceEqual. Deux mots identiques ne comptent pas comme anagrammes."
+      - when: compile_error
+        message: "OrderBy et SequenceEqual sont des extensions LINQ : ajoute using System.Linq et compare deux séquences du même type."
   course_ref: "cours.md#anagramme"
 solution: [Anagramme.cs]

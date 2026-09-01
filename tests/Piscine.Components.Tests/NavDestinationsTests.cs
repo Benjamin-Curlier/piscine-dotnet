@@ -11,7 +11,7 @@ public sealed class NavDestinationsTests
     {
         var routes = NavDestinations.Primary.Select(d => d.Route).ToArray();
         Assert.Equal(
-            new[] { "/", "/cours", "/progress", "/rapport", "/reglages", "/check", "/init", "/resultat", "/terminal" },
+            new[] { "/", "/cours", "/rushes", "/progress", "/rapport", "/reglages", "/check", "/init", "/resultat", "/terminal" },
             routes);
     }
 
@@ -47,5 +47,15 @@ public sealed class NavDestinationsTests
     {
         Assert.All(NavDestinations.Primary, d =>
             Assert.False(NavDestinations.IsActive(d, "module/05-git/ex00-branche-merge")));
+    }
+
+    [Theory]
+    [InlineData("rushes")]
+    [InlineData("rush/r7-poste-entreprise")]
+    public void Rushes_tab_is_active_for_overview_and_detail(string path)
+    {
+        var rushes = NavDestinations.Primary.First(destination => destination.Route == "/rushes");
+
+        Assert.True(NavDestinations.IsActive(rushes, path));
     }
 }

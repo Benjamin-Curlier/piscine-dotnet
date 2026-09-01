@@ -1,0 +1,17 @@
+.progress-list { display: grid; gap: 1.4rem; }
+.progress-module { border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.progress-rushes { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.progress-section-head { display: flex; justify-content: space-between; gap: 1rem; align-items: end; }
+.progress-kicker { color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.progress-module-title { margin: .1rem 0 .75rem; font-size: 1.05rem; }
+.progress-overview-link { font-size: .84rem; margin-bottom: .75rem; }
+.progress-exo-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.progress-exo-item { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; padding: .45rem 0; border-top: 1px solid var(--line); }
+.progress-exo-item:first-child { border-top: 0; }
+.progress-exo-title { flex: 1 1 240px; font-weight: 550; }
+.progress-milestone { color: var(--ink-soft); font-size: .78rem; }
+.progress-exo-link { font-size: .82rem; }
+
+@media (max-width: 620px) {
+    .progress-exo-title { flex-basis: 100%; }
+}

@@ -2,6 +2,10 @@ id: ex03-fibonacci
 title: "Suite de Fibonacci"
 objective: "Calculer et afficher le N-ième terme de la suite de Fibonacci (indexée à 0) avec une boucle."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Suite de Fibonacci d'Asteria."
 bonus: true
 deliverables: [Fibonacci.cs]
 starter: [Fibonacci.cs]
@@ -26,7 +30,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Deux variables a=0 et b=1 ; à chaque tour tmp = a + b, a = b, b = tmp. Après N tours, a contient F(N). Vérifie F(0)=0 et F(1)=1."
+      - when: io_mismatch
+        message: "Deux variables a=0 et b=1 ; à chaque tour tmp = a + b, a = b, b = tmp. Après N tours, a contient F(N). Vérifie F(0)=0 et F(1)=1."
+      - when: compile_error
+        message: "Déclare a, b et tmp en long avant la boucle ; tmp doit être calculé avant de remplacer a et b."
   course_ref: "cours.md#fibonacci"
 solution: [Fibonacci.cs]

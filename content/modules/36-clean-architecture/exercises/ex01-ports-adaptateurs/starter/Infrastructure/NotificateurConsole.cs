@@ -1,3 +1,5 @@
+#:include ..\Domain\INotificateur.cs
+
 using System;
 using Domain;
 

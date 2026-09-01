@@ -1,6 +1,11 @@
 id: ex01-cycle-vie
 title: "Cycle de vie"
 objective: "Implémenter IHostedService directement : StartAsync au démarrage, StopAsync à l'arrêt. Observer l'ordre du cycle de vie."
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [hosting,architecture]
+story_beat: "Sécuriser la capacité Cycle de vie d'Asteria."
 deliverables: [CycleVie.cs, LogCapture.cs]
 starter: [CycleVie.cs, LogCapture.cs]
 grading:
@@ -11,6 +16,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/CycleVieTests.cs]
+  - type: source
+    source:
+      required_fragments: ["IHostedService", "StartAsync", "StopAsync"]
 feedback:
   hints:
     - when: io_mismatch

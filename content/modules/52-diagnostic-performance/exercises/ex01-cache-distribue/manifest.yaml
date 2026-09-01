@@ -1,0 +1,25 @@
+id: ex01-cache-distribue
+title: "Définir un cache-aside observable"
+objective: "Utiliser HybridCache avec expiration, annulation, tags et métriques hit/miss."
+difficulty: difficile
+estimated_minutes: 95
+xp: 190
+tags: [cache, performance, distributed]
+story_beat: "Accélérer les lectures Asteria sans confondre cache et source de vérité."
+deliverables: [CachedCommandReader.cs]
+starter: [CachedCommandReader.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: CachedCommandReader.cs
+          required_fragments: ["HybridCache", "GetOrCreateAsync", "HybridCacheEntryOptions", "Expiration", "LocalCacheExpiration", "tags:", "CancellationToken cancellationToken", "await repository.ReadAsync", "Meter", "cache.requests"]
+          forbidden_fragments: ["CancellationToken.None", "TimeSpan.MaxValue", "static Dictionary", ".Result"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Injecte HybridCache et le repository, puis charge la source dans la factory asynchrone de GetOrCreateAsync."
+    - when: file_constraint
+      message: "Fixe expiration distribuée et locale, ajoute un tag de domaine, propage l'annulation et instrumente les requêtes."
+  course_ref: "cours.md#cache"
+solution: [CachedCommandReader.cs]

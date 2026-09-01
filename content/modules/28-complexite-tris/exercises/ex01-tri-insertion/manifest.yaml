@@ -1,40 +1,49 @@
 id: ex01-tri-insertion
 title: "Tri par insertion"
-objective: "Implémenter le tri par insertion croissant à la main, sans Array.Sort."
+objective: "Construire progressivement un préfixe trié en décalant les valeurs avant d'insérer chaque nouvelle clé."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [algorithms,performance]
+story_beat: "Sécuriser la capacité Tri par insertion d'Asteria."
 deliverables: [TriInsertion.cs]
 starter: [TriInsertion.cs]
 grading:
   - type: io
     cases:
-      - stdin: "5\n5 3 1 4 2\n"
+      - stdin: "5 3 1 4 2\n"
         expect_stdout: "1 2 3 4 5\n"
         expect_exit: 0
-      - stdin: "4\n4 1 3 2\n"
+      - stdin: "4 1 3 2\n"
         expect_stdout: "1 2 3 4\n"
         expect_exit: 0
-      - stdin: "2\n2 1\n"
+      - stdin: "2 1\n"
         expect_stdout: "1 2\n"
         expect_exit: 0
       # déjà trié : ne doit rien casser
-      - stdin: "4\n1 2 3 4\n"
+      - stdin: "1 2 3 4\n"
         expect_stdout: "1 2 3 4\n"
         expect_exit: 0
       # ordre inversé (pire cas)
-      - stdin: "5\n5 4 3 2 1\n"
+      - stdin: "5 4 3 2 1\n"
         expect_stdout: "1 2 3 4 5\n"
         expect_exit: 0
       # doublons + tableau plus grand (anti-hardcode)
-      - stdin: "8\n5 3 8 3 1 9 2 7\n"
+      - stdin: "5 3 8 3 1 9 2 7\n"
         expect_stdout: "1 2 3 3 5 7 8 9\n"
         expect_exit: 0
       # valeurs négatives et mixtes
-      - stdin: "4\n-3 0 -1 2\n"
+      - stdin: "-3 0 -1 2\n"
         expect_stdout: "-3 -1 0 2\n"
         expect_exit: 0
+  - type: source
+    source:
+      forbidden_fragments: ["Array.Sort", ".Sort(", ".OrderBy"]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Pour i de 1 à n-1 : retiens t[i] comme 'cle', décale vers la droite les éléments t[j] > cle (j = i-1 vers 0), puis place cle en t[j+1]. N'utilise pas Array.Sort."
+      message: "Pour i de 1 à t.Length-1 : retiens t[i] comme 'cle', décale vers la droite les éléments t[j] > cle (j = i-1 vers 0), puis place cle en t[j+1]. N'utilise pas Array.Sort."
+    - when: source_constraint
+      message: "Le but est de construire le préfixe trié : n'utilise pas Array.Sort, List.Sort ni OrderBy."
   course_ref: "cours.md#tri-insertion"
 solution: [TriInsertion.cs]

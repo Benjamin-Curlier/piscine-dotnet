@@ -1,2 +1,2 @@
-// Lis un entier n (>= 0) et affiche sa représentation binaire (sans zéros de tête ; 0 -> 0).
-// Astuce : using System; puis Convert.ToString(n, 2).
+// Lis un entier n (>= 0) et construis sa représentation binaire avec % 2 et / 2.
+// Interdit : Convert.ToString(n, 2) ou une API équivalente.

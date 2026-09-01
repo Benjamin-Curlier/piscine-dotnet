@@ -1,11 +1,10 @@
-var n     = int.Parse(System.Console.ReadLine());
-var t     = System.Array.ConvertAll(
+var t = System.Array.ConvertAll(
     System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries),
     int.Parse);
 var cible = int.Parse(System.Console.ReadLine());
 
 var gauche = 0;
-var droite = n - 1;
+var droite = t.Length - 1;
 var indice = -1;
 
 while (gauche <= droite)

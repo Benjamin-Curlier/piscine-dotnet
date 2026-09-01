@@ -2,6 +2,10 @@ id: ex03-puissance
 title: "Puissance récursive"
 objective: "Calculer base^exposant à l'aide d'une méthode récursive (exposant >= 0)."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [csharp,design]
+story_beat: "Sécuriser la capacité Puissance récursive d'Asteria."
 bonus: true
 deliverables: [Puissance.cs]
 starter: [Puissance.cs]
@@ -31,7 +35,9 @@ grading:
         expect_exit: 0
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Cas de base : exposant == 0 renvoie 1. Sinon base * Pow(base, exposant - 1). Utilise long pour éviter le débordement."
+      - when: io_mismatch
+        message: "Cas de base : exposant == 0 renvoie 1. Sinon base * Pow(base, exposant - 1). Utilise long pour éviter le débordement."
+      - when: compile_error
+        message: "La méthode récursive retourne long et reçoit la base ainsi que l'exposant ; tout chemin doit produire une valeur."
   course_ref: "cours.md#puissance"
 solution: [Puissance.cs]

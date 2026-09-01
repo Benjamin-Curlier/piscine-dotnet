@@ -1,0 +1,23 @@
+id: ex00-library-import
+title: "Déclarer une API native avec LibraryImport"
+objective: "Écrire un contrat P/Invoke généré, explicite sur l'entrée native et l'encodage."
+difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [interop, native-aot, contracts]
+story_beat: "Reconnecter un ancien capteur natif aux services managés d'Asteria."
+deliverables: [NativeApi.cs]
+starter: [NativeApi.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: NativeApi.cs
+          required_fragments: ["using System.Runtime.InteropServices", "static partial class NativeApi", "[LibraryImport(\"asteria_native\"", "EntryPoint = \"read_sensor\"", "StringMarshalling = StringMarshalling.Utf8", "SetLastError = true", "static partial int ReadSensor(string name, out double value)"]
+          forbidden_fragments: ["DllImport", "unsafe"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "LibraryImport se place sur une méthode static partial dans une classe partial. Renseigne bibliothèque, EntryPoint, UTF-8 et SetLastError sans implémenter le corps."
+  course_ref: "cours.md#libraryimport"
+solution: [NativeApi.cs]

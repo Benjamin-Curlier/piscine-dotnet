@@ -17,7 +17,7 @@ public class NormeGraderTests
             ["A.cs"] = "class A{void M(){int x=1;}}"
         };
 
-        var result = new NormeGrader().Grade(new GradingContext(sources),Step);
+        var result = new NormeGrader().Grade(new GradingContext(sources), Step);
 
         Assert.Equal(GraderStatus.Reussi, result.Status); // non bloquant
         Assert.NotEmpty(result.Messages);
@@ -33,7 +33,7 @@ public class NormeGraderTests
             ["A.cs"] = "class A\n{\n    void M()\n    {\n        int x = 1;\n    }\n}\n"
         };
 
-        var result = new NormeGrader().Grade(new GradingContext(sources),Step);
+        var result = new NormeGrader().Grade(new GradingContext(sources), Step);
 
         Assert.Equal(GraderStatus.Reussi, result.Status);
         Assert.Empty(result.Messages);
@@ -47,7 +47,7 @@ public class NormeGraderTests
             ["A.cs"] = "class A{void M(){int x=1;}}"
         };
 
-        var result = new NormeGrader().Grade(new GradingContext(sources),new GradingStep { Type = "norme", Blocking = true });
+        var result = new NormeGrader().Grade(new GradingContext(sources), new GradingStep { Type = "norme", Blocking = true });
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
     }

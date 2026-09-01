@@ -47,6 +47,13 @@ public sealed class CheckCommand
 
         var output = ResultFormatter.Format(result, submission.Manifest.Feedback);
         var exitCode = result.Status == GraderStatus.Reussi ? 0 : 1;
+
+        if (result.Status == GraderStatus.ARevoir)
+        {
+            new LastCheckFailureStore(_layout.LastCheckFailurePath).Save(
+                new LastCheckFailure(exerciseId, _timeProvider.GetLocalNow(), output));
+        }
+
         return new CommandResult(exitCode, output);
     }
 }

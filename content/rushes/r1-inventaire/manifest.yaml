@@ -1,6 +1,12 @@
 id: r1-inventaire
 title: "Rush 1 — Gestionnaire d'inventaire"
 objective: "Synthèse POO/collections : interpréteur de commandes d'inventaire (Dictionary, parsing, agrégation)."
+difficulty: moyen
+estimated_minutes: 90
+xp: 180
+tags: [oop,data,capstone]
+story_beat: "Remettre en service l'inventaire critique d'Asteria."
+recommended_after: "08-poo-2"
 deliverables: [Inventaire.cs]
 starter: [Inventaire.cs]
 grading:

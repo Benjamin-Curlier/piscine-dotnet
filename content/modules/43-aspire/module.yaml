@@ -1,0 +1,11 @@
+id: 43-aspire
+title: ".NET Aspire 13 : composer et observer un système distribué"
+order: 43
+prerequisites: [20-generic-host, 40-messaging-brokers, 42-observabilite-resilience]
+arc: "Acte VI — Asteria distribué"
+mission: "Réunir services, broker et observabilité dans un environnement Asteria reproductible."
+course: cours.md
+groups:
+  - id: apphost-topologie
+    title: "AppHost, Service Defaults et dépendances"
+    exercises: [ex00-apphost-nats, ex01-service-defaults, ex02-ordre-demarrage]

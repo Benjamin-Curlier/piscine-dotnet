@@ -1,0 +1,34 @@
+@inject IMissionService Service
+
+<h1>Missions</h1>
+
+@if (_loading)
+{
+    <p>Chargement…</p>
+}
+else
+{
+    <ul>
+        @foreach (var mission in _missions)
+        {
+            <li>@mission</li>
+        }
+    </ul>
+}
+
+@code {
+    private bool _loading = true;
+    private IReadOnlyList<string> _missions = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _missions = await Service.GetAllAsync();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

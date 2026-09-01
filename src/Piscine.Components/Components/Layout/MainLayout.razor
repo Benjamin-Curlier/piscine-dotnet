@@ -4,7 +4,10 @@
     @* Poignées de redimensionnement (chromeless Photino : l'OS retire la bordure de resize).
        Masquées hors hôte Photino via CSS — inertes en navigateur. *@
     <div class="resize-handles" aria-hidden="true">
-        <div class="rh rh-e"></div><div class="rh rh-s"></div><div class="rh rh-se"></div>
+        <div class="rh rh-n"></div><div class="rh rh-e"></div>
+        <div class="rh rh-s"></div><div class="rh rh-w"></div>
+        <div class="rh rh-ne"></div><div class="rh rh-se"></div>
+        <div class="rh rh-sw"></div><div class="rh rh-nw"></div>
     </div>
     @* S7 — lien d'évitement (a11y clavier) : 1ᵉʳ élément focalisable, masqué hors focus ; saute la
        navigation répétée pour atterrir sur le contenu principal (#main-content). *@
@@ -15,6 +18,7 @@
             <span class="brand-mark">{ }</span>
             <span class="brand-text">Piscine <strong>.NET</strong></span>
         </a>
+        <div class="titlebar-grip" aria-hidden="true"></div>
         <nav class="navbar-links no-drag" aria-label="Navigation principale">
             <NavTabs />
             <a href="https://github.com/Benjamin-Curlier/piscine-dotnet" target="_blank" rel="noopener">GitHub</a>
@@ -26,7 +30,7 @@
 
     <div class="body">
         <aside class="sidebar" aria-label="Plan des cours">
-            <NavMenu />
+            <NavMenu @rendermode="InteractiveServer" />
         </aside>
         <main class="main" id="main-content" tabindex="-1">
             <article class="content">

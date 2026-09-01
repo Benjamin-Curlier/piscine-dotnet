@@ -1,6 +1,9 @@
 id: 07-poo-1
 title: "POO 1 — Classes & objets"
 order: 7
+prerequisites: [03-methodes]
+arc: "Acte II — Cœur métier"
+mission: "Modéliser les équipements d'Asteria et protéger leurs invariants."
 course: cours.md
 groups:
   - id: classes-objets

@@ -1,0 +1,11 @@
+id: 44-socle-entreprise
+title: "Socle .NET d'entreprise : projets, build et configuration"
+order: 44
+prerequisites: [20-generic-host, 36-clean-architecture]
+arc: "Acte VII — Applications d'entreprise hybrides"
+mission: "Transformer les prototypes Asteria en une solution gouvernée, configurable et reproductible."
+course: cours.md
+groups:
+  - id: industrialisation
+    title: "MSBuild, options et frontières de projets"
+    exercises: [ex00-directory-build-props, ex01-options-validees, ex02-frontieres-projets]

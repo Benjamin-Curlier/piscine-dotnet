@@ -1,6 +1,11 @@
 id: ex01-salutation
 title: "Salutation"
 objective: "Lire un prénom sur l'entrée standard et saluer la personne."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [git,tooling]
+story_beat: "Sécuriser la capacité Salutation d'Asteria."
 deliverables: [Salutation.cs]
 starter: [Salutation.cs]
 grading:

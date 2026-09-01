@@ -1,0 +1,30 @@
+id: ex01-correlation-reponses
+title: "Corréler des réponses désordonnées"
+objective: "Rattacher chaque réponse à sa requête sans dépendre de l'ordre d'arrivée."
+difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [nats, messaging, collections]
+story_beat: "Réconcilier les réponses tardives des secteurs distants d'Asteria."
+deliverables: [Correlation.cs]
+starter: [Correlation.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nr1\nr2\nr3\n3\nr3 gamma\nr1 alpha\nr2 beta\n"
+        expect_stdout: "r1=alpha\nr2=beta\nr3=gamma\n"
+        expect_exit: 0
+      - stdin: "4\na\nb\nc\nd\n3\nd quatre\na un\nc trois\n"
+        expect_stdout: "a=un\nb=TIMEOUT\nc=trois\nd=quatre\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Dictionary<string, string>", "TryGetValue("]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Mémorise les réponses par correlationId, puis parcours l'ordre initial des requêtes ; une absence devient TIMEOUT."
+    - when: source_constraint
+      message: "Un Dictionary indexé par correlationId dissocie l'ordre réseau de l'ordre d'affichage."
+  course_ref: "cours.md#request-reply"
+solution: [Correlation.cs]

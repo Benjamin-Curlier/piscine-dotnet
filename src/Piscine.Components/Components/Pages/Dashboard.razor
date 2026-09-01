@@ -6,15 +6,22 @@
 @using Piscine.App.Push
 @using Piscine.Components.Components.Board
 @using Piscine.Components.Components.Progress
+@using Piscine.Components.Services
+@using Piscine.Core.Content
+@using Piscine.Core.Progression
 @inject CourseCatalog Catalog
 @inject ProgressService Progress
 @inject IPushResultWatcher Pushes
+@inject Piscine.Core.PiscineLayout Layout
 
 <PageTitle>Piscine .NET — Tableau de bord</PageTitle>
 
 <section class="hero" data-testid="dashboard">
     <h1>Tableau de bord</h1>
+    <p>Centre de contrôle Asteria — progresse mission après mission.</p>
 </section>
+
+<GamificationPanel Summary="_gamification" />
 
 @if (_resume is { } r)
 {
@@ -31,6 +38,8 @@ else
     <p class="board-alldone" data-testid="board-alldone">Tout est à jour. Beau travail&nbsp;✅</p>
 }
 
+<RushSpotlight Item="_recommendedRush" Counts="_rushCounts" Milestone="_recommendedMilestone" />
+
 <BoardOverview Counts="_counts" Modules="_modules" />
 <BoardRecent Recent="_recent" />
 
@@ -39,6 +48,10 @@ else
     private BoardCounts _counts = BoardCounts.From([]);
     private IReadOnlyList<ModuleProgress> _modules = [];
     private PushResult? _recent;
+    private GamificationSummary _gamification = new(0, 1, 0, 250, 0, 0, []);
+    private BoardCounts _rushCounts = BoardCounts.From([]);
+    private RushProgressItem? _recommendedRush;
+    private CourseModule? _recommendedMilestone;
 
     protected override void OnInitialized()
     {
@@ -47,13 +60,19 @@ else
             .Select(ex => (ex.ModuleId, ex.Id))
             .ToList();
 
+        var allTargets = exos
+            .Concat(Catalog.Rushes.Select(rush => (ContentLocator.RushesModuleId, rush.Id)))
+            .ToList();
+        var snapshot = Progress.SnapshotFor(allTargets);
         var status = new Dictionary<(string, string), ExerciseProgressStatus>();
-        foreach (var info in Progress.SnapshotFor(exos))
+        foreach (var info in snapshot)
         {
             status[(info.ModuleId, info.ExerciseId)] = info.Status;
         }
 
-        _counts = BoardCounts.From(status.Values.ToList());
+        _counts = BoardCounts.From(exos
+            .Select(exercise => status.GetValueOrDefault(exercise, ExerciseProgressStatus.NonCommence))
+            .ToList());
 
         _modules = Catalog.Modules
             .Where(m => m.HasExercises)
@@ -61,7 +80,7 @@ else
             {
                 var ids = m.Groups.SelectMany(g => g.Exercises).Select(e => e.Id).ToList();
                 var done = ids.Count(id => status.GetValueOrDefault((m.Id, id)) == ExerciseProgressStatus.PousseNote);
-                return new ModuleProgress(m.Number, m.Title, done, ids.Count);
+                return new ModuleProgress(m.Number, m.Title, done, ids.Count, m.Arc, m.Id);
             })
             .ToList();
 
@@ -74,5 +93,33 @@ else
         }
 
         _recent = Pushes.LatestResult();
+
+        var progress = new ProgressStore(Layout.ProgressPath).Load();
+        var rushItems = RushProgressCalculator.Build(Catalog, snapshot, progress);
+        _rushCounts = RushProgressCalculator.Counts(rushItems);
+        _recommendedRush = RushProgressCalculator.Recommend(rushItems);
+        _recommendedMilestone = _recommendedRush is null
+            ? null
+            : Catalog.GetRecommendedModule(_recommendedRush.Rush);
+
+        var gameExercises = Catalog.Modules
+            .SelectMany(module => module.Groups.SelectMany(group => group.Exercises))
+            .Select(exercise => new GamificationExercise(
+                exercise.ModuleId,
+                exercise.Id,
+                exercise.Xp,
+                exercise.Bonus,
+                exercise.Tags))
+            .Concat(Catalog.Rushes.Select(rush => new GamificationExercise(
+                Piscine.Core.Content.ContentLocator.RushesModuleId,
+                rush.Id,
+                rush.Xp,
+                rush.Bonus,
+                rush.Tags)))
+            .ToList();
+        _gamification = GamificationCalculator.Calculate(
+            gameExercises,
+            progress,
+            DateOnly.FromDateTime(DateTime.Now));
     }
 }

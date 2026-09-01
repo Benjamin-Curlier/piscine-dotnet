@@ -12,7 +12,7 @@ public sealed class PtyServiceTests
         IPtySession session;
         try
         {
-            session = await svc.StartAsync(new PtyStartInfo());
+            session = await svc.StartAsync(new PtyStartInfo(), ct: TestContext.Current.CancellationToken);
         }
         catch (Exception ex) when (ex is not Xunit.Sdk.XunitException)
         {
@@ -37,9 +37,9 @@ public sealed class PtyServiceTests
             };
 
             // 'echo' existe sous cmd, pwsh ET bash.
-            await session.WriteAsync("echo PISCINE_OK\r");
+            await session.WriteAsync("echo PISCINE_OK\r", TestContext.Current.CancellationToken);
 
-            var seen = await got.WaitAsync(TimeSpan.FromSeconds(15));
+            var seen = await got.WaitAsync(TimeSpan.FromSeconds(15), TestContext.Current.CancellationToken);
             string snapshot;
             lock (sb)
             {

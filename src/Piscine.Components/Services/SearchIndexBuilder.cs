@@ -81,6 +81,26 @@ public static class SearchIndexBuilder
             }
         }
 
+        // 4) Rushes : recherchables par titre, sujet, identifiant et compétences.
+        foreach (var rush in catalog.Rushes)
+        {
+            var milestone = catalog.GetRecommendedModule(rush);
+            var subtitle = milestone is null
+                ? "Mission de synthèse"
+                : $"Mission de synthèse · après M{milestone.Number}";
+            var keywords = new List<string> { rush.Id, "rush", "mission", "mini-projet" };
+            keywords.AddRange(rush.Tags);
+
+            commands.Add(new SearchCommand(
+                SearchKind.Rush,
+                rush.Title,
+                subtitle,
+                $"/rush/{rush.Id}",
+                $"cmd-rush-{rush.Id}",
+                Body: BuildRushBody(rush),
+                Keywords: keywords));
+        }
+
         return commands;
     }
 
@@ -91,6 +111,17 @@ public static class SearchIndexBuilder
         if (!string.IsNullOrWhiteSpace(exercise.SubjectMarkdown))
         {
             parts.Add(exercise.SubjectMarkdown);
+        }
+
+        return string.Join("\n\n", parts);
+    }
+
+    private static string BuildRushBody(CourseRush rush)
+    {
+        var parts = new List<string> { rush.Objective, rush.StoryBeat };
+        if (!string.IsNullOrWhiteSpace(rush.SubjectMarkdown))
+        {
+            parts.Add(rush.SubjectMarkdown);
         }
 
         return string.Join("\n\n", parts);

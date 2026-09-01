@@ -1,6 +1,11 @@
 id: ex00-premier-hote
 title: "Premier hôte"
 objective: "Construire un Generic Host, y enregistrer un service hébergé (BackgroundService) qui fait une unité de travail puis arrête proprement l'application."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [hosting,architecture]
+story_beat: "Sécuriser la capacité Premier hôte d'Asteria."
 deliverables: [PremierHote.cs, LogCapture.cs]
 starter: [PremierHote.cs, LogCapture.cs]
 grading:
@@ -11,6 +16,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/PremierHoteTests.cs]
+  - type: source
+    source:
+      required_fragments: ["Host.CreateApplicationBuilder", "BackgroundService"]
 feedback:
   hints:
     - when: io_mismatch

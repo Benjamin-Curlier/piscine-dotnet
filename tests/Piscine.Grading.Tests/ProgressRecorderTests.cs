@@ -25,6 +25,8 @@ public class ProgressRecorderTests
         Assert.Equal(ExerciseStatus.ARevoir, progress.Exercises["ex01"].Status);
         Assert.False(progress.Exercises.ContainsKey("ex02"));
         Assert.Equal(1, progress.Exercises["ex00"].Attempts);
+        Assert.Equal(DateTimeOffset.UnixEpoch, progress.Exercises["ex00"].FirstSucceededAt);
+        Assert.Single(progress.PracticeDays);
     }
 
     [Fact]
@@ -57,5 +59,23 @@ public class ProgressRecorderTests
         ProgressRecorder.Apply(progress, results, DateTimeOffset.UnixEpoch);
 
         Assert.Equal(2, progress.Exercises["ex00"].Attempts);
+        Assert.Single(progress.PracticeDays);
+    }
+
+    [Fact]
+    public void Apply_PreservesFirstSuccess_AndRecordsDistinctPracticeDays()
+    {
+        var progress = new Progress();
+        var success = new[] { new ExerciseGradingResult("ex00", new[] { GraderResult.Success("io") }) };
+        var first = new DateTimeOffset(2026, 8, 30, 9, 0, 0, TimeSpan.Zero);
+        var second = first.AddDays(2);
+
+        ProgressRecorder.Apply(progress, success, first);
+        ProgressRecorder.Apply(progress, success, second);
+
+        Assert.Equal(first, progress.Exercises["ex00"].FirstSucceededAt);
+        Assert.Equal(2, progress.PracticeDays.Count);
+        Assert.Equal(DateOnly.FromDateTime(first.LocalDateTime), progress.PracticeDays[0]);
+        Assert.Equal(DateOnly.FromDateTime(second.LocalDateTime), progress.PracticeDays[1]);
     }
 }

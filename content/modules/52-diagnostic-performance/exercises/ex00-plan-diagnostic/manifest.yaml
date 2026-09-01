@@ -1,0 +1,23 @@
+id: ex00-plan-diagnostic
+title: "Choisir la bonne preuve de diagnostic"
+objective: "Associer chaque symptôme à un signal, un outil, une reproduction et un critère de conclusion."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [diagnostics, performance, operations]
+story_beat: "Remplacer les intuitions sur Asteria par une enquête reproductible."
+deliverables: [DIAGNOSTIC.md]
+starter: [DIAGNOSTIC.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: DIAGNOSTIC.md
+          required_fragments: ["## Gel UI", "dispatcher", "## CPU élevé", "dotnet-trace", "## Mémoire croissante", "dotnet-counters", "dotnet-dump", "## Backlog broker", "âge du message", "## Contention", "ThreadPool", "baseline", "même charge", "version"]
+          forbidden_fragments: ["optimiser au hasard", "redémarrer suffit"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Pour chaque symptôme, écris reproduction, métrique de départ, outil de capture et signal qui confirme ou invalide l'hypothèse."
+  course_ref: "cours.md#diagnostic"
+solution: [DIAGNOSTIC.md]

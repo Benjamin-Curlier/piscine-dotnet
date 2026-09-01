@@ -1,0 +1,23 @@
+id: ex01-build-deterministe
+title: "Versionner un artefact traçable"
+objective: "Configurer un build déterministe dont la version informative contient la révision source."
+difficulty: moyen
+estimated_minutes: 55
+xp: 110
+tags: [msbuild, versioning, supply-chain]
+story_beat: "Relier chaque binaire Asteria au commit qui l'a produit."
+deliverables: [Versioning.props]
+starter: [Versioning.props]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Versioning.props
+          required_fragments: ['<Project>', '<Deterministic>true</Deterministic>', '<ContinuousIntegrationBuild Condition="''$(CI)'' == ''true''">true</ContinuousIntegrationBuild>', '<VersionPrefix>', '<RepositoryUrl>', '<PublishRepositoryUrl>true</PublishRepositoryUrl>', '<EmbedUntrackedSources>true</EmbedUntrackedSources>', '<IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>']
+          forbidden_fragments: ['<Deterministic>false', '<Version>1.0.0</Version>']
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Active Deterministic, le mode CI conditionnel, les métadonnées de dépôt et l'inclusion de la révision dans InformationalVersion."
+  course_ref: "cours.md#determinisme"
+solution: [Versioning.props]

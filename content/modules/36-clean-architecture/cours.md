@@ -24,6 +24,19 @@ On découpe l'application en couches concentriques, du cœur vers l'extérieur :
 - **Composition root** : le point d'entrée (`Program`) qui **câble** le tout : il choisit les
   implémentations concrètes et les injecte. C'est le **seul** endroit qui connaît `Infrastructure`.
 
+```text
+                 crée et injecte
+Program ───────────────────────────────┐
+   │                                   ▼
+   ├── utilise Application ───────► port du Domain ◄──── implémente Infrastructure
+   └── connaît Infrastructure           ▲
+                                        │
+Domain ◄──────────────────── Application┘
+
+Les flèches de dépendance du code pointent vers le Domain ; le flux d'exécution peut, lui,
+appeler l'implémentation Infrastructure injectée dans Application.
+```
+
 ## 2. La règle de dépendance {#regle-de-dependance}
 
 > **Les dépendances pointent toujours vers l'intérieur.** Une couche ne connaît que les couches
@@ -35,6 +48,11 @@ Concrètement :
 - **Application** ne référence **que Domain** (jamais Infrastructure).
 - **Infrastructure** peut référencer Domain (elle implémente ses ports).
 - **Program** (composition root) peut tout référencer, car il câble.
+
+Cette dernière ligne est une exception **volontaire** : voir `using Domain;` dans `Program.cs` ne
+viole pas la règle. `Program` doit connaître l'interface du Domain, le cas d'usage Application et
+l'adaptateur Infrastructure pour les relier. C'est dans `Application` ou `Domain` qu'un
+`using Infrastructure;` serait interdit.
 
 Comment Application utilise-t-elle une base de données sans en dépendre ? Par **inversion de
 dépendance** : le Domain définit un **port** (interface `IDepotTaches`), Application travaille avec
@@ -78,6 +96,19 @@ détails.
 
 Sur un petit projet, c'est parfois trop ; mais dès qu'une application doit durer et grandir, la
 règle de dépendance évite que tout se transforme en plat de spaghettis.
+
+## 5. Namespaces et exécution file-based {#namespaces}
+
+Un `namespace` regroupe les types d'une couche et évite les collisions de noms. La déclaration
+`namespace Domain;` place les types du fichier dans Domain ; `using Domain;` permet ensuite
+d'écrire `Tache` au lieu de `Domain.Tache`. Un `using` rend un nom visible : ce n'est pas une
+création d'objet et ce n'est pas, à lui seul, une violation d'architecture.
+
+Pour exécuter les livrables multi-fichiers directement dans Rider ou avec `dotnet run Program.cs`,
+le starter relie les fichiers avec des directives `#:include`. La propriété
+`ExperimentalFileBasedProgramEnableTransitiveDirectives` autorise les inclusions déclarées par les
+fichiers inclus. Ces directives peuvent rester dans le rendu : `piscine check` assemble déjà les
+livrables et les ignore automatiquement avant la compilation.
 
 ## Références externes
 

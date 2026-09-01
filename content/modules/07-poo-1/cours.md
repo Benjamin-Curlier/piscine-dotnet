@@ -75,6 +75,30 @@ class CompteBancaire
 
 De l'extérieur, impossible de mettre `_solde` à n'importe quoi : on passe par `Deposer`/`Retirer`.
 
+## 5. Aperçu : état partagé et état fixé
+
+Deux mots-clés utiles apparaissent souvent dans les classes :
+
+- `static` : le membre appartient au **type**, donc toutes les instances partagent la même valeur ;
+- `readonly` : le champ est fixé à la déclaration ou dans le constructeur, puis ne change plus.
+
+```csharp
+class Session
+{
+    public static int NombreCreees { get; private set; }
+    private readonly string _identifiant;
+
+    public Session(string identifiant)
+    {
+        _identifiant = identifiant;
+        NombreCreees++;
+    }
+}
+```
+
+Le module 26 détaillera `static`, `readonly`, `const` et l'immutabilité. Cet aperçu suffit pour ne
+pas les découvrir après les avoir rencontrés dans du code.
+
 ### Exercices du module
 
 - **[ex00-rectangle](#rectangle)** : une classe avec propriétés et une méthode `Aire()`.

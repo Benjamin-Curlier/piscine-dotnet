@@ -18,6 +18,9 @@ public enum SearchKind
     /// <summary>Un exercice.</summary>
     Exercise,
 
+    /// <summary>Une mission de synthèse transverse.</summary>
+    Rush,
+
     /// <summary>Un résultat de recherche plein-texte (cours ou sujet).</summary>
     Content,
 }

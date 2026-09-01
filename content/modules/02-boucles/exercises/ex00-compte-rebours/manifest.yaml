@@ -1,6 +1,11 @@
 id: ex00-compte-rebours
 title: "Compte à rebours"
 objective: "Afficher un compte à rebours de N à 1, un nombre par ligne."
+difficulty: facile
+estimated_minutes: 15
+xp: 30
+tags: [csharp,algorithms]
+story_beat: "Sécuriser la capacité Compte à rebours d'Asteria."
 deliverables: [CompteRebours.cs]
 starter: [CompteRebours.cs]
 grading:

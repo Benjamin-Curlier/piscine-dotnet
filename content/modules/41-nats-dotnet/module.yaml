@@ -1,0 +1,11 @@
+id: 41-nats-dotnet
+title: "NATS avec .NET 10 : Core, services et JetStream"
+order: 41
+prerequisites: [40-messaging-brokers]
+arc: "Acte VI — Asteria distribué"
+mission: "Mettre en service le bus léger qui transporte ordres et télémétries d'Asteria."
+course: cours.md
+groups:
+  - id: nats-pratique
+    title: "Groupes, corrélation et accusés"
+    exercises: [ex00-queue-group, ex01-correlation-reponses, ex02-ack-redelivery]

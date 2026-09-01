@@ -49,7 +49,7 @@ public class IoGraderTests
     }
 
     [Fact]
-    public void Grade_ARevoir_WhenStdoutDiffers()
+    public void Grade_ARevoir_WhenStdoutDiffers_ReportsTheFailingInput()
     {
         var sources = new Dictionary<string, string>
         {
@@ -58,10 +58,13 @@ public class IoGraderTests
                 """
         };
 
-        var result = new IoGrader().Grade(new GradingContext(sources), IoStep("Hello, Piscine!"));
+        var step = IoStep("Hello, Piscine!");
+        step.Cases[0].Stdin = "Alice\n";
+        var result = new IoGrader().Grade(new GradingContext(sources), step);
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.NotEmpty(result.Messages);
+        Assert.Contains(result.Messages, message => message.Contains("Alice\\n", System.StringComparison.Ordinal));
     }
 
     [Fact]
@@ -150,5 +153,24 @@ public class IoGraderTests
         // Fail-closed : sans cas, un rendu qui compile ne doit pas « réussir » par défaut.
         Assert.Equal(GraderStatus.ARevoir, result.Status);
         Assert.Contains(result.Messages, m => m.Contains("contenu", System.StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Grade_RuntimeException_ReportsTheFailingInput()
+    {
+        var sources = new Dictionary<string, string>
+        {
+            ["Program.cs"] = "throw new System.InvalidOperationException(\"boom\");"
+        };
+        var step = new GradingStep
+        {
+            Type = "io",
+            Cases = { new IoCase { Stdin = "42\n", ExpectStdout = string.Empty } }
+        };
+
+        var result = new IoGrader().Grade(new GradingContext(sources), step);
+
+        Assert.Equal(FeedbackTriggers.RuntimeError, result.Trigger);
+        Assert.Contains(result.Messages, message => message.Contains("42\\n", System.StringComparison.Ordinal));
     }
 }

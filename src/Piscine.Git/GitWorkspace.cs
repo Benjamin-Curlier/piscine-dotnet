@@ -13,6 +13,7 @@ namespace Piscine.Git;
 public static class GitWorkspace
 {
     public const string OriginName = "origin";
+    public const string DefaultBranchName = "main";
 
     public static void Initialize(PiscineLayout layout, string piscineExecutablePath)
     {
@@ -20,12 +21,14 @@ public static class GitWorkspace
         if (!Repository.IsValid(layout.WorkspaceRoot))
         {
             Repository.Init(layout.WorkspaceRoot);
+            SetInitialBranch(layout.WorkspaceRoot);
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(layout.RemoteRepoPath)!);
         if (!Repository.IsValid(layout.RemoteRepoPath))
         {
             Repository.Init(layout.RemoteRepoPath, isBare: true);
+            SetInitialBranch(layout.RemoteRepoPath);
         }
 
         using (var repo = new Repository(layout.WorkspaceRoot))
@@ -37,6 +40,17 @@ public static class GitWorkspace
         }
 
         InstallHook(layout.RemoteRepoPath, piscineExecutablePath);
+    }
+
+    /// <summary>
+    /// Force le nom de la branche encore à naître. LibGit2Sharp reprend sinon la configuration
+    /// globale de la machine (<c>master</c> sur de nombreux postes), alors que tout le parcours de
+    /// rendu pousse vers <c>origin/main</c>.
+    /// </summary>
+    private static void SetInitialBranch(string repositoryPath)
+    {
+        using var repo = new Repository(repositoryPath);
+        repo.Refs.UpdateTarget("HEAD", $"refs/heads/{DefaultBranchName}");
     }
 
     private static void InstallHook(string bareRepoPath, string piscineExecutablePath)

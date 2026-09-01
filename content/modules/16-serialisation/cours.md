@@ -72,9 +72,9 @@ valeur par défaut.
 using System.Text.Json;
 using System.Collections.Generic;
 
-var liste = new List<string> { "a", "b", "c" };
-var json = JsonSerializer.Serialize(liste);
-System.Console.WriteLine(json);   // ["a","b","c"]
+var noms = new List<string> { "a", "b", "c" };
+var payload = JsonSerializer.Serialize(noms);
+System.Console.WriteLine(payload); // ["a","b","c"]
 ```
 
 > Rappel (module 06) : `List<>` exige `using System.Collections.Generic;`.

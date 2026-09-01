@@ -12,6 +12,16 @@ public static class ContentLocator
 
     public static ExerciseLocation? FindExercise(PiscinePaths content, string exerciseId)
     {
+        // L'identifiant peut provenir d'une route ou du CLI. Il représente un seul nom de dossier,
+        // jamais un chemin relatif ou absolu.
+        if (string.IsNullOrWhiteSpace(exerciseId)
+            || exerciseId.Contains("..", StringComparison.Ordinal)
+            || exerciseId.Contains('/')
+            || exerciseId.Contains('\\'))
+        {
+            return null;
+        }
+
         if (Directory.Exists(content.ModulesDirectory))
         {
             foreach (var moduleDir in Directory.EnumerateDirectories(content.ModulesDirectory))

@@ -2,6 +2,10 @@ id: ex04-decomposer
 title: "God function → décomposition"
 objective: "Découper une fonction qui fait tout en étapes claires (parser, calculer, formater)."
 difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [quality,refactoring]
+story_beat: "Sécuriser la capacité God function → décomposition d'Asteria."
 bonus: true
 deliverables: [Bulletin.cs]
 starter: [Bulletin.cs]
@@ -29,9 +33,16 @@ grading:
       - stdin: "Jean,0,20\n"
         expect_stdout: "Jean: 10\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["Parser(", "Moyenne(", "Formater("]
+      required_occurrences:
+        - { fragment: "static", count: 3 }
 feedback:
   hints:
     - when: io_mismatch
       message: "Entrée 'nom,note,note,...'. Sépare en 3 méthodes : Parser (nom + tableau d'entiers), Moyenne (somme entière / nombre), Formater ('nom: moyenne'). La moyenne est une division entière."
+    - when: source_constraint
+      message: "Le grader attend trois étapes nommées Parser, Moyenne et Formater : une sortie correcte sans décomposition ne valide pas le refactoring."
   course_ref: "cours.md#decomposer"
 solution: [Bulletin.cs]

@@ -2,8 +2,12 @@ id: ex00-insert
 title: "DbContext, insertion & comptage"
 objective: "Créer un DbContext sur SQLite in-memory, insérer des entités et les compter."
 difficulty: moyen
-deliverables: [Catalogue.cs]
-starter: [Catalogue.cs]
+estimated_minutes: 45
+xp: 90
+tags: [data,ef-core]
+story_beat: "Sécuriser la capacité DbContext, insertion & comptage d'Asteria."
+deliverables: [InsertionProduits.cs]
+starter: [InsertionProduits.cs]
 grading:
   - type: io
     cases:
@@ -27,6 +31,9 @@ grading:
         expect_exit: 0
   - type: unit
     test_files: [grader/InsertTests.cs]
+  - type: source
+    source:
+      required_fragments: ["DbContext", "UseSqlite", "SaveChanges"]
 feedback:
   hints:
     - when: io_mismatch
@@ -34,4 +41,4 @@ feedback:
     - when: unit_failure
       message: "Il faut un VRAI DbContext : une entité Produit (avec Nom), un Catalogue : DbContext exposant DbSet<Produit> Produits et un constructeur (DbContextOptions<Catalogue>). Le comptage doit venir de la base, pas d'un Console.Write."
   course_ref: "cours.md#dbcontext"
-solution: [Catalogue.cs]
+solution: [InsertionProduits.cs]

@@ -2,6 +2,10 @@ id: ex03-using-exception
 title: "using & exception — libération garantie"
 objective: "Vérifier que using libère la ressource même quand une exception est levée."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [runtime,resources]
+story_beat: "Sécuriser la capacité using & exception — libération garantie d'Asteria."
 deliverables: [Transaction.cs]
 starter: [Transaction.cs]
 grading:
@@ -21,6 +25,9 @@ grading:
       - stdin: "z\n"
         expect_stdout: "ouvre z\ndebut\nferme z\nerreur attrapee\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["using", "try"]
 feedback:
   hints:
     - when: io_mismatch

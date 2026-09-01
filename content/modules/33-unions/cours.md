@@ -76,6 +76,10 @@ sealed record Termine(string Resultat) : Etat;
 Fini la grosse classe avec dix champs dont la moitié sont `null` selon l'état : les
 **combinaisons invalides deviennent inexprimables**.
 
+L'union permet aussi de contrôler les **transitions**. Une commande `progres 50` n'est valable que
+pour un `EnCours`; un état `Termine` ne peut plus revenir en arrière. Un `switch` sur l'état courant
+et la commande rend ces règles visibles au même endroit — c'est l'objet de l'ex03.
+
 ---
 
 ## 5. Déconstruction : rendre une valeur JSON {#json}
@@ -124,7 +128,7 @@ renvoie sa valeur. C'est ainsi que fonctionnent compilateurs et interpréteurs.
 - **ex00-forme** — union de formes & aire.
 - **ex01-resultat** — succès ou erreur sans exception.
 - **ex02-json** — valeur JSON (nombre/texte/booléen).
-- **ex03-etat** — machine à états aux données propres.
+- **ex03-etat** — machine à états et transitions autorisées.
 - **ex04-expr** *(bonus)* — arbre d'expression (union récursive).
 
 ## Références externes

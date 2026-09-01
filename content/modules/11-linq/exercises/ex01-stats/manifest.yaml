@@ -1,6 +1,11 @@
 id: ex01-stats
 title: "Statistiques"
 objective: "Calculer somme, min, max et moyenne avec les agrégats LINQ."
+difficulty: moyen
+estimated_minutes: 30
+xp: 60
+tags: [csharp,data]
+story_beat: "Sécuriser la capacité Statistiques d'Asteria."
 deliverables: [Stats.cs]
 starter: [Stats.cs]
 grading:
@@ -27,6 +32,9 @@ grading:
       - stdin: "1 2 3 4 5 6\n"
         expect_stdout: "Somme: 21\nMin: 1\nMax: 6\nMoyenne: 3\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: [".Sum(", ".Min(", ".Max(", ".Average("]
 feedback:
   hints:
     - when: io_mismatch

@@ -24,6 +24,8 @@ content/modules/<NN-slug>/
 id: 00-setup-git
 title: "Mise en place & premiers pas Git"
 order: 0
+arc: "Acte I — Prise de quart"
+mission: "Reprendre le contrôle d'un poste Asteria."
 course: cours.md
 groups:
   - id: premiers-commits
@@ -39,6 +41,11 @@ groups:
 id: ex00-hello
 title: "Hello, Piscine"
 objective: "Écrire un programme qui affiche un message précis."
+difficulty: facile
+estimated_minutes: 20
+xp: 40
+tags: [bases, console]
+story_beat: "Rétablir le premier signal du poste Asteria."
 deliverables: [Hello.cs]            # ce que la recrue doit rendre
 starter:      [starter/README.md]   # fichiers fournis au départ
 grading:                            # types combinables (hybride)
@@ -62,7 +69,8 @@ solution: [solution/Hello.cs]       # corrigé de référence — CI uniquement
 
 Voir [Moulinette](Moulinette) pour le détail des graders — outre `io` / `unit` / `norme`, le moteur
 fournit aussi `mutation` (l'élève écrit ses tests), `git` (état du dépôt), `projet` (multi-fichiers +
-archi) et `reseau` (écho TCP).
+archi), `reseau` (écho TCP), `source` (technique requise ou API interdite) et `fichier`
+(Dockerfile/Razor/shader/AppHost inspecté sans runtime externe).
 
 ## Étapes
 
@@ -82,6 +90,11 @@ archi) et `reseau` (écho TCP).
 graders présents, dossier `solution/` présent, livrables présents dans le corrigé, et que le
 **corrigé passe bien ses propres graders**. **La CI exécute la même commande** → un exercice cassé
 ne peut pas être mergé.
+
+Lance ensuite `piscine audit-content` : cet audit non bloquant repère les lignes de corrigé
+recopiées dans cours, indices ou starters, les modules vides, les objectifs trop similaires et les
+calibrages durée/difficulté atypiques.
+Chaque alerte demande une décision humaine.
 
 > Les dossiers `solution/` sont **exclus du zip distribué** (commande `package-content`) : la recrue
 > ne reçoit jamais les corrigés.

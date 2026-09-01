@@ -14,6 +14,7 @@ public static class NavDestinations
     [
         new NavDestination("Tableau de bord", "/", "nav-dashboard"),
         new NavDestination("Cours", "/cours", "nav-cours"),
+        new NavDestination("Rushes", "/rushes", "nav-rushes"),
         new NavDestination("Progression", "/progress", "nav-progress"),
         new NavDestination("Rapport", "/rapport", "nav-rapport"),
         new NavDestination("Réglages", "/reglages", "nav-reglages"),
@@ -40,6 +41,11 @@ public static class NavDestinations
 
         var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
         var first = segments.Length > 0 ? segments[0] : string.Empty;
+        if (route == "rushes" && string.Equals(first, "rush", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
         return string.Equals(first, route, StringComparison.OrdinalIgnoreCase);
     }
 }

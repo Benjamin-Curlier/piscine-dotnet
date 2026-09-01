@@ -1,0 +1,22 @@
+id: ex01-liste-asynchrone
+title: "Charger un composant asynchrone"
+objective: "Injecter un service, représenter les états de chargement et appeler OnInitializedAsync."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [blazor, async, dependency-injection]
+story_beat: "Afficher les missions récupérées du service de planification Asteria."
+deliverables: [Missions.razor]
+starter: [Missions.razor]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: Missions.razor
+          required_fragments: ["@inject IMissionService Service", "@if (_loading)", "@foreach (var mission in _missions)", "protected override async Task OnInitializedAsync()", "await Service.GetAllAsync()", "finally", "_loading = false"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Injecte le service, affiche un état tant que _loading vaut true, charge dans OnInitializedAsync, puis passe _loading à false dans finally avant d'itérer les missions."
+  course_ref: "cours.md#cycle-de-vie"
+solution: [Missions.razor]

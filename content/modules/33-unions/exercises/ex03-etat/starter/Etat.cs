@@ -1,11 +1,12 @@
 using System;
 
-// Lis "attente", "cours N" ou "termine X". Modélise l'état comme une union où CHAQUE
-// variante porte ses propres données. Affiche : "en attente", "en cours a N%",
-// "termine: X" selon l'état.
+// La machine commence EnAttente. Lis N puis N commandes : demarrer, progres P, terminer X.
+// Après une transition acceptée, affiche le nouvel état. Sinon affiche "transition refusee".
 
-var ligne = System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+var n = int.Parse(System.Console.ReadLine());
+Etat etat = new EnAttente();
 
-// TODO : construis l'Etat selon ligne[0], décris-le via un switch sur le type.
+// TODO : pour chaque commande, calcule la transition selon l'état courant et la commande.
+//        Si elle est refusée, garde l'ancien état. Sinon, affiche le nouvel état.
 
 // TODO : abstract record Etat; sealed record EnAttente : Etat; sealed record EnCours(int Pourcent) : Etat; sealed record Termine(string Resultat) : Etat;

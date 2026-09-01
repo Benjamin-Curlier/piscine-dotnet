@@ -1,0 +1,23 @@
+id: ex02-budget-performance
+title: "Écrire un budget de performance système"
+objective: "Définir des seuils mesurables pour le poste, l'API, le broker, la mémoire et la reprise."
+difficulty: moyen
+estimated_minutes: 65
+xp: 130
+tags: [performance, slo, desktop, distributed]
+story_beat: "Fixer les limites acceptables avant la montée en charge finale d'Asteria."
+deliverables: [PERFORMANCE.md]
+starter: [PERFORMANCE.md]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: PERFORMANCE.md
+          required_fragments: ["## Environnement", "## Démarrage du poste", "## Réactivité UI", "p95", "## API", "## Broker", "backlog", "## Mémoire", "## Reprise", "baseline", "charge", "critère d'échec", "artefacts"]
+          forbidden_fragments: ["le plus rapide possible", "aucune limite"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "Pour chaque couche, fixe unité, percentile ou fenêtre, charge, seuil, outil et artefact à conserver."
+  course_ref: "cours.md#budgets"
+solution: [PERFORMANCE.md]

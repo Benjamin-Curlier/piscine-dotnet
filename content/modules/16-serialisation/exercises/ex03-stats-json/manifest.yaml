@@ -1,7 +1,11 @@
 id: ex03-stats-json
 title: "Statistiques JSON"
 objective: "Désérialiser un tableau JSON d'entiers et re-sérialiser un objet {Min, Max, Somme}."
-difficulty: difficile
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,serialization]
+story_beat: "Sécuriser la capacité Statistiques JSON d'Asteria."
 bonus: true
 deliverables: [StatsJson.cs]
 starter: [StatsJson.cs]
@@ -26,6 +30,9 @@ grading:
       - stdin: "[0,-3,7,2]\n"
         expect_stdout: "{\"Min\":-3,\"Max\":7,\"Somme\":6}\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["JsonSerializer.Deserialize", "JsonSerializer.Serialize"]
 feedback:
   hints:
     - when: io_mismatch

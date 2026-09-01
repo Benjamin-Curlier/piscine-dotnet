@@ -1,0 +1,36 @@
+id: ex01-retry-borne
+title: "Appliquer un retry borné"
+objective: "Distinguer succès, erreur transitoire et erreur définitive sous un budget de tentatives."
+difficulty: facile
+estimated_minutes: 30
+xp: 60
+tags: [resilience, algorithms]
+story_beat: "Éviter qu'une liaison instable monopolise indéfiniment les ressources d'Asteria."
+deliverables: [Retry.cs]
+starter: [Retry.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "4\nTEMP TEMP OK TEMP\n"
+        expect_stdout: "SUCCESS 3\n"
+        expect_exit: 0
+      - stdin: "3\nTEMP TEMP TEMP OK\n"
+        expect_stdout: "FAILURE 3\n"
+        expect_exit: 0
+      - stdin: "5\nTEMP FATAL OK\n"
+        expect_stdout: "FAILURE 2\n"
+        expect_exit: 0
+      - stdin: "2\nOK\n"
+        expect_stdout: "SUCCESS 1\n"
+        expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["for (", "FATAL"]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Consomme au plus maxAttempts résultats : OK réussit, TEMP autorise la tentative suivante, FATAL arrête immédiatement."
+    - when: source_constraint
+      message: "Une boucle bornée rend le budget visible ; ne transforme pas le retry en récursion ouverte."
+  course_ref: "cours.md#timeout"
+solution: [Retry.cs]

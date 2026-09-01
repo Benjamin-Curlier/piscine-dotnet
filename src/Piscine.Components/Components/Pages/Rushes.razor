@@ -1,0 +1,116 @@
+@page "/rushes"
+@rendermode InteractiveServer
+@using Piscine.App.Board
+@using Piscine.App.Progress
+@using Piscine.Components.Components.Board
+@using Piscine.Components.Components.Progress
+@using Piscine.Components.Services
+@using Piscine.Core
+@using Piscine.Core.Content
+@using Piscine.Core.Progression
+@inject CourseCatalog Catalog
+@inject ProgressService Progress
+@inject PiscineLayout Layout
+
+<PageTitle>Rushes — Piscine .NET</PageTitle>
+
+<section class="hero rushes-hero" data-testid="rushes-page">
+    <span class="rushes-kicker">Centre Asteria</span>
+    <h1>Missions de synthèse</h1>
+    <p class="hero-sub">
+        Les Rushes combinent plusieurs concepts dans un mini-projet. Les jalons indiquent le bon
+        moment pour les tenter, sans jamais verrouiller leur accès.
+    </p>
+</section>
+
+<RushSpotlight Item="_recommended" Counts="_counts" Milestone="_recommendedMilestone" />
+
+<section class="rush-roadmap" aria-labelledby="rush-roadmap-title">
+    <div class="rush-roadmap-head">
+        <div>
+            <span class="rushes-kicker">Feuille de route</span>
+            <h2 id="rush-roadmap-title">Les @(_items.Count) missions</h2>
+        </div>
+        <div class="rush-roadmap-counts" aria-label="Progression des Rushes">
+            <span><strong>@_counts.Fait</strong> validé@(_counts.Fait > 1 ? "s" : "")</span>
+            <span><strong>@_counts.EnCours</strong> en cours</span>
+            <span><strong>@_counts.ARevoir</strong> à revoir</span>
+        </div>
+    </div>
+
+    <ol class="rush-timeline">
+        @foreach (var item in _items)
+        {
+            var milestone = Catalog.GetRecommendedModule(item.Rush);
+            <li class="rush-timeline-item @(StateClass(item))" data-testid="rush-card">
+                <span class="rush-node" aria-hidden="true">@(item.IsComplete ? "✓" : "★")</span>
+                <article class="rush-roadmap-card">
+                    <header>
+                        <div>
+                            <span class="rush-milestone">
+                                @if (milestone is not null)
+                                {
+                                    @($"Conseillée après M{milestone.Number} — {milestone.Title}")
+                                }
+                                else
+                                {
+                                    <span>Mission libre</span>
+                                }
+                            </span>
+                            <h3>@item.Rush.Title</h3>
+                        </div>
+                        <StatusBadge Status="item.StatusInfo.Status" Source="item.StatusInfo.Source" />
+                    </header>
+                    <p class="rush-story">@item.Rush.StoryBeat</p>
+                    <p class="rush-objective">@item.Rush.Objective</p>
+                    <div class="rush-card-meta">
+                        <span>@item.Rush.Difficulty</span>
+                        <span>≈ @item.Rush.EstimatedMinutes min</span>
+                        <span>+@item.Rush.Xp XP</span>
+                        <span>Moulinette automatique</span>
+                        @if (item.Rush.ManualValidation)
+                        {
+                            <span class="manual">Preuves terrain à relire</span>
+                        }
+                        @if (item.Attempts > 0)
+                        {
+                            <span>@item.Attempts tentative@(item.Attempts > 1 ? "s" : "")</span>
+                        }
+                    </div>
+                    <footer>
+                        <span class="rush-readiness @(item.MilestoneReached ? "ready" : "upcoming")">
+                            @(item.MilestoneReached ? "Jalon atteint" : "Accessible dès maintenant · jalon à venir")
+                        </span>
+                        <a href="/rush/@item.Rush.Id">@item.ActionLabel →</a>
+                    </footer>
+                </article>
+            </li>
+        }
+    </ol>
+</section>
+
+@code {
+    private IReadOnlyList<RushProgressItem> _items = [];
+    private BoardCounts _counts = BoardCounts.From([]);
+    private RushProgressItem? _recommended;
+    private CourseModule? _recommendedMilestone;
+
+    protected override void OnInitialized()
+    {
+        var targets = Catalog.Modules
+            .SelectMany(module => module.Groups.SelectMany(group => group.Exercises))
+            .Select(exercise => (exercise.ModuleId, exercise.Id))
+            .Concat(Catalog.Rushes.Select(rush => (ContentLocator.RushesModuleId, rush.Id)))
+            .ToList();
+        var statuses = Progress.SnapshotFor(targets);
+        var persisted = new ProgressStore(Layout.ProgressPath).Load();
+
+        _items = RushProgressCalculator.Build(Catalog, statuses, persisted);
+        _counts = RushProgressCalculator.Counts(_items);
+        _recommended = RushProgressCalculator.Recommend(_items);
+        _recommendedMilestone = _recommended is null ? null : Catalog.GetRecommendedModule(_recommended.Rush);
+    }
+
+    private static string StateClass(RushProgressItem item)
+        => item.IsComplete ? "complete" : item.IsStarted ? "started" : item.MilestoneReached ? "ready" : "upcoming";
+}

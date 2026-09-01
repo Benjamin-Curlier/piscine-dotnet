@@ -42,7 +42,30 @@ git push origin main       # déclenche la moulinette et enregistre ta progressi
 > La correction est **éducative** : on t'explique *ce qui était attendu* vs *ce que tu as obtenu*.
 > Pas de note chiffrée. Statuts : **Réussi**, **À revoir**, **Non corrigé**.
 
-## 3. Hello world en C# {#hello-world}
+## 3. Tester ton fichier dans ton IDE
+
+Visual Studio, Rider et VS Code possèdent tous un terminal intégré. Place-toi dans le dossier de
+l'exercice, puis exécute directement le fichier avec le SDK .NET 10 :
+
+```bash
+dotnet run Hello.cs
+```
+
+Pour un exercice qui lit une entrée, tu peux la saisir au clavier ou rejouer un cas précis. Par
+exemple, dans PowerShell :
+
+```powershell
+"Alice" | dotnet run Salutation.cs
+```
+
+Cette commande sert à observer et déboguer ton programme. Termine toujours par
+`piscine check <exercice>` : le correcteur rejoue plusieurs entrées, y compris des cas limites, et
+affiche désormais l'entrée exacte lorsqu'une exception survient.
+
+Les modules qui nécessitent plusieurs fichiers ou des paquets NuGet fournissent leurs propres
+directives `#:` et leurs instructions d'exécution.
+
+## 4. Hello world en C# {#hello-world}
 
 Un programme C# minimal peut s'écrire en une ligne (« top-level statements ») :
 
@@ -55,7 +78,7 @@ System.Console.WriteLine("Bonjour !");
 - Les guillemets `"..."` délimitent une chaîne de caractères. Respecte **exactement** la casse,
   la ponctuation et les espaces : la moulinette compare le texte au caractère près.
 
-## 4. Lire l'entrée standard {#lire-l-entree}
+## 5. Lire l'entrée standard {#lire-l-entree}
 
 Pour lire une ligne tapée par l'utilisateur :
 

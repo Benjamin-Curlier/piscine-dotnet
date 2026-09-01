@@ -1,7 +1,11 @@
 id: ex03-readonly-struct
 title: "Norme 1 d'un readonly struct"
 objective: "Définir un readonly struct Vecteur avec une propriété Norme1 (|X| + |Y|) et afficher la norme d'un vecteur lu en entrée."
-difficulty: difficile
+difficulty: moyen
+estimated_minutes: 35
+xp: 70
+tags: [csharp,immutability]
+story_beat: "Sécuriser la capacité Norme 1 d'un readonly struct d'Asteria."
 bonus: true
 deliverables: [ReadonlyStruct.cs]
 starter: [ReadonlyStruct.cs]
@@ -29,6 +33,9 @@ grading:
       - stdin: "0\n-7\n"
         expect_stdout: "7\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["readonly struct Vecteur"]
 feedback:
   hints:
     - when: io_mismatch

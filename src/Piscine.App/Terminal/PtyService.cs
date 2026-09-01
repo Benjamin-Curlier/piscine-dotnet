@@ -273,7 +273,10 @@ public sealed class PtyService
         /// <summary>Fusionne <paramref name="pending"/> en un seul tableau et invoque <see cref="Output"/>.</summary>
         private void Flush(List<byte[]> pending, ref int pendingSize)
         {
-            if (pending.Count == 0) return;
+            if (pending.Count == 0)
+            {
+                return;
+            }
 
             byte[] merged;
             if (pending.Count == 1)

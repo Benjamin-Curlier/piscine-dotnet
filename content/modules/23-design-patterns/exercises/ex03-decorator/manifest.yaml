@@ -2,6 +2,10 @@ id: ex03-decorator
 title: "Le pattern Decorator"
 objective: "Composer des décorateurs (maj / crochets / etoiles) qui enveloppent un texte, dans l'ordre donné."
 difficulty: difficile
+estimated_minutes: 60
+xp: 120
+tags: [patterns,architecture]
+story_beat: "Sécuriser la capacité Le pattern Decorator d'Asteria."
 bonus: true
 deliverables: [Decorator.cs]
 starter: [Decorator.cs]
@@ -27,10 +31,13 @@ grading:
       - stdin: "abc\ninconnu,maj\n"
         expect_stdout: "ABC\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["interface ITexte", "TexteSimple"]
 feedback:
   hints:
     - when: io_mismatch
-      message: "Pars de TexteBrut(texte), puis pour chaque décoration remplace l'objet courant par new Decorateur(courant). Chaque Rendu() appelle _inner.Rendu() puis applique sa transformation. L'ordre d'enveloppement compte."
+      message: "Pars de TexteSimple(texte). Pour chaque décoration, crée le décorateur autour de l'ITexte courant, puis remplace courant par ce nouvel objet. Chaque Rendu() appelle _inner.Rendu() avant sa transformation."
     - when: runtime_error
       message: "Vérifie que chaque décorateur stocke l'ITexte enveloppé et appelle son Rendu() (sinon NullReference)."
   course_ref: "cours.md#decorator"

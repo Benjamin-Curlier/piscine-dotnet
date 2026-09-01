@@ -2,6 +2,10 @@ id: ex04-expr
 title: "Arbre d'expression (union récursive)"
 objective: "Évaluer un arbre arithmétique modélisé par une union récursive via pattern matching."
 difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Arbre d'expression (union récursive) d'Asteria."
 bonus: true
 deliverables: [Expression.cs]
 starter: [Expression.cs]
@@ -29,9 +33,14 @@ grading:
       - stdin: "+ * 2 3 * 4 5\n"
         expect_stdout: "26\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract record Expr", "switch"]
 feedback:
   hints:
-    - when: io_mismatch
-      message: "Union : Nombre(int) ou Operation(symbole, gauche, droite). Lis la notation préfixe récursivement : si le token est + ou *, lis deux sous-expressions ; sinon c'est un nombre. Évalue par un switch récursif. '+ 3 * 4 2' = 3 + (4*2) = 11."
+      - when: io_mismatch
+        message: "Union : Nombre(int) ou Operation(symbole, gauche, droite). Lis la notation préfixe récursivement : si le token est + ou *, lis deux sous-expressions ; sinon c'est un nombre. Évalue par un switch récursif. '+ 3 * 4 2' = 3 + (4*2) = 11."
+      - when: compile_error
+        message: "Déclare une base abstraite puis deux records dérivés ; Parser et Evaluer retournent le type de base pour accepter toutes les variantes."
   course_ref: "cours.md#recursive"
 solution: [Expression.cs]

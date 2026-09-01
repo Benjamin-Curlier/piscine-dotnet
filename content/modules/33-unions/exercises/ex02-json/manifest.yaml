@@ -2,6 +2,10 @@ id: ex02-json
 title: "Valeur JSON — union de cas"
 objective: "Modéliser une valeur (nombre, texte, booléen) et la rendre selon sa variante."
 difficulty: moyen
+estimated_minutes: 45
+xp: 90
+tags: [csharp,modeling]
+story_beat: "Sécuriser la capacité Valeur JSON — union de cas d'Asteria."
 deliverables: [Json.cs]
 starter: [Json.cs]
 grading:
@@ -28,6 +32,9 @@ grading:
       - stdin: "texte monde\n"
         expect_stdout: "\"monde\"\n"
         expect_exit: 0
+  - type: source
+    source:
+      required_fragments: ["abstract record Valeur"]
 feedback:
   hints:
     - when: io_mismatch

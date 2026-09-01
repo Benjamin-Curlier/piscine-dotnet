@@ -1,0 +1,13 @@
+@rendermode InteractiveServer
+
+<h1>Compteur Asteria</h1>
+<p>Valeur : @_count</p>
+<label>Pas <input type="number" @bind="_step" /></label>
+<button @onclick="Increment">Ajouter</button>
+
+@code {
+    private int _count;
+    private int _step = 1;
+
+    private void Increment() => _count += _step;
+}

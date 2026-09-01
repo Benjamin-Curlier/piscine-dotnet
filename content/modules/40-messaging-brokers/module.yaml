@@ -1,0 +1,11 @@
+id: 40-messaging-brokers
+title: "Brokers et messaging : NATS, RabbitMQ, ZeroMQ"
+order: 40
+prerequisites: [12-async-await, 22-reseau]
+arc: "Acte VI — Asteria distribué"
+mission: "Choisir les bons échanges pour relier les services d'Asteria sans les coupler."
+course: cours.md
+groups:
+  - id: fondamentaux-messaging
+    title: "Topologies, routage et garanties"
+    exercises: [ex00-choisir-topologie, ex01-routage-sujets, ex02-consommateur-idempotent]

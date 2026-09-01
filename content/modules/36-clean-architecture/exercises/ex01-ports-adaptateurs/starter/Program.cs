@@ -1,3 +1,12 @@
+#!
+#:property ExperimentalFileBasedProgramEnableTransitiveDirectives=true
+#:include .\Domain\Livre.cs
+#:include .\Domain\IDepotLivres.cs
+#:include .\Domain\INotificateur.cs
+#:include .\Application\Bibliotheque.cs
+#:include .\Infrastructure\DepotMemoire.cs
+#:include .\Infrastructure\NotificateurConsole.cs
+
 using Application;
 using Infrastructure;
 

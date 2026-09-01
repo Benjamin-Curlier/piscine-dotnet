@@ -1,8 +1,11 @@
 id: 37-docker
 title: "Docker & conteneurisation (.NET 10)"
 order: 37
+prerequisites: [20-generic-host]
+arc: "Acte V — Frontières et interfaces"
+mission: "Emballer les services dans des images petites, reproductibles et sans secret."
 course: cours.md
 groups:
-  - id: docker-lecture
-    title: "À lire et pratiquer"
-    exercises: []
+  - id: images-reproductibles
+    title: "Images reproductibles et contexte sûr"
+    exercises: [ex00-dockerfile-multistage, ex01-dockerignore]

@@ -1,0 +1,25 @@
+id: ex02-derniere-requete
+title: "Empêcher un résultat obsolète"
+objective: "Combiner annulation et numéro de révision pour garantir que la dernière recherche gagne."
+difficulty: difficile
+estimated_minutes: 90
+xp: 180
+tags: [desktop, concurrency, cancellation]
+story_beat: "Éviter qu'une réponse lente remplace l'état récent du poste Asteria."
+deliverables: [LatestSearchViewModel.cs]
+starter: [LatestSearchViewModel.cs]
+grading:
+  - type: fichier
+    file:
+      rules:
+        - path: LatestSearchViewModel.cs
+          required_fragments: ["CancellationTokenSource? _current", "Interlocked.Increment", "CancellationTokenSource.CreateLinkedTokenSource", "Interlocked.Exchange", "previous?.Cancel()", "await client.SearchAsync", "Volatile.Read", "revision !=", "OperationCanceledException"]
+          forbidden_fragments: [".Result", ".Wait(", "Thread.Sleep", "async void"]
+feedback:
+  hints:
+    - when: file_constraint
+      message: "À chaque recherche, incrémente une révision et remplace atomiquement le CancellationTokenSource courant."
+    - when: file_constraint
+      message: "Après l'await, compare la révision capturée à la révision actuelle avant de publier le résultat."
+  course_ref: "cours.md#latest-wins"
+solution: [LatestSearchViewModel.cs]

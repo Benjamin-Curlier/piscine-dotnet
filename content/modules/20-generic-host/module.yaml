@@ -1,6 +1,9 @@
 id: 20-generic-host
 title: "Generic Host & services hébergés"
 order: 20
+prerequisites: [12-async-await, 18-injection-dependances, 19-logging]
+arc: "Acte III — Services en production"
+mission: "Maintenir les services de contrôle en vie, configurés et capables de s'arrêter proprement."
 course: cours.md
 groups:
   - id: generic-host

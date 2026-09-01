@@ -1,6 +1,9 @@
 id: 11-linq
 title: "LINQ — Requêtes sur les collections"
 order: 11
+prerequisites: [06-collections, 10-generiques-lambdas]
+arc: "Acte II — Cœur métier"
+mission: "Interroger les journaux de télémétrie pour en extraire des décisions."
 course: cours.md
 groups:
   - id: requetes-linq
