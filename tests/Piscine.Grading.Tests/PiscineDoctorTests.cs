@@ -16,7 +16,7 @@ public sealed class PiscineDoctorTests
         dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"),
             "id: 00-setup\ntitle: Setup\norder: 0\ncourse: cours.md\ngroups: []\n");
         var sandbox = dir.WriteFile("Piscine.Sandbox.exe", string.Empty);
-        var editor = dir.WriteFile("code.exe", string.Empty);
+        var editor = dir.WriteFile(OperatingSystem.IsWindows() ? "code.exe" : "code", string.Empty);
         var layout = new PiscineLayout(dir.Combine("content"), dir.Combine("workspace"), dir.Combine("state"));
 
         var report = PiscineDoctor.Inspect(

@@ -40,16 +40,16 @@
                         var result = _results[i];
                         var command = result.Command;
                         <li role="presentation">
-                            <button type="button"
-                                    class="cmdk-item @(index == _selected ? "selected" : "")"
-                                    id="@OptionId(index)"
-                                    role="option"
-                                    aria-selected="@(index == _selected ? "true" : "false")"
-                                    tabindex="-1"
-                                    data-testid="@command.TestId"
-                                    data-kind="@command.Kind"
-                                    @onclick="() => Activate(command)"
-                                    @onmouseenter="() => _selected = index">
+                            <a href="@command.Route"
+                               class="cmdk-item @(index == _selected ? "selected" : "")"
+                               id="@OptionId(index)"
+                               role="option"
+                               aria-selected="@(index == _selected ? "true" : "false")"
+                               tabindex="-1"
+                               data-testid="@command.TestId"
+                               data-kind="@command.Kind"
+                               @onclick="() => Activate(command)"
+                               @onmouseenter="() => _selected = index">
                                 <span class="cmdk-kind" aria-hidden="true">@KindGlyph(command.Kind)</span>
                                 <span class="cmdk-body">
                                     <span class="cmdk-title">@command.Title</span>
@@ -63,7 +63,7 @@
                                     }
                                 </span>
                                 <span class="cmdk-route">@command.Route</span>
-                            </button>
+                            </a>
                         </li>
                     }
                 </ul>
