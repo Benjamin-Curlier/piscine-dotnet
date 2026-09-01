@@ -46,7 +46,7 @@ public sealed class CheckCommand
         store.Save(progress);
 
         var output = ResultFormatter.Format(result, submission.Manifest.Feedback);
-        var exitCode = result.Status == GraderStatus.Reussi ? 0 : 1;
+        var exitCode = result.Status is GraderStatus.Reussi or GraderStatus.EnAttenteRelecture ? 0 : 1;
 
         if (result.Status == GraderStatus.ARevoir)
         {

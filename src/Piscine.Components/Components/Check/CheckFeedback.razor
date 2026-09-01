@@ -86,6 +86,8 @@ else
             "Aucun fichier dans ton workspace. Clique « Ouvrir le dossier » et code d'abord, puis relance la vérification.",
         CheckVerdict.Introuvable =>
             "Exercice introuvable dans le contenu. Vérifie l'identifiant de l'exercice ou reviens à la liste des exercices.",
+        CheckVerdict.EnAttenteRelecture =>
+            "Les contrôles automatiques passent. Relis et rejoue maintenant tes preuves d'exploitation ; aucun XP n'est encore accordé avant ton attestation personnelle.",
         _ => null,
     };
 
@@ -121,6 +123,7 @@ else
     {
         CheckVerdict.Reussi => "Réussi",
         CheckVerdict.ARevoir => "À revoir",
+        CheckVerdict.EnAttenteRelecture => "En attente de relecture",
         CheckVerdict.AucunFichier => "Aucun fichier rendu",
         CheckVerdict.Introuvable => "Exercice introuvable",
         _ => "Inconnu",
@@ -130,6 +133,7 @@ else
     {
         CheckVerdict.Reussi => "success",
         CheckVerdict.ARevoir => "error",
+        CheckVerdict.EnAttenteRelecture => "pending",
         _ => "neutral",
     };
 

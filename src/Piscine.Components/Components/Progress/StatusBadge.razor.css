@@ -26,3 +26,9 @@
     background-color: var(--badge-error-bg, #fee2e2);
     color: var(--badge-error-fg, #991b1b);
 }
+
+.badge.status-en-attente-relecture {
+    color: #fbbf24;
+    background: color-mix(in srgb, #f59e0b 16%, transparent);
+    border-color: color-mix(in srgb, #f59e0b 45%, transparent);
+}

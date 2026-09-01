@@ -490,6 +490,9 @@ $RECYCLE.BIN/
 # Claude Code (artefacts de dev internes, non distribués)
 .claude/
 
+# Captures et journaux locaux produits par les validations navigateur Codex/Playwright
+.playwright-mcp/
+
 # Sorties locales des installeurs (ISCC) + payload assemblé
 build/installer/windows/dist/
 payload/

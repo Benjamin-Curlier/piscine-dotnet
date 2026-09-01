@@ -68,6 +68,6 @@ public sealed class ExerciseGrader
                 "contenu : aucune étape de notation déclarée pour cet exercice."));
         }
 
-        return new ExerciseGradingResult(manifest.Id, results);
+        return new ExerciseGradingResult(manifest.Id, results, manifest.ManualValidation);
     }
 }

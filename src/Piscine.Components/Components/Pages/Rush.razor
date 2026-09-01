@@ -60,7 +60,7 @@ else
             <small>@AutomaticValidationLabel(_rush)</small>
             @if (_rush.ManualValidation)
             {
-                <span class="manual-proof">+ preuves d’exploitation à relire</span>
+                <span class="manual-proof">+ auto-relecture des preuves</span>
             }
         </div>
         <div class="rush-brief-block">
@@ -72,6 +72,34 @@ else
             }
         </div>
     </section>
+
+    @if (_status.Status == ExerciseProgressStatus.EnAttenteRelecture)
+    {
+        <section class="self-review" aria-labelledby="self-review-title" data-testid="rush-self-review">
+            <h2 id="self-review-title">Auto-relecture des preuves</h2>
+            <p>Les contrôles automatiques passent. Avant de valider la mission pour toi-même :</p>
+            <ol>
+                <li>relis le runbook et vérifie qu'il décrit des observations réelles ;</li>
+                <li>rejoue le scénario nominal depuis un état propre ;</li>
+                <li>provoque au moins une coupure puis vérifie la reprise et l'absence de double effet ;</li>
+                <li>conserve une référence vers les logs, traces, captures ou compte-rendu.</li>
+            </ol>
+            <p><code>piscine review complete @_rush.Id --evidence &lt;référence&gt; --attest</code></p>
+            <small>Cette attestation personnelle sert ta progression. Elle n'est ni surveillée ni certifiante.</small>
+        </section>
+    }
+    else if (!string.IsNullOrWhiteSpace(_reviewEvidence))
+    {
+        <section class="self-review self-review-complete" data-testid="rush-self-review-complete">
+            <h2>Auto-relecture terminée</h2>
+            <p>Preuves déclarées : <code>@_reviewEvidence</code></p>
+            @if (_reviewedAt is not null)
+            {
+                <small>Attestée le @_reviewedAt.Value.ToLocalTime().ToString("g").</small>
+            }
+            <p><small>Tu peux reprendre le travail avec <code>piscine review reopen @_rush.Id --evidence &lt;raison&gt;</code>.</small></p>
+        </section>
+    }
 
     @if (_rush.Deliverables.Count > 0)
     {
@@ -149,6 +177,8 @@ else
         StatusSource.Progress);
     private int _attempts;
     private DateTimeOffset? _lastAttempt;
+    private DateTimeOffset? _reviewedAt;
+    private string? _reviewEvidence;
     private string? _error;
 
     protected override void OnParametersSet()
@@ -159,6 +189,8 @@ else
         _error = null;
         _attempts = 0;
         _lastAttempt = null;
+        _reviewedAt = null;
+        _reviewEvidence = null;
         _editor = null;
 
         if (_rush is null)
@@ -179,6 +211,8 @@ else
         {
             _attempts = entry.Attempts;
             _lastAttempt = entry.LastAttempt;
+            _reviewedAt = entry.ReviewedAt;
+            _reviewEvidence = entry.ReviewEvidence;
         }
     }
 

@@ -9,6 +9,8 @@ story_beat: "Rendre le canal RPC Asteria coopératif face aux coupures du poste.
 deliverables: [CommandGrpcService.cs]
 starter: [CommandGrpcService.cs]
 grading:
+  - type: unit
+    test_files: [CommandGrpcServiceTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["CancellationToken.None", "Thread.Sleep", ".Result", "catch (Exception)"]
 feedback:
   hints:
+    - when: compile_error
+      message: "Le service est compilé contre Grpc.Core.Api et le contrat généré du Rush : vérifie l'override et les types RPC."
+    - when: unit_failure
+      message: "Les tests appellent réellement Submit : une clé vide doit lever InvalidArgument, sinon deadline et jeton du contexte doivent être observés et propagés."
     - when: file_constraint
       message: "Valide la clé, observe deadline et CancellationToken du contexte, puis appelle le handler applicatif."
   course_ref: "cours.md#service"

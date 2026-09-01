@@ -32,10 +32,14 @@ grading:
         expect_exit: 0
   - type: source
     source:
-      required_fragments: ["lock"]
+      require_compilation: true
+      required_syntax: ["lock"]
+      required_invocations: ["System.Threading.Tasks.Parallel.For"]
 feedback:
   hints:
     - when: io_mismatch
       message: "var verrou = new object(); int compteur = 0; Parallel.For(0, n, _ => { lock (verrou) { compteur++; } }); puis affiche compteur. N'oublie pas using System.Threading.Tasks;."
+    - when: source_constraint
+      message: "Le compteur doit être réellement partagé et incrémenté dans un Parallel.For protégé par une instruction lock."
   course_ref: "cours.md#lock"
 solution: [Lock.cs]

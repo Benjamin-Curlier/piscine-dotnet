@@ -26,4 +26,13 @@ public sealed class ExerciseProgress
     /// Une ancienne progression sans ce champ reste compatible via <see cref="Status"/>.
     /// </summary>
     public DateTimeOffset? FirstSucceededAt { get; set; }
+
+    /// <summary>Date de la dernière auto-relecture pour une mission soumise à preuve terrain.</summary>
+    public DateTimeOffset? ReviewedAt { get; set; }
+
+    /// <summary>Origine de la relecture. La valeur standard est « auto-relecture ».</summary>
+    public string? ReviewedBy { get; set; }
+
+    /// <summary>Référence locale vers les preuves relues (compte-rendu, dossier de traces, capture…).</summary>
+    public string? ReviewEvidence { get; set; }
 }

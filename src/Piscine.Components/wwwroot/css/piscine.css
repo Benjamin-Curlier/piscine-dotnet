@@ -182,9 +182,25 @@ a:hover { text-decoration: underline; }
 }
 .brand-text strong { color: var(--accent); }
 
-.navbar-links { display: flex; align-items: center; gap: 1.1rem; }
+.navbar-links { display: flex; flex: 1; min-width: 0; align-items: center; justify-content: flex-end; gap: 1.1rem; }
 .navbar-links a { color: var(--ink-soft); font-weight: 500; }
 .navbar-links a:hover { color: var(--accent); text-decoration: none; }
+.search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 2rem;
+    padding: .25rem .55rem;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.search-trigger:hover { border-color: var(--accent); color: var(--accent); }
+.search-trigger kbd { padding: .05rem .25rem; border: 1px solid var(--line); border-radius: 4px; font-size: .68rem; }
 
 .theme-toggle {
     cursor: pointer;
@@ -523,7 +539,8 @@ code { font-family: var(--mono); }
         max-height: 32vh;
     }
     .body { flex-direction: column; }
-    .content { padding: 1.5rem 1.2rem 4rem; }
+    .main { width: 100%; }
+    .content { min-width: 0; padding: 1.5rem 1.2rem 4rem; }
     .pager a { max-width: 100%; }
 }
 
@@ -748,6 +765,14 @@ textarea:focus-visible {
 
    Palier intermédiaire (≤ 1024px) : les onglets de nav peuvent défiler horizontalement plutôt que
    déborder ou écraser la marque/GitHub. */
+@media (max-width: 1400px) {
+    .navbar-links .nav-tabs {
+        flex: 1;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+}
+
 @media (max-width: 1024px) {
     .navbar { padding: 0 1rem; gap: .75rem; }
     .navbar-links { gap: .9rem; }
@@ -774,6 +799,7 @@ textarea:focus-visible {
     /* La sidebar empilée (bloc d'origine) ne doit pas voler toute la hauteur sur mobile. */
     .sidebar { top: 0; }
     .hero h1 { font-size: 2.1rem; }
+    .search-trigger-label, .search-trigger kbd { display: none; }
 }
 
 /* Palier très étroit (≤ 480px) : padding resserré, cartes en pleine largeur. */

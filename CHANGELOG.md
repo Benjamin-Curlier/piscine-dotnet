@@ -4,6 +4,62 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v5.0.0] — 2026-09-01
+
+Revue adverse complète du parcours : les Rushes deviennent des missions réellement démontrables,
+les modules d'entreprise exécutent leurs contrats au lieu de rechercher de simples fragments et
+l'apprenant peut terminer seul les recettes terrain par une auto-relecture explicitement non
+certifiante.
+
+### Changements incompatibles
+
+- **Rush 0 remplacé** : `r0-fizzbuzz`, trop proche des exercices guidés, devient
+  `r0-diagnostic-balises`, une mission de diagnostic et de correction de code existant.
+- **Nouveau statut de progression** : les Rushes qui demandent une preuve terrain passent d'abord en
+  `EnAttenteRelecture`. Leur réussite est acquise après l'attestation personnelle locale ; les anciens
+  fichiers de progression restent lisibles grâce aux champs JSON optionnels.
+- **CLI d'auto-relecture** : ajout de `piscine review complete <rush> --evidence <référence> --attest`
+  et `piscine review reopen <rush> --evidence <raison>`.
+
+### Pédagogie et validation
+
+- **Auto-relecture autonome des Rushes R6/R7** : checklist de recette, référence locale vers les
+  preuves, possibilité de rouvrir une mission et rappel clair qu'il n'existe ni correcteur externe ni
+  certificat.
+- **Grader `source` sémantique** : compilation Roslyn optionnelle, appels résolus, constructions C#,
+  types déclarés et contrats d'héritage remplacent les validations de surface lorsqu'un concept doit
+  réellement être démontré.
+- **Grader `fichier` structuré** : assertions XML pour les fichiers de build et de configuration.
+- **Runner xUnit enrichi** : injection et libération des fixtures de classe pour les scénarios
+  d'intégration.
+- **Rushes renforcés** : R1 impose une vraie API `Inventory`; R6 exécute les extensions
+  ServiceDefaults/Aspire; R7 vérifie MVVM, concurrence, SQLite/outbox et intégration HTTP.
+- **Modules M44 à M52** : Options, latest-wins MVVM, ProblemDetails, autorisation, concurrence EF,
+  gRPC, tests d'intégration, build déterministe et HybridCache disposent désormais de contrôles
+  compilés ou exécutés.
+
+### Expérience et exploitation
+
+- **Charge de travail visible** : environ 155 h au total, avec durée par acte, module, exercice et
+  Rush, plus les temps terminé et restant dans la progression.
+- **Recherche découvrable** : bouton visible dans la barre principale en complément de `Ctrl/⌘+K`
+  et `/`.
+- **Responsive** : navigation défilante, contrôles de correction et pages Rush corrigés aux petites
+  largeurs.
+- **Sécurité documentée** : `Piscine.Sandbox` isole un processus pour la disponibilité mais ne
+  confine pas les droits fichiers, réseau ou processus du compte courant.
+- **CI** : les 22 scénarios navigateur Playwright deviennent une porte requise avant livraison.
+
+### Validation de la release
+
+- Build Release : **0 avertissement, 0 erreur**.
+- Tests : **533** tests Core/Grading/Git/App/Components et **22** scénarios navigateur réussis ; le
+  smoke Photino natif reste conditionné à un affichage et `PISCINE_DESKTOP_SMOKE=1`.
+- `validate-content` : **185 exercices et 8 Rushes valides**.
+- Audit pédagogique déterministe et audit NuGet : aucune alerte.
+
+---
+
 ## [v4.2.0] — 2026-07-13
 
 Revue « nouvelle recrue » — 2e vague : durcissement de la moulinette (mémoire bornée, fail-closed

@@ -89,4 +89,73 @@ public sealed class SourceGraderTests
         Assert.Contains(result.Messages, message =>
             message.Contains("présent 2 fois") && message.Contains("3 occurrence"));
     }
+
+    [Fact]
+    public void Grade_SemanticInvocationAndLock_RejectsSuperficialKeywords()
+    {
+        var context = new GradingContext(new Dictionary<string, string>
+        {
+            ["Lock.cs"] = "var n = 3; lock (new object()) { } System.Console.WriteLine(n);"
+        });
+        var step = new GradingStep
+        {
+            Type = "source",
+            Source = new SourceAssertions
+            {
+                RequireCompilation = true,
+                RequiredSyntax = { "lock" },
+                RequiredInvocations = { "System.Threading.Tasks.Parallel.For" }
+            }
+        };
+
+        var result = new SourceGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, message => message.Contains("Parallel.For"));
+    }
+
+    [Fact]
+    public void Grade_SemanticInvocationAndLock_AcceptsResolvedTechnique()
+    {
+        var context = new GradingContext(new Dictionary<string, string>
+        {
+            ["Lock.cs"] = """
+                var gate = new object();
+                var count = 0;
+                System.Threading.Tasks.Parallel.For(0, 3, _ => { lock (gate) { count++; } });
+                System.Console.WriteLine(count);
+                """
+        });
+        var step = new GradingStep
+        {
+            Type = "source",
+            Source = new SourceAssertions
+            {
+                RequireCompilation = true,
+                RequiredSyntax = { "lock" },
+                RequiredInvocations = { "System.Threading.Tasks.Parallel.For" }
+            }
+        };
+
+        Assert.Equal(GraderStatus.Reussi, new SourceGrader().Grade(context, step).Status);
+    }
+
+    [Fact]
+    public void Grade_RequireCompilation_RejectsInvalidCSharp()
+    {
+        var context = new GradingContext(new Dictionary<string, string>
+        {
+            ["Broken.cs"] = "ceci n'est pas du C#"
+        });
+        var step = new GradingStep
+        {
+            Type = "source",
+            Source = new SourceAssertions { RequireCompilation = true }
+        };
+
+        var result = new SourceGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, message => message.Contains("doit compiler"));
+    }
 }

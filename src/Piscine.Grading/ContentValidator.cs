@@ -97,7 +97,7 @@ public sealed class ContentValidator
                 && !manifest.Deliverables.Any(file => file.EndsWith(".md", StringComparison.OrdinalIgnoreCase)))
             {
                 issues.Add(new ContentIssue(rush.Id,
-                    "manual_validation exige un livrable Markdown décrivant les preuves à relire."));
+                    "manual_validation exige un livrable Markdown servant de support à l'auto-relecture."));
             }
         }
     }
@@ -175,7 +175,7 @@ public sealed class ContentValidator
         }
 
         var result = _grader.Grade(submission.Manifest, submission.Context);
-        if (result.Status != GraderStatus.Reussi)
+        if (result.Status is not (GraderStatus.Reussi or GraderStatus.EnAttenteRelecture))
         {
             var detail = string.Join(" ; ", result.Results.SelectMany(r => r.Messages));
             issues.Add(new ContentIssue(exerciseId, $"le corrigé ne passe pas ses graders : {detail}"));
@@ -206,7 +206,7 @@ public sealed class ContentValidator
                 GitFixtureBuilder.Build(step.Git.Fixture, dir);
                 var context = new GradingContext(new Dictionary<string, string>(), repositoryPath: dir);
                 var result = _grader.Grade(manifest, context);
-                if (result.Status != GraderStatus.Reussi)
+                if (result.Status is not (GraderStatus.Reussi or GraderStatus.EnAttenteRelecture))
                 {
                     var detail = string.Join(" ; ", result.Results.SelectMany(r => r.Messages));
                     issues.Add(new ContentIssue(exerciseId, $"la fixture git ne passe pas les assertions : {detail}"));

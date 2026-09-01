@@ -1,0 +1,38 @@
+id: r0-diagnostic-balises
+title: "Rush 0 — Diagnostic de balises"
+objective: "Synthétiser entrées/sorties, boucles, conditions, tableaux et chaînes pour établir un diagnostic ordonné."
+difficulty: moyen
+estimated_minutes: 60
+xp: 120
+tags: [csharp,arrays,strings,capstone]
+story_beat: "Établir le premier diagnostic complet des balises d'Asteria."
+recommended_after: "04-tableaux-chaines"
+deliverables: [Diagnostic.cs]
+starter: [Diagnostic.cs]
+grading:
+  - type: io
+    cases:
+      - stdin: "3\nalpha OK\nbeta WARN\ngamma KO\n"
+        expect_stdout: "INCIDENTS\nbeta: WARN\ngamma: KO\nRésumé: OK=1 WARN=1 KO=1\n"
+        expect_exit: 0
+      - stdin: "2\nalpha OK\nbeta OK\n"
+        expect_stdout: "INCIDENTS\naucun\nRésumé: OK=2 WARN=0 KO=0\n"
+        expect_exit: 0
+      - stdin: "4\na KO\nb WARN\nc WARN\nd OK\n"
+        expect_stdout: "INCIDENTS\na: KO\nb: WARN\nc: WARN\nRésumé: OK=1 WARN=2 KO=1\n"
+        expect_exit: 0
+      - stdin: "1\nstation WARN\n"
+        expect_stdout: "INCIDENTS\nstation: WARN\nRésumé: OK=0 WARN=1 KO=0\n"
+        expect_exit: 0
+  - type: source
+    source:
+      require_compilation: true
+      required_fragments: ["new string[n]"]
+feedback:
+  hints:
+    - when: io_mismatch
+      message: "Conserve l'ordre d'entrée pour la liste des incidents et affiche toujours les trois compteurs dans l'ordre OK, WARN, KO."
+    - when: source_constraint
+      message: "Ce Rush synthétise le module tableaux : mémorise les noms et états dans des tableaux dimensionnés par N."
+  course_ref: "subject.md"
+solution: [Diagnostic.cs]

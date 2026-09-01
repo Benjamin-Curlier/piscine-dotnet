@@ -10,6 +10,8 @@ recommended_after: "08-poo-2"
 deliverables: [Inventaire.cs]
 starter: [Inventaire.cs]
 grading:
+  - type: unit
+    test_files: [InventoryTests.cs]
   - type: io
     cases:
       - stdin: "5\najouter pomme 10\najouter poire 5\nretirer pomme 3\nafficher pomme\ntotal\n"
@@ -24,9 +26,17 @@ grading:
       - stdin: "2\nafficher fantome\ntotal\n"
         expect_stdout: "fantome: 0\nTotal: 0\n"
         expect_exit: 0
+  - type: source
+    source:
+      require_compilation: true
+      required_declared_types: [Inventory]
 feedback:
   hints:
+    - when: unit_failure
+      message: "Sépare la logique métier dans une classe Inventory : Add, Remove, Quantity et Total doivent fonctionner sans dépendre de la console."
     - when: io_mismatch
       message: "N'imprime QUE pour 'afficher' et 'total'. Pour 'retirer', borne la quantité à 0 (pas de négatif), et 'afficher' d'un article inconnu donne 0."
+    - when: source_constraint
+      message: "Le Rush évalue aussi la conception objet : déclare une classe Inventory dédiée, puis utilise-la depuis l'interpréteur de commandes."
   course_ref: "subject.md"
 solution: [Inventaire.cs]

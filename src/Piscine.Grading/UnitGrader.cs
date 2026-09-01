@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Piscine.Core.Model;
 
@@ -17,10 +19,17 @@ public sealed class UnitGrader : IGrader
 
     public GraderResult Grade(GradingContext context, GradingStep step)
     {
-        var sources = new Dictionary<string, string>(context.Sources);
+        // Un Rush peut mêler code, runbook, XML, proto et pipeline. Roslyn ne doit compiler que les
+        // livrables C# ; les autres restent contrôlés par leurs graders structurés/fichier.
+        var sources = context.Sources
+            .Where(source => string.Equals(Path.GetExtension(source.Key), ".cs", StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(source => source.Key, source => source.Value, StringComparer.Ordinal);
         foreach (var (name, content) in context.GraderFiles)
         {
-            sources[name] = content;
+            if (string.Equals(Path.GetExtension(name), ".cs", StringComparison.OrdinalIgnoreCase))
+            {
+                sources[name] = content;
+            }
         }
 
         // Un livrable-concept est souvent un programme top-level (module 20 : Generic Host, etc.). Il ne

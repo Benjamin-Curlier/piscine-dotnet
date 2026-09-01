@@ -52,7 +52,7 @@ public sealed class ExerciseManifest
     public string RecommendedAfter { get; set; } = string.Empty;
 
     /// <summary>
-    /// Indique qu'une revue humaine de preuves d'exploitation complète les contrôles automatiques
+    /// Indique qu'une auto-relecture guidée des preuves d'exploitation complète les contrôles automatiques
     /// (runbook, reprise après panne, compatibilité…).
     /// </summary>
     public bool ManualValidation { get; set; }

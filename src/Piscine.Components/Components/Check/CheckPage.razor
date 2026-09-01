@@ -9,6 +9,12 @@
 
 <h1 class="check-page-title">Vérifier un exercice ou un Rush</h1>
 
+<aside class="check-trust" data-testid="check-trust-notice" role="note">
+    <strong>Exécution locale :</strong> la moulinette lance ton code dans un processus enfant limité
+    dans le temps, mais pas dans un confinement de sécurité OS. Vérifie uniquement du code auquel tu
+    fais confiance ; il conserve les droits de ton compte.
+</aside>
+
 <div class="check-controls">
     <label for="exo-select" class="check-label">Livrable</label>
     <select id="exo-select" data-testid="exo-select" @bind="_selectedId" class="check-select">

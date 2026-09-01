@@ -1,47 +1,44 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-var stock = new Dictionary<string, int>();
+var inventory = new Inventory();
+var commandCount = int.Parse(Console.ReadLine()!);
 
-var n = int.Parse(System.Console.ReadLine());
-for (var i = 0; i < n; i++)
+for (var index = 0; index < commandCount; index++)
 {
-    var ligne = System.Console.ReadLine();
-    var parts = ligne.Split(' ');
-    var commande = parts[0];
+    var parts = Console.ReadLine()!.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-    if (commande == "ajouter")
+    switch (parts[0])
     {
-        var nom = parts[1];
-        var qte = int.Parse(parts[2]);
-        if (stock.ContainsKey(nom))
-        {
-            stock[nom] += qte;
-        }
-        else
-        {
-            stock[nom] = qte;
-        }
+        case "ajouter":
+            inventory.Add(parts[1], int.Parse(parts[2]));
+            break;
+        case "retirer":
+            inventory.Remove(parts[1], int.Parse(parts[2]));
+            break;
+        case "afficher":
+            Console.WriteLine($"{parts[1]}: {inventory.Quantity(parts[1])}");
+            break;
+        case "total":
+            Console.WriteLine($"Total: {inventory.Total()}");
+            break;
     }
-    else if (commande == "retirer")
-    {
-        var nom = parts[1];
-        var qte = int.Parse(parts[2]);
-        if (stock.ContainsKey(nom))
-        {
-            var reste = stock[nom] - qte;
-            stock[nom] = reste < 0 ? 0 : reste;
-        }
-    }
-    else if (commande == "afficher")
-    {
-        var nom = parts[1];
-        var qte = stock.ContainsKey(nom) ? stock[nom] : 0;
-        System.Console.WriteLine(nom + ": " + qte);
-    }
-    else if (commande == "total")
-    {
-        var total = stock.Values.Sum();
-        System.Console.WriteLine("Total: " + total);
-    }
+}
+
+public sealed class Inventory
+{
+    private readonly Dictionary<string, int> _stock = new(StringComparer.Ordinal);
+
+    public void Add(string name, int quantity)
+        => _stock[name] = Quantity(name) + quantity;
+
+    public void Remove(string name, int quantity)
+        => _stock[name] = Math.Max(0, Quantity(name) - quantity);
+
+    public int Quantity(string name)
+        => _stock.GetValueOrDefault(name);
+
+    public int Total()
+        => _stock.Values.Sum();
 }

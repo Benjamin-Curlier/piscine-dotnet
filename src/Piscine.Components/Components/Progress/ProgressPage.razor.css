@@ -1,0 +1,18 @@
+.progress-workload {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .25rem 1rem;
+    margin: 0 0 1.2rem;
+    padding: .8rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-soft);
+}
+
+.progress-workload span:first-child { color: var(--accent); }
+.progress-workload small { grid-column: 1 / -1; color: var(--ink-soft); }
+
+@media (max-width: 620px) {
+    .progress-workload { grid-template-columns: 1fr; }
+    .progress-workload small { grid-column: auto; }
+}

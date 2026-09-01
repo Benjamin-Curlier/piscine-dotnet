@@ -1,8 +1,14 @@
 # Fonctionnement de la moulinette
 
 La moulinette est le moteur d'auto-correction. Elle est **100 % locale** : pas de serveur, pas de
-SDK requis. Elle compile le code de la recrue avec **Roslyn embarqué** et exécute le code recrue
-**isolé dans un processus enfant jetable** (`Piscine.Sandbox`), tué au timeout (**fail-closed**).
+SDK requis. Elle compile le code de la recrue avec **Roslyn embarqué** et l'exécute dans un
+**processus enfant jetable** (`Piscine.Sandbox`), tué au timeout (**fail-closed**).
+
+> **Limite de sécurité importante :** le nom `Piscine.Sandbox` décrit une séparation de processus,
+> pas un bac à sable de sécurité fourni par l'OS. Le code exécuté conserve les droits du compte
+> courant : il peut lire ou modifier ses fichiers accessibles, utiliser le réseau et démarrer des
+> processus. N'exécute que ton propre code ou du code de confiance. Pour analyser une soumission
+> non fiable, utilise un compte restreint, une VM ou un conteneur isolé dédié.
 
 ## Compilation Roslyn (zéro SDK)
 
@@ -27,13 +33,14 @@ Un exercice combine un ou plusieurs graders, déclarés dans son `manifest.yaml`
 | **`git`** | Verdict sur l'**état attendu du dépôt rendu** (branches, `min_commits`, fusions, contenu de fichiers, absence de marqueurs de conflit), via LibGit2Sharp. Au push, noté contre le **dépôt bare** si l'exo est « tenté ». | Oui |
 | **`projet`** | Compilation **multi-fichiers** + cas `io` optionnels + **assertions d'architecture** Roslyn (`requires_types`, `forbidden_dependencies` namespace→namespace). | Oui |
 | **`reseau`** | Lance un **harnais d'écho TCP** loopback, injecte host/port en arguments, compare `io`. | Oui |
-| **`source`** | Vérifie des fragments requis ou interdits après retrait des commentaires, pour imposer une technique pédagogique (`% 2`, absence de `Array.Sort`…). | Oui |
-| **`fichier`** | Inspecte des livrables texte non compilés (`Dockerfile`, Razor, shader, AppHost) avec fragments requis/interdits. | Oui |
+| **`source`** | Analyse le code avec Roslyn : fragments, syntaxe, types déclarés/hérités et appels réellement résolus par le modèle sémantique. Peut aussi exiger que l'ensemble compile. | Oui |
+| **`fichier`** | Inspecte des livrables non compilés (`Dockerfile`, Razor, shader, XML, AppHost) avec fragments requis/interdits et assertions XML structurées. | Oui |
 
 Chaque exécution C# se fait dans un **processus enfant jetable** (`Piscine.Sandbox`) avec
 redirection de la Console et un **timeout** — un programme qui boucle ou plante n'affecte pas la
 moulinette : au timeout, le parent **tue l'arbre de processus** (récupération thread et assembly),
-et le résultat est **fail-closed** si le bac à sable est indisponible (jamais de faux « Réussi »).
+et le résultat est **fail-closed** si le processus enfant est indisponible (jamais de faux « Réussi »).
+Ces garanties portent sur la disponibilité et le verdict, pas sur le confinement des accès système.
 
 > Pour Docker, Silk.NET, Blazor, interop et Aspire, l'inspection déterministe valide le contrat
 > statique. Le cours demande en plus un atelier dans l'environnement réel ; la moulinette ne prétend
@@ -52,7 +59,9 @@ C'est le comportement de la trace 42 : on règle un exercice avant de débloquer
 
 ## Statuts & progression
 
-- Trois statuts : **Réussi**, **À revoir**, **Non corrigé** — *jamais* de note chiffrée.
+- Quatre statuts de correction : **Réussi**, **En attente d'auto-relecture**, **À revoir**,
+  **Non corrigé** — *jamais* de note chiffrée. Le statut intermédiaire concerne les Rushes dont les
+  contrôles automatiques passent mais dont l'apprenant doit encore attester sa propre recette locale.
 - La progression (statut par exercice, tentatives, dernier feedback) est persistée dans l'état
   local (`~/piscine`, surchargeable via `PISCINE_HOME`). Les *Non corrigé* ne sont pas enregistrés
   comme un échec définitif : ils seront corrigés une fois le blocage levé.

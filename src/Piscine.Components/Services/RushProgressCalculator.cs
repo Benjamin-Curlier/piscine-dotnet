@@ -17,6 +17,7 @@ public sealed record RushProgressItem(
     public bool IsStarted => StatusInfo.Status is
         ExerciseProgressStatus.EnCours or
         ExerciseProgressStatus.CommiteNonPousse or
+        ExerciseProgressStatus.EnAttenteRelecture or
         ExerciseProgressStatus.ARevoir;
 
     public string ActionLabel => StatusInfo.Status switch
@@ -79,6 +80,7 @@ public static class RushProgressCalculator
     /// </summary>
     public static RushProgressItem? Recommend(IReadOnlyList<RushProgressItem> rushes)
         => rushes.FirstOrDefault(item => item.StatusInfo.Status == ExerciseProgressStatus.ARevoir)
+           ?? rushes.FirstOrDefault(item => item.StatusInfo.Status == ExerciseProgressStatus.EnAttenteRelecture)
            ?? rushes.FirstOrDefault(item => item.IsStarted)
            ?? rushes.FirstOrDefault(item => item.MilestoneReached && !item.IsComplete)
            ?? rushes.FirstOrDefault(item => !item.IsComplete);

@@ -9,6 +9,8 @@ story_beat: "Empêcher deux opérateurs d'écraser silencieusement la même comm
 deliverables: [CommandStore.cs]
 starter: [CommandStore.cs]
 grading:
+  - type: unit
+    test_files: [CommandStoreTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["EnsureCreated", "catch (Exception)", "Thread.Sleep", ".Result"]
 feedback:
   hints:
+    - when: compile_error
+      message: "L'entité et le store sont compilés contre EF Core réel ; vérifie les types, le DbContext et les signatures async."
+    - when: unit_failure
+      message: "Deux DbContext modifient la même ligne SQLite : le premier doit réussir et le second produire SaveResult.Conflict."
     - when: file_constraint
       message: "Marque Version comme ConcurrencyCheck et incrémente-la avant SaveChangesAsync."
     - when: file_constraint

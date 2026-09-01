@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Piscine.Core.Model;
 
 namespace Piscine.Grading;
@@ -47,10 +48,76 @@ public sealed class FileGrader : IGrader
                     messages.Add($"{rule.Path} : élément interdit présent « {forbidden} ».");
                 }
             }
+
+            CheckXml(rule, content, messages);
         }
 
         return messages.Count == 0
             ? GraderResult.Success(Type)
             : GraderResult.Failure(Type, messages.ToArray()).WithTrigger(FeedbackTriggers.FileConstraint);
+    }
+
+    private static void CheckXml(FileRule rule, string content, List<string> messages)
+    {
+        if (rule.RequiredXmlElements.Count == 0)
+        {
+            return;
+        }
+
+        XDocument document;
+        try
+        {
+            document = XDocument.Parse(content, LoadOptions.None);
+        }
+        catch (Exception exception) when (exception is System.Xml.XmlException or InvalidOperationException)
+        {
+            messages.Add($"{rule.Path} : XML invalide — {exception.Message}");
+            return;
+        }
+
+        foreach (var assertion in rule.RequiredXmlElements)
+        {
+            if (string.IsNullOrWhiteSpace(assertion.Path))
+            {
+                messages.Add($"{rule.Path} : assertion XML sans chemin.");
+                continue;
+            }
+
+            var candidates = FindElements(document, assertion.Path)
+                .Where(element => assertion.Value is null
+                    || string.Equals(element.Value.Trim(), assertion.Value, StringComparison.Ordinal))
+                .Where(element => assertion.Attributes.All(expected =>
+                    string.Equals(
+                        element.Attributes().FirstOrDefault(attribute =>
+                            attribute.Name.LocalName == expected.Key)?.Value,
+                        expected.Value,
+                        StringComparison.Ordinal)))
+                .ToList();
+
+            if (candidates.Count == 0)
+            {
+                var expectedValue = assertion.Value is null ? string.Empty : $" = « {assertion.Value} »";
+                messages.Add($"{rule.Path} : élément XML requis absent ou incorrect « {assertion.Path} »{expectedValue}.");
+            }
+        }
+    }
+
+    private static IEnumerable<XElement> FindElements(XDocument document, string path)
+    {
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (segments.Length == 0 || document.Root is null
+            || document.Root.Name.LocalName != segments[0])
+        {
+            return [];
+        }
+
+        IEnumerable<XElement> current = [document.Root];
+        foreach (var segment in segments.Skip(1))
+        {
+            current = current.SelectMany(element =>
+                element.Elements().Where(child => child.Name.LocalName == segment));
+        }
+
+        return current;
     }
 }

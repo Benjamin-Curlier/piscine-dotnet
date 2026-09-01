@@ -34,6 +34,7 @@
         <div class="rush-roadmap-counts" aria-label="Progression des Rushes">
             <span><strong>@_counts.Fait</strong> validé@(_counts.Fait > 1 ? "s" : "")</span>
             <span><strong>@_counts.EnCours</strong> en cours</span>
+            <span><strong>@_counts.EnAttenteRelecture</strong> à relire</span>
             <span><strong>@_counts.ARevoir</strong> à revoir</span>
         </div>
     </div>
@@ -70,7 +71,7 @@
                         <span>Moulinette automatique</span>
                         @if (item.Rush.ManualValidation)
                         {
-                            <span class="manual">Preuves terrain à relire</span>
+                            <span class="manual">Auto-relecture guidée</span>
                         }
                         @if (item.Attempts > 0)
                         {

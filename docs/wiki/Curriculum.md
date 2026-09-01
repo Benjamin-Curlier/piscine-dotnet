@@ -104,7 +104,7 @@ pour les échanges avec les services, l'identité et l'exploitation du système 
 
 | Rush | Synthèse |
 |---|---|
-| R0 — FizzBuzz | fondamentaux console et décomposition |
+| R0 — Diagnostic de balises | console, tableaux, chaînes et diagnostic ordonné |
 | R1 — Inventaire | collections et modèle objet |
 | R2 — Rapport | parsing, LINQ, agrégation, async |
 | R3 — Traitement | Worker, DI, Channel, logging et arrêt propre |

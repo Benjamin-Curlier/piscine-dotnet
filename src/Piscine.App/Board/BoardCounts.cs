@@ -7,7 +7,13 @@ namespace Piscine.App.Board;
 
 /// <summary>Compteurs agrégés du tableau de bord (pur). Fait = PousseNote ; En cours = EnCours +
 /// CommiteNonPousse ; À revoir = ARevoir ; Restant = NonCommence. % = Fait / Total (arrondi).</summary>
-public sealed record BoardCounts(int Fait, int EnCours, int ARevoir, int Restant, int Total)
+public sealed record BoardCounts(
+    int Fait,
+    int EnCours,
+    int ARevoir,
+    int Restant,
+    int Total,
+    int EnAttenteRelecture = 0)
 {
     public int PercentFait => Total == 0 ? 0 : (int)Math.Round(100.0 * Fait / Total);
 
@@ -20,6 +26,7 @@ public sealed record BoardCounts(int Fait, int EnCours, int ARevoir, int Restant
             EnCours: enCours,
             ARevoir: Count(ExerciseProgressStatus.ARevoir),
             Restant: Count(ExerciseProgressStatus.NonCommence),
-            Total: statuses.Count);
+            Total: statuses.Count,
+            EnAttenteRelecture: Count(ExerciseProgressStatus.EnAttenteRelecture));
     }
 }

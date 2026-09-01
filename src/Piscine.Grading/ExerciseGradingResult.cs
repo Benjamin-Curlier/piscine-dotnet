@@ -6,8 +6,11 @@ namespace Piscine.Grading;
 /// <summary>Résultat agrégé de la correction d'un exercice.</summary>
 public sealed class ExerciseGradingResult
 {
-    public ExerciseGradingResult(string exerciseId, IEnumerable<GraderResult> results)
-        : this(exerciseId, Aggregate(results, out var list), list)
+    public ExerciseGradingResult(
+        string exerciseId,
+        IEnumerable<GraderResult> results,
+        bool manualValidation = false)
+        : this(exerciseId, Aggregate(results, manualValidation, out var list), list)
     {
     }
 
@@ -37,11 +40,17 @@ public sealed class ExerciseGradingResult
     public static ExerciseGradingResult NotGraded(string exerciseId) =>
         new(exerciseId, GraderStatus.NonCorrige, new List<GraderResult>());
 
-    private static GraderStatus Aggregate(IEnumerable<GraderResult> results, out IReadOnlyList<GraderResult> list)
+    private static GraderStatus Aggregate(
+        IEnumerable<GraderResult> results,
+        bool manualValidation,
+        out IReadOnlyList<GraderResult> list)
     {
         list = results.ToList();
-        return list.Any(r => r.Status == GraderStatus.ARevoir)
-            ? GraderStatus.ARevoir
-            : GraderStatus.Reussi;
+        if (list.Any(r => r.Status == GraderStatus.ARevoir))
+        {
+            return GraderStatus.ARevoir;
+        }
+
+        return manualValidation ? GraderStatus.EnAttenteRelecture : GraderStatus.Reussi;
     }
 }

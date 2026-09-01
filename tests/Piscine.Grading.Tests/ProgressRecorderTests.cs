@@ -63,6 +63,23 @@ public class ProgressRecorderTests
     }
 
     [Fact]
+    public void Apply_ManualSuccess_DoesNotAwardSuccessBeforeReview()
+    {
+        var progress = new Progress();
+        var pending = new ExerciseGradingResult(
+            "rush-manuel",
+            new[] { GraderResult.Success("projet") },
+            manualValidation: true);
+
+        ProgressRecorder.Apply(progress, new[] { pending }, DateTimeOffset.UnixEpoch);
+
+        var entry = progress.Exercises["rush-manuel"];
+        Assert.Equal(ExerciseStatus.EnAttenteRelecture, entry.Status);
+        Assert.Null(entry.FirstSucceededAt);
+        Assert.Equal(1, entry.Attempts);
+    }
+
+    [Fact]
     public void Apply_PreservesFirstSuccess_AndRecordsDistinctPracticeDays()
     {
         var progress = new Progress();

@@ -68,7 +68,8 @@ Publier une release (mainteneur) : **[docs/deploiement.md](docs/deploiement.md)*
     (Roslyn + graders `io`/`unit`/`norme`/`mutation`/`git`/`projet`/`reseau`/`source`/`fichier`), `Piscine.Git`
     (rendu git LibGit2Sharp + `grade-received`), `Piscine.Sandbox` (+ `Piscine.Sandbox.Contracts`,
     contrat IPC) — exécution du code recrue dans un **processus enfant jetable** (kill au timeout,
-    fail-closed), `Piscine.Cli` (binaire `piscine`).
+    fail-closed, mais **sans confinement OS** : mêmes droits que le compte courant), `Piscine.Cli`
+    (binaire `piscine`).
   - **app de bureau** — `Piscine.Components` (RCL Blazor partagée : pages/composants + rendu Markdig),
     `Piscine.App` (services UI-less : check, statut/coaching git, progression, terminal PTY, init,
     surveillance du push), `Piscine.Desktop` (hôte PhotinoX.Blazor livré), `Piscine.DevHost`

@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations.Concurrency;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
 [Index(nameof(IdempotencyKey), IsUnique = true)]

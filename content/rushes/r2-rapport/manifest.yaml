@@ -21,9 +21,15 @@ grading:
       - stdin: "1\nsolo 42\n"
         expect_stdout: "solo: 42\nTotal: 42\n"
         expect_exit: 0
+  - type: source
+    source:
+      require_compilation: true
+      required_invocations: ["System.Linq.Enumerable.GroupBy", "System.Linq.Enumerable.OrderBy", "System.Linq.Enumerable.Sum"]
 feedback:
   hints:
     - when: io_mismatch
       message: "Groupe par catégorie (GroupBy), somme les montants (Sum), puis trie les groupes par clé (OrderBy). N'oublie pas la ligne Total à la fin."
+    - when: source_constraint
+      message: "Ce Rush synthétise LINQ : GroupBy, OrderBy et Sum doivent être réellement résolus par le compilateur."
   course_ref: "subject.md"
 solution: [Rapport.cs]

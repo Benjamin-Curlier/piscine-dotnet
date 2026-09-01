@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Piscine.Core.Model;
 using Piscine.Grading;
 using Xunit;
@@ -109,5 +110,19 @@ public class UnitGraderTests
         var result = new UnitGrader().Grade(context, Step);
 
         Assert.Equal(GraderStatus.ARevoir, result.Status);
+    }
+
+    [Fact]
+    public void Grade_IgnoresNonCSharpDeliverablesInMixedRush()
+    {
+        var baseline = Context("public static class Maths { public static int Add(int a, int b) => a + b; }");
+        var sources = baseline.Sources.ToDictionary(item => item.Key, item => item.Value);
+        sources["OPERATIONS.md"] = "# preuve à relire";
+        sources["Directory.Build.props"] = "<Project />";
+        var context = new GradingContext(sources, baseline.GraderFiles);
+
+        var result = new UnitGrader().Grade(context, Step);
+
+        Assert.Equal(GraderStatus.Reussi, result.Status);
     }
 }

@@ -40,6 +40,12 @@ public static class ResultFormatter
                 "→ Non corrigé : un exercice précédent du groupe est à revoir. La correction s'arrête au " +
                 "premier échec du groupe : corrige-le d'abord, puis repousse.");
         }
+        else if (result.Status == GraderStatus.EnAttenteRelecture)
+        {
+            sb.AppendLine("→ Les contrôles automatiques passent. Termine maintenant l'auto-relecture guidée de tes preuves d'exploitation.");
+            sb.AppendLine("→ Aucun XP ni badge n'est accordé avant l'approbation.");
+            sb.AppendLine($"→ Quand les scénarios sont rejoués : piscine review complete {result.ExerciseId} --evidence <référence> --attest");
+        }
 
         return sb.ToString().TrimEnd();
     }
@@ -84,6 +90,7 @@ public static class ResultFormatter
     {
         GraderStatus.Reussi => "Réussi",
         GraderStatus.ARevoir => "À revoir",
+        GraderStatus.EnAttenteRelecture => "En attente de relecture",
         _ => "Non corrigé"
     };
 }

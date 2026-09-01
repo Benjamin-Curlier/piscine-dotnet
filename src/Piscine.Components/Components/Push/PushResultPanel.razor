@@ -58,6 +58,10 @@ else
                         Voir le détail (diff attendu/obtenu)
                     </a>
                 }
+                else if (e.Verdict == PushVerdict.EnAttenteRelecture)
+                {
+                    <span>Contrôles automatiques réussis ; auto-relecture des preuves à terminer.</span>
+                }
             </li>
         }
     </ul>
@@ -120,6 +124,7 @@ else
     private static ExerciseProgressStatus MapStatus(PushVerdict verdict) => verdict switch
     {
         PushVerdict.Reussi => ExerciseProgressStatus.PousseNote,
+        PushVerdict.EnAttenteRelecture => ExerciseProgressStatus.EnAttenteRelecture,
         _ => ExerciseProgressStatus.ARevoir,
     };
 

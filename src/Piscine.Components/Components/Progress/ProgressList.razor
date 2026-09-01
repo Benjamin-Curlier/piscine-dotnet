@@ -22,6 +22,7 @@
                     var milestone = Catalog.GetRecommendedModule(rush);
                     <li class="progress-exo-item" data-testid="progress-rush-item">
                         <span class="progress-exo-title">@rush.Title</span>
+                        <span class="progress-duration">≈ @WorkloadText.Format(rush.EstimatedMinutes)</span>
                         @if (milestone is not null)
                         {
                             <span class="progress-milestone">@($"après M{milestone.Number}")</span>
@@ -52,6 +53,7 @@
                         var statusInfo = LookupStatus(module.Id, ex.Id);
                         <li class="progress-exo-item">
                             <span class="progress-exo-title">@ex.Title</span>
+                            <span class="progress-duration">≈ @WorkloadText.Format(ex.EstimatedMinutes)</span>
                             <StatusBadge Status="@statusInfo.Status" Source="@statusInfo.Source" />
                             <a data-testid="exo-course-link"
                                href="/module/@module.Id/@ex.Id"

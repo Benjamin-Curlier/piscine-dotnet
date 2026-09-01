@@ -77,6 +77,15 @@ public sealed class ProgressService(PiscineLayout layout, GitStatusService git)
             return new ExerciseStatusInfo(moduleId, exerciseId, ExerciseProgressStatus.ARevoir, StatusSource.Progress);
         }
 
+        if (hasEntry && entry!.Status == ExerciseStatus.EnAttenteRelecture)
+        {
+            return new ExerciseStatusInfo(
+                moduleId,
+                exerciseId,
+                ExerciseProgressStatus.EnAttenteRelecture,
+                StatusSource.Progress);
+        }
+
         // 2 & 3. Reussi : affiner avec l'état git DE CET EXERCICE.
         if (hasEntry && entry!.Status == ExerciseStatus.Reussi)
         {

@@ -32,3 +32,18 @@ duplicate sans double effet, et distinguer readiness de simple processus vivant.
 
 La moulinette vérifie le contrat des trois fichiers. Exécute ensuite réellement ce runbook avec
 `aspire run` : la preuve à chaud dépend de ton environnement et ne peut pas être simulée par le texte.
+
+## Auto-relecture
+
+Quand les contrôles automatiques passent, rejoue toi-même le nominal, une coupure du worker et une
+coupure de NATS. Relis les traces avec un `correlationId`, vérifie la reprise sans double effet et
+conserve une référence locale vers tes éléments de preuve (note, capture ou dossier).
+
+Tu peux alors attester ce travail avec :
+
+```text
+piscine review complete r6-asteria-distribue --evidence <référence-locale> --attest
+```
+
+Cette attestation sert uniquement à ta progression personnelle : elle ne constitue ni un certificat
+ni une validation par un correcteur externe.

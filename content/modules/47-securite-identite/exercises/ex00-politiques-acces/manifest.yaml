@@ -9,6 +9,8 @@ story_beat: "Réserver l'émission de commandes Asteria aux identités autorisé
 deliverables: [SecuritySetup.cs]
 starter: [SecuritySetup.cs]
 grading:
+  - type: unit
+    test_files: [SecuritySetupTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["ValidateIssuer = false", "ValidateAudience = false", "RequireHttpsMetadata = false", "AllowAnonymous"]
 feedback:
   hints:
+    - when: compile_error
+      message: "La configuration est compilée contre l'authentification et l'autorisation ASP.NET Core réelles."
+    - when: unit_failure
+      message: "Les tests résolvent les options JwtBearer et la policy send-command : vérifie Authority, Audience, HTTPS et les exigences de la policy."
     - when: file_constraint
       message: "Configure le schéma JwtBearer avec Authority/Audience, puis une policy exigeant le scope asteria.command.send."
   course_ref: "cours.md#policies"

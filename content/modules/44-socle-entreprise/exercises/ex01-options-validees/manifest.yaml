@@ -9,6 +9,8 @@ story_beat: "Empêcher un poste Asteria mal configuré d'entrer en service."
 deliverables: [OptionsSetup.cs]
 starter: [OptionsSetup.cs]
 grading:
+  - type: unit
+    test_files: [OptionsSetupTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: ["Environment.GetEnvironmentVariable", "password =", "Password ="]
 feedback:
   hints:
+    - when: compile_error
+      message: "Le code est compilé avec les API Options réelles : vérifie les using, les types et la chaîne AddOptions/Bind/Validate."
+    - when: unit_failure
+      message: "La configuration valide doit être résolue ; une StationId vide ou un timeout hors plage doit être rejeté."
     - when: file_constraint
       message: "Déclare StationOptions, lie sa section avec AddOptions/Bind, active la validation puis ValidateOnStart."
   course_ref: "cours.md#options"

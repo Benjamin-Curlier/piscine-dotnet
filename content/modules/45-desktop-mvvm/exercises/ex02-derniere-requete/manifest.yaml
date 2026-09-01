@@ -9,6 +9,8 @@ story_beat: "Éviter qu'une réponse lente remplace l'état récent du poste Ast
 deliverables: [LatestSearchViewModel.cs]
 starter: [LatestSearchViewModel.cs]
 grading:
+  - type: unit
+    test_files: [LatestSearchViewModelTests.cs]
   - type: fichier
     file:
       rules:
@@ -17,6 +19,10 @@ grading:
           forbidden_fragments: [".Result", ".Wait(", "Thread.Sleep", "async void"]
 feedback:
   hints:
+    - when: compile_error
+      message: "Le ViewModel et son contrat client doivent compiler sans dépendre d'une UI concrète."
+    - when: unit_failure
+      message: "Les tests font terminer une ancienne recherche après la nouvelle : seul le dernier résultat doit rester publié et l'ancien appel doit être annulé."
     - when: file_constraint
       message: "À chaque recherche, incrémente une révision et remplace atomiquement le CancellationTokenSource courant."
     - when: file_constraint

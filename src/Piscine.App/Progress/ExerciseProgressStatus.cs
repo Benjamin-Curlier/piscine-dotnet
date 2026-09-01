@@ -10,6 +10,7 @@ public enum ExerciseProgressStatus
     NonCommence,
     EnCours,
     CommiteNonPousse,
+    EnAttenteRelecture,
     PousseNote,
     ARevoir,
 }

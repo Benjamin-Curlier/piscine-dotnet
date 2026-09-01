@@ -8,5 +8,6 @@ public enum ExerciseStatus
 {
     NonCommence,
     ARevoir,
+    EnAttenteRelecture,
     Reussi
 }

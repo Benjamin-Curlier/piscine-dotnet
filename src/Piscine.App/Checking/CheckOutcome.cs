@@ -7,6 +7,7 @@ public enum CheckVerdict
 {
     Reussi,
     ARevoir,
+    EnAttenteRelecture,
     AucunFichier,
     Introuvable,
 }

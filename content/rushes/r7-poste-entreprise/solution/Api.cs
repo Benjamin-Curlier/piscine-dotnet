@@ -41,3 +41,7 @@ public sealed class CommandApplication : ICommandApplication
     public Task<Guid> SubmitAsync(string key, SubmitCommand command, CancellationToken cancellationToken) =>
         Task.FromResult(Guid.NewGuid());
 }
+
+public partial class Program
+{
+}

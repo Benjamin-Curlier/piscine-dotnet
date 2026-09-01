@@ -10,6 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
     <PackageReference Include="LibGit2Sharp" Version="0.32.0" />
@@ -18,7 +22,8 @@
   </ItemGroup>
 
   <!-- Assemblies de RÉFÉRENCE pour compiler/exécuter le code recrue (mêmes raisons que xunit.* ci-dessus,
-       PAS appelées par le moteur) : elles peuplent le TRUSTED_PLATFORM_ASSEMBLIES de TOUT hôte de
+       PAS appelées par le moteur) : le FrameworkReference et ces paquets peuplent le
+       TRUSTED_PLATFORM_ASSEMBLIES de TOUT hôte de
        correction, dont CompilationService tire le jeu de références Roslyn. En les portant ici (et non
        plus seulement dans le CLI), la correction des modules 18 (DI), 19 (logging), 20 (generic-host)
        et 35 (EF Core / SQLite) est IDENTIQUE au CLI, au Desktop (correction in-process) et au DevHost —
@@ -27,10 +32,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.11" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.80.0" />
   </ItemGroup>
 
   <PropertyGroup>

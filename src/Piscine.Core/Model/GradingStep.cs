@@ -41,11 +41,31 @@ public sealed class GradingStep
 /// <summary>Contraintes simples sur le code source, utiles pour imposer une technique pédagogique.</summary>
 public sealed class SourceAssertions
 {
+    /// <summary>Si vrai, toutes les sources doivent compiler avant l'analyse sémantique.</summary>
+    public bool RequireCompilation { get; set; }
+
     public List<string> RequiredFragments { get; set; } = new();
 
     public List<string> ForbiddenFragments { get; set; } = new();
 
     public List<SourceOccurrence> RequiredOccurrences { get; set; } = new();
+
+    /// <summary>
+    /// Méthodes qui doivent être réellement appelées, sous la forme
+    /// <c>Namespace.Type.Methode</c>. Les méthodes d'extension sont ramenées à leur type déclarant.
+    /// </summary>
+    public List<string> RequiredInvocations { get; set; } = new();
+
+    public List<string> ForbiddenInvocations { get; set; } = new();
+
+    /// <summary>Constructions C# requises : lock, await, await-foreach ou try-catch.</summary>
+    public List<string> RequiredSyntax { get; set; } = new();
+
+    /// <summary>Types déclarés requis, au nom pleinement qualifié ou au nom simple.</summary>
+    public List<string> RequiredDeclaredTypes { get; set; } = new();
+
+    /// <summary>Au moins un type de la soumission doit dériver de ou implémenter chacun de ces types.</summary>
+    public List<string> RequiredBaseTypes { get; set; } = new();
 }
 
 /// <summary>Nombre minimal d'occurrences d'un fragment C# hors commentaires.</summary>
@@ -69,6 +89,22 @@ public sealed class FileRule
     public List<string> RequiredFragments { get; set; } = new();
 
     public List<string> ForbiddenFragments { get; set; } = new();
+
+    /// <summary>
+    /// Éléments XML requis, vérifiés après parsing. Le chemin utilise les noms locaux séparés par
+    /// des barres obliques (ex. Project/PropertyGroup/Deterministic), indépendamment du formatage.
+    /// </summary>
+    public List<XmlElementAssertion> RequiredXmlElements { get; set; } = new();
+}
+
+public sealed class XmlElementAssertion
+{
+    public string Path { get; set; } = string.Empty;
+
+    /// <summary>Valeur texte attendue ; <c>null</c> vérifie seulement l'existence.</summary>
+    public string? Value { get; set; }
+
+    public Dictionary<string, string> Attributes { get; set; } = new();
 }
 
 /// <summary>Configuration du serveur de test embarqué (grader <c>reseau</c>).</summary>
