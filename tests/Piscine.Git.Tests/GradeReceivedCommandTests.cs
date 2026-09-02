@@ -166,6 +166,70 @@ public class GradeReceivedCommandTests
     }
 
     [Fact]
+    public void Run_WithPreviousSha_GradesOnlyExercisesChangedByThisPush()
+    {
+        using var dir = new TempDir();
+        const string moduleYaml = """
+            id: 00-setup
+            order: 0
+            groups:
+              - id: g1
+                exercises: [ex00, ex01]
+            """;
+        const string manifestTemplate = """
+            id: EXERCISE_ID
+            deliverables: [Hello.cs]
+            grading:
+              - type: io
+                cases:
+                  - expect_stdout: "ok"
+                    expect_exit: 0
+            """;
+        dir.WriteFile(Path.Combine("content", "modules", "00-setup", "module.yaml"), moduleYaml);
+        foreach (var id in new[] { "ex00", "ex01" })
+        {
+            dir.WriteFile(
+                Path.Combine("content", "modules", "00-setup", "exercises", id, "manifest.yaml"),
+                manifestTemplate.Replace("EXERCISE_ID", id, StringComparison.Ordinal));
+        }
+
+        var layout = new PiscineLayout(dir.Combine("content"), dir.Combine("ws"), dir.Combine("state"));
+        Repository.Init(layout.RemoteRepoPath, isBare: true);
+        var workPath = dir.Combine("clone");
+        Repository.Clone(layout.RemoteRepoPath, workPath);
+        using var repo = new Repository(workPath);
+        var signature = new Signature("recrue", "r@piscine", DateTimeOffset.Now);
+        foreach (var id in new[] { "ex00", "ex01" })
+        {
+            var file = Path.Combine(workPath, "00-setup", id, "Hello.cs");
+            Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+            File.WriteAllText(file, "System.Console.Write(\"ok\");");
+        }
+        Commands.Stage(repo, "*");
+        var first = repo.Commit("premier rendu", signature, signature);
+        var branch = repo.Head.FriendlyName;
+        var origin = repo.Network.Remotes["origin"];
+        repo.Network.Push(origin, $"refs/heads/{branch}:refs/heads/{branch}", new PushOptions());
+
+        var command = new GradeReceivedCommand(layout, Graders.Default());
+        command.Run(first.Sha);
+
+        File.AppendAllText(Path.Combine(workPath, "00-setup", "ex01", "Hello.cs"), " // seconde version");
+        Commands.Stage(repo, "*");
+        var second = repo.Commit("corrige seulement ex01", signature, signature);
+        repo.Network.Push(origin, $"refs/heads/{branch}:refs/heads/{branch}", new PushOptions());
+
+        var secondResult = command.Run(second.Sha, first.Sha);
+
+        Assert.Equal(0, secondResult.ExitCode);
+        Assert.Contains("ex01", secondResult.Output);
+        Assert.DoesNotContain("ex00", secondResult.Output);
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        Assert.Equal(1, progress.Exercises["ex00"].Attempts);
+        Assert.Equal(2, progress.Exercises["ex01"].Attempts);
+    }
+
+    [Fact]
     public void Run_PersistRichResultWriteFails_DoesNotThrow_AndStillRecordsProgress()
     {
         using var dir = new TempDir();

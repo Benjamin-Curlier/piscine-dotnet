@@ -13,7 +13,8 @@ public sealed record PushCaseResult(
     IReadOnlyList<string> Messages);
 
 /// <summary>
-/// Résultat riche d'un exercice corrigé lors d'un push : statut (« Reussi »/« ARevoir »/« NonCorrige »,
+/// Résultat riche d'un exercice corrigé lors d'un push : statut (« Reussi »/« ARevoir »/
+/// « EnAttenteRelecture »/« NonCorrige »,
 /// en chaîne pour rester sans dépendance au moteur), cas par grader, indice apparié et renvoi cours.
 /// </summary>
 public sealed record PushExerciseResult(
@@ -22,7 +23,14 @@ public sealed record PushExerciseResult(
     string Status,
     IReadOnlyList<PushCaseResult> Cases,
     string? Hint,
-    string? CourseRef);
+    string? CourseRef)
+{
+    /// <summary>Compteur de tentatives au moment exact de ce rendu.</summary>
+    public int Attempts { get; init; }
+
+    /// <summary>Date de tentative au moment exact de ce rendu.</summary>
+    public DateTimeOffset? LastAttempt { get; init; }
+}
 
 /// <summary>
 /// Instantané du dernier rendu corrigé par <c>grade-received</c>, persisté à côté de
@@ -30,4 +38,8 @@ public sealed record PushExerciseResult(
 /// </summary>
 public sealed record PushResultDocument(
     IReadOnlyList<PushExerciseResult> Exercises,
-    DateTimeOffset GradedAt);
+    DateTimeOffset GradedAt)
+{
+    /// <summary>Identifiant unique du rendu, utilisé pour dédupliquer les événements du watcher.</summary>
+    public string? PushId { get; init; }
+}

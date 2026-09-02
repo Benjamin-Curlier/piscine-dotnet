@@ -7,9 +7,9 @@ using Xunit;
 namespace Piscine.DevHost.E2E;
 
 /// <summary>
-/// Smoke E2E du toast de push global (S4) : démarre le DevHost avec un état isolé SANS progress.json,
-/// pilote Chromium vers une page <b>autre</b> que <c>/resultat</c> (<c>/cours</c>), écrit
-/// <c>progress.json</c> via l'API moteur, puis vérifie que le <see cref="ToastHost"/> monté dans
+/// Smoke E2E du toast de push global (S4) : démarre le DevHost avec un état isolé sans résultat,
+/// pilote Chromium vers une page <b>autre</b> que <c>/resultat</c> (<c>/cours</c>), écrit le document
+/// de push canonique via l'API moteur, puis vérifie que le <see cref="ToastHost"/> monté dans
 /// <c>MainLayout</c> fait apparaître un toast (<c>data-testid="push-toast"</c>) <b>sans aucun clic</b>
 /// — prouvant que le verdict s'affiche partout dans l'app. Skip propre sans Chromium.
 /// Port dédié 5265 (distinct de 5247/5249/5251/5253/5255/5257/5259/5261).
@@ -105,7 +105,7 @@ public sealed class ToastSmokeTests : IAsyncLifetime
             // Pas de toast au repos.
             Assert.Equal(0, await page.Locator("[data-testid='push-toast']").CountAsync());
 
-            // 2. Écrire progress.json (même chemin surveillé) → le watcher publie le delta.
+            // 2. Écrire la progression puis l'artefact du hook → le watcher publie le rendu.
             var progress = new Progress();
             progress.Exercises["ex00-hello"] = new ExerciseProgress
             {
@@ -114,6 +114,24 @@ public sealed class ToastSmokeTests : IAsyncLifetime
                 LastAttempt = DateTimeOffset.Now,
             };
             new ProgressStore(Path.Combine(_stateDir!, "progress.json")).Save(progress);
+            new LastPushResultStore(Path.Combine(_stateDir!, "last-push-result.json")).Save(
+                new PushResultDocument(
+                    new[]
+                    {
+                        new PushExerciseResult(
+                            "ex00-hello", "00-setup-git", "ARevoir",
+                            new[] { new PushCaseResult("io", false, new[] { "Échec du cas." }) },
+                            Hint: null,
+                            CourseRef: null)
+                        {
+                            Attempts = 1,
+                            LastAttempt = progress.Exercises["ex00-hello"].LastAttempt,
+                        },
+                    },
+                    DateTimeOffset.Now)
+                {
+                    PushId = Guid.NewGuid().ToString("N"),
+                });
 
             // 3. Sans aucun clic : le toast global apparaît (île interactive du layout).
             await page.WaitForSelectorAsync(
@@ -121,7 +139,7 @@ public sealed class ToastSmokeTests : IAsyncLifetime
                 new PageWaitForSelectorOptions { Timeout = 15_000 });
 
             var entry = await page.Locator("[data-testid='toast-entry']").CountAsync();
-            Assert.True(entry > 0, "Aucune entrée dans le toast de push global après écriture de progress.json.");
+            Assert.True(entry > 0, "Aucune entrée dans le toast de push global après écriture du résultat de push.");
 
             var link = await page.Locator("[data-testid='toast-link']").First.GetAttributeAsync("href");
             Assert.Equal("/resultat", link);

@@ -1,34 +1,26 @@
 using System.Text.Json;
 using Piscine.Core;
 using Piscine.Core.Progression;
-using CoreProgress = Piscine.Core.Model.Progress;
-using ExerciseProgress = Piscine.Core.Model.ExerciseProgress;
-using ExerciseStatus = Piscine.Core.Model.ExerciseStatus;
 
 namespace Piscine.App.Push;
 
 /// <summary>
-/// Impl de <see cref="IPushResultWatcher"/> basée sur <see cref="FileSystemWatcher"/>.
-/// Surveille <c>progress.json</c> dans <c>StateDir</c>, relit via <see cref="ProgressStore"/>
-/// à chaque settle (debounce 250 ms) et publie uniquement les delta réels.
-/// <b>Lecture seule</b> : n'appelle jamais <c>ProgressStore.Save</c>.
+/// Surveille <c>last-push-result.json</c>, l'artefact exclusivement produit par
+/// <c>grade-received</c>. Une écriture de <c>progress.json</c> par un check local, une relecture ou
+/// une réinitialisation ne peut donc jamais être présentée comme un résultat de push.
 /// </summary>
 public sealed class ProgressFileWatcher : IPushResultWatcher
 {
+    private const int MaxSettleRetries = 8;
     private readonly PiscineLayout _layout;
     private readonly TimeProvider _timeProvider;
-
-    // Protège _latest et _last contre les accès concurrents (thread FSW vs thread UI).
     private readonly object _lock = new();
-
-    // Plafond de réessais sur lecture en échec (~2 s à 250 ms) : un progress.json durablement
-    // illisible (verrou persistant) ne doit pas transformer le debounce en boucle 4 Hz infinie.
-    private const int MaxSettleRetries = 8;
 
     private FileSystemWatcher? _watcher;
     private Timer? _debounceTimer;
-    private CoreProgress _last = new();
+    private string? _lastSignature;
     private PushResult? _latest;
+    private PushResultDocument? _latestRich;
     private int _settleRetries;
     private bool _started;
     private bool _disposed;
@@ -39,10 +31,8 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         _timeProvider = timeProvider ?? TimeProvider.System;
     }
 
-    /// <inheritdoc/>
     public event Action<PushResult>? ResultReceived;
 
-    /// <inheritdoc/>
     public PushResult? LatestResult()
     {
         lock (_lock)
@@ -51,13 +41,14 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         }
     }
 
-    /// <inheritdoc/>
     public PushResultDocument? LatestRichResult()
-        // Lecture à la demande (sans état) : grade-received écrit last-push-result.json dans le même
-        // Persist que progress.json, donc l'artefact est présent au settle. Load() → null si absent.
-        => new LastPushResultStore(_layout.LastPushResultPath).Load();
+    {
+        lock (_lock)
+        {
+            return _latestRich ?? LoadRichSafe();
+        }
+    }
 
-    /// <inheritdoc/>
     public void Start()
     {
         lock (_lock)
@@ -70,23 +61,20 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
             _started = true;
         }
 
-        // Créer le dossier si nécessaire (FSW lève si inexistant).
         Directory.CreateDirectory(_layout.StateDir);
-
-        // Snapshot initial — absorbe l'état existant sans publier.
+        var existing = LoadRichSafe();
         lock (_lock)
         {
-            _last = LoadSafe() ?? new CoreProgress();
+            _latestRich = existing;
+            _lastSignature = existing is null ? null : Signature(existing);
         }
 
-        // Créer le watcher sur le dossier (pas le fichier directement).
         var watcher = new FileSystemWatcher(_layout.StateDir)
         {
-            Filter = "progress.json",
+            Filter = Path.GetFileName(_layout.LastPushResultPath),
             NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
-            EnableRaisingEvents = true,
+            EnableRaisingEvents = false,
         };
-
         watcher.Created += OnChanged;
         watcher.Changed += OnChanged;
         watcher.Renamed += OnRenamed;
@@ -95,9 +83,18 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         {
             _watcher = watcher;
         }
-    }
+        watcher.EnableRaisingEvents = true;
 
-    // ── Handlers FSW ──────────────────────────────────────────────────────────
+        // Ferme la fenêtre entre le snapshot initial et l'activation du FSW : si un push est arrivé
+        // exactement pendant Start(), une seconde lecture constate son nouvel identifiant et arme le
+        // settle même si l'événement natif a été perdu.
+        var afterStart = LoadRichSafe();
+        if (afterStart is not null
+            && !string.Equals(Signature(afterStart), _lastSignature, StringComparison.Ordinal))
+        {
+            ArmDebounce();
+        }
+    }
 
     private void OnChanged(object sender, FileSystemEventArgs e) => ArmDebounce();
 
@@ -107,17 +104,10 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
     {
         lock (_lock)
         {
-            // Nouvel événement FSW : on réarme le budget de réessai de lecture (cf. Settle).
             _settleRetries = 0;
-
-            // (Re)arme le timer à 250 ms ; chaque nouvel événement reporte l'échéance.
             if (_debounceTimer is null)
             {
-                _debounceTimer = new Timer(
-                    _ => Settle(),
-                    state: null,
-                    dueTime: 250,
-                    period: Timeout.Infinite);
+                _debounceTimer = new Timer(_ => Settle(), null, 250, Timeout.Infinite);
             }
             else
             {
@@ -128,117 +118,91 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
 
     private void Settle()
     {
-        // LoadSafe() ne lève jamais : null = lecture en échec potentiellement transitoire (verrou /
-        // écriture en cours), à réessayer ; sinon l'état lu (vide si le fichier n'existe pas encore).
-        var current = LoadSafe();
-        if (current is null)
+        var document = LoadRichSafe();
+        if (document is null)
         {
-            lock (_lock)
-            {
-                if (_disposed)
-                {
-                    return;
-                }
-
-                // Réessai borné : au-delà du plafond on abandonne ce cycle (un prochain événement FSW
-                // relancera ArmDebounce, qui réarme le budget) — pas de boucle 4 Hz infinie.
-                if (_settleRetries >= MaxSettleRetries)
-                {
-                    _settleRetries = 0;
-                    return;
-                }
-
-                _settleRetries++;
-                _debounceTimer?.Change(250, Timeout.Infinite);
-            }
+            RetrySettle();
             return;
         }
 
         PushResult published;
         lock (_lock)
         {
-            // Un callback de timer déjà déclenché peut courir après DisposeAsync (Timer.Dispose
-            // n'attend pas un callback en vol) → ne pas publier si on est disposé.
             if (_disposed)
             {
                 return;
             }
 
-            _settleRetries = 0; // lecture réussie : budget de réessai réarmé.
-
-            var delta = ComputeDelta(_last, current);
-            if (delta.Count == 0)
+            _settleRetries = 0;
+            var signature = Signature(document);
+            if (string.Equals(signature, _lastSignature, StringComparison.Ordinal))
             {
                 return;
             }
 
-            _latest = new PushResult(delta, _timeProvider.GetLocalNow());
-            _last = current;
+            var entries = document.Exercises.Select(exercise => new PushResultEntry(
+                exercise.ExerciseId,
+                exercise.Status switch
+                {
+                    "Reussi" => PushVerdict.Reussi,
+                    "EnAttenteRelecture" => PushVerdict.EnAttenteRelecture,
+                    _ => PushVerdict.ARevoir,
+                },
+                exercise.Attempts,
+                exercise.LastAttempt)).ToList();
+
+            if (entries.Count == 0)
+            {
+                _lastSignature = signature;
+                _latestRich = document;
+                return;
+            }
+
+            _latest = new PushResult(
+                entries,
+                document.GradedAt == default ? _timeProvider.GetLocalNow() : document.GradedAt);
+            _latestRich = document;
+            _lastSignature = signature;
             published = _latest;
         }
 
         ResultReceived?.Invoke(published);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    private void RetrySettle()
+    {
+        lock (_lock)
+        {
+            if (_disposed || _settleRetries >= MaxSettleRetries)
+            {
+                _settleRetries = 0;
+                return;
+            }
 
-    /// <summary>
-    /// Lit <c>progress.json</c> sans jamais lever : fichier absent → état vide ; verrou ou JSON partiel
-    /// (échec potentiellement transitoire) → <c>null</c> (l'appelant peut réessayer). Élargi à
-    /// IOException/JsonException pour que <see cref="Start"/> (→ PushResultPanel.OnInitialized) ne
-    /// faute pas sur un progress.json verrouillé/corrompu au démarrage.
-    /// </summary>
-    private CoreProgress? LoadSafe()
+            _settleRetries++;
+            _debounceTimer?.Change(250, Timeout.Infinite);
+        }
+    }
+
+    private PushResultDocument? LoadRichSafe()
     {
         try
         {
-            return new ProgressStore(_layout.ProgressPath).Load();
+            return new LastPushResultStore(_layout.LastPushResultPath).Load();
         }
-        catch (FileNotFoundException)
-        {
-            return new CoreProgress();
-        }
-        catch (Exception ex) when (ex is IOException or JsonException)
+        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException)
         {
             return null;
         }
     }
 
-    private static List<PushResultEntry> ComputeDelta(CoreProgress last, CoreProgress current)
-    {
-        var delta = new List<PushResultEntry>();
-
-        foreach (var (id, ep) in current.Exercises)
-        {
-            bool changed = !last.Exercises.TryGetValue(id, out var prev)
-                || prev.Status != ep.Status
-                || prev.Attempts != ep.Attempts;
-
-            if (changed)
-            {
-                delta.Add(new PushResultEntry(
-                    ExerciseId: id,
-                    Verdict: ep.Status switch
-                    {
-                        ExerciseStatus.Reussi => PushVerdict.Reussi,
-                        ExerciseStatus.EnAttenteRelecture => PushVerdict.EnAttenteRelecture,
-                        _ => PushVerdict.ARevoir,
-                    },
-                    Attempts: ep.Attempts,
-                    LastAttempt: ep.LastAttempt));
-            }
-        }
-
-        return delta;
-    }
-
-    // ── IAsyncDisposable ──────────────────────────────────────────────────────
+    private static string Signature(PushResultDocument document) =>
+        document.PushId ?? JsonSerializer.Serialize(document);
 
     public ValueTask DisposeAsync()
     {
         FileSystemWatcher? watcher;
         Timer? timer;
-
         lock (_lock)
         {
             _disposed = true;
@@ -258,7 +222,6 @@ public sealed class ProgressFileWatcher : IPushResultWatcher
         }
 
         timer?.Dispose();
-
         return ValueTask.CompletedTask;
     }
 }

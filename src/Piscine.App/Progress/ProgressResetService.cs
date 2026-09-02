@@ -16,7 +16,11 @@ public sealed class ProgressResetService
     public ProgressResetService(PiscineLayout layout) => _layout = layout;
 
     /// <summary>Efface TOUTE la progression (repart d'un <see cref="Core.Model.Progress"/> vide).</summary>
-    public void ResetAll() => new ProgressStore(_layout.ProgressPath).Save(new Core.Model.Progress());
+    public void ResetAll() => new ProgressStore(_layout.ProgressPath).Update(progress =>
+    {
+        progress.Exercises.Clear();
+        progress.PracticeDays.Clear();
+    });
 
     /// <summary>
     /// Retire les exercices indiqués de la progression (no-op pour ceux absents). Renvoie le nombre
@@ -26,22 +30,18 @@ public sealed class ProgressResetService
     public int ResetExercises(IEnumerable<string> exerciseIds)
     {
         var store = new ProgressStore(_layout.ProgressPath);
-        var progress = store.Load();
-
-        var removed = 0;
-        foreach (var id in exerciseIds)
+        return store.Update(progress =>
         {
-            if (progress.Exercises.Remove(id))
+            var removed = 0;
+            foreach (var id in exerciseIds)
             {
-                removed++;
+                if (progress.Exercises.Remove(id))
+                {
+                    removed++;
+                }
             }
-        }
 
-        if (removed > 0)
-        {
-            store.Save(progress);
-        }
-
-        return removed;
+            return removed;
+        });
     }
 }

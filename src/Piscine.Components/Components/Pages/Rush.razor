@@ -120,8 +120,16 @@ else
         {
             <button class="ex-action" data-testid="rush-open-editor" @onclick="OpenEditor">Ouvrir dans @_editor.Label</button>
         }
-        <button class="ex-action" data-testid="rush-open-terminal" @onclick="OpenEmbeddedTerminal">Terminal intégré</button>
-        <button class="ex-action" data-testid="rush-open-system-terminal" @onclick="OpenSystemTerminal">Terminal système</button>
+        <button class="ex-action" data-testid="rush-open-terminal" title="@DefaultTerminalTitle"
+                @onclick="OpenDefaultTerminal">Ouvrir le terminal</button>
+        @if (_defaultTerminal == TerminalTarget.Embedded)
+        {
+            <button class="ex-action" data-testid="rush-open-system-terminal" @onclick="OpenSystemTerminal">Terminal système</button>
+        }
+        else
+        {
+            <button class="ex-action" data-testid="rush-open-embedded-terminal" @onclick="OpenEmbeddedTerminal">Terminal intégré</button>
+        }
         <a class="ex-action ex-action-check" data-testid="rush-check" href="/check/@ContentLocator.RushesModuleId/@_rush.Id">Vérifier</a>
     </div>
     @if (_error is not null)
@@ -170,6 +178,7 @@ else
     private CourseRush? _next;
     private CourseModule? _milestone;
     private EditorOption? _editor;
+    private TerminalTarget _defaultTerminal = TerminalTarget.Embedded;
     private ExerciseStatusInfo _status = new(
         ContentLocator.RushesModuleId,
         string.Empty,
@@ -203,7 +212,9 @@ else
         _previous = index > 0 ? Catalog.Rushes[index - 1] : null;
         _next = index >= 0 && index < Catalog.Rushes.Count - 1 ? Catalog.Rushes[index + 1] : null;
         _milestone = Catalog.GetRecommendedModule(_rush);
-        _editor = EditorResolver.Resolve(Settings.Load().EditorCommand, ExecutableProbe.OnPath);
+        var settings = Settings.Load();
+        _editor = EditorResolver.Resolve(settings.EditorCommand, ExecutableProbe.OnPath);
+        _defaultTerminal = settings.DefaultTerminal;
         _status = Progress.StatusFor(ContentLocator.RushesModuleId, _rush.Id);
 
         var persisted = new ProgressStore(Layout.ProgressPath).Load();
@@ -241,7 +252,34 @@ else
             ? null
             : "Impossible d'ouvrir le terminal système. Utilise le Terminal intégré.";
 
-    private void OpenEmbeddedTerminal() => Nav.NavigateTo("/terminal");
+    private void OpenDefaultTerminal()
+    {
+        if (_defaultTerminal == TerminalTarget.System)
+        {
+            OpenSystemTerminal();
+        }
+        else
+        {
+            OpenEmbeddedTerminal();
+        }
+    }
+
+    private string DefaultTerminalTitle => _defaultTerminal == TerminalTarget.System
+        ? "Ouvrir dans le terminal système configuré par défaut"
+        : "Ouvrir dans le terminal intégré configuré par défaut";
+
+    private void OpenEmbeddedTerminal()
+    {
+        var directory = Launcher.PrepareWorkspace(Id);
+        if (directory is null)
+        {
+            _error = "Impossible de préparer le dossier pour le Terminal intégré.";
+            return;
+        }
+
+        _error = null;
+        Nav.NavigateTo($"/terminal?cwd={Uri.EscapeDataString(directory)}");
+    }
 
     private static string AutomaticValidationLabel(CourseRush rush)
         => rush.GradingTypes.Count == 0

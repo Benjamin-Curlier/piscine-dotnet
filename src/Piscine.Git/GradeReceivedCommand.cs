@@ -66,7 +66,7 @@ public sealed class GradeReceivedCommand
         return true;
     }
 
-    public CommandResult Run(string sha)
+    public CommandResult Run(string sha, string? previousSha = null)
     {
         // Le hook post-receive appelle `grade-received <newrev>` pour CHAQUE ref reçue. Une suppression
         // de branche (ou toute ref dont la nouvelle valeur est le SHA tout-zéro) n'a pas de commit à
@@ -81,6 +81,12 @@ public sealed class GradeReceivedCommand
         _resolved.Clear(); // cache (emplacement, manifest) scopé à ce Run.
         try
         {
+            IReadOnlySet<string>? changedPaths = null;
+            if (!string.IsNullOrWhiteSpace(previousSha) && !IsZeroSha(previousSha))
+            {
+                changedPaths = CommitExtractor.ChangedPaths(_layout.RemoteRepoPath, previousSha, sha);
+            }
+
             CommitExtractor.Extract(_layout.RemoteRepoPath, sha, snapshot);
 
             var allResults = new List<ExerciseGradingResult>();
@@ -106,7 +112,11 @@ public sealed class GradeReceivedCommand
                             // Exo git : pas de fichier dans le snapshot plat — noté contre le dépôt bare
                             // (qui contient les refs poussées), et seulement si « tenté » (cf. #17), pour
                             // éviter un « à revoir » parasite sur un exo non commencé.
-                            if (GitAttemptEvaluator.IsAttempted(gitStep.Git?.Attempt, _layout.RemoteRepoPath))
+                            if (GitExerciseChanged(gitStep, changedPaths)
+                                && GitAttemptEvaluator.IsAttempted(
+                                    gitStep.Git?.Attempt,
+                                    _layout.RemoteRepoPath,
+                                    RenduBranch))
                             {
                                 submissions.Add(new ExerciseSubmission(
                                     manifest,
@@ -117,6 +127,11 @@ public sealed class GradeReceivedCommand
                             }
 
                             continue; // un exo git ne se charge jamais depuis le snapshot plat
+                        }
+
+                        if (!SubmissionChanged(changedPaths, module.Id, exerciseId))
+                        {
+                            continue;
                         }
 
                         var submittedDir = Path.Combine(snapshot, module.Id, exerciseId);
@@ -151,6 +166,11 @@ public sealed class GradeReceivedCommand
                 }
 
                 var location = resolved.Value.Location;
+                if (!SubmissionChanged(changedPaths, ContentLocator.RushesModuleId, rush.Id))
+                {
+                    continue;
+                }
+
                 var submittedDir = Path.Combine(snapshot, ContentLocator.RushesModuleId, rush.Id);
                 if (!Directory.Exists(submittedDir))
                 {
@@ -182,14 +202,12 @@ public sealed class GradeReceivedCommand
         }
 
         var store = new ProgressStore(_layout.ProgressPath);
-        var progress = store.Load();
-        ProgressRecorder.Apply(progress, results, _timeProvider.GetLocalNow());
-        SaveProgressBestEffort(store, progress);
+        var persistedProgress = SaveProgressBestEffort(store, results, _timeProvider.GetLocalNow());
 
         // En plus du statut (progress.json), persiste le verdict RICHE (diff/indice/cours) du push
         // pour que /resultat l'affiche sans re-jouer le grader (#40). Best-effort : ne casse pas le
         // rendu si l'écriture échoue.
-        PersistRichResult(results);
+        PersistRichResult(results, persistedProgress);
 
         var sb = new StringBuilder();
         var anyToReview = false;
@@ -214,26 +232,69 @@ public sealed class GradeReceivedCommand
     /// File.Move atomique de <see cref="ProgressStore"/> protège les lecteurs même en cas d'échec ;
     /// au pire, on conserve le snapshot précédent.
     /// </summary>
-    private static void SaveProgressBestEffort(ProgressStore store, Progress progress)
+    private static Progress? SaveProgressBestEffort(
+        ProgressStore store,
+        IReadOnlyList<ExerciseGradingResult> results,
+        DateTimeOffset now)
     {
         const int maxAttempts = 3;
         for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
             try
             {
-                store.Save(progress);
-                return;
+                return store.Update(progress =>
+                {
+                    ProgressRecorder.Apply(progress, results, now);
+                    return progress;
+                });
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
             {
                 if (attempt == maxAttempts)
                 {
-                    return; // abandon silencieux : le push reste vert (progress.json inchangé).
+                    return null; // abandon silencieux : le push reste vert (progress.json inchangé).
                 }
 
                 Thread.Sleep(20 * attempt); // laisse l'écrivain concurrent relâcher le fichier, puis on retente.
             }
         }
+
+        return null;
+    }
+
+    private static bool SubmissionChanged(
+        IReadOnlySet<string>? changedPaths,
+        string moduleId,
+        string exerciseId)
+    {
+        if (changedPaths is null)
+        {
+            return true; // premier push ou ancien hook : snapshot complet rétro-compatible.
+        }
+
+        var prefix = $"{moduleId}/{exerciseId}/";
+        return changedPaths.Any(path => path.StartsWith(prefix, StringComparison.Ordinal));
+    }
+
+    private static bool GitExerciseChanged(GradingStep step, IReadOnlySet<string>? changedPaths)
+    {
+        if (changedPaths is null || step.Git is null)
+        {
+            return true;
+        }
+
+        var observedFiles = step.Git.Files.Select(file => file.Path).ToList();
+        if (step.Git.Attempt?.File is { } attemptFile)
+        {
+            observedFiles.Add(attemptFile.Path);
+        }
+
+        // Pour une consigne purement historique (branches/commits/merge), toute évolution de main
+        // peut être pertinente. Dès que la consigne nomme des fichiers, on possède un périmètre net.
+        return observedFiles.Count == 0 || changedPaths.Any(changed =>
+            observedFiles.Any(observed =>
+                string.Equals(changed, observed, StringComparison.Ordinal)
+                || changed.StartsWith(observed.TrimEnd('/') + "/", StringComparison.Ordinal)));
     }
 
     /// <summary>
@@ -241,7 +302,9 @@ public sealed class GradeReceivedCommand
     /// renvoi cours) dans <c>last-push-result.json</c>. Résolution indice/cours identique à
     /// <c>ResultFormatter</c> / <c>CheckService</c>. Best-effort : une erreur d'écriture est ignorée.
     /// </summary>
-    private void PersistRichResult(IReadOnlyList<ExerciseGradingResult> results)
+    private void PersistRichResult(
+        IReadOnlyList<ExerciseGradingResult> results,
+        Progress? persistedProgress)
     {
         var exercises = new List<PushExerciseResult>(results.Count);
         foreach (var result in results)
@@ -268,25 +331,34 @@ public sealed class GradeReceivedCommand
                 courseRef = string.IsNullOrWhiteSpace(feedback.CourseRef) ? null : feedback.CourseRef;
             }
 
+            ExerciseProgress? progressEntry = null;
+            persistedProgress?.Exercises.TryGetValue(result.ExerciseId, out progressEntry);
             exercises.Add(new PushExerciseResult(
                 result.ExerciseId,
                 resolved?.Location.ModuleId ?? string.Empty,
                 result.Status.ToString(),
                 cases,
                 hint,
-                courseRef));
+                courseRef)
+            {
+                Attempts = progressEntry?.Attempts ?? 0,
+                LastAttempt = progressEntry?.LastAttempt,
+            });
         }
 
         try
         {
             new LastPushResultStore(_layout.LastPushResultPath)
-                .Save(new PushResultDocument(exercises, _timeProvider.GetLocalNow()));
+                .Save(new PushResultDocument(exercises, _timeProvider.GetLocalNow())
+                {
+                    PushId = Guid.NewGuid().ToString("N"),
+                });
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
-            // Best-effort : l'absence de l'artefact riche fait retomber /resultat sur le statut seul.
-            // UnauthorizedAccessException incluse : LastPushResultStore.Save peut la lever (chemin non
-            // inscriptible) — ne jamais casser le hook après que progress.json a déjà été commité.
+            // Best-effort : la progression et la sortie du push restent valides, mais aucune
+            // notification UI n'est émise sans cet artefact canonique. UnauthorizedAccessException
+            // incluse : ne jamais casser le hook après que progress.json a déjà été commité.
         }
     }
 

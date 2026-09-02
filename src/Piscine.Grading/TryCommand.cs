@@ -193,7 +193,13 @@ public sealed class TryCommand
 
     private static string Normalize(string s) => s.Replace("\r\n", "\n");
 
-    private static string Quote(string s) => "\"" + s.Replace("\r\n", "\n").Replace("\n", "\\n").Replace("\"", "\\\"") + "\"";
+    private static string Quote(string s) => "\"" + s
+        .Replace("\\", "\\\\")
+        .Replace("\r\n", "\\n")
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r")
+        .Replace("\t", "\\t")
+        .Replace("\"", "\\\"") + "\"";
 
     private sealed record IoCaseRef(IReadOnlyList<string> Args, string Stdin, string ExpectStdout, int ExpectExit);
 }

@@ -16,7 +16,7 @@
     <!-- PTY cross-platform : ConPTY (Windows 10 1809+) + shim natif forkpty par RID (Linux/macOS).
          Cible netstandard2.0, restaure proprement sur net10 sans NU1701 (asset de premiere classe) :
          aucune neutralisation necessaire sous TreatWarningsAsErrors. -->
-    <PackageReference Include="Porta.Pty" Version="2.2.1" />
+    <PackageReference Include="Porta.Pty" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

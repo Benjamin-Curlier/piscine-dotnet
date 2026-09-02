@@ -24,18 +24,56 @@ public static class ContentPackager
 
     public static void CopyWithoutSolutions(string sourceContentDir, string destContentDir)
     {
-        foreach (var file in Directory.EnumerateFiles(sourceContentDir, "*", SearchOption.AllDirectories))
+        var source = Path.GetFullPath(sourceContentDir);
+        var destinationRoot = Path.GetFullPath(destContentDir);
+        if (!Directory.Exists(source))
         {
-            var relative = Path.GetRelativePath(sourceContentDir, file);
+            throw new DirectoryNotFoundException($"Contenu source introuvable : {source}");
+        }
+
+        // Une destination imbriquée serait ré-énumérée pendant la copie ; une source imbriquée dans
+        // la destination serait détruite au nettoyage. Le packaging exige donc deux arbres disjoints.
+        if (IsSameOrDescendant(source, destinationRoot)
+            || IsSameOrDescendant(destinationRoot, source))
+        {
+            throw new ArgumentException("Les dossiers source et destination du paquet doivent être disjoints.");
+        }
+
+        // Le paquet est un instantané, pas une copie incrémentale : des fichiers provenant d'une
+        // exécution précédente (notamment un ancien solution/) ne doivent jamais survivre.
+        if (Directory.Exists(destinationRoot))
+        {
+            Directory.Delete(destinationRoot, recursive: true);
+        }
+        Directory.CreateDirectory(destinationRoot);
+
+        foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(source, file);
             if (HasSolutionSegment(relative))
             {
                 continue;
             }
 
-            var destination = Path.Combine(destContentDir, relative);
+            var destination = Path.Combine(destinationRoot, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
             File.Copy(file, destination, overwrite: true);
         }
+    }
+
+    private static bool IsSameOrDescendant(string candidate, string parent)
+    {
+        var comparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+        if (string.Equals(candidate, parent, comparison))
+        {
+            return true;
+        }
+
+        var prefix = parent.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + Path.DirectorySeparatorChar;
+        return candidate.StartsWith(prefix, comparison);
     }
 
     private static bool HasSolutionSegment(string relativePath)

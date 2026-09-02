@@ -4,6 +4,48 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v5.0.1] — 2026-09-02
+
+Version corrective consacrée à la fiabilité du rendu, à la cohérence du terminal et aux garde-fous
+de qualité du contenu.
+
+### Corrigé
+
+- **Terminal de l'exercice** : le terminal intégré démarre désormais dans le workspace officiel ou
+  dans le dossier préparé de l'exercice ; la préférence intégré/système pilote réellement l'action
+  principale.
+- **Résultat du push** : l'interface observe l'artefact dédié du hook, corrélé au verdict riche et au
+  compteur de tentatives, au lieu d'interpréter un check local ou une réinitialisation comme un push.
+- **Progression concurrente** : les séquences lecture-modification-écriture du check, du hook, de
+  l'auto-relecture et du reset sont sérialisées entre processus pour éviter les mises à jour perdues.
+- **Correction Git ciblée** : le hook ne traite que `refs/heads/main`, transmet les deux révisions et
+  ne recorrige que les exercices modifiés ; les assertions `HEAD` fonctionnent aussi dans un dépôt
+  bare dont le HEAD symbolique est orphelin.
+- **Verdicts et graders** : l'état `EnAttenteRelecture` reste visible dans le résultat riche, les
+  antislashs sont échappés correctement dans le YAML généré et les occurrences source ne peuvent plus
+  être fabriquées à cheval sur deux fichiers.
+- **Packaging et manifests** : chaque paquet repart d'une destination propre, refuse les arbres qui
+  se chevauchent et exclut les anciens corrigés ; les IDs déclarés sont confrontés aux dossiers et les
+  doublons sont détectés sur la valeur réelle des manifests.
+- **Interface** : les messages de reconnexion sont entièrement francisés et la borne minimale de
+  l'échelle de police est documentée à 80 %.
+
+### Maintenance
+
+- Mise à jour de Porta.Pty 2.2.2, Grpc.Core.Api 2.83.0 et
+  Microsoft.Extensions.Caching.Hybrid 10.9.0.
+
+### Validation de la release
+
+- Build Release : **0 avertissement, 0 erreur**.
+- Tests : **575** découverts, **574 réussis**, **1 smoke Desktop conditionnel** ignoré faute
+  d'affichage interactif.
+- `validate-content` : contenu valide ; audit pédagogique déterministe : aucune alerte.
+- Paquet de contrôle : **751 fichiers**, aucun dossier `solution/` ; audit NuGet : aucune mise à jour
+  restante.
+
+---
+
 ## [v5.0.0] — 2026-09-01
 
 Revue adverse complète du parcours : les Rushes deviennent des missions réellement démontrables,

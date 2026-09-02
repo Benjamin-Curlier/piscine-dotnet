@@ -1,5 +1,6 @@
 using System.IO;
 using Piscine.Core;
+using Piscine.Core.Content;
 using Xunit;
 
 namespace Piscine.Grading.Tests;
@@ -147,5 +148,20 @@ public class TryCommandTests
 
         // Forme YAML collable : \n littéral et guillemets échappés.
         Assert.Contains("expect_stdout : \"{\\\"k\\\":1}\\n\"", result.Output);
+    }
+
+    [Fact]
+    public void Run_Write_BackslashesRoundTripThroughYaml()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, IoManifest, "System.Console.Write(@\"C:\\temp\\fichier\");");
+
+        var result = new TryCommand(LayoutFor(dir)).Run("ex00", write: true);
+        var manifest = File.ReadAllText(ManifestPath(dir));
+        var loaded = ExerciseManifestLoader.Load(Path.GetDirectoryName(ManifestPath(dir))!);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("expect_stdout: \"C:\\\\temp\\\\fichier\"", manifest);
+        Assert.Equal(@"C:\temp\fichier", loaded.Grading[0].Cases[0].ExpectStdout);
     }
 }

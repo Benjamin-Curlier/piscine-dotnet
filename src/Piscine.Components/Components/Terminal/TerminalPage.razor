@@ -6,11 +6,13 @@
 @using Piscine.App.Coaching
 @using Piscine.App.Git
 @using Piscine.App.Terminal
+@using Piscine.Core
 @inject PtyService Pty
 @inject GitStatusService Status
 @inject CoachingService Coach
 @inject ICoachingChannel Channel
 @inject TerminalPolicy Policy
+@inject PiscineLayout Layout
 @implements IAsyncDisposable
 
 <PageTitle>Terminal — Piscine .NET</PageTitle>
@@ -72,6 +74,10 @@ else
 }
 
 @code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "cwd")]
+    public string? RequestedWorkingDirectory { get; set; }
+
     private Terminal? _terminal;
     private IPtySession? _session;
     private bool _enabled;
@@ -81,10 +87,8 @@ else
     private IReadOnlyList<HintCard> _cards = [];
     private readonly ExerciseExpectation _expectation = new();
 
-    // Dossier de travail du terminal : un sous-dossier « terminal » À CÔTÉ DE L'EXÉCUTABLE
-    // (AppContext.BaseDirectory), PERSISTANT entre sessions (les expériences git de la recrue
-    // survivent et sont découvrables). Hors du dépôt source de l'app, donc `git init` ici ne mute
-    // rien d'important. (Avant : dossier temp jetable par session — perdu au Dispose, peu trouvable.)
+    // Dossier de travail du terminal : workspace officiel, ou dossier d'exercice préparé transmis
+    // par query string. TerminalWorkingDirectory garantit que la demande reste sous WorkspaceRoot.
     private string? _workDir;
     private bool _channelStarted;
 
@@ -109,8 +113,7 @@ else
             return;
         }
 
-        // Dossier de travail persistant, à côté de l'exécutable (découvrable, survit aux sessions).
-        _workDir = Path.Combine(AppContext.BaseDirectory, "terminal");
+        _workDir = TerminalWorkingDirectory.Resolve(Layout, RequestedWorkingDirectory);
         Directory.CreateDirectory(_workDir);
 
         // Le dossier du shim git (notre faux `git` en tete de PATH) : emplacement packagé
@@ -249,7 +252,6 @@ else
             await _session.DisposeAsync();
         }
 
-        // Dossier de travail PERSISTANT (à côté de l'exe) : on ne le supprime PAS — les expériences
-        // git de la recrue doivent survivre d'une session à l'autre.
+        // Le workspace appartient à la recrue : il n'est évidemment jamais supprimé ici.
     }
 }

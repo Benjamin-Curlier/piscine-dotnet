@@ -116,7 +116,12 @@ else
     private static CheckOutcome MapOutcome(PushExerciseResult pe) => new(
         pe.ExerciseId,
         pe.ModuleId,
-        pe.Status == "Reussi" ? CheckVerdict.Reussi : CheckVerdict.ARevoir,
+        pe.Status switch
+        {
+            "Reussi" => CheckVerdict.Reussi,
+            "EnAttenteRelecture" => CheckVerdict.EnAttenteRelecture,
+            _ => CheckVerdict.ARevoir,
+        },
         pe.Cases.Select(c => new CheckCaseResult(c.GraderType, c.Passed, c.Messages)).ToList(),
         pe.Hint,
         pe.CourseRef);

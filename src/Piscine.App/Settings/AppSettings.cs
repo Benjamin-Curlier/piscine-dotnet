@@ -29,7 +29,7 @@ public enum TerminalTarget
 /// </summary>
 public sealed record AppSettings
 {
-    /// <summary>Échelle de police minimale (50&nbsp;%).</summary>
+    /// <summary>Échelle de police minimale (80&nbsp;%).</summary>
     public const double MinFontScale = 0.8;
 
     /// <summary>Échelle de police maximale (150&nbsp;%).</summary>

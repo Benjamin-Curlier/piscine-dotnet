@@ -83,7 +83,7 @@ internal static class Program
             return new InitService(layout, exe);
         });
 
-        // Surveillant du résultat de push (observe progress.json écrit par grade-received).
+        // Surveillant du résultat de push (observe l'artefact dédié écrit par grade-received).
         builder.Services.AddSingleton<IPushResultWatcher>(sp =>
             new ProgressFileWatcher(sp.GetRequiredService<PiscineLayout>()));
 

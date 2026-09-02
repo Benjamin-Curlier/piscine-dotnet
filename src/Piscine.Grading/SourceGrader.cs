@@ -58,7 +58,6 @@ public sealed class SourceGrader : IGrader
             }
         }
 
-        var allSources = string.Concat(comparableSources.Values);
         foreach (var occurrence in step.Source.RequiredOccurrences
                      .Where(occurrence => !string.IsNullOrWhiteSpace(occurrence.Fragment)))
         {
@@ -69,7 +68,9 @@ public sealed class SourceGrader : IGrader
             }
 
             var normalized = ComparableFragment(occurrence.Fragment);
-            var actual = CountOccurrences(allSources, normalized);
+            // Compter fichier par fichier : concaténer les sources pouvait fabriquer une occurrence
+            // inexistante à cheval sur la fin d'un fichier et le début du suivant.
+            var actual = comparableSources.Values.Sum(source => CountOccurrences(source, normalized));
             if (actual < occurrence.Count)
             {
                 messages.Add(

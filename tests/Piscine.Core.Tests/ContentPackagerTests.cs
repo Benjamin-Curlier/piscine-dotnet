@@ -68,6 +68,42 @@ public class ContentPackagerTests
         Assert.Contains(shipped, f => Path.GetFileName(f).Equals("subject.md", System.StringComparison.OrdinalIgnoreCase));
     }
 
+    [Fact]
+    public void CopyWithoutSolutions_RemovesStaleDestinationFilesBeforePackaging()
+    {
+        using var dir = new TempDir();
+        dir.WriteFile(Path.Combine("src", "manifest.yaml"), "id: ex00");
+        dir.WriteFile(Path.Combine("out", "ex", "solution", "Stale.cs"), "ancien corrigé");
+        dir.WriteFile(Path.Combine("out", "obsolete.txt"), "ancienne version");
+
+        ContentPackager.CopyWithoutSolutions(dir.Combine("src"), dir.Combine("out"));
+
+        Assert.True(File.Exists(Path.Combine(dir.Combine("out"), "manifest.yaml")));
+        Assert.False(File.Exists(Path.Combine(dir.Combine("out"), "obsolete.txt")));
+        Assert.False(Directory.Exists(Path.Combine(dir.Combine("out"), "ex", "solution")));
+    }
+
+    [Theory]
+    [InlineData("same")]
+    [InlineData("destination-inside-source")]
+    [InlineData("source-inside-destination")]
+    public void CopyWithoutSolutions_RejectsOverlappingTrees(string scenario)
+    {
+        using var dir = new TempDir();
+        var source = scenario == "source-inside-destination"
+            ? dir.Combine(Path.Combine("root", "src"))
+            : dir.Combine("src");
+        var destination = scenario switch
+        {
+            "same" => source,
+            "destination-inside-source" => Path.Combine(source, "out"),
+            _ => dir.Combine("root"),
+        };
+        Directory.CreateDirectory(source);
+
+        Assert.Throws<ArgumentException>(() => ContentPackager.CopyWithoutSolutions(source, destination));
+    }
+
     private static string? FindRepoContentDir()
     {
         var d = new DirectoryInfo(System.AppContext.BaseDirectory);

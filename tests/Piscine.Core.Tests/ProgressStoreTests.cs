@@ -1,4 +1,6 @@
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Piscine.Core.Model;
 using Piscine.Core.Progression;
 using Xunit;
@@ -97,5 +99,31 @@ public class ProgressStoreTests
 
         Assert.True(File.Exists(path));
         Assert.Empty(Directory.GetFiles(dir.Path, "*.tmp"));
+    }
+
+    [Fact]
+    public async Task Update_ConcurrentReadModifyWrite_PreservesEveryEntry()
+    {
+        using var dir = new TempDir();
+        var path = dir.Combine("progress.json");
+        var store = new ProgressStore(path);
+
+        var updates = Enumerable.Range(0, 40)
+            .Select(index => Task.Run(() => store.Update(progress =>
+            {
+                progress.Exercises[$"ex{index:00}"] = new ExerciseProgress
+                {
+                    Status = ExerciseStatus.ARevoir,
+                    Attempts = index + 1,
+                };
+            })))
+            .ToArray();
+
+        await Task.WhenAll(updates);
+
+        var reloaded = store.Load();
+        Assert.Equal(40, reloaded.Exercises.Count);
+        Assert.All(Enumerable.Range(0, 40), index =>
+            Assert.Equal(index + 1, reloaded.Exercises[$"ex{index:00}"].Attempts));
     }
 }

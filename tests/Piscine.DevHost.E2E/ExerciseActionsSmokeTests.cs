@@ -96,6 +96,16 @@ public sealed class ExerciseActionsSmokeTests : IAsyncLifetime
             Assert.True(checkCount > 0, "Le lien 'Vérifier' (data-testid='ex-check') est absent.");
 
             Assert.DoesNotContain("piscine start", await page.ContentAsync(), StringComparison.Ordinal);
+
+            // Le réglage par défaut est le terminal intégré : l'action principale prépare le starter
+            // et transmet précisément son dossier au terminal.
+            await page.Locator("[data-testid='ex-open-terminal']").ClickAsync();
+            await page.WaitForURLAsync("**/terminal?cwd=**", new PageWaitForURLOptions { Timeout = 30_000 });
+            Assert.True(File.Exists(Path.Combine(
+                _tempWorkspace!,
+                "00-setup-git",
+                "ex00-hello",
+                "Hello.cs")));
         }
     }
 
