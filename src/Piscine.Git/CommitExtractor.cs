@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using LibGit2Sharp;
 
 namespace Piscine.Git;
@@ -7,6 +9,26 @@ namespace Piscine.Git;
 /// <summary>Matérialise l'arbre d'un commit (reçu par push) dans un dossier de travail.</summary>
 public static class CommitExtractor
 {
+    /// <summary>
+    /// Renvoie les chemins dont l'arbre a changé entre deux commits. Le hook s'en sert pour ne
+    /// recorriger que les exercices présents dans le rendu courant au lieu de recompter tout
+    /// l'instantané du dépôt à chaque push.
+    /// </summary>
+    public static IReadOnlySet<string> ChangedPaths(string repoPath, string oldSha, string newSha)
+    {
+        using var repo = new Repository(repoPath);
+        var oldCommit = repo.Lookup<Commit>(oldSha)
+            ?? throw new ArgumentException($"Commit introuvable : {oldSha}", nameof(oldSha));
+        var newCommit = repo.Lookup<Commit>(newSha)
+            ?? throw new ArgumentException($"Commit introuvable : {newSha}", nameof(newSha));
+
+        using var changes = repo.Diff.Compare<TreeChanges>(oldCommit.Tree, newCommit.Tree);
+        return changes
+            .SelectMany(change => new[] { change.Path, change.OldPath })
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
     public static void Extract(string repoPath, string sha, string destinationDir)
     {
         using var repo = new Repository(repoPath);

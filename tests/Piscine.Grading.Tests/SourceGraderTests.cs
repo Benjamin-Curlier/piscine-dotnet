@@ -91,6 +91,32 @@ public sealed class SourceGraderTests
     }
 
     [Fact]
+    public void Grade_RequiredOccurrences_DoesNotMatchAcrossFileBoundary()
+    {
+        var context = new GradingContext(new Dictionary<string, string>
+        {
+            ["A.cs"] = "Alpha",
+            ["B.cs"] = "Beta",
+        });
+        var step = new GradingStep
+        {
+            Type = "source",
+            Source = new SourceAssertions
+            {
+                RequiredOccurrences =
+                {
+                    new SourceOccurrence { Fragment = "AlphaBeta", Count = 1 },
+                },
+            },
+        };
+
+        var result = new SourceGrader().Grade(context, step);
+
+        Assert.Equal(GraderStatus.ARevoir, result.Status);
+        Assert.Contains(result.Messages, message => message.Contains("présent 0 fois"));
+    }
+
+    [Fact]
     public void Grade_SemanticInvocationAndLock_RejectsSuperficialKeywords()
     {
         var context = new GradingContext(new Dictionary<string, string>

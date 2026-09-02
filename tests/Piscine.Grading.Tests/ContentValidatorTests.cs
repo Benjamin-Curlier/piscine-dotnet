@@ -90,6 +90,45 @@ public class ContentValidatorTests
     }
 
     [Fact]
+    public void Validate_ManifestIdDifferentFromFolder_ReportsIssue()
+    {
+        using var dir = new TempDir();
+        WriteExercise(dir, IoManifest.Replace("id: ex00", "id: autre-id", StringComparison.Ordinal),
+            "System.Console.Write(\"ok\");");
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, issue =>
+            issue.ExerciseId == "ex00"
+            && issue.Message.Contains("différent du dossier", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_DuplicateDeclaredManifestIds_ReportsAmbiguity()
+    {
+        using var dir = new TempDir();
+        foreach (var (module, exercise) in new[] { ("00-a", "ex00"), ("01-b", "ex01") })
+        {
+            dir.WriteFile(Path.Combine("content", "modules", module, "module.yaml"), $$"""
+                id: {{module}}
+                order: 0
+                arc: Test
+                mission: Test
+                groups: []
+                """);
+            dir.WriteFile(
+                Path.Combine("content", "modules", module, "exercises", exercise, "manifest.yaml"),
+                IoManifest.Replace("id: ex00", "id: duplicate", StringComparison.Ordinal));
+        }
+
+        var report = new ContentValidator(Graders.Default()).Validate(LayoutFor(dir));
+
+        Assert.Contains(report.Issues, issue =>
+            issue.ExerciseId == "duplicate"
+            && issue.Message.Contains("plusieurs emplacements", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void Validate_MissingGraderFile_ReportsIssue()
     {
         using var dir = new TempDir();

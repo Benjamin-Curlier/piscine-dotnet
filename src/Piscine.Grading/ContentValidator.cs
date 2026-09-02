@@ -281,24 +281,22 @@ public sealed class ContentValidator
             }
         }
 
-        var rushesDir = layout.Content.RushesDirectory;
-        if (Directory.Exists(rushesDir))
+        foreach (var (manifestDir, _) in EnumerateExerciseManifestDirectories(layout))
         {
-            foreach (var rushDir in Directory.EnumerateDirectories(rushesDir))
+            var folderId = Path.GetFileName(manifestDir);
+            try
             {
-                if (!File.Exists(Path.Combine(rushDir, ExerciseManifestLoader.FileName)))
+                var manifest = ExerciseManifestLoader.Load(manifestDir);
+                if (!string.Equals(manifest.Id, folderId, StringComparison.Ordinal))
                 {
-                    continue;
+                    issues.Add(new ContentIssue(
+                        folderId,
+                        $"id du manifest « {manifest.Id} » différent du dossier « {folderId} »."));
                 }
-
-                try
-                {
-                    ExerciseManifestLoader.Load(rushDir);
-                }
-                catch (Exception e)
-                {
-                    issues.Add(new ContentIssue(Path.GetFileName(rushDir), $"{ExerciseManifestLoader.FileName} invalide : {e.Message}"));
-                }
+            }
+            catch (Exception e)
+            {
+                issues.Add(new ContentIssue(folderId, $"{ExerciseManifestLoader.FileName} invalide : {e.Message}"));
             }
         }
     }
@@ -342,43 +340,73 @@ public sealed class ContentValidator
     /// </summary>
     private static void ValidateNoDuplicateIds(PiscineLayout layout, List<ContentIssue> issues)
     {
-        var modulesDir = layout.Content.ModulesDirectory;
-        if (!Directory.Exists(modulesDir))
+        var locationsById = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        foreach (var (manifestDir, location) in EnumerateExerciseManifestDirectories(layout))
         {
-            return;
-        }
-
-        var modulesById = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-        foreach (var moduleDir in Directory.EnumerateDirectories(modulesDir))
-        {
-            var exercisesDir = Path.Combine(moduleDir, ContentLocator.ExercisesDirName);
-            if (!Directory.Exists(exercisesDir))
+            ExerciseManifest manifest;
+            try
             {
-                continue;
+                manifest = ExerciseManifestLoader.Load(manifestDir);
+            }
+            catch (Exception)
+            {
+                continue; // déjà rapporté par ValidateManifestsLoadable.
             }
 
-            foreach (var exerciseDir in Directory.EnumerateDirectories(exercisesDir))
+            if (!locationsById.TryGetValue(manifest.Id, out var list))
             {
-                if (!File.Exists(Path.Combine(exerciseDir, ExerciseManifestLoader.FileName)))
+                locationsById[manifest.Id] = list = new List<string>();
+            }
+
+            list.Add(location);
+        }
+
+        foreach (var (id, locations) in locationsById)
+        {
+            if (locations.Count > 1)
+            {
+                issues.Add(new ContentIssue(
+                    id,
+                    $"identifiant de manifest présent à plusieurs emplacements ({string.Join(", ", locations)}) — plusieurs modules possibles : ambigu pour la résolution."));
+            }
+        }
+    }
+
+    private static IEnumerable<(string ManifestDir, string Location)> EnumerateExerciseManifestDirectories(
+        PiscineLayout layout)
+    {
+        var modulesDir = layout.Content.ModulesDirectory;
+        if (Directory.Exists(modulesDir))
+        {
+            foreach (var moduleDir in Directory.EnumerateDirectories(modulesDir))
+            {
+                var exercisesDir = Path.Combine(moduleDir, ContentLocator.ExercisesDirName);
+                if (!Directory.Exists(exercisesDir))
                 {
                     continue;
                 }
 
-                var id = Path.GetFileName(exerciseDir);
-                if (!modulesById.TryGetValue(id, out var list))
+                foreach (var exerciseDir in Directory.EnumerateDirectories(exercisesDir))
                 {
-                    modulesById[id] = list = new List<string>();
+                    if (File.Exists(Path.Combine(exerciseDir, ExerciseManifestLoader.FileName)))
+                    {
+                        yield return (exerciseDir, Path.GetFileName(moduleDir));
+                    }
                 }
-
-                list.Add(Path.GetFileName(moduleDir));
             }
         }
 
-        foreach (var (id, modules) in modulesById)
+        var rushesDir = layout.Content.RushesDirectory;
+        if (!Directory.Exists(rushesDir))
         {
-            if (modules.Count > 1)
+            yield break;
+        }
+
+        foreach (var rushDir in Directory.EnumerateDirectories(rushesDir))
+        {
+            if (File.Exists(Path.Combine(rushDir, ExerciseManifestLoader.FileName)))
             {
-                issues.Add(new ContentIssue(id, $"identifiant d'exercice présent dans plusieurs modules ({string.Join(", ", modules)}) : ambigu pour la résolution."));
+                yield return (rushDir, ContentLocator.RushesModuleId);
             }
         }
     }

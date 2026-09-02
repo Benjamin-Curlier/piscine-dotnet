@@ -41,9 +41,8 @@ public sealed class CheckCommand
         var result = _grader.Grade(submission.Manifest, submission.Context);
 
         var store = new ProgressStore(_layout.ProgressPath);
-        var progress = store.Load();
-        ProgressRecorder.Apply(progress, new[] { result }, _timeProvider.GetLocalNow());
-        store.Save(progress);
+        store.Update(progress =>
+            ProgressRecorder.Apply(progress, new[] { result }, _timeProvider.GetLocalNow()));
 
         var output = ResultFormatter.Format(result, submission.Manifest.Feedback);
         var exitCode = result.Status is GraderStatus.Reussi or GraderStatus.EnAttenteRelecture ? 0 : 1;

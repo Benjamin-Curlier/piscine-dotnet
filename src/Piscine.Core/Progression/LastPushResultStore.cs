@@ -38,7 +38,7 @@ public sealed class LastPushResultStore
             var json = File.ReadAllText(_path);
             return JsonSerializer.Deserialize<PushResultDocument>(json, Options);
         }
-        catch (JsonException)
+        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException)
         {
             return null;
         }

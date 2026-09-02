@@ -181,4 +181,28 @@ public sealed class PushResultPanelTests : BunitContext
         cut.Find("[data-testid='check-course-ref']");
         Assert.Empty(cut.FindAll("[data-testid='push-check-link']"));
     }
+
+    [Fact]
+    public void Render_WithPendingRichResult_PreservesPendingVerdict()
+    {
+        var result = MakeResult(("r0-demo", PushVerdict.EnAttenteRelecture, 1));
+        var rich = new PushResultDocument(
+            new[]
+            {
+                new PushExerciseResult(
+                    "r0-demo", "rushes", "EnAttenteRelecture",
+                    new[] { new PushCaseResult("fichier", true, Array.Empty<string>()) },
+                    Hint: null,
+                    CourseRef: null),
+            },
+            DateTimeOffset.UtcNow);
+        Services.AddSingleton<IPushResultWatcher>(new FakeWatcher(result, rich));
+
+        var cut = Render<PushResultPanel>();
+
+        Assert.Contains(
+            "En attente de relecture",
+            cut.Find("[data-testid='check-verdict']").TextContent,
+            StringComparison.Ordinal);
+    }
 }

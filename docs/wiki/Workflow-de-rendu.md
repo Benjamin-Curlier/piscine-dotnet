@@ -29,7 +29,8 @@ Au premier lancement, `piscine init` crée :
 
 ## Déroulé d'un `git push`
 
-1. Le hook `post-receive` du dépôt bare appelle `piscine grade-received <sha>`.
+1. Pour `refs/heads/main`, le hook `post-receive` du dépôt bare appelle
+   `piscine grade-received <ancien-sha> <nouveau-sha>`.
 2. La moulinette **matérialise l'arbre du commit reçu** dans un dossier temporaire isolé.
 3. Elle détecte les exercices **présents** dans le rendu, les corrige **par groupe, dans l'ordre,
    arrêt au premier échec** (suivants → *Non corrigé*). Voir [Moulinette](Moulinette). Les exercices

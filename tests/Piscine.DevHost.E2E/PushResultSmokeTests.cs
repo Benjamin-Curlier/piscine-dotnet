@@ -7,9 +7,9 @@ using Xunit;
 namespace Piscine.DevHost.E2E;
 
 /// <summary>
-/// Smoke E2E /resultat : démarre le DevHost avec un état isolé SANS progress.json pré-écrit,
+/// Smoke E2E /resultat : démarre le DevHost avec un état isolé sans résultat pré-écrit,
 /// pilote Chromium vers <c>/resultat</c>, vérifie le placeholder vide
-/// (<c>data-testid="push-empty"</c>), puis écrit <c>progress.json</c> via l'API moteur et
+/// (<c>data-testid="push-empty"</c>), puis écrit l'artefact canonique du hook et
 /// vérifie que la page se met à jour <b>sans aucun clic</b> (auto-refresh FSW + SignalR).
 /// Si Chromium n'est pas installé (CI sans <c>playwright install</c>), le test se SAUTE proprement.
 /// Port dédié 5261. Racine résolue via Piscine.slnx. Répertoires temporaires nettoyés en DisposeAsync.
@@ -102,8 +102,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
                 "[data-testid='push-empty']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });
 
-            // 2. Écrire progress.json via l'API moteur (même chemin que le DevHost surveille).
-            //    Le watcher FSW + debounce 250 ms détecte le changement et publie le delta.
+            // 2. Persister d'abord la progression, puis le document du push qui déclenche le watcher.
             var progress = new Progress();
             progress.Exercises["ex00-hello"] = new ExerciseProgress
             {
@@ -112,6 +111,24 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
                 LastAttempt = DateTimeOffset.Now,
             };
             new ProgressStore(Path.Combine(_stateDir!, "progress.json")).Save(progress);
+            new LastPushResultStore(Path.Combine(_stateDir!, "last-push-result.json")).Save(
+                new PushResultDocument(
+                    new[]
+                    {
+                        new PushExerciseResult(
+                            "ex00-hello", "00-setup-git", "ARevoir",
+                            new[] { new PushCaseResult("io", false, new[] { "Échec du cas." }) },
+                            Hint: null,
+                            CourseRef: null)
+                        {
+                            Attempts = 1,
+                            LastAttempt = progress.Exercises["ex00-hello"].LastAttempt,
+                        },
+                    },
+                    DateTimeOffset.Now)
+                {
+                    PushId = Guid.NewGuid().ToString("N"),
+                });
 
             // 3. Sans aucun clic : attendre l'apparition automatique du premier push-entry.
             //    Timeout généreux pour absorber debounce (250 ms) + latence SignalR.
@@ -124,18 +141,11 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
                 "[data-testid='status-badge'][data-status='ARevoir']").CountAsync();
             Assert.True(
                 statusBadge > 0,
-                "Aucun [data-testid='status-badge'][data-status='ARevoir'] après écriture de progress.json. " +
+                "Aucun [data-testid='status-badge'][data-status='ARevoir'] après écriture du résultat. " +
                 "Vérifier l'alignement PISCINE_HOME / _stateDir et que le FSW surveille bien le bon chemin.");
 
-            // 5. Vérifier le lien vers /check.
-            var checkLink = await page.Locator(
-                "[data-testid='push-check-link']").CountAsync();
-            Assert.True(
-                checkLink > 0,
-                "Aucun [data-testid='push-check-link'] trouvé après le rendu du résultat.");
-
-            var href = await page.Locator("[data-testid='push-check-link']").First.GetAttributeAsync("href");
-            Assert.Equal("/check", href);
+            // Le document riche corrélé est rendu, sans relecture indépendante de progress.json.
+            Assert.True(await page.Locator("[data-testid='check-verdict']").CountAsync() > 0);
         }
     }
 
@@ -165,8 +175,7 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
                 "[data-testid='push-empty']",
                 new PageWaitForSelectorOptions { Timeout = 30_000 });
 
-            // Écrire D'ABORD l'artefact riche (#40), PUIS progress.json (qui déclenche le watcher) :
-            // le handler de la page relit last-push-result.json et rend le diff inline.
+            // Écrire D'ABORD la progression, PUIS l'artefact riche canonique qui déclenche le watcher.
             var doc = new PushResultDocument(
                 new[]
                 {
@@ -176,8 +185,6 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
                         "Relis l'énoncé.", "cours.md#hello"),
                 },
                 DateTimeOffset.Now);
-            new LastPushResultStore(Path.Combine(_stateDir!, "last-push-result.json")).Save(doc);
-
             var progress = new Progress();
             progress.Exercises["ex00-hello"] = new ExerciseProgress
             {
@@ -186,6 +193,16 @@ public sealed class PushResultSmokeTests : IAsyncLifetime
                 LastAttempt = DateTimeOffset.Now,
             };
             new ProgressStore(Path.Combine(_stateDir!, "progress.json")).Save(progress);
+            doc = doc with
+            {
+                PushId = Guid.NewGuid().ToString("N"),
+                Exercises = doc.Exercises.Select(exercise => exercise with
+                {
+                    Attempts = 1,
+                    LastAttempt = progress.Exercises["ex00-hello"].LastAttempt,
+                }).ToList(),
+            };
+            new LastPushResultStore(Path.Combine(_stateDir!, "last-push-result.json")).Save(doc);
 
             // Sans aucun clic : le diff riche (CheckFeedback) apparaît, pas le lien /check.
             await page.WaitForSelectorAsync(

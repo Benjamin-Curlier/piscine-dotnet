@@ -3,301 +3,245 @@ using System.Threading;
 using System.Threading.Tasks;
 using Piscine.App.Push;
 using Piscine.Core;
+using Piscine.Core.Model;
 using Piscine.Core.Progression;
 using CoreProgress = Piscine.Core.Model.Progress;
-using ExerciseProgress = Piscine.Core.Model.ExerciseProgress;
-using ExerciseStatus = Piscine.Core.Model.ExerciseStatus;
 
 namespace Piscine.App.Tests;
 
 /// <summary>
-/// Tests unitaires de <see cref="ProgressFileWatcher"/> : détection d'écriture, delta seul,
-/// pas de faux positif, debounce, mapping Reussi, et dispose propre.
+/// Vérifie que seules les écritures de l'artefact <c>last-push-result.json</c> déclenchent un
+/// résultat de push et que le résultat simple reste corrélé au document riche.
 /// </summary>
 public sealed class ProgressFileWatcherTests : IAsyncLifetime
 {
     private static readonly string RepoRoot = FindRepoRoot();
-
-    private static string FindRepoRoot()
-    {
-        var dir = new DirectoryInfo(System.AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Piscine.slnx")))
-        {
-            dir = dir.Parent;
-        }
-
-        return dir?.FullName ?? throw new DirectoryNotFoundException("Piscine.slnx introuvable.");
-    }
-
+    private const int EventTimeoutMs = 5_000;
     private readonly TempDir _temp = new();
 
-    // Chaque test obtient un layout isolé dans son propre TempDir.
-    private PiscineLayout CreateLayout()
+    private PiscineLayout CreateLayout() => new(
+        Path.Combine(RepoRoot, "content"),
+        _temp.Combine("workspace"),
+        _temp.Combine(".state"));
+
+    private static PushResultDocument WritePush(
+        PiscineLayout layout,
+        string id,
+        string status,
+        int attempts,
+        string pushId)
     {
-        var state = _temp.Combine(".state");
-        var workspace = _temp.Combine("workspace");
-        // PiscineLayout(contentRoot, workspaceRoot, stateDir)
-        return new PiscineLayout(Path.Combine(RepoRoot, "content"), workspace, state);
-    }
-
-    /// <summary>Écrit <c>progress.json</c> via <see cref="ProgressStore"/> (format garanti = même API que le hook).</summary>
-    private static void WriteProgress(PiscineLayout layout, params (string Id, ExerciseStatus Status, int Attempts)[] entries)
-    {
-        var progress = new CoreProgress();
-        foreach (var (id, status, attempts) in entries)
-        {
-            progress.Exercises[id] = new ExerciseProgress
-            {
-                Status = status,
-                Attempts = attempts,
-                LastAttempt = attempts > 0 ? DateTimeOffset.UtcNow : null,
-            };
-        }
-        new ProgressStore(layout.ProgressPath).Save(progress);
-    }
-
-    private const int EventTimeoutMs = 5_000;
-
-    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
-
-    public async ValueTask DisposeAsync()
-    {
-        // TempDir.Dispose est synchrone ; on l'appelle ici pour cohérence IAsyncLifetime.
-        await Task.Run(() => _temp.Dispose());
-    }
-
-    // ── Test 1 : Détection d'une écriture ────────────────────────────────────
-
-    [Fact]
-    public async Task Start_ThenWriteProgress_FiresResultReceived_WithExpectedEntry()
-    {
-        // Arrange
-        var layout = CreateLayout();
-        await using var watcher = new ProgressFileWatcher(layout);
-        var tcs = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-        watcher.ResultReceived += r => tcs.TrySetResult(r);
-
-        // Act — démarrer (aucun progress.json → snapshot vide) puis écrire.
-        watcher.Start();
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
-
-        // Assert
-        var completed = await Task.WhenAny(
-            tcs.Task,
-            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
-        Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
-
-        var result = await tcs.Task;
-        Assert.Single(result.Changed);
-        var entry = result.Changed[0];
-        Assert.Equal("ex00-hello", entry.ExerciseId);
-        Assert.Equal(PushVerdict.ARevoir, entry.Verdict);
-        Assert.Equal(1, entry.Attempts);
-
-        // LatestResult() doit retourner le même résultat.
-        var latest = watcher.LatestResult();
-        Assert.NotNull(latest);
-        Assert.Equal("ex00-hello", latest.Changed[0].ExerciseId);
-    }
-
-    // ── Test 2 : Delta seul ───────────────────────────────────────────────────
-
-    [Fact]
-    public async Task Start_WithExistingProgress_OnlyNewExerciseInEvent()
-    {
-        // Arrange — pré-écrire AVANT Start() (absorbé dans le snapshot initial).
-        var layout = CreateLayout();
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.Reussi, 1));
-
-        await using var watcher = new ProgressFileWatcher(layout);
-        var tcs = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-        watcher.ResultReceived += r => tcs.TrySetResult(r);
-
-        // Act — démarrer après la pré-écriture, puis ajouter un nouvel exercice.
-        watcher.Start();
-        WriteProgress(layout,
-            ("ex00-hello", ExerciseStatus.Reussi, 1),   // inchangé
-            ("ex01-foo", ExerciseStatus.ARevoir, 1));    // nouveau
-
-        // Assert — uniquement ex01-foo dans le delta.
-        var completed = await Task.WhenAny(
-            tcs.Task,
-            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
-        Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
-
-        var result = await tcs.Task;
-        Assert.Single(result.Changed);
-        Assert.Equal("ex01-foo", result.Changed[0].ExerciseId);
-    }
-
-    // ── Test 3 : Pas de faux positif ─────────────────────────────────────────
-
-    [Fact]
-    public async Task Start_ThenRewriteSameContent_NoEventFired()
-    {
-        // Arrange
-        var layout = CreateLayout();
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
-
-        await using var watcher = new ProgressFileWatcher(layout);
-        int eventCount = 0;
-        watcher.ResultReceived += _ => Interlocked.Increment(ref eventCount);
-
-        watcher.Start();
-
-        // Act — ré-écrire exactement le même contenu.
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
-
-        // Assert — attendre plus que le debounce pour s'assurer qu'aucun événement n'est parti.
-        await Task.Delay(600, TestContext.Current.CancellationToken);
-        Assert.Equal(0, Volatile.Read(ref eventCount));
-    }
-
-    // ── Test 4 : Debounce ─────────────────────────────────────────────────────
-
-    [Fact]
-    public async Task Start_FiveRapidSaves_SingleEventWithLastState()
-    {
-        // Arrange
-        var layout = CreateLayout();
-        await using var watcher = new ProgressFileWatcher(layout);
-        var received = new List<PushResult>();
-        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        watcher.ResultReceived += r =>
-        {
-            received.Add(r);
-            tcs.TrySetResult(true);
-        };
-
-        watcher.Start();
-
-        // Act — 5 sauvegardes rapprochées (intervalles < debounce de 250 ms).
-        for (int i = 1; i <= 5; i++)
-        {
-            WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, i));
-            await Task.Delay(30, TestContext.Current.CancellationToken); // rapide mais pas nul
-        }
-
-        // Assert — attendre la fin du debounce + marge.
-        var completed = await Task.WhenAny(
-            tcs.Task,
-            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
-        Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
-
-        // Laisser un peu plus de temps pour d'éventuels événements supplémentaires.
-        await Task.Delay(400, TestContext.Current.CancellationToken);
-
-        Assert.Single(received);
-        // Le dernier état (Attempts=5) doit être dans l'événement.
-        Assert.Equal(5, received[0].Changed[0].Attempts);
-    }
-
-    // ── Test 5 : Mapping Reussi ───────────────────────────────────────────────
-
-    [Fact]
-    public async Task Start_ThenWriteReussi_VerdictIsReussiWithCorrectAttempts()
-    {
-        // Arrange
-        var layout = CreateLayout();
-        await using var watcher = new ProgressFileWatcher(layout);
-        var tcs = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-        watcher.ResultReceived += r => tcs.TrySetResult(r);
-
-        watcher.Start();
-
-        // Act
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.Reussi, 2));
-
-        // Assert
-        var completed = await Task.WhenAny(
-            tcs.Task,
-            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
-        Assert.True(completed == tcs.Task, "ResultReceived non déclenché dans le délai imparti.");
-
-        var r2 = await tcs.Task;
-        var entry = r2.Changed[0];
-        Assert.Equal(PushVerdict.Reussi, entry.Verdict);
-        Assert.Equal(2, entry.Attempts);
-        Assert.NotNull(entry.LastAttempt);
-    }
-
-    // ── Test 6 : Dispose ─────────────────────────────────────────────────────
-
-    [Fact]
-    public async Task DisposeAsync_ThenWrite_NoEventFired()
-    {
-        // Arrange
-        var layout = CreateLayout();
-        var watcher = new ProgressFileWatcher(layout);
-        int eventCount = 0;
-        watcher.ResultReceived += _ => Interlocked.Increment(ref eventCount);
-        watcher.Start();
-
-        // Act — disposer avant d'écrire.
-        await watcher.DisposeAsync();
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
-
-        // Assert — attendre plus que le debounce.
-        await Task.Delay(600, TestContext.Current.CancellationToken);
-        Assert.Equal(0, Volatile.Read(ref eventCount));
-        // TempDir doit se nettoyer sans IOException.
-    }
-
-    // ── Test : Start() résilient à un progress.json verrouillé (#58) ───────────
-
-    [Fact]
-    public async Task Start_WhenProgressFileLocked_DoesNotThrow()
-    {
-        // Arrange — pré-écrire progress.json puis le verrouiller en exclusif (FileShare.None) :
-        // simule un fichier en cours d'écriture / verrouillé par un autre process.
-        var layout = CreateLayout();
-        WriteProgress(layout, ("ex00-hello", ExerciseStatus.ARevoir, 1));
-        using var locker = new FileStream(
-            layout.ProgressPath, FileMode.Open, FileAccess.Read, FileShare.None);
-
-        await using var watcher = new ProgressFileWatcher(layout);
-
-        // Act + Assert — auparavant l'IOException remontait jusqu'à PushResultPanel.OnInitialized et
-        // faisait planter la page ; LoadSafe l'absorbe désormais.
-        var ex = Record.Exception(() => watcher.Start());
-        Assert.Null(ex);
-    }
-
-    // ── Test 7 : Résultat riche absent → null (rétro-compat statut-only) ───────
-
-    [Fact]
-    public void LatestRichResult_WhenArtifactAbsent_ReturnsNull()
-    {
-        var layout = CreateLayout();
-        var watcher = new ProgressFileWatcher(layout);
-        Assert.Null(watcher.LatestRichResult());
-    }
-
-    // ── Test 8 : Résultat riche présent → document lu (diff/indice/cours) ──────
-
-    [Fact]
-    public void LatestRichResult_AfterArtifactWritten_ReturnsDocument()
-    {
-        var layout = CreateLayout();
-        var doc = new PushResultDocument(
+        var attemptedAt = DateTimeOffset.UtcNow;
+        var document = new PushResultDocument(
             new[]
             {
                 new PushExerciseResult(
-                    "ex00-hello", "00-setup", "ARevoir",
-                    new[] { new PushCaseResult("io", false, new[] { "Attendu : ok", "Obtenu  : non" }) },
-                    Hint: "Relis l'énoncé.",
-                    CourseRef: "cours.md#hello"),
+                    id,
+                    "00-setup",
+                    status,
+                    new[] { new PushCaseResult("io", status == "Reussi", new[] { "verdict" }) },
+                    Hint: null,
+                    CourseRef: null)
+                {
+                    Attempts = attempts,
+                    LastAttempt = attemptedAt,
+                },
             },
-            DateTimeOffset.UtcNow);
-        new LastPushResultStore(layout.LastPushResultPath).Save(doc);
+            attemptedAt)
+        {
+            PushId = pushId,
+        };
+        new LastPushResultStore(layout.LastPushResultPath).Save(document);
+        return document;
+    }
+
+    [Fact]
+    public async Task Start_ThenWritePushArtifact_FiresCorrelatedResult()
+    {
+        var layout = CreateLayout();
+        await using var watcher = new ProgressFileWatcher(layout);
+        var received = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        watcher.ResultReceived += result => received.TrySetResult(result);
+
+        watcher.Start();
+        var written = WritePush(layout, "ex00-hello", "ARevoir", 3, "push-1");
+
+        var result = await AwaitResult(received);
+        var entry = Assert.Single(result.Changed);
+        Assert.Equal("ex00-hello", entry.ExerciseId);
+        Assert.Equal(PushVerdict.ARevoir, entry.Verdict);
+        Assert.Equal(3, entry.Attempts);
+        Assert.Equal(written.Exercises[0].LastAttempt, entry.LastAttempt);
+        Assert.Same(result, watcher.LatestResult());
+        Assert.Equal("push-1", watcher.LatestRichResult()!.PushId);
+    }
+
+    [Fact]
+    public async Task ProgressOnlyWrite_DoesNotPretendToBeAPush()
+    {
+        var layout = CreateLayout();
+        await using var watcher = new ProgressFileWatcher(layout);
+        var eventCount = 0;
+        watcher.ResultReceived += _ => Interlocked.Increment(ref eventCount);
+        watcher.Start();
+
+        var progress = new CoreProgress();
+        progress.Exercises["ex00-hello"] = new ExerciseProgress
+        {
+            Status = ExerciseStatus.ARevoir,
+            Attempts = 1,
+        };
+        new ProgressStore(layout.ProgressPath).Save(progress);
+
+        await Task.Delay(700, TestContext.Current.CancellationToken);
+        Assert.Equal(0, Volatile.Read(ref eventCount));
+        Assert.Null(watcher.LatestResult());
+    }
+
+    [Fact]
+    public async Task ExistingArtifact_IsAbsorbed_ThenNewPushIsPublished()
+    {
+        var layout = CreateLayout();
+        WritePush(layout, "ex00", "Reussi", 1, "old-push");
+        await using var watcher = new ProgressFileWatcher(layout);
+        var received = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        watcher.ResultReceived += result => received.TrySetResult(result);
+
+        watcher.Start();
+        WritePush(layout, "ex01", "ARevoir", 1, "new-push");
+
+        var result = await AwaitResult(received);
+        Assert.Equal("ex01", Assert.Single(result.Changed).ExerciseId);
+    }
+
+    [Fact]
+    public async Task RewritingSamePushId_DoesNotPublishTwice()
+    {
+        var layout = CreateLayout();
+        var document = WritePush(layout, "ex00", "ARevoir", 1, "same-push");
+        await using var watcher = new ProgressFileWatcher(layout);
+        var eventCount = 0;
+        watcher.ResultReceived += _ => Interlocked.Increment(ref eventCount);
+        watcher.Start();
+
+        new LastPushResultStore(layout.LastPushResultPath).Save(document);
+
+        await Task.Delay(700, TestContext.Current.CancellationToken);
+        Assert.Equal(0, Volatile.Read(ref eventCount));
+    }
+
+    [Fact]
+    public async Task FiveRapidArtifacts_PublishOnlyLastCorrelatedDocument()
+    {
+        var layout = CreateLayout();
+        await using var watcher = new ProgressFileWatcher(layout);
+        var received = new List<PushResult>();
+        var signal = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        watcher.ResultReceived += result =>
+        {
+            lock (received)
+            {
+                received.Add(result);
+            }
+            signal.TrySetResult(result);
+        };
+        watcher.Start();
+
+        for (var index = 1; index <= 5; index++)
+        {
+            WritePush(layout, "ex00", "ARevoir", index, $"push-{index}");
+            await Task.Delay(30, TestContext.Current.CancellationToken);
+        }
+
+        var result = await AwaitResult(signal);
+        await Task.Delay(400, TestContext.Current.CancellationToken);
+        Assert.Equal(5, Assert.Single(result.Changed).Attempts);
+        lock (received)
+        {
+            Assert.Single(received);
+        }
+    }
+
+    [Theory]
+    [InlineData("Reussi", PushVerdict.Reussi)]
+    [InlineData("EnAttenteRelecture", PushVerdict.EnAttenteRelecture)]
+    public async Task RichStatus_IsMappedWithoutConsultingProgress(string status, PushVerdict expected)
+    {
+        var layout = CreateLayout();
+        await using var watcher = new ProgressFileWatcher(layout);
+        var received = new TaskCompletionSource<PushResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        watcher.ResultReceived += result => received.TrySetResult(result);
+        watcher.Start();
+
+        WritePush(layout, "ex00", status, 2, $"push-{status}");
+
+        Assert.Equal(expected, Assert.Single((await AwaitResult(received)).Changed).Verdict);
+    }
+
+    [Fact]
+    public async Task DisposeAsync_ThenWriteArtifact_DoesNotPublish()
+    {
+        var layout = CreateLayout();
+        var watcher = new ProgressFileWatcher(layout);
+        var eventCount = 0;
+        watcher.ResultReceived += _ => Interlocked.Increment(ref eventCount);
+        watcher.Start();
+        await watcher.DisposeAsync();
+
+        WritePush(layout, "ex00", "ARevoir", 1, "after-dispose");
+
+        await Task.Delay(700, TestContext.Current.CancellationToken);
+        Assert.Equal(0, Volatile.Read(ref eventCount));
+    }
+
+    [Fact]
+    public async Task Start_WhenArtifactLocked_DoesNotThrow()
+    {
+        var layout = CreateLayout();
+        WritePush(layout, "ex00", "ARevoir", 1, "locked");
+        using var locked = new FileStream(
+            layout.LastPushResultPath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.None);
+        await using var watcher = new ProgressFileWatcher(layout);
+
+        Assert.Null(Record.Exception(watcher.Start));
+    }
+
+    [Fact]
+    public void LatestRichResult_LoadsArtifactBeforeStart()
+    {
+        var layout = CreateLayout();
+        WritePush(layout, "ex00", "ARevoir", 1, "read-directly");
 
         var loaded = new ProgressFileWatcher(layout).LatestRichResult();
 
-        Assert.NotNull(loaded);
-        var ex = Assert.Single(loaded!.Exercises);
-        Assert.Equal("ex00-hello", ex.ExerciseId);
-        Assert.Equal("ARevoir", ex.Status);
-        Assert.Equal("cours.md#hello", ex.CourseRef);
-        Assert.Contains(ex.Cases, c => c.GraderType == "io" && !c.Passed);
+        Assert.Equal("read-directly", loaded!.PushId);
+        Assert.Equal("ex00", Assert.Single(loaded.Exercises).ExerciseId);
     }
+
+    private static async Task<PushResult> AwaitResult(TaskCompletionSource<PushResult> source)
+    {
+        var completed = await Task.WhenAny(
+            source.Task,
+            Task.Delay(EventTimeoutMs, TestContext.Current.CancellationToken));
+        Assert.Same(source.Task, completed);
+        return await source.Task;
+    }
+
+    private static string FindRepoRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Piscine.slnx")))
+        {
+            directory = directory.Parent;
+        }
+
+        return directory?.FullName ?? throw new DirectoryNotFoundException("Piscine.slnx introuvable.");
+    }
+
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    public async ValueTask DisposeAsync() => await Task.Run(_temp.Dispose);
 }

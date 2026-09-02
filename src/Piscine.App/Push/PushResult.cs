@@ -8,14 +8,14 @@ public enum PushVerdict
     EnAttenteRelecture,
 }
 
-/// <summary>Résultat de statut d'un exercice ayant changé depuis le dernier snapshot.</summary>
+/// <summary>Résultat de statut d'un exercice inclus dans le dernier rendu reçu.</summary>
 public record PushResultEntry(
     string ExerciseId,
     PushVerdict Verdict,
     int Attempts,
     DateTimeOffset? LastAttempt);
 
-/// <summary>Ensemble des exercices ayant changé lors d'un rendu <c>grade-received</c>.</summary>
+/// <summary>Ensemble des exercices corrigés lors d'un rendu <c>grade-received</c>.</summary>
 public record PushResult(
     IReadOnlyList<PushResultEntry> Changed,
     DateTimeOffset ObservedAt);

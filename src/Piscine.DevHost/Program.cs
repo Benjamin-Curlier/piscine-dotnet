@@ -78,7 +78,7 @@ builder.Services.AddSingleton(sp => new ProgressService(
 // Réinitialisation de la progression (tout / par module) — page Initialiser.
 builder.Services.AddSingleton(sp => new ProgressResetService(sp.GetRequiredService<PiscineLayout>()));
 
-// Surveillant push : observe progress.json et publie les delta vers /resultat.
+// Surveillant push : observe l'artefact dédié du hook et publie ses verdicts vers /resultat.
 builder.Services.AddSingleton<IPushResultWatcher>(sp =>
     new ProgressFileWatcher(sp.GetRequiredService<PiscineLayout>()));
 

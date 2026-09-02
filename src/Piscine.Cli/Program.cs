@@ -69,7 +69,7 @@ switch (command)
 
 static void PrintCommands()
 {
-    Console.WriteLine("Commandes : list | start <exo> | check <exo> | check --replay-last | try <exo> | status | profile | doctor | init | grade-received <sha> | review complete <rush> --evidence <référence> --attest | review reopen <rush> --evidence <raison> | validate-content | audit-content | package-content <src> <dest> | new exercise <module> <id>");
+    Console.WriteLine("Commandes : list | start <exo> | check <exo> | check --replay-last | try <exo> | status | profile | doctor | init | grade-received <old-sha> <new-sha> | review complete <rush> --evidence <référence> --attest | review reopen <rush> --evidence <raison> | validate-content | audit-content | package-content <src> <dest> | new exercise <module> <id>");
 }
 
 static void ListModules(PiscineLayout layout)
@@ -350,11 +350,14 @@ static int GradeReceived(PiscineLayout layout, string[] args)
 {
     if (args.Length < 2)
     {
-        Console.WriteLine("Usage : piscine grade-received <sha>");
+        Console.WriteLine("Usage : piscine grade-received <old-sha> <new-sha>");
         return 64;
     }
 
-    var result = new GradeReceivedCommand(layout, Graders.Default()).Run(args[1]);
+    // Compatibilité avec les hooks installés avant v5.1 : un seul SHA signifie « snapshot complet ».
+    var result = args.Length >= 3
+        ? new GradeReceivedCommand(layout, Graders.Default()).Run(args[2], args[1])
+        : new GradeReceivedCommand(layout, Graders.Default()).Run(args[1]);
     Console.WriteLine(result.Output);
     return result.ExitCode;
 }

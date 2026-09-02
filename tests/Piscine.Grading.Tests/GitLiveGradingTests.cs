@@ -172,6 +172,21 @@ public class GitLiveGradingTests
     }
 
     [Fact]
+    public void IsAttempted_DefaultHeadFile_InBareRepo_UsesSuppliedHeadRef()
+    {
+        using var dir = new TempDir();
+        var bare = BuildBareAfterPush(dir, "main", "feature");
+        System.IO.File.WriteAllText(System.IO.Path.Combine(bare, "HEAD"), "ref: refs/heads/nonexistent\n");
+        var attempt = new GitAttempt
+        {
+            File = new GitFileAssertion { Path = "feature.txt" },
+        };
+
+        Assert.False(GitAttemptEvaluator.IsAttempted(attempt, bare));
+        Assert.True(GitAttemptEvaluator.IsAttempted(attempt, bare, "main"));
+    }
+
+    [Fact]
     public void IsAttempted_InvalidRepo_ReturnsFalse()
     {
         using var dir = new TempDir();

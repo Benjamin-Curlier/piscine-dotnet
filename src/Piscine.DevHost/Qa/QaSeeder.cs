@@ -49,7 +49,7 @@ public static class QaSeeder
                 EnsureInitialized(layout);
                 SaveSingle(layout, FirstExerciseId(catalog), ExerciseStatus.ARevoir, attempts: 2);
                 // Artefact riche « échec » pour que le diff structuré (CheckFeedback) ait de quoi rendre
-                // sur /resultat à l'arrivée du delta (cf. SKILL : re-toucher progress.json après chargement).
+                // sur /resultat lorsque le document canonique du push est observé.
                 WriteRichResult(layout, catalog, success: false);
                 break;
 
@@ -159,17 +159,26 @@ public static class QaSeeder
                     }),
             };
 
+        var progress = new ProgressStore(layout.ProgressPath).Load();
+        progress.Exercises.TryGetValue(exerciseId, out var progressEntry);
         var exercise = new PushExerciseResult(
             ExerciseId: exerciseId,
             ModuleId: moduleId,
             Status: success ? "Reussi" : "ARevoir",
             Cases: cases,
             Hint: success ? null : "Vérifie la casse et la ponctuation exacte attendue.",
-            CourseRef: success ? null : "cours.md#hello");
+            CourseRef: success ? null : "cours.md#hello")
+        {
+            Attempts = progressEntry?.Attempts ?? 0,
+            LastAttempt = progressEntry?.LastAttempt,
+        };
 
         var document = new PushResultDocument(
             new[] { exercise },
-            new DateTimeOffset(2026, 6, 14, 9, 0, 0, TimeSpan.Zero)); // déterministe
+            new DateTimeOffset(2026, 6, 14, 9, 0, 0, TimeSpan.Zero)) // déterministe
+        {
+            PushId = $"qa-{(success ? "success" : "failure")}",
+        };
 
         new LastPushResultStore(layout.LastPushResultPath).Save(document);
     }
