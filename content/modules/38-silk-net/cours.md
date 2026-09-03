@@ -73,7 +73,8 @@ window.Run(); // boucle bloquante jusqu'à fermeture
 ```
 
 `Run()` **bloque** jusqu'à la fermeture de la fenêtre : c'est l'opposé du modèle console
-« lire/écrire puis terminer », et l'une des raisons pour lesquelles ce module n'est pas auto-noté.
+« lire/écrire puis terminer ». La moulinette peut inspecter les fichiers de shaders, mais elle ne
+peut pas valider cette boucle graphique réelle sans fenêtre ni GPU.
 
 ---
 
@@ -146,15 +147,16 @@ window.Load += () =>
 
 ---
 
-## 6. Pourquoi pas d'auto-notation ? {#non-determinisme}
+## 6. Ce que l'auto-notation ne peut pas prouver {#non-determinisme}
 
 - **Affichage requis** : pas de fenêtre ni de GPU en environnement *headless* / CI.
 - **Non déterministe** : la sortie est une **image** rendue par le pilote, variable selon le matériel
   et le pilote — pas un `stdout` comparable au caractère près.
 - **Temps réel** : la boucle dépend du `Δt` et du taux de rafraîchissement.
 
-Pour ces raisons, Silk.NET reste un module **guidé** : on évalue en regardant le résultat à l'écran,
-pas via la moulinette.
+La moulinette valide donc le contrat statique de `ex00-shaders` (présence et structure des deux
+shaders). L'atelier local complète ce garde-fou : lui seul permet d'observer la compilation GPU, la
+fenêtre, les entrées et l'image réellement produite.
 
 ---
 

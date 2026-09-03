@@ -38,6 +38,6 @@ grading:
 feedback:
   hints:
     - when: io_mismatch
-      message: "Constructeur privé + propriété statique Instance qui crée l'objet au premier accès (??=). Les deux boucles incrémentent la MÊME instance, donc le total est a + b."
+      message: "Constructeur privé + propriété statique auto-initialisée Instance. Les deux boucles incrémentent la MÊME instance, donc le total est a + b."
   course_ref: "cours.md#singleton"
 solution: [Compteur.cs]

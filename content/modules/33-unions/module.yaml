@@ -1,5 +1,5 @@
 id: 33-unions
-title: "Discriminated unions (hiérarchies scellées)"
+title: "Types somme avec des hiérarchies de records"
 order: 33
 prerequisites: [08-poo-2, 24-switch-patterns]
 arc: "Acte IV — Algorithmes et langage avancé"
@@ -7,5 +7,5 @@ mission: "Modéliser chaque résultat possible afin qu'aucun état métier ne re
 course: cours.md
 groups:
   - id: unions
-    title: "Types somme & pattern matching exhaustif"
+    title: "Types somme & pattern matching par variante"
     exercises: [ex00-forme, ex01-resultat, ex02-json, ex03-etat, ex04-expr]

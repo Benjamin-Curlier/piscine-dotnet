@@ -9,8 +9,8 @@ soit sur la même machine ou à l'autre bout du monde. On commencera par les fon
 **sockets**), puis on montera vers des outils plus simples et plus courants (**`HttpClient`**).
 
 > **Module mixte.** On **lit**, on **comprend**, et on pratique : la checklist de fin de cours
-> s'explore en local. L'exercice auto-noté (`ex00-httpclient-get`) porte sur la section 4 —
-> `HttpClient` — et est corrigé par le harnais HTTP du moteur.
+> s'explore en local. Les exercices auto-notés `ex00-httpclient-get` et `ex01-http-meteo` portent
+> sur la section 4 — `HttpClient` — et sont corrigés par le harnais HTTP du moteur.
 
 ## 1. Le modèle réseau en deux minutes
 
@@ -42,8 +42,9 @@ Une fois l'adresse et le port connus, il reste à choisir **comment** transporte
 grands protocoles existent :
 
 - **TCP** (*Transmission Control Protocol*) : c'est une communication **fiable** et **ordonnée**. On
-  établit d'abord une **connexion** (comme un coup de fil : on décroche, puis on parle). TCP garantit
-  que **tous** les octets arrivent, **dans le bon ordre**. Idéal pour le web, les fichiers, le chat.
+  établit d'abord une **connexion** (comme un coup de fil : on décroche, puis on parle). Les octets
+  reçus arrivent dans l'ordre et sans doublon ; si la connexion casse, l'application détecte
+  l'échec au lieu de supposer que son message est complet. Idéal pour le web, les fichiers, le chat.
 - **UDP** (*User Datagram Protocol*) : c'est l'envoi de petits messages indépendants (**datagrammes**),
   **sans connexion** préalable et **sans garantie** : un message peut se perdre ou arriver dans le
   désordre. En échange, c'est **léger et rapide**. Utilisé pour le jeu vidéo, la voix, la vidéo en
@@ -127,6 +128,11 @@ Décortiquons les points importants :
   l'encodage de texte standard).
 - **`ReadAsync` renvoie le nombre d'octets réellement lus.** Il faut l'utiliser : `tampon` fait peut-être
   1024 octets, mais le message n'en remplit que quelques-uns. On décode `nbLus` octets, pas 1024.
+
+> **TCP est un flux d'octets, pas une suite de messages.** Un seul `ReadAsync` lit seulement les
+> octets disponibles à cet instant : il peut recevoir une partie d'un message ou plusieurs messages
+> collés. L'exemple reste volontairement minimal. Un vrai protocole définit une frontière — longueur
+> en tête, délimiteur comme `\n`, ou fin de flux — puis lit en boucle jusqu'à cette frontière.
 
 ### Le client (côté client)
 
@@ -226,8 +232,8 @@ Remarque les différences avec TCP :
 ## 4. `HttpClient` : parler à des sites et des API web
 
 Les sockets, c'est la fondation. Mais dans la vraie vie, on consomme surtout des **API web** en
-**HTTP**, le protocole du web (au-dessus de TCP). Plutôt que de bricoler des octets, .NET fournit une
-classe haut niveau et confortable : **`HttpClient`**.
+**HTTP**, le protocole du web. HTTP/1.1 et HTTP/2 utilisent généralement TCP ; HTTP/3 utilise QUIC
+au-dessus d'UDP. `HttpClient` masque ces détails de transport et fournit une API haut niveau.
 
 ```csharp
 using System.Net.Http;
@@ -244,8 +250,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 var client = new HttpClient();
+client.DefaultRequestHeaders.UserAgent.ParseAdd("PiscineDotnet/1.0");
 
-// Récupère le corps de la réponse sous forme de chaîne.
+// L'API GitHub exige un en-tête User-Agent, ajouté ci-dessus.
 string contenu = await client.GetStringAsync("https://api.github.com/zen");
 Console.WriteLine(contenu);
 ```
@@ -352,15 +359,16 @@ Crée un petit projet console et essaie.
 3. Dans le `client`, recopie le code client (se connecte, envoie un message, affiche la réponse).
 4. **Lance d'abord le serveur**, puis le client (dans deux terminaux). Vérifie que le client reçoit bien
    l'écho de son message.
-5. Bidouille : change le message, fais répondre le serveur en MAJUSCULES (`message.ToUpper()`), gère
-   plusieurs lignes dans une boucle.
+5. Bidouille : change le message, fais répondre le serveur en MAJUSCULES (`message.ToUpper()`), puis
+   définis un protocole délimité par `\n` et lis plusieurs lignes en boucle (par exemple avec
+   `StreamReader`).
 
 **B. Une requête GET vers une API publique.**
 
 1. Dans un programme console, crée **un seul** `HttpClient`.
 2. Fais `await client.GetStringAsync(...)` vers une API publique simple, par exemple
-   `https://api.github.com/zen` (renvoie une courte phrase) ou un service de test comme
-   `https://httpbin.org/get`.
+   `https://api.github.com/zen` après avoir défini un en-tête `User-Agent`, ou un service de test
+   comme `https://httpbin.org/get`.
 3. Affiche la réponse. Observe que c'est du **texte** (souvent du **JSON**).
 4. Pour aller plus loin : récupère du JSON et désérialise-le en objet avec `GetFromJsonAsync<T>`
    (lien direct avec le module 16).

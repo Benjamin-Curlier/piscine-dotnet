@@ -14,7 +14,7 @@ System.Console.WriteLine(p.Nom);   // Alice
 
 class Personne
 {
-    public string Nom { get; set; }
+    public string Nom { get; set; } = string.Empty;
 }
 ```
 

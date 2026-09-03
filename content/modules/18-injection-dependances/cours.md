@@ -103,13 +103,16 @@ On n'a **jamais écrit `new Traitement(...)`**. Le conteneur a vu que `Traitemen
 
 ## 4. Les trois durées de vie {#durees-vie}
 
-Quand on enregistre un service, on choisit **combien de temps** une instance vit. Trois choix :
+Quand on enregistre un service, on choisit **quand son instance est réutilisée**. Trois choix :
 
-| Méthode | Durée de vie | Instance |
+| Méthode | Réutilisation | Instance |
 | --- | --- | --- |
-| `AddSingleton<T>()` | toute la vie de l'application | **une seule**, partagée |
-| `AddScoped<T>()` | la durée d'un *scope* (ex. une requête web) | une par scope |
-| `AddTransient<T>()` | aucune mémoire | **une nouvelle** à chaque résolution |
+| `AddSingleton<T>()` | dans tout le fournisseur de services | **une seule**, partagée |
+| `AddScoped<T>()` | dans un *scope* (ex. une requête web) | une par scope |
+| `AddTransient<T>()` | jamais réutilisée automatiquement | **une nouvelle** à chaque résolution |
+
+La durée de vie réelle d'un objet dépend aussi des références qui le retiennent. Le conteneur libère
+les services jetables (`IDisposable`) qu'il possède lors de la libération du scope ou du fournisseur.
 
 ```csharp
 using Microsoft.Extensions.DependencyInjection;

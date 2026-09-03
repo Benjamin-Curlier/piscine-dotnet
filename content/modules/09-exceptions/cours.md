@@ -13,7 +13,8 @@ la recherche de quelqu'un capable de **gérer** l'erreur. Si personne ne la gèr
 **plante** et affiche un message d'erreur.
 
 ```csharp
-var resultat = 10 / 0;   // lève une DivideByZeroException : le programme s'arrête
+var diviseur = 0;
+var resultat = 10 / diviseur;   // lève une DivideByZeroException à l'exécution
 ```
 
 L'idée n'est pas d'éviter toute exception, mais de **les attraper** là où on sait quoi faire.

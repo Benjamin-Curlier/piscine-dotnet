@@ -61,8 +61,10 @@ foreach (var animal in animaux)
 
 ## 4. Interfaces {#interface}
 
-Une **interface** décrit un **contrat** : une liste de méthodes, sans code. Une classe qui
-**implémente** l'interface s'engage à les fournir. Par convention, son nom commence par `I` :
+Une **interface** décrit un **contrat** de membres. Dans l'exemple suivant, elle déclare une méthode
+sans corps que chaque classe doit fournir. Les interfaces modernes peuvent aussi contenir des
+implémentations par défaut, mais nous n'en avons pas besoin ici. Par convention, leur nom commence
+par `I` :
 
 ```csharp
 interface IForme

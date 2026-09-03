@@ -1,6 +1,6 @@
 using System;
 
-// Une "union" : Forme ne peut être QUE Cercle, Rectangle ou Carre (hiérarchie scellée).
+// Une approximation de type somme : le programme prévoit trois variantes de Forme.
 var ligne = System.Console.ReadLine().Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
 
 Forme forme = ligne[0] switch
@@ -11,13 +11,13 @@ Forme forme = ligne[0] switch
     _ => throw new ArgumentException("forme inconnue")
 };
 
-// Le switch sur le TYPE est exhaustif : chaque variante a sa branche.
+// C# 14 ne ferme pas la base Forme : le cas de repli signale toute variante inattendue.
 var aire = forme switch
 {
     Cercle c => 3 * c.Rayon * c.Rayon,
     Rectangle r => r.Largeur * r.Hauteur,
     Carre ca => ca.Cote * ca.Cote,
-    _ => 0
+    _ => throw new ArgumentOutOfRangeException(nameof(forme))
 };
 
 System.Console.WriteLine(aire);

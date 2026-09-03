@@ -1,4 +1,4 @@
-# Module 23 — Design patterns : patrons GoF essentiels
+# Module 23 — Design patterns : patrons essentiels
 
 Un **design pattern** (patron de conception) est une **solution éprouvée** à un problème de
 conception qui revient souvent. Ce n'est pas du code à copier-coller, mais un **modèle** : une
@@ -8,14 +8,15 @@ dire « ici on utilise une *Factory* » résume une intention que toute l'équip
 Les 23 patrons popularisés par le livre du *Gang of Four* (GoF) se rangent en trois catégories :
 
 - **Création** : comment fabriquer des objets sans coupler le code à leurs classes concrètes
-  (ex. **Factory**, Singleton, Builder).
+  (ex. Factory Method, Singleton, Builder).
 - **Structure** : comment assembler classes et objets en structures plus grandes
   (ex. **Decorator**, Adapter, Composite).
 - **Comportement** : comment les objets communiquent et se répartissent les responsabilités
   (ex. **Strategy**, **Observer**, Command).
 
-Ce module détaille les trois patrons les plus utiles à un débutant : **Strategy**, **Factory** et
-**Observer**.
+Ce module pratique quatre notions utiles à un débutant : **Strategy**, une **fabrique simple**,
+**Observer** et **Decorator**. La fabrique simple est un idiome d'introduction ; elle ne doit pas
+être confondue avec le patron GoF **Factory Method**.
 
 > ⚠️ **Ne sur-architecturez pas** (principe *YAGNI* — *You Aren't Gonna Need It*). Un patron
 > résout un vrai problème ; l'appliquer « au cas où » ajoute de la complexité inutile. Apprenez à
@@ -56,11 +57,12 @@ System.Console.WriteLine(strategie.Appliquer(3, 4));   // 7
 
 Pour ajouter une `Soustraction`, on écrit une nouvelle classe : le code d'appel ne change pas.
 
-## 2. Factory {#factory}
+## 2. Fabrique simple (Simple Factory) {#factory}
 
-Le patron **Factory** (fabrique) **délègue la création d'objets** à un endroit unique. Le reste du
+Une **fabrique simple** centralise la **création d'objets** à un endroit unique. Le reste du
 programme demande « donne-moi l'objet du type X » sans faire `new` lui-même ni connaître la classe
-concrète.
+concrète. Contrairement au patron GoF **Factory Method**, cet exemple emploie une méthode statique et
+un choix direct, pas une méthode de création redéfinie par des sous-classes.
 
 ```
 "chien" ─┐
@@ -150,18 +152,20 @@ le modifier. (En C#, les `event` du langage reposent sur cette même idée.)
 
 > Rappel (module 06) : `List<>` exige `using System.Collections.Generic;`.
 
-## 4. Un mot sur Decorator {#decorator}
+## 4. Decorator {#decorator}
 
 Le patron **Decorator** (structure) **enveloppe** un objet dans un autre qui partage la même
 interface, pour lui **ajouter un comportement** sans modifier sa classe. Exemple typique : un flux
-de base qu'on enveloppe d'un flux compressé, puis chiffré. On ne le pratique pas ici, mais retenez
-l'idée : empiler des responsabilités par composition plutôt que par héritage.
+de base qu'on enveloppe d'un flux compressé, puis chiffré. L'exercice bonus applique cette idée à un
+texte : chaque option enveloppe le rendu précédent. On empile ainsi des responsabilités par
+composition plutôt que par héritage.
 
 ## Exercices du module
 
 - **[ex00-strategy](#strategy)** : encapsuler addition et multiplication derrière `IOperation`.
-- **[ex01-factory](#factory)** : une fabrique `AnimalFactory` qui crée `Chien`/`Chat`.
+- **[ex01-factory](#factory)** : une fabrique simple `AnimalFactory` qui crée `Chien`/`Chat`.
 - **[ex02-observer](#observer)** : un `Sujet` qui diffuse un message à deux observateurs.
+- **[ex03-decorator](#decorator)** *(bonus)* : composer des transformations qui enveloppent un texte.
 
 ## Références externes
 

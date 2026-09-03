@@ -1,7 +1,7 @@
 # Module 30 — Design patterns (suite)
 
-Le module 23 a introduit trois patrons « comportementaux » (Strategy, Factory, Observer). On
-poursuit ici avec cinq patrons parmi les plus utilisés au quotidien. Un **design pattern** n'est
+Le module 23 a introduit Strategy et Observer (comportementaux), une fabrique simple (création) et
+Decorator (structure). On poursuit ici avec cinq patrons parmi les plus utilisés au quotidien. Un **design pattern** n'est
 pas du code à copier : c'est une *solution éprouvée* à un problème récurrent de conception, qu'on
 adapte au contexte. Les connaître donne un vocabulaire commun (« mets un adaptateur », « fais-en
 un singleton ») et évite de réinventer des structures fragiles.
@@ -25,13 +25,16 @@ détient l'unique instance.
 ```csharp
 sealed class Compteur
 {
-    private static Compteur? _instance;
-    public static Compteur Instance => _instance ??= new Compteur();
+    public static Compteur Instance { get; } = new Compteur();
     private Compteur() { }
     public int Valeur { get; private set; }
     public void Incrementer() => Valeur++;
 }
 ```
+
+L'initialisation statique de .NET garantit ici une création unique, y compris si plusieurs threads
+accèdent à `Instance` en même temps. Une initialisation paresseuse écrite à la main avec `??=` ne
+fournirait pas cette garantie sans synchronisation.
 
 Tout appel à `Compteur.Instance` renvoie le **même** objet : un état modifié ici est visible
 partout. ⚠️ À utiliser avec parcimonie — un singleton est un état global déguisé, qui complique

@@ -9,10 +9,8 @@ System.Console.WriteLine(Compteur.Instance.Valeur);
 
 sealed class Compteur
 {
-    private static Compteur? _instance;
-
-    // Unique point d'accès : la même instance pour tout le programme.
-    public static Compteur Instance => _instance ??= new Compteur();
+    // Unique point d'accès, initialisé de façon sûre par le runtime .NET.
+    public static Compteur Instance { get; } = new Compteur();
 
     // Constructeur privé : personne ne peut faire `new Compteur()` ailleurs.
     private Compteur() { }

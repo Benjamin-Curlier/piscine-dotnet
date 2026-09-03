@@ -8,8 +8,10 @@ de raisonner sur cela — avant même d'exécuter le programme.
 
 ## 1. Notion de complexité Big O {#complexite}
 
-La notation **O(…)** décrit comment le **temps d'exécution** (ou la mémoire) d'un algorithme
-évolue en fonction de la taille **n** des données d'entrée, dans le cas le plus défavorable.
+La notation **O(…)** donne une **borne asymptotique supérieure** sur l'évolution du temps
+d'exécution (ou de la mémoire) en fonction de la taille **n**. Il faut préciser quelle situation on
+mesure : meilleur cas, cas moyen ou pire cas. Par convention, on annonce souvent le pire cas, mais
+ce n'est pas la définition de Big O.
 
 | Notation | Nom | Intuition |
 |---|---|---|

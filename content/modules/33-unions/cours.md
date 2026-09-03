@@ -1,16 +1,17 @@
-# Module 33 — Discriminated unions (hiérarchies scellées)
+# Module 33 — Types somme avec des hiérarchies de records
 
 Beaucoup de domaines se décrivent naturellement par « **soit** ceci, **soit** cela » : une forme
 est *soit* un cercle *soit* un rectangle ; un résultat est *soit* un succès *soit* une erreur ; un
 nœud d'arbre est *soit* une feuille *soit* une opération. C'est un **type somme**, aussi appelé
-**discriminated union**. C# n'a pas (encore) de mot-clé dédié, mais on l'exprime très bien avec une
-**hiérarchie scellée** de `record`.
+**discriminated union**. Dans la version de C# ciblée par ce parcours, il n'existe pas de type somme
+natif. On en construit une **approximation conventionnelle** avec une classe de base abstraite et
+des variantes sous forme de `record`.
 
 ---
 
 ## 1. Le principe {#union}
 
-Un type de base **abstrait** et un ensemble **fermé** de variantes :
+Un type de base **abstrait** et les variantes prévues par le modèle :
 
 ```csharp
 abstract record Forme;
@@ -21,9 +22,11 @@ sealed record Carre(int Cote) : Forme;
 
 - `abstract` : on ne crée jamais une `Forme` « générique », seulement une variante précise.
 - `record` : constructeur positionnel, égalité par valeur et **déconstruction** offerts.
-- `sealed` : personne ne peut dériver une variante → l'ensemble des cas est **fermé**.
+- `sealed` : personne ne peut spécialiser davantage `Cercle`, `Rectangle` ou `Carre`.
 
-Une valeur `Forme` est donc forcément l'un de ces trois cas, jamais autre chose.
+Attention : cela ne ferme pas la classe de base. Un autre fichier pourrait encore déclarer un
+nouveau `record Triangle : Forme`. Le caractère « fermé » du modèle repose donc ici sur une
+**convention de conception** et sur le contrôle du code qui déclare les variantes.
 
 ---
 
@@ -37,13 +40,14 @@ var aire = forme switch
     Cercle c => 3 * c.Rayon * c.Rayon,
     Rectangle r => r.Largeur * r.Hauteur,
     Carre ca => ca.Cote * ca.Cote,
-    _ => 0
+    _ => throw new ArgumentOutOfRangeException(nameof(forme))
 };
 ```
 
-Comme la hiérarchie est scellée, le compilateur **sait** que les cas listés couvrent tout (il
-avertit si on en oublie un). C'est l'**exhaustivité** : ajouter une variante plus tard fait
-ressortir tous les `switch` à compléter — une sécurité que les chaînes de `if` n'offrent pas.
+Le cas de repli reste nécessaire : en C# 14, le compilateur ne sait pas que ces trois variantes sont
+les seules autorisées. Le `throw` rend une variante inattendue visible au lieu de fabriquer une aire
+fausse. Lorsqu'on ajoute une variante, il faut rechercher et compléter les `switch` concernés ; les
+tests doivent couvrir cette évolution.
 
 ---
 
@@ -57,8 +61,9 @@ sealed record Succes(int Valeur) : Resultat;
 sealed record Erreur(string Message) : Resultat;
 ```
 
-L'appelant ne peut pas « oublier » de gérer l'erreur : elle est une variante du type, traitée dans
-le `switch`. C'est l'esprit des types `Result` de Rust ou `Either` de F#/Haskell.
+L'erreur devient une donnée explicite que l'appelant peut traiter dans le `switch`, plutôt qu'un
+`null` ambigu. Le compilateur exige néanmoins toujours un cas de repli pour cette hiérarchie
+ouverte. C'est l'esprit des types `Result` de Rust ou `Either` de F#/Haskell.
 
 ---
 
@@ -119,8 +124,8 @@ renvoie sa valeur. C'est ainsi que fonctionnent compilateurs et interpréteurs.
 
 ## 7. En pratique
 
-- Union = `abstract record` + `sealed record` par variante.
-- Préfère le `switch` exhaustif aux cascades de `if`/`is` : le compilateur t'aide.
+- Approximation d'une union = `abstract record` + un `sealed record` par variante prévue.
+- Préfère un `switch` lisible avec un cas de repli explicite aux cascades de `if`/`is`.
 - Modélise l'**impossible comme inexprimable** : moins de cas nuls, moins de bugs.
 
 ### Exercices du module

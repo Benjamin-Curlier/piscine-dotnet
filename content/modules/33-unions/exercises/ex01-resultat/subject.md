@@ -17,7 +17,7 @@ Exemples : `10/2` → `OK 5` ; `9/0` → `ERR division par zero`.
 
 ## Contraintes
 
-- Union `Succes | Erreur` via hiérarchie scellée.
+- Base abstraite `Resultat` et variantes scellées `Succes | Erreur`.
 - Aucune exception pour gérer la division par zéro : c'est une **variante** du résultat.
 
 ## Indices

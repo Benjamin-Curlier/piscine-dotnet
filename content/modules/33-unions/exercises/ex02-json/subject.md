@@ -18,7 +18,7 @@ Exemples : `nombre 42` → `42` ; `texte bonjour` → `"bonjour"` ; `booleen vra
 
 ## Contraintes
 
-- Union `Nombre | Texte | Booleen` via hiérarchie scellée.
+- Base abstraite et variantes scellées `Nombre | Texte | Booleen`.
 - Utilise la **déconstruction** dans le pattern matching.
 
 ## Indices

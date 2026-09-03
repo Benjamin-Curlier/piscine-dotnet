@@ -53,4 +53,6 @@ git push origin --all
   laisse jamais les marqueurs `<<<<<<<` dans un fichier.
 
 > Pas de livrable de code : c'est ton **historique git** qui est évalué. Reporte-toi au cours
-> (sections [branches](cours.md#branches), [merge](cours.md#merge), [conflits](cours.md#conflits)).
+> (sections [branches](/module/05-git-intermediaire#branches),
+> [merge](/module/05-git-intermediaire#merge) et
+> [conflits](/module/05-git-intermediaire#conflits)).
