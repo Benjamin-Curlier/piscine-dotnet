@@ -50,4 +50,4 @@ git push origin --all
 - Résoudre = obtenir le **texte final voulu** puis **retirer les trois marqueurs**. Le fichier doit
   redevenir un fichier normal.
 - Paniqué au milieu d'un merge ? `git merge --abort` remet tout comme avant, tu peux recommencer.
-- Reporte-toi au cours, section [conflits](cours.md#conflits).
+- Reporte-toi au cours, section [conflits](/module/05-git-intermediaire#conflits).

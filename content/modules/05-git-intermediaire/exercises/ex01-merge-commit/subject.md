@@ -56,4 +56,4 @@ git push origin --all
   séparation. Si tu oublies le commit sur `main`, tu obtiendras une simple avance rapide (pas de commit
   de merge).
 - Visualise le « Y » de la fusion : `git log --oneline --graph --all`.
-- Reporte-toi au cours, section [merge](cours.md#merge) (partie « commit de merge »).
+- Reporte-toi au cours, section [merge](/module/05-git-intermediaire#merge) (partie « commit de merge »).

@@ -133,8 +133,9 @@ f = g + h
 
 où `h` est l'heuristique (distance de Manhattan jusqu'à l'arrivée). Intuitivement, A\* préfère
 explorer les cases qui *semblent* rapprocher du but, au lieu de s'étaler dans toutes les
-directions. Résultat : il visite beaucoup moins de cases que Dijkstra, **pour le même chemin
-optimal** — à condition que `h` soit admissible.
+directions. Selon la carte, l'heuristique et la façon de départager les égalités, il peut visiter
+moins de cases que Dijkstra tout en trouvant un chemin optimal si `h` est admissible. Avec `h = 0`,
+A\* se comporte comme Dijkstra et n'apporte aucun guidage supplémentaire.
 
 ```csharp
 using System.Collections.Generic;

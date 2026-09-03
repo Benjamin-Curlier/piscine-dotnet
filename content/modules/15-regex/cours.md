@@ -69,8 +69,8 @@ Un motif mélange des caractères **littéraux** (qui se représentent eux-même
 
 | Symbole | Signifie |
 |---|---|
-| `\d` | un chiffre (0–9) |
-| `\w` | un caractère « de mot » (lettre, chiffre ou `_`) |
+| `\d` | un chiffre décimal Unicode (`\p{Nd}`) |
+| `\w` | un caractère de « mot » Unicode (lettre, chiffre, marque ou connecteur comme `_`) |
 | `\s` | un espace blanc (espace, tabulation, retour ligne) |
 | `+` | une ou plusieurs fois l'élément précédent |
 | `*` | zéro ou plusieurs fois |
@@ -81,12 +81,15 @@ Un motif mélange des caractères **littéraux** (qui se représentent eux-même
 
 Quelques exemples :
 
-- `^\d+$` : du **début** à la **fin**, uniquement des chiffres → « que des chiffres ».
+- `^\d+$` : du **début** à la **fin**, uniquement des chiffres décimaux Unicode.
 - `\d+` (sans `^` ni `$`) : un groupe de chiffres **où qu'il soit** dans le texte.
 - `[^@\s]+` : un ou plusieurs caractères qui ne sont ni `@` ni un espace.
 
+> En .NET, `\d` accepte aussi des chiffres tels que `١٢٣`. Si un format exige strictement les
+> caractères ASCII `0` à `9`, écris `[0-9]` à la place.
+
 > **`^` et `$` sont essentiels pour valider.** Sans eux, `\d+` accepte `"45a"` (il y trouve `45`).
-> Avec `^\d+$`, on exige que **toute** la chaîne soit des chiffres.
+> Avec `^\d+$`, on exige que **toute** la chaîne soit composée de chiffres décimaux Unicode.
 
 ## 4. Groupes (mention)
 
@@ -125,7 +128,8 @@ options existent pour le code à fort débit.
 - **[ex02-email](#email)** : reconnaître une adresse email simple.
 
 #### correspond {#correspond}
-Lis N puis N lignes ; affiche `oui` si la ligne ne contient que des chiffres (`^\d+$`), sinon `non`.
+Lis N puis N lignes ; affiche `oui` si la ligne ne contient que des chiffres décimaux Unicode
+(`^\d+$`), sinon `non`.
 
 #### extraire {#extraire}
 Lis une ligne ; affiche chaque groupe de chiffres (`\d+`) sur sa propre ligne.

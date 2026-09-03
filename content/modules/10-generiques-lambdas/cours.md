@@ -102,11 +102,13 @@ using System;
 using System.Collections.Generic;
 
 var nombres = new List<int> { 3, 1, 2 };
-nombres.Sort((a, b) => a - b);                 // tri croissant via une lambda
+nombres.Sort((a, b) => a.CompareTo(b));        // tri croissant, sans risque de débordement
 var pairs = nombres.FindAll(x => x % 2 == 0);  // garde les pairs (prédicat)
 ```
 
-La lambda passée à `Sort` ou `FindAll` est exactement un `Func<>` comme ceux vus plus haut.
+La même syntaxe lambda construit ici des délégués compatibles avec l'API : `Sort` attend un
+`Comparison<int>` et `FindAll` un `Predicate<int>`. Une lambda peut aussi être convertie en
+`Func<>` lorsque c'est le type attendu.
 
 ### Exercices du module
 

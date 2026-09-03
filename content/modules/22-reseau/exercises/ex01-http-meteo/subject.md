@@ -46,4 +46,4 @@ Oslo : -4°C (humidité 88%)
   `new JsonSerializerOptions { PropertyNameCaseInsensitive = true }` pour faire correspondre les noms.
 - Formate ensuite la chaîne avec `System.Console.Write(...)` (pas de `WriteLine` : aucune ligne en trop).
 - Tu peux aussi utiliser `GetFromJsonAsync<T>` (`using System.Net.Http.Json;`) — au choix.
-- Relis la section 4 du cours ([HttpClient](cours.md#httpclient-get)) et le module 16 pour le JSON.
+- Relis la section 4 du cours ([HttpClient](/module/22-reseau#httpclient-get)) et le module 16 pour le JSON.

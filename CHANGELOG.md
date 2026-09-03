@@ -4,6 +4,36 @@ Toutes les versions notables de la **Piscine .NET**. Format inspiré de
 [Keep a Changelog](https://keepachangelog.com/fr/) ; versionnement [SemVer](https://semver.org/lang/fr/).
 Le tag git est l'unique source de vérité (cf. [docs/deploiement.md](docs/deploiement.md)).
 
+## [v5.0.2] — 2026-09-03
+
+Version corrective consacrée à l'exactitude technique des cours et à leur cohérence avec les
+exercices, les solutions de référence et les capacités réelles de la moulinette.
+
+### Corrigé
+
+- **C# et CLR** : les types somme sont présentés comme une convention de modélisation en C# 14,
+  avec un cas de repli explicite ; les explications sur `readonly struct`, les interfaces, les
+  lambdas de comparaison, les exceptions et les regex Unicode sont rectifiées.
+- **Réseau et concurrence** : le cours distingue le flux TCP des messages applicatifs, précise les
+  transports de HTTP, ajoute le `User-Agent` requis par GitHub et qualifie l'ordre garanti par les
+  canaux en présence de plusieurs producteurs.
+- **Algorithmique** : Big O n'est plus assimilé au seul pire cas ; les limites des décalages
+  binaires et le comportement comparé d'A\* et de Dijkstra sont explicités.
+- **Conception** : Simple Factory est distinguée de Factory Method, l'exercice Decorator est
+  réintégré au cours et l'exemple Singleton utilise l'initialisation statique sûre de .NET.
+- **Interfaces et navigation** : les modes de rendu Blazor et les limites des validations statiques
+  Blazor/Silk.NET sont clarifiés ; sept liens depuis les sujets vers leurs sections de cours sont
+  réparés.
+
+### Validation de la release
+
+- Build Release : **0 avertissement, 0 erreur**.
+- Tests : **575** découverts, **574 réussis**, **1 smoke Desktop conditionnel** ignoré faute
+  d'affichage interactif.
+- `validate-content` : contenu valide ; audit pédagogique déterministe : aucune alerte.
+
+---
+
 ## [v5.0.1] — 2026-09-02
 
 Version corrective consacrée à la fiabilité du rendu, à la cohérence du terminal et aux garde-fous
@@ -492,6 +522,9 @@ C#/.NET et plateformes & architecture), et déblocage de modules restés en atte
 
 - Amorçage du moteur et de la structure de contenu.
 
+[v5.0.2]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v5.0.2
+[v5.0.1]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v5.0.1
+[v5.0.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v5.0.0
 [v4.2.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v4.2.0
 [v4.1.0]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v4.1.0
 [v4.0.2]: https://github.com/Benjamin-Curlier/piscine-dotnet/releases/tag/v4.0.2

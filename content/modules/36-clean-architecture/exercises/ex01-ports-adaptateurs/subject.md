@@ -78,7 +78,7 @@ Retour OK : Dune
 - Dans `Program`, **une seule ligne** câble le tout :
   `new Bibliotheque(new DepotMemoire(), new NotificateurConsole())`. Si tu écris `new DepotMemoire()` ou
   `new NotificateurConsole()` ailleurs que dans `Program`, tu casses la règle de dépendance.
-- Reporte-toi au cours, section [ports & adaptateurs](cours.md#ports-adaptateurs).
+- Reporte-toi au cours, section [ports & adaptateurs](/module/36-clean-architecture#ports-adaptateurs).
 
 ## Livrables
 

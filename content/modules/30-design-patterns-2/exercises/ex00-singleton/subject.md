@@ -22,8 +22,9 @@ Exemple : `3` puis `5` → `8`.
 
 ## Indices
 
-- Champ statique privé `_instance` + propriété `public static Compteur Instance => _instance ??= new Compteur();`
-  (`??=` crée l'objet au premier accès, puis renvoie toujours le même).
+- Propriété statique auto-initialisée :
+  `public static Compteur Instance { get; } = new Compteur();`. L'initialisation statique de .NET
+  garantit une instance unique même en présence de plusieurs threads.
 - La `Valeur` a un setter privé ; seule la méthode `Incrementer()` la modifie.
 - Comme les deux boucles passent par `Compteur.Instance`, elles agissent sur le même objet — c'est
   tout l'intérêt du singleton.

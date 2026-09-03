@@ -50,9 +50,10 @@ System.Console.WriteLine(1 << 4);   // 1 devient 10000 = 16
 System.Console.WriteLine(8 >> 1);   // 1000 devient 100 = 4
 ```
 
-Effet à retenir : décaler à gauche de 1 bit **multiplie par 2**, décaler à droite de 1 bit
-**divise par 2** (division entière). Décaler de `k` bits revient donc à multiplier/diviser par
-`2^k`.
+Pour une valeur **non négative**, décaler à gauche de `k` bits revient à multiplier par `2^k` tant
+qu'aucun bit significatif n'est perdu par débordement ; décaler à droite revient à prendre la partie
+entière de la division par `2^k`. Pour les entiers signés négatifs, le décalage à droite propage le
+bit de signe et ne se comporte pas toujours comme la division C#, qui arrondit vers zéro.
 
 ## 4. Masques : tester ou positionner un bit {#compte-bits}
 

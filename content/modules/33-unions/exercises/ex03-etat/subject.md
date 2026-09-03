@@ -34,7 +34,7 @@ termine: ok
 
 ## Contraintes
 
-- Union scellée où chaque variante déclare exactement les données qui la concernent.
+- Base abstraite avec des variantes scellées, chacune déclarant exactement les données qui la concernent.
 - Décide la transition à partir de l'état courant **et** de la commande ; n'utilise pas une suite
   de drapeaux booléens.
 

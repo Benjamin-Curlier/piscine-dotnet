@@ -107,7 +107,9 @@ Une **Blazor Web App** unifie plusieurs **modes de rendu**, choisis par page ou 
   temps réel (SignalR). Léger à charger, nécessite la connexion.
 - **Interactive WebAssembly** : le composant s'exécute **dans le navigateur** (.NET compilé en WASM) ;
   fonctionne hors-ligne après chargement.
-- **Interactive Auto** : Server au premier chargement, puis bascule WebAssembly une fois téléchargé.
+- **Interactive Auto** : utilise Server lors de la première visite pendant que les ressources
+  WebAssembly se téléchargent et se mettent en cache ; lors d'une visite suivante, le composant peut
+  démarrer en WebAssembly. Un composant déjà lancé ne change pas de mode en cours de session.
 
 > ⚠️ **Static SSR est le mode par défaut.** En Blazor Web App (.NET 8+), un composant est rendu en
 > HTML statique tant que tu n'as pas **choisi un mode interactif**. Sans interactivité, `@onclick`,
@@ -119,16 +121,17 @@ Une **Blazor Web App** unifie plusieurs **modes de rendu**, choisis par page ou 
 S'y ajoutent le **streaming rendering** (envoyer le HTML au fur et à mesure) et la **navigation
 améliorée**. Le bon mode dépend du compromis latence / interactivité / charge serveur.
 
-## 6. Pourquoi pas d'auto-notation ? {#non-determinisme}
+## 6. Ce que l'auto-notation ne peut pas prouver {#non-determinisme}
 
 - **C'est un serveur web** : il faut héberger l'appli (Kestrel) et un **navigateur** pour voir le DOM.
 - **Sortie = DOM**, pas un `stdout` : la comparer demande un harnais headless (type bUnit / Playwright),
   hors du modèle « console déterministe » de la moulinette.
-- Le rendu `.razor` passe par un **générateur de source** au build, que le correcteur in-process
-  n'exécute pas.
+- La compilation et le rendu `.razor` complets passent par la chaîne de build Blazor, que le
+  correcteur statique n'exécute pas.
 
-Pour ces raisons, Blazor reste un module **guidé** : on évalue en regardant l'appli tourner dans le
-navigateur. *(Un harnais web dédié pourra venir plus tard, hors moulinette console.)*
+La moulinette valide donc le **contrat statique** des petits composants des exercices : directives,
+liaisons et fragments attendus. Elle ne prouve ni le DOM rendu, ni l'accessibilité, ni l'interaction
+réelle. L'exécution locale dans un navigateur complète cette vérification déterministe.
 
 ## 7. À pratiquer (sur ta machine) {#pratique}
 

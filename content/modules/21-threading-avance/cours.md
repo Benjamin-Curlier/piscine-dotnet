@@ -50,8 +50,9 @@ System.Threading.Tasks.Parallel.For(0, 5, i =>
 
 `Parallel.ForEach` fait la même chose sur une collection. **Attention** : l'ordre d'exécution
 n'est **pas garanti**. Pour obtenir un résultat déterministe, il faut soit une opération
-indépendante de l'ordre (comme une somme), soit une synchronisation, soit une structure FIFO
-(voir la section Channel).
+indépendante de l'ordre (comme une somme), soit enregistrer les résultats avec leur indice puis les
+remettre en ordre. Une structure FIFO ne peut conserver que l'ordre dans lequel elle reçoit les
+écritures ; elle ne rend pas déterministe l'ordonnancement de producteurs concurrents.
 
 ## 4. Synchronisation : lock {#lock}
 
@@ -124,8 +125,10 @@ Points clés :
 - `Writer.WriteAsync(x)` ajoute une valeur ; `Writer.Complete()` indique « plus rien à venir ».
 - `Reader.ReadAllAsync()` se parcourt avec `await foreach` et se termine **automatiquement** quand
   le canal est complété.
-- Le canal est **FIFO** : l'ordre de lecture = l'ordre d'écriture, donc la sortie est
-  **déterministe** même si producteur et consommateur tournent en parallèle.
+- Le canal est **FIFO** : avec le producteur séquentiel ci-dessus, l'ordre de lecture est l'ordre
+  d'écriture, donc la sortie vaut toujours `4`, puis `6`. Avec plusieurs producteurs concurrents,
+  l'ordre dans lequel leurs écritures sont acceptées dépend de l'ordonnancement ; il faut les
+  sérialiser ou transporter un indice si l'ordre métier doit être déterministe.
 
 ## 7. Conseil : préférer les abstractions de haut niveau
 

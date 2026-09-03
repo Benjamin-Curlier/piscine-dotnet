@@ -137,10 +137,12 @@ L'original `p` est inchangé : l'immutabilité est préservée.
 
 ---
 
-## 5. `readonly struct` — valeur immuable sur la pile {#readonly-struct}
+## 5. `readonly struct` — type valeur non modifiable {#readonly-struct}
 
-Un `readonly struct` est une structure (`struct`) dont tous les champs sont en lecture seule.
-La valeur vit sur la **pile** (stack), ce qui évite les allocations sur le tas.
+Un `readonly struct` est une structure (`struct`) dont l'état d'instance ne peut pas être modifié
+après sa construction. C'est un **type valeur**, mais cela ne signifie pas « toujours sur la pile » :
+son emplacement dépend du contexte. Une variable locale peut ne nécessiter aucune allocation objet
+distincte ; un champ ou un élément de tableau vit dans son conteneur, et le *boxing* alloue sur le tas.
 
 ```csharp
 readonly struct Vecteur
