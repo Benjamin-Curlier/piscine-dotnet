@@ -17,8 +17,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
     <PackageReference Include="LibGit2Sharp" Version="0.32.0" />
-    <PackageReference Include="xunit.v3.assert" Version="4.0.0" />
-    <PackageReference Include="xunit.v3.extensibility.core" Version="4.0.0" />
+    <PackageReference Include="xunit.v3.assert" Version="4.0.1" />
+    <PackageReference Include="xunit.v3.extensibility.core" Version="4.0.1" />
   </ItemGroup>
 
   <!-- Assemblies de RÉFÉRENCE pour compiler/exécuter le code recrue (mêmes raisons que xunit.* ci-dessus,
@@ -30,9 +30,9 @@
        fini la divergence CLI ↔ Desktop (M-3). SQLitePCLRaw épinglé (SQLite patché) pour lever
        l'advisory transitif NU1903 / GHSA-2m69-gcr7-jv3q sans désactiver l'audit. -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="10.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="10.10.0" />
     <PackageReference Include="Grpc.Core.Api" Version="2.83.0" />
   </ItemGroup>
 
